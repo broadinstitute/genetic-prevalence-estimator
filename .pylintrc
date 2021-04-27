@@ -1,0 +1,14 @@
+[MASTER]
+load-plugins=pylint_django
+
+django-settings-module=website.settings.base
+
+[MESSAGES_CONTROL]
+disable=
+  bad-continuation,  # conflicts with Black formatting
+  line-too-long,     # conflicts with Black formatting
+  duplicate-code,
+  missing-docstring
+
+[MISCELLANEOUS]
+notes=FIXME,TODO

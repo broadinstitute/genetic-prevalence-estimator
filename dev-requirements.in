@@ -1,0 +1,8 @@
+black
+pip-tools
+pylint
+pylint-django
+pytest
+pytest-cov
+pytest-django
+wheel

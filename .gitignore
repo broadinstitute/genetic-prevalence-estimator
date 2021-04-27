@@ -1,0 +1,14 @@
+# Generated files
+__pycache__
+*.egg-info
+.coverage
+htmlcov
+
+# pyenv
+.python-version
+
+# dev environment
+.env
+
+# dev database
+*.sqlite3
