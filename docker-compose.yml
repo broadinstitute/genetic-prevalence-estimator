@@ -1,0 +1,54 @@
+services:
+  database:
+    image: postgres:13.1
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  website:
+    build:
+      context: .
+      dockerfile: website/website.dockerfile
+    command: django-admin runserver website:8080
+    environment:
+      - DJANGO_SETTINGS_MODULE=website.settings.development
+      - SECRET_KEY
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_DATABASE
+      - DB_USER
+      - DB_PASSWORD
+      - PORT=8080
+    ports:
+      - 127.0.0.1:8080:8080
+    volumes:
+      - ./website/src/website:/app/website/src/website
+    depends_on:
+      - database
+  worker:
+    build:
+      context: .
+      dockerfile: worker/worker.dockerfile
+    command: django-admin runserver worker:8080
+    environment:
+      - DJANGO_SETTINGS_MODULE=worker.settings.development
+      - SECRET_KEY
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_DATABASE
+      - DB_USER
+      - DB_PASSWORD
+      - ALLOWED_HOSTS=localhost,worker
+      - PORT=8080
+    ports:
+      - 127.0.0.1:8081:8080
+    volumes:
+      - ./worker/src/worker:/app/worker/src/worker
+    depends_on:
+      - database
+volumes:
+  postgres_data:

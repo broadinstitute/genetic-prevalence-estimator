@@ -1,0 +1,12 @@
+*
+
+!shared-requirements.txt
+
+!calculator/setup.py
+!calculator/src/calculator
+calculator/src/calculator/**/__pycache__
+
+!website/website-requirements.txt
+!website/setup.py
+!website/src/website
+website/src/website/**/__pycache__

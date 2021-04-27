@@ -1,0 +1,12 @@
+*
+
+!shared-requirements.txt
+
+!calculator/setup.py
+!calculator/src/calculator
+calculator/src/calculator/**/__pycache__
+
+!worker/worker-requirements.txt
+!worker/setup.py
+!worker/src/worker
+worker/src/worker/**/__pycache__
