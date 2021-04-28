@@ -1,4 +1,12 @@
 services:
+  frontend-tests:
+    build:
+      context: .
+      dockerfile: frontend/frontend-dev.dockerfile
+    command: npm test
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
   website-pylint:
     build:
       context: .
