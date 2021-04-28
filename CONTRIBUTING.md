@@ -2,6 +2,18 @@
 
 ## Setting up a development environment
 
+- Install development tools.
+
+  ```
+  python3 -m pip install -r dev-requirements.txt
+  ```
+
+- Install pre-commit hooks.
+
+  ```
+  python3 -m pre_commit install
+  ```
+
 ## Running in Docker
 
 This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) is enabled.

@@ -1,5 +1,6 @@
 black
 pip-tools
+pre-commit
 pylint
 pylint-django
 pytest
