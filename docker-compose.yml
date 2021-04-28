@@ -7,6 +7,15 @@ services:
       - POSTGRES_DB=${DB_DATABASE}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/frontend-dev.dockerfile
+    ports:
+      - 127.0.0.1:3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
   website:
     build:
       context: .
@@ -21,11 +30,14 @@ services:
       - DB_DATABASE
       - DB_USER
       - DB_PASSWORD
+      - ALLOWED_HOSTS=localhost,website
       - PORT=8080
     ports:
       - 127.0.0.1:8080:8080
     volumes:
       - ./website/src/website:/app/website/src/website
+      - /app/website/src/website/static
+      - /app/website/src/website/templates/frontend
     depends_on:
       - database
   worker:

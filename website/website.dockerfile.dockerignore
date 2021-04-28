@@ -10,3 +10,7 @@ calculator/src/calculator/**/__pycache__
 !website/setup.py
 !website/src/website
 website/src/website/**/__pycache__
+
+!frontend
+frontend/build
+frontend/node_modules

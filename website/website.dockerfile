@@ -1,3 +1,14 @@
+FROM node:14.16.1
+
+WORKDIR /app
+
+COPY frontend/package.json ./package.json
+RUN npm install
+
+COPY frontend ./
+
+RUN npm run build
+
 FROM python:3.9-slim
 
 RUN useradd --create-home app
@@ -22,6 +33,9 @@ RUN pip install -e calculator
 
 COPY website ./website
 RUN pip install -e website
+
+COPY --from=0 /app/build/index.html ./website/src/website/templates/frontend/index.html
+COPY --from=0 /app/build/static ./website/src/website/static
 
 # Run as app user
 RUN chown -R app .
