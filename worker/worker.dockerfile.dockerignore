@@ -10,3 +10,6 @@ calculator/src/calculator/**/__pycache__
 !worker/setup.py
 !worker/src/worker
 worker/src/worker/**/__pycache__
+
+!.pylintrc
+!dev-requirements.txt

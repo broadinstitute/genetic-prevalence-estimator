@@ -14,3 +14,6 @@ website/src/website/**/__pycache__
 !frontend
 frontend/build
 frontend/node_modules
+
+!.pylintrc
+!dev-requirements.txt

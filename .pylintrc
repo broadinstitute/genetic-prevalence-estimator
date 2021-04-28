@@ -1,8 +1,6 @@
 [MASTER]
 load-plugins=pylint_django
 
-django-settings-module=website.settings.base
-
 [MESSAGES_CONTROL]
 disable=
   bad-continuation,  # conflicts with Black formatting

@@ -1,4 +1,7 @@
-FROM python:3.9-slim
+###############################################################################
+# Base image
+###############################################################################
+FROM python:3.9-slim as base
 
 RUN useradd --create-home app
 
@@ -29,4 +32,19 @@ USER app
 
 # Run
 ENV DJANGO_SETTINGS_MODULE=worker.settings.base
+
+###############################################################################
+# Development image
+###############################################################################
+FROM base as development
+
+COPY .pylintrc ./.pylintrc
+COPY dev-requirements.txt ./dev-requirements.txt
+RUN pip install --no-cache-dir -r ./dev-requirements.txt
+
+###############################################################################
+# Production image
+###############################################################################
+FROM base as production
+
 CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 worker.wsgi

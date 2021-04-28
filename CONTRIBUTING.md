@@ -47,3 +47,11 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   ```
   docker compose up
   ```
+
+## Running tasks in Docker
+
+Development tasks such as Pylint, etc. are defined in `docker-compose.dev.yml`.
+
+```
+docker compose -f docker-compose.dev.yml run --rm website-pylint
+```

@@ -1,4 +1,7 @@
-FROM node:14.16.1
+###############################################################################
+# Frontend build
+###############################################################################
+FROM node:14.16.1 as frontend
 
 WORKDIR /app
 
@@ -9,7 +12,10 @@ COPY frontend ./
 
 RUN npm run build
 
-FROM python:3.9-slim
+###############################################################################
+# Base image
+###############################################################################
+FROM python:3.9-slim as base
 
 RUN useradd --create-home app
 
@@ -34,8 +40,8 @@ RUN pip install -e calculator
 COPY website ./website
 RUN pip install -e website
 
-COPY --from=0 /app/build/index.html ./website/src/website/templates/frontend/index.html
-COPY --from=0 /app/build/static ./website/src/website/static
+COPY --from=frontend /app/build/index.html ./website/src/website/templates/frontend/index.html
+COPY --from=frontend /app/build/static ./website/src/website/static
 
 # Run as app user
 RUN chown -R app .
@@ -43,4 +49,19 @@ USER app
 
 # Run
 ENV DJANGO_SETTINGS_MODULE=website.settings.base
+
+###############################################################################
+# Development image
+###############################################################################
+FROM base as development
+
+COPY .pylintrc ./.pylintrc
+COPY dev-requirements.txt ./dev-requirements.txt
+RUN pip install --no-cache-dir -r ./dev-requirements.txt
+
+###############################################################################
+# Production image
+###############################################################################
+FROM base as production
+
 CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 website.wsgi
