@@ -17,6 +17,7 @@ services:
       - ./website/src/website:/app/website/src/website
       - /app/website/src/website/static
       - /app/website/src/website/templates/frontend
+      - ./calculator/src/calculator:/app/calculator/src/calculator
   worker-dev:
     build:
       context: .
@@ -26,3 +27,4 @@ services:
       - DJANGO_SETTINGS_MODULE=worker.settings.development
     volumes:
       - ./worker/src/worker:/app/worker/src/worker
+      - ./calculator/src/calculator:/app/calculator/src/calculator
