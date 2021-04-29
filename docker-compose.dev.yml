@@ -1,27 +1,28 @@
 services:
-  frontend-tests:
+  frontend-dev:
     build:
       context: .
       dockerfile: frontend/frontend-dev.dockerfile
-    command: npm test
     volumes:
       - ./frontend:/app
       - /app/node_modules
-  website-pylint:
+  website-dev:
     build:
       context: .
       dockerfile: website/website.dockerfile
       target: development
-    command: python -m pylint website/src/website
+    environment:
+      - DJANGO_SETTINGS_MODULE=website.settings.development
     volumes:
       - ./website/src/website:/app/website/src/website
       - /app/website/src/website/static
       - /app/website/src/website/templates/frontend
-  worker-pylint:
+  worker-dev:
     build:
       context: .
       dockerfile: worker/worker.dockerfile
       target: development
-    command: python -m pylint worker/src/worker
+    environment:
+      - DJANGO_SETTINGS_MODULE=worker.settings.development
     volumes:
       - ./worker/src/worker:/app/worker/src/worker

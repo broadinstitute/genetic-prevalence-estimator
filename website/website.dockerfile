@@ -59,6 +59,8 @@ COPY .pylintrc ./.pylintrc
 COPY dev-requirements.txt ./dev-requirements.txt
 RUN pip install --no-cache-dir -r ./dev-requirements.txt
 
+CMD /bin/bash
+
 ###############################################################################
 # Production image
 ###############################################################################

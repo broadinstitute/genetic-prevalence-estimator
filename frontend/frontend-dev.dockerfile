@@ -7,4 +7,4 @@ RUN npm install
 
 COPY frontend ./
 
-CMD ["npm", "start"]
+CMD /bin/bash
