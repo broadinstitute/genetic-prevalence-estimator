@@ -148,3 +148,19 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 X_FRAME_OPTIONS = "DENY"
+
+
+# Logging
+# https://docs.djangoproject.com/en/3.2/topics/logging/
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"]},
+    "loggers": {
+        "worker": {
+            "level": "INFO",
+        }
+    },
+}

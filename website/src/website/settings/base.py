@@ -158,3 +158,19 @@ X_FRAME_OPTIONS = "DENY"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATIC_URL = "/static/"
+
+
+# Logging
+# https://docs.djangoproject.com/en/3.2/topics/logging/
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"]},
+    "loggers": {
+        "website": {
+            "level": "INFO",
+        }
+    },
+}
