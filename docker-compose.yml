@@ -17,6 +17,24 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+  pubsub:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    environment:
+      - PUBSUB_PROJECT_ID=${GCP_PROJECT}
+  setup-subscriber:
+    build:
+      context: .
+      dockerfile: pubsub/pubsub.dockerfile
+    command: python setup_subscription.py
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub:8085
+      - GCP_PROJECT
+    volumes:
+      - ./pubsub/setup_subscription.py:/setup_subscription.py
+    depends_on:
+      - pubsub
+      - worker
   website:
     build:
       context: .
@@ -33,6 +51,8 @@ services:
       - DB_PASSWORD
       - ALLOWED_HOSTS=localhost,website
       - PORT=8080
+      - PUBSUB_EMULATOR_HOST=pubsub:8085
+      - GCP_PROJECT
     ports:
       - 127.0.0.1:8080:8080
     volumes:
@@ -42,6 +62,7 @@ services:
       - ./calculator/src/calculator:/app/calculator/src/calculator
     depends_on:
       - database
+      - pubsub
   worker:
     build:
       context: .

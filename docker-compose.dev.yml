@@ -13,6 +13,7 @@ services:
       target: development
     environment:
       - DJANGO_SETTINGS_MODULE=website.settings.development
+      - GCP_PROJECT
     volumes:
       - ./website/src/website:/app/website/src/website
       - /app/website/src/website/static

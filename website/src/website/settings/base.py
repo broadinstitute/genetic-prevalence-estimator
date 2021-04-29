@@ -174,3 +174,8 @@ LOGGING = {
         }
     },
 }
+
+
+# Application settings
+
+GCP_PROJECT = os.environ["GCP_PROJECT"]

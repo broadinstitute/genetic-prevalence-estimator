@@ -26,6 +26,7 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   DB_DATABASE=
   DB_USER=
   DB_PASSWORD=
+  GCP_PROJECT=
   EOF
   ```
 
