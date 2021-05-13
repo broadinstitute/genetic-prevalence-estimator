@@ -176,6 +176,18 @@ LOGGING = {
 }
 
 
+# Django REST Framework settings
+# https://www.django-rest-framework.org/api-guide/settings/
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
+
+
 # Application settings
 
 GCP_PROJECT = os.environ["GCP_PROJECT"]
+
+GOOGLE_AUTH_CLIENT_ID = os.environ["GOOGLE_AUTH_CLIENT_ID"]

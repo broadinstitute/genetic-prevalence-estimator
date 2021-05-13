@@ -14,6 +14,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=website.settings.development
       - GCP_PROJECT
+      - GOOGLE_AUTH_CLIENT_ID
     volumes:
       - ./website/src/website:/app/website/src/website
       - /app/website/src/website/static

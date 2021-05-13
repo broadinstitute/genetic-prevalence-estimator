@@ -53,6 +53,7 @@ services:
       - PORT=8080
       - PUBSUB_EMULATOR_HOST=pubsub:8085
       - GCP_PROJECT
+      - GOOGLE_AUTH_CLIENT_ID
     ports:
       - 127.0.0.1:8080:8080
     volumes:

@@ -13,7 +13,9 @@ chardet==4.0.0
 google-api-core[grpc]==1.26.3
     # via google-cloud-pubsub
 google-auth==1.30.0
-    # via google-api-core
+    # via
+    #   -r website/website-requirements.in
+    #   google-api-core
 google-cloud-pubsub==2.4.1
     # via -r website/website-requirements.in
 googleapis-common-protos[grpc]==1.53.0
