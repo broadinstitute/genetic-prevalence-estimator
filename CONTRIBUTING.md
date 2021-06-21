@@ -8,6 +8,15 @@
   python3 -m pip install -r dev-requirements.txt
   ```
 
+- Install and configure [git-secrets](https://github.com/awslabs/git-secrets).
+
+  ```
+  git secrets --add --literal 'private_key'
+  git secrets --add --literal 'private_key_id'
+  git secrets --add --literal 'client_id'
+  git secrets --add --literal 'client_email'
+  ```
+
 - Install pre-commit hooks.
 
   ```

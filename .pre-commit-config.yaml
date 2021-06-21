@@ -15,3 +15,9 @@ repos:
     rev: v2.2.1
     hooks:
       - id: prettier
+  - repo: local
+    hooks:
+      - id: git-secrets
+        name: git-secrets
+        entry: git-secrets --pre_commit_hook --
+        language: system
