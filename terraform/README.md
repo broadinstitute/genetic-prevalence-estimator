@@ -8,6 +8,7 @@
    cat > terraform.tfvars <<EOF
    gcp_project = ""
    gcp_region = ""
+   data_bucket = ""
    EOF
    ```
 

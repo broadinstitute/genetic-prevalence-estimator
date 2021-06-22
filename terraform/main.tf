@@ -15,3 +15,9 @@ provider "google" {
   project = var.gcp_project
   region  = var.gcp_region
 }
+
+resource "google_storage_bucket" "data_bucket" {
+  name                        = var.data_bucket
+  location                    = var.gcp_region
+  uniform_bucket_level_access = true
+}
