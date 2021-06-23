@@ -1,4 +1,5 @@
 black
+nox
 pip-tools
 pre-commit
 pylint

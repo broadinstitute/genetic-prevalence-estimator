@@ -58,6 +58,12 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   docker compose up
   ```
 
+## Running development tasks
+
+Use [nox](https://nox.thea.codes/en/stable/) to run tasks in a virtualenv with necessary dependencies.
+
+Tasks are defined in `noxfile.py`.
+
 ## Running development tasks in Docker
 
 Use services defined in `docker-compose.dev.yml` to run tasks requiring development dependencies.
