@@ -52,6 +52,8 @@ class VariantList(models.Model):
 
 
 class VariantListAccess(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     variant_list = models.ForeignKey(
@@ -69,6 +71,8 @@ class VariantListAccess(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        indexes = [models.Index(fields=("uuid",))]
+
         constraints = [
             models.UniqueConstraint(
                 fields=("user", "variant_list"), name="unique variant list access level"
