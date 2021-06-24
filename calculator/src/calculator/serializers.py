@@ -105,10 +105,10 @@ class NewVariantListSerializer(serializers.ModelSerializer):
 
 
 class VariantListSerializer(serializers.ModelSerializer):
-    state = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
-    def get_state(self, obj):  # pylint: disable=no-self-use
-        return obj.get_state_display()
+    def get_status(self, obj):  # pylint: disable=no-self-use
+        return obj.get_status_display()
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -147,7 +147,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             "variants",
             "created_at",
             "updated_at",
-            "state",
+            "status",
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "description")]

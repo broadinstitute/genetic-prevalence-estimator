@@ -28,7 +28,7 @@ class VariantList(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class State(models.TextChoices):
+    class Status(models.TextChoices):
         QUEUED = (
             "Q",
             "Queued",
@@ -43,7 +43,9 @@ class VariantList(models.Model):
         )
         ERROR = "E", "Error"
 
-    state = models.CharField(max_length=1, choices=State.choices, default=State.QUEUED)
+    status = models.CharField(
+        max_length=1, choices=Status.choices, default=Status.QUEUED
+    )
 
     class Meta:
         indexes = [models.Index(fields=("uuid",))]

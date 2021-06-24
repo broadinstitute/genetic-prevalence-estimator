@@ -415,7 +415,7 @@ def gnomad_variant_list():
             "filter_clinvar_clinical_significance": None,
         },
         variants=["1-55516888-G-GA"],
-        state=VariantList.State.READY,
+        status=VariantList.Status.READY,
     )
 
 
@@ -452,13 +452,13 @@ def test_update_variant_list_serializer():
 
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(
-        variant_list, data={"state": VariantList.State.PROCESSING}, partial=True
+        variant_list, data={"status": VariantList.Status.PROCESSING}, partial=True
     )
     assert not serializer.is_valid()
-    assert "state" in serializer.errors
+    assert "status" in serializer.errors
 
 
-def test_variant_list_serializer_serializes_state_for_display():
+def test_variant_list_serializer_serializes_status_for_display():
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(variant_list)
-    assert serializer.data["state"] == "Ready"
+    assert serializer.data["status"] == "Ready"

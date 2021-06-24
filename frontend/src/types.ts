@@ -12,7 +12,7 @@ export type ReferenceGenome = "GRCh37" | "GRCh38";
 
 export type VariantId = string;
 
-export type VariantListState = "Queued" | "Processing" | "Ready" | "Error";
+export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
 export interface GnomadVariantListMetadata {
   version: "1";
@@ -50,7 +50,7 @@ interface VariantListBase {
   description: string;
   created_at: string;
   updated_at: string;
-  state: VariantListState;
+  status: VariantListStatus;
   variants: VariantId[];
 }
 
