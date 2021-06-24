@@ -13,6 +13,26 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
+class ChoiceField(serializers.ChoiceField):
+    """Choice field that serializes the choice's label and accepts either a choice's value or its label."""
+
+    def to_representation(self, value):
+        if value in ("", None):
+            return value
+
+        return self.choices[value]
+
+    def to_internal_value(self, data):
+        if data == "" and self.allow_blank:
+            return ""
+
+        for key, val in self.choices.items():
+            if str(data) in (str(key), str(val)):
+                return key
+
+        return self.fail("invalid_choice", input=data)
+
+
 class GnomadVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
@@ -110,10 +130,7 @@ class VariantListAccessSerializer(serializers.ModelSerializer):
     def get_username(self, obj):  # pylint: disable=no-self-use
         return obj.user.username
 
-    level = serializers.SerializerMethodField()
-
-    def get_level(self, obj):  # pylint: disable=no-self-use
-        return obj.get_level_display()
+    level = ChoiceField(choices=VariantListAccess.Level.choices)
 
     class Meta:
         model = VariantListAccess
@@ -138,10 +155,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             if not access or access.level != VariantListAccess.Level.OWNER:
                 del self.fields["users_with_access"]
 
-    status = serializers.SerializerMethodField()
-
-    def get_status(self, obj):  # pylint: disable=no-self-use
-        return obj.get_status_display()
+    status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
 
     access_level = serializers.SerializerMethodField()
 
