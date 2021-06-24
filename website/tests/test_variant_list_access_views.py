@@ -126,6 +126,20 @@ class TestCreateVariantListAccessPermission:
         )
         assert access.created_by.username == "owner"
 
+    def test_granting_variant_list_access_creates_user_if_necessary(self):
+        assert User.objects.filter(username="newuser").count() == 0
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "newuser",
+                "variant_list": 1,
+                "level": "Viewer",
+            },
+        )
+        assert User.objects.filter(username="newuser").count() == 1
+
 
 @pytest.mark.django_db
 class TestGetVariantListAccessPermission:
