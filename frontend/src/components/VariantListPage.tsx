@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get } from "../api";
-import { VariantList } from "../types";
+import { VariantList, VariantListAccessLevel } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
 import DateTime from "./DateTime";
@@ -30,6 +30,10 @@ const deleteVariantList = (uuid: string): Promise<void> => {
 const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
   const history = useHistory();
   const toast = useToast();
+
+  const userCanEdit =
+    variantList.access_level === VariantListAccessLevel.EDITOR ||
+    variantList.access_level === VariantListAccessLevel.OWNER;
 
   return (
     <>
@@ -69,40 +73,44 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
         </DescriptionListItem>
       </DescriptionList>
 
-      <HStack mb={4}>
-        <Button
-          as={RRLink}
-          size="sm"
-          to={`/variant-lists/${variantList.uuid}/edit/`}
-        >
-          Edit
-        </Button>
+      {userCanEdit && (
+        <HStack mb={4}>
+          <Button
+            as={RRLink}
+            size="sm"
+            to={`/variant-lists/${variantList.uuid}/edit/`}
+          >
+            Edit
+          </Button>
 
-        <ButtonWithConfirmation
-          size="sm"
-          colorScheme="red"
-          confirmationPrompt="This cannot be undone."
-          confirmButtonText="Delete"
-          onClick={() => {
-            deleteVariantList(variantList.uuid).then(
-              () => {
-                history.push("/variant-lists/");
-              },
-              (error) => {
-                toast({
-                  title: "Unable to delete variant list",
-                  description: error.message,
-                  status: "error",
-                  duration: 10000,
-                  isClosable: true,
-                });
-              }
-            );
-          }}
-        >
-          Delete
-        </ButtonWithConfirmation>
-      </HStack>
+          {variantList.access_level === VariantListAccessLevel.OWNER && (
+            <ButtonWithConfirmation
+              size="sm"
+              colorScheme="red"
+              confirmationPrompt="This cannot be undone."
+              confirmButtonText="Delete"
+              onClick={() => {
+                deleteVariantList(variantList.uuid).then(
+                  () => {
+                    history.push("/variant-lists/");
+                  },
+                  (error) => {
+                    toast({
+                      title: "Unable to delete variant list",
+                      description: error.message,
+                      status: "error",
+                      duration: 10000,
+                      isClosable: true,
+                    });
+                  }
+                );
+              }}
+            >
+              Delete
+            </ButtonWithConfirmation>
+          )}
+        </HStack>
+      )}
 
       <Heading as="h2" size="md" mb={2}>
         Variants

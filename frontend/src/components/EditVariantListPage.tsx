@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +20,7 @@ import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { patch } from "../api";
-import { VariantList } from "../types";
+import { VariantList, VariantListAccessLevel } from "../types";
 
 import { withVariantList } from "./VariantListPage";
 
@@ -44,6 +46,10 @@ const EditVariantListPage = ({ variantList }: { variantList: VariantList }) => {
 
   const history = useHistory();
   const toast = useToast();
+
+  const userCanEdit =
+    variantList.access_level === VariantListAccessLevel.EDITOR ||
+    variantList.access_level === VariantListAccessLevel.OWNER;
 
   return (
     <>
@@ -77,69 +83,76 @@ const EditVariantListPage = ({ variantList }: { variantList: VariantList }) => {
         {variantList.label}
       </Heading>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
+      {userCanEdit ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
 
-          if (!isSubmitting) {
-            setIsSubmitting(true);
-            submitVariantList(variantList.uuid, {
-              label,
-              description,
-            }).then(
-              (variantList) => {
-                history.push(`/variant-lists/${variantList.uuid}/`);
-              },
-              (error) => {
-                setIsSubmitting(false);
-                toast({
-                  title: "Unable to edit variant list",
-                  description: error.message,
-                  status: "error",
-                  duration: 10000,
-                  isClosable: true,
-                });
-              }
-            );
-          }
-        }}
-      >
-        <VStack spacing={4} align="flex-start">
-          <FormControl
-            id="edit-variant-list-label"
-            isInvalid={label.length === 0}
-            isRequired
-          >
-            <FormLabel>Label</FormLabel>
-            <Input
-              value={label}
-              onChange={(e) => {
-                setLabel(e.target.value);
-              }}
-            />
-            <FormErrorMessage>A label is required.</FormErrorMessage>
-          </FormControl>
+            if (!isSubmitting) {
+              setIsSubmitting(true);
+              submitVariantList(variantList.uuid, {
+                label,
+                description,
+              }).then(
+                (variantList) => {
+                  history.push(`/variant-lists/${variantList.uuid}/`);
+                },
+                (error) => {
+                  setIsSubmitting(false);
+                  toast({
+                    title: "Unable to edit variant list",
+                    description: error.message,
+                    status: "error",
+                    duration: 10000,
+                    isClosable: true,
+                  });
+                }
+              );
+            }
+          }}
+        >
+          <VStack spacing={4} align="flex-start">
+            <FormControl
+              id="edit-variant-list-label"
+              isInvalid={label.length === 0}
+              isRequired
+            >
+              <FormLabel>Label</FormLabel>
+              <Input
+                value={label}
+                onChange={(e) => {
+                  setLabel(e.target.value);
+                }}
+              />
+              <FormErrorMessage>A label is required.</FormErrorMessage>
+            </FormControl>
 
-          <FormControl id="edit-variant-list-description">
-            <FormLabel>Description</FormLabel>
-            <Textarea
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-              }}
-            />
-          </FormControl>
+            <FormControl id="edit-variant-list-description">
+              <FormLabel>Description</FormLabel>
+              <Textarea
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+              />
+            </FormControl>
 
-          <HStack>
-            <Button colorScheme="blue" type="submit">
-              Submit
-            </Button>
-            <Button as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
-              Cancel
-            </Button>
-          </HStack>
-        </VStack>
-      </form>
+            <HStack>
+              <Button colorScheme="blue" type="submit">
+                Submit
+              </Button>
+              <Button as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
+                Cancel
+              </Button>
+            </HStack>
+          </VStack>
+        </form>
+      ) : (
+        <Alert status="error">
+          <AlertIcon />
+          You do not have permission to edit this variant list.
+        </Alert>
+      )}
     </>
   );
 };

@@ -14,6 +14,12 @@ export type VariantId = string;
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
+export enum VariantListAccessLevel {
+  OWNER = "Owner",
+  EDITOR = "Editor",
+  VIEWER = "Viewer",
+}
+
 export interface GnomadVariantListMetadata {
   version: "1";
   gnomad_version: GnomadVersion;
@@ -50,6 +56,7 @@ interface VariantListBase {
   description: string;
   created_at: string;
   updated_at: string;
+  access_level: VariantListAccessLevel;
   status: VariantListStatus;
   variants: VariantId[];
 }
