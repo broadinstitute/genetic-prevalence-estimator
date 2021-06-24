@@ -463,7 +463,14 @@ def test_update_variant_list_serializer():
     assert not serializer.is_valid()
     assert "status" in serializer.errors
 
+    variant_list = gnomad_variant_list()
+    serializer = VariantListSerializer(
+        variant_list, data={"users_with_access": []}, partial=True
+    )
+    assert not serializer.is_valid()
 
+
+@pytest.mark.django_db
 def test_variant_list_serializer_serializes_status_for_display():
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(variant_list)
@@ -493,3 +500,54 @@ def test_variant_list_serializer_serializes_access_level():
 
     serializer = VariantListSerializer(variant_list)
     assert "access_level" not in serializer.data
+
+
+@pytest.mark.django_db
+def test_variant_list_serializer_serializes_users_with_access_for_owners():
+    owner = User.objects.create(username="owner")
+    editor = User.objects.create(username="editor")
+    viewer = User.objects.create(username="viewer")
+
+    variant_list = gnomad_variant_list()
+    variant_list.save()
+
+    VariantListAccess.objects.create(
+        variant_list=variant_list, user=owner, level=VariantListAccess.Level.OWNER
+    )
+    VariantListAccess.objects.create(
+        variant_list=variant_list, user=editor, level=VariantListAccess.Level.EDITOR
+    )
+    VariantListAccess.objects.create(
+        variant_list=variant_list, user=viewer, level=VariantListAccess.Level.VIEWER
+    )
+
+    # Owners should see other users with access to the variant list.
+    serializer = VariantListSerializer(variant_list, context={"current_user": owner})
+    assert "users_with_access" in serializer.data
+    users_with_access = serializer.data["users_with_access"]
+    assert len(users_with_access) == 3
+    assert {user["username"]: user["level"] for user in users_with_access} == {
+        "owner": "Owner",
+        "editor": "Editor",
+        "viewer": "Viewer",
+    }
+
+    # Users with access is read only.
+    serializer = VariantListSerializer(
+        variant_list,
+        data={"users_with_access": []},
+        context={"current_user": owner},
+        partial=True,
+    )
+    assert not serializer.is_valid()
+    assert "users_with_access" in serializer.errors
+
+    # Non-owners should not be able to see users with access to the variant list.
+    serializer = VariantListSerializer(variant_list, context={"current_user": editor})
+    assert "users_with_access" not in serializer.data
+
+    serializer = VariantListSerializer(variant_list, context={"current_user": viewer})
+    assert "users_with_access" not in serializer.data
+
+    serializer = VariantListSerializer(variant_list)
+    assert "users_with_access" not in serializer.data

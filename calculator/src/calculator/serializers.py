@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from calculator.models import VariantList
+from calculator.models import VariantList, VariantListAccess
 
 
 def is_gene_id(maybe_gene_id):
@@ -104,12 +104,39 @@ class NewVariantListSerializer(serializers.ModelSerializer):
         fields = ["label", "description", "type", "metadata", "variants"]
 
 
+class VariantListAccessSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+
+    def get_username(self, obj):  # pylint: disable=no-self-use
+        return obj.user.username
+
+    level = serializers.SerializerMethodField()
+
+    def get_level(self, obj):  # pylint: disable=no-self-use
+        return obj.get_level_display()
+
+    class Meta:
+        model = VariantListAccess
+
+        fields = ["uuid", "username", "level"]
+
+
 class VariantListSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        if not kwargs.get("context", {}).get("current_user"):
-            del self.fields["access_level"]
-
         super().__init__(*args, **kwargs)
+
+        # Whether or not access level and users with access are visible depends on the current user.
+        # Access level should be visible if there is a current user.
+        # Users with access should only be visible if the current user is an owner of the variant list.
+        current_user = self.context.get("current_user")
+        if not current_user:
+            del self.fields["access_level"]
+            del self.fields["users_with_access"]
+
+        else:
+            access = self.instance.users_with_access.get(user=current_user)
+            if not access or access.level != VariantListAccess.Level.OWNER:
+                del self.fields["users_with_access"]
 
     status = serializers.SerializerMethodField()
 
@@ -124,6 +151,8 @@ class VariantListSerializer(serializers.ModelSerializer):
             return obj.users_with_access.get(user=current_user).get_level_display()
         except KeyError:
             return None
+
+    users_with_access = VariantListAccessSerializer(many=True, read_only=True)
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -164,6 +193,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             "updated_at",
             "status",
             "access_level",
+            "users_with_access",
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "description")]
