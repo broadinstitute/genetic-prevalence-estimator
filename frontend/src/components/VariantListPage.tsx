@@ -15,6 +15,7 @@ import {
   OrderedList,
   Spinner,
   Text,
+  UnorderedList,
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -115,6 +116,20 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
           )}
         </HStack>
       )}
+
+      {variantList.access_level === VariantListAccessLevel.OWNER &&
+        variantList.users_with_access && (
+          <>
+            <Heading as="h2" size="md" mb={2}>
+              Sharing
+            </Heading>
+            <UnorderedList mb={4}>
+              {variantList.users_with_access.map((user) => {
+                return <ListItem key={user.username}>{user.username}</ListItem>;
+              })}
+            </UnorderedList>
+          </>
+        )}
 
       <Heading as="h2" size="md" mb={2}>
         Variants
