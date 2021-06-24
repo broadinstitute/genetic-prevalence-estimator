@@ -50,7 +50,7 @@ export interface CustomVariantListRequest {
   variants: VariantId[];
 }
 
-interface VariantListUserWithAccess {
+interface VariantListAccessPermission {
   uuid: string;
   username: string;
   level: VariantListAccessLevel;
@@ -63,7 +63,7 @@ interface VariantListBase {
   created_at: string;
   updated_at: string;
   access_level: VariantListAccessLevel;
-  access_permissions?: VariantListUserWithAccess[];
+  access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
   variants: VariantId[];
 }

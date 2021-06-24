@@ -1,39 +1,176 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Badge,
   Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
   Center,
+  Flex,
   Heading,
   HStack,
   ListItem,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   OrderedList,
   Spinner,
   Text,
   UnorderedList,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { del, get } from "../api";
+import { del, get, patch } from "../api";
 import { VariantList, VariantListAccessLevel } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
 import DateTime from "./DateTime";
 import { DescriptionList, DescriptionListItem } from "./DescriptionList";
 
+const VariantListSharingSettings = (props: {
+  variantList: VariantList;
+  onChange: (variantList: VariantList) => void;
+}) => {
+  const { variantList, onChange } = props;
+  const toast = useToast();
+
+  const setAccessLevel = (
+    uuid: string,
+    level: VariantListAccessLevel
+  ): Promise<void> => {
+    return patch(`/variant-list-access/${uuid}/`, { level }).then(
+      () => {
+        onChange({
+          ...variantList,
+          access_permissions: variantList.access_permissions?.map(
+            (accessPermission) => {
+              return accessPermission.uuid === uuid
+                ? { ...accessPermission, level }
+                : accessPermission;
+            }
+          ),
+        });
+      },
+      (error) => {
+        toast({
+          title: "Unable to edit access",
+          description: error.message,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+    );
+  };
+
+  const removeAccess = (uuid: string): Promise<void> => {
+    return del(`/variant-list-access/${uuid}/`).then(
+      () => {
+        onChange({
+          ...variantList,
+          access_permissions: variantList.access_permissions?.filter(
+            (accessPermission) => accessPermission.uuid !== uuid
+          ),
+        });
+      },
+      (error) => {
+        toast({
+          title: "Unable to remove access",
+          description: error.message,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+    );
+  };
+
+  return (
+    <UnorderedList>
+      {variantList.access_permissions?.map((accessPermission) => {
+        return (
+          <ListItem key={accessPermission.uuid}>
+            <Flex align="center" justify="space-between">
+              <Text>{accessPermission.username}</Text>
+              <HStack>
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                    {accessPermission.level}
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem
+                      onClick={() => {
+                        setAccessLevel(
+                          accessPermission.uuid,
+                          VariantListAccessLevel.OWNER
+                        );
+                      }}
+                    >
+                      Owner
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        setAccessLevel(
+                          accessPermission.uuid,
+                          VariantListAccessLevel.EDITOR
+                        );
+                      }}
+                    >
+                      Editor
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        setAccessLevel(
+                          accessPermission.uuid,
+                          VariantListAccessLevel.VIEWER
+                        );
+                      }}
+                    >
+                      Viewer
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+                <Button
+                  onClick={() => {
+                    removeAccess(accessPermission.uuid);
+                  }}
+                >
+                  Remove
+                </Button>
+              </HStack>
+            </Flex>
+          </ListItem>
+        );
+      })}
+    </UnorderedList>
+  );
+};
+
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
 };
 
-const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
+const VariantListPage = (props: { variantList: VariantList }) => {
+  const [variantList, setVariantList] = useState(props.variantList);
+
   const history = useHistory();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   const userCanEdit =
@@ -124,10 +261,18 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
               Sharing
             </Heading>
             <UnorderedList mb={4}>
-              {variantList.access_permissions.map((user) => {
-                return <ListItem key={user.username}>{user.username}</ListItem>;
+              {variantList.access_permissions.map((accessPermission) => {
+                return (
+                  <ListItem key={accessPermission.username}>
+                    {accessPermission.username}{" "}
+                    <Badge>{accessPermission.level}</Badge>
+                  </ListItem>
+                );
               })}
             </UnorderedList>
+            <HStack mb={4}>
+              <Button onClick={onOpen}>Edit</Button>
+            </HStack>
           </>
         )}
 
@@ -146,6 +291,24 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
           Variants will be automatically populated for gnomAD variant lists.
         </Text>
       )}
+
+      <Modal isOpen={isOpen} size="2xl" onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Sharing</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VariantListSharingSettings
+              variantList={variantList}
+              onChange={setVariantList}
+            />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={onClose}>Done</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
