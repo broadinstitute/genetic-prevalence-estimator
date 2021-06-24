@@ -223,18 +223,18 @@ class VariantListSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Whether or not access level and users with access are visible depends on the current user.
+        # Whether or not access permissions are visible depends on the current user.
         # Access level should be visible if there is a current user.
-        # Users with access should only be visible if the current user is an owner of the variant list.
+        # All access permissions should only be visible if the current user is an owner of the variant list.
         current_user = self.context.get("current_user")
         if not current_user:
             del self.fields["access_level"]
-            del self.fields["users_with_access"]
+            del self.fields["access_permissions"]
 
         else:
-            access = self.instance.users_with_access.get(user=current_user)
+            access = self.instance.access_permissions.get(user=current_user)
             if not access or access.level != VariantListAccess.Level.OWNER:
-                del self.fields["users_with_access"]
+                del self.fields["access_permissions"]
 
     status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
 
@@ -243,11 +243,11 @@ class VariantListSerializer(serializers.ModelSerializer):
     def get_access_level(self, obj):
         try:
             current_user = self.context["current_user"]
-            return obj.users_with_access.get(user=current_user).get_level_display()
+            return obj.access_permissions.get(user=current_user).get_level_display()
         except KeyError:
             return None
 
-    users_with_access = VariantListAccessSerializer(many=True, read_only=True)
+    access_permissions = VariantListAccessSerializer(many=True, read_only=True)
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -288,7 +288,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             "updated_at",
             "status",
             "access_level",
-            "users_with_access",
+            "access_permissions",
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "description")]

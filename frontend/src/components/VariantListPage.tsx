@@ -118,13 +118,13 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
       )}
 
       {variantList.access_level === VariantListAccessLevel.OWNER &&
-        variantList.users_with_access && (
+        variantList.access_permissions && (
           <>
             <Heading as="h2" size="md" mb={2}>
               Sharing
             </Heading>
             <UnorderedList mb={4}>
-              {variantList.users_with_access.map((user) => {
+              {variantList.access_permissions.map((user) => {
                 return <ListItem key={user.username}>{user.username}</ListItem>;
               })}
             </UnorderedList>

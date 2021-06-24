@@ -471,7 +471,7 @@ def test_update_variant_list_serializer():
 
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(
-        variant_list, data={"users_with_access": []}, partial=True
+        variant_list, data={"access_permissions": []}, partial=True
     )
     assert not serializer.is_valid()
 
@@ -509,7 +509,7 @@ def test_variant_list_serializer_serializes_access_level():
 
 
 @pytest.mark.django_db
-def test_variant_list_serializer_serializes_users_with_access_for_owners():
+def test_variant_list_serializer_serializes_access_permissions_for_owners():
     owner = User.objects.create(username="owner")
     editor = User.objects.create(username="editor")
     viewer = User.objects.create(username="viewer")
@@ -529,10 +529,10 @@ def test_variant_list_serializer_serializes_users_with_access_for_owners():
 
     # Owners should see other users with access to the variant list.
     serializer = VariantListSerializer(variant_list, context={"current_user": owner})
-    assert "users_with_access" in serializer.data
-    users_with_access = serializer.data["users_with_access"]
-    assert len(users_with_access) == 3
-    assert {user["username"]: user["level"] for user in users_with_access} == {
+    assert "access_permissions" in serializer.data
+    access_permissions = serializer.data["access_permissions"]
+    assert len(access_permissions) == 3
+    assert {user["username"]: user["level"] for user in access_permissions} == {
         "owner": "Owner",
         "editor": "Editor",
         "viewer": "Viewer",
@@ -541,22 +541,22 @@ def test_variant_list_serializer_serializes_users_with_access_for_owners():
     # Users with access is read only.
     serializer = VariantListSerializer(
         variant_list,
-        data={"users_with_access": []},
+        data={"access_permissions": []},
         context={"current_user": owner},
         partial=True,
     )
     assert not serializer.is_valid()
-    assert "users_with_access" in serializer.errors
+    assert "access_permissions" in serializer.errors
 
     # Non-owners should not be able to see users with access to the variant list.
     serializer = VariantListSerializer(variant_list, context={"current_user": editor})
-    assert "users_with_access" not in serializer.data
+    assert "access_permissions" not in serializer.data
 
     serializer = VariantListSerializer(variant_list, context={"current_user": viewer})
-    assert "users_with_access" not in serializer.data
+    assert "access_permissions" not in serializer.data
 
     serializer = VariantListSerializer(variant_list)
-    assert "users_with_access" not in serializer.data
+    assert "access_permissions" not in serializer.data
 
 
 def test_variant_list_access_serializer_only_allows_editing_level():

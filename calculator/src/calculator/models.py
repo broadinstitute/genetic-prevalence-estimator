@@ -57,7 +57,10 @@ class VariantListAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     variant_list = models.ForeignKey(
-        VariantList, on_delete=models.CASCADE, related_name="users_with_access"
+        VariantList,
+        on_delete=models.CASCADE,
+        related_name="access_permissions",
+        related_query_name="access_permission",
     )
 
     class Level(models.TextChoices):
