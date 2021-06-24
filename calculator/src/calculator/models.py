@@ -67,6 +67,13 @@ class VariantListAccess(models.Model):
 
     level = models.CharField(max_length=1, choices=Level.choices, default=Level.VIEWER)
 
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="creator",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

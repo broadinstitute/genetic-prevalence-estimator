@@ -29,7 +29,7 @@ class VariantListAccessList(APIView):
         ):
             raise PermissionDenied
 
-        new_access = create_serializer.save()
+        new_access = create_serializer.save(created_by=request.user)
         serializer = VariantListAccessSerializer(new_access)
         return Response({"variant_list_access": serializer.data})
 
