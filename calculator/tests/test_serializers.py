@@ -4,12 +4,12 @@ import uuid
 import pytest
 from django.contrib.auth import get_user_model
 
-from calculator.models import VariantList, VariantListAccess
+from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers import (
     NewVariantListSerializer,
     VariantListSerializer,
-    NewVariantListAccessSerializer,
-    VariantListAccessSerializer,
+    NewVariantListAccessPermissionSerializer,
+    VariantListAccessPermissionSerializer,
 )
 
 
@@ -491,11 +491,15 @@ def test_variant_list_serializer_serializes_access_level():
     variant_list = gnomad_variant_list()
     variant_list.save()
 
-    VariantListAccess.objects.create(
-        variant_list=variant_list, user=editor, level=VariantListAccess.Level.EDITOR
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=editor,
+        level=VariantListAccessPermission.Level.EDITOR,
     )
-    VariantListAccess.objects.create(
-        variant_list=variant_list, user=viewer, level=VariantListAccess.Level.VIEWER
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=viewer,
+        level=VariantListAccessPermission.Level.VIEWER,
     )
 
     serializer = VariantListSerializer(variant_list, context={"current_user": editor})
@@ -517,14 +521,20 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
     variant_list = gnomad_variant_list()
     variant_list.save()
 
-    VariantListAccess.objects.create(
-        variant_list=variant_list, user=owner, level=VariantListAccess.Level.OWNER
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=owner,
+        level=VariantListAccessPermission.Level.OWNER,
     )
-    VariantListAccess.objects.create(
-        variant_list=variant_list, user=editor, level=VariantListAccess.Level.EDITOR
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=editor,
+        level=VariantListAccessPermission.Level.EDITOR,
     )
-    VariantListAccess.objects.create(
-        variant_list=variant_list, user=viewer, level=VariantListAccess.Level.VIEWER
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=viewer,
+        level=VariantListAccessPermission.Level.VIEWER,
     )
 
     # Owners should see other users with access to the variant list.
@@ -562,32 +572,32 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
 def test_variant_list_access_serializer_only_allows_editing_level():
     user = User(username="testuser")
     variant_list = gnomad_variant_list()
-    access = VariantListAccess(
+    access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
         variant_list=variant_list,
-        level=VariantListAccess.Level.VIEWER,
+        level=VariantListAccessPermission.Level.VIEWER,
     )
 
-    serializer = VariantListAccessSerializer(
-        access, data={"level": VariantListAccess.Level.EDITOR}, partial=True
+    serializer = VariantListAccessPermissionSerializer(
+        access, data={"level": VariantListAccessPermission.Level.EDITOR}, partial=True
     )
     assert serializer.is_valid(), serializer.errors
 
-    serializer = VariantListAccessSerializer(
+    serializer = VariantListAccessPermissionSerializer(
         access, data={"uuid": uuid.uuid4()}, partial=True
     )
     assert not serializer.is_valid()
     assert "uuid" in serializer.errors
 
-    serializer = VariantListAccessSerializer(
+    serializer = VariantListAccessPermissionSerializer(
         access, data={"username": "otheruser"}, partial=True
     )
     assert not serializer.is_valid()
     assert "username" in serializer.errors
 
     other_list = gnomad_variant_list()
-    serializer = VariantListAccessSerializer(
+    serializer = VariantListAccessPermissionSerializer(
         access, data={"variant_list": other_list}, partial=True
     )
     assert not serializer.is_valid()
@@ -596,33 +606,33 @@ def test_variant_list_access_serializer_only_allows_editing_level():
 def test_variant_list_access_serializer_serializes_username():
     user = User(username="testuser")
     variant_list = gnomad_variant_list()
-    access = VariantListAccess(
+    access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
         variant_list=variant_list,
-        level=VariantListAccess.Level.VIEWER,
+        level=VariantListAccessPermission.Level.VIEWER,
     )
 
-    serializer = VariantListAccessSerializer(access)
+    serializer = VariantListAccessPermissionSerializer(access)
     assert serializer.data["username"] == "testuser"
 
 
 def test_variant_list_access_serializer_serializes_level_label():
     user = User(username="testuser")
     variant_list = gnomad_variant_list()
-    access = VariantListAccess(
+    access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
         variant_list=variant_list,
-        level=VariantListAccess.Level.VIEWER,
+        level=VariantListAccessPermission.Level.VIEWER,
     )
 
-    serializer = VariantListAccessSerializer(access)
+    serializer = VariantListAccessPermissionSerializer(access)
     assert serializer.data["level"] == "Viewer"
 
 
 @pytest.mark.django_db
-class TestNewVariantListAccessSerializer:
+class TestNewVariantListAccessPermissionSerializer:
     @pytest.fixture(autouse=True)
     def db_setup(self):
         variant_list = gnomad_variant_list()
@@ -632,30 +642,30 @@ class TestNewVariantListAccessSerializer:
         User.objects.create(username="testuser")
 
     def test_new_variant_list_access_serializer(self):
-        serializer = NewVariantListAccessSerializer(
+        serializer = NewVariantListAccessPermissionSerializer(
             data={"user": "testuser", "variant_list": 1, "level": "Editor"}
         )
         assert serializer.is_valid(), serializer.errors
 
-        serializer = NewVariantListAccessSerializer(
+        serializer = NewVariantListAccessPermissionSerializer(
             data={"user": 12, "variant_list": 1, "level": "Editor"}
         )
         assert not serializer.is_valid()
         assert "user" in serializer.errors
 
-        serializer = NewVariantListAccessSerializer(
+        serializer = NewVariantListAccessPermissionSerializer(
             data={"user": "testuser", "variant_list": "foo", "level": "Editor"}
         )
         assert not serializer.is_valid()
         assert "variant_list" in serializer.errors
 
-        serializer = NewVariantListAccessSerializer(
+        serializer = NewVariantListAccessPermissionSerializer(
             data={"user": "testuser", "variant_list": 1, "level": "foo"}
         )
         assert not serializer.is_valid()
         assert "level" in serializer.errors
 
-        serializer = NewVariantListAccessSerializer(
+        serializer = NewVariantListAccessPermissionSerializer(
             data={
                 "user": "testuser",
                 "variant_list": 1,

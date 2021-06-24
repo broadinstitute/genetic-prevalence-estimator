@@ -3,14 +3,14 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
-from calculator.models import VariantList, VariantListAccess
+from calculator.models import VariantList, VariantListAccessPermission
 
 
 User = get_user_model()
 
 
 @pytest.mark.django_db
-class TestCreateVariantListAccess:
+class TestCreateVariantListAccessPermission:
     @pytest.fixture(autouse=True)
     def db_setup(self):
         owner = User.objects.create(username="owner")
@@ -33,11 +33,15 @@ class TestCreateVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            variant_list=list1, user=owner, level=VariantListAccess.Level.OWNER
+        VariantListAccessPermission.objects.create(
+            variant_list=list1,
+            user=owner,
+            level=VariantListAccessPermission.Level.OWNER,
         )
-        VariantListAccess.objects.create(
-            variant_list=list1, user=viewer, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            variant_list=list1,
+            user=viewer,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
     def test_granting_variants_list_access_requires_authentication(self):
@@ -79,7 +83,7 @@ class TestCreateVariantListAccess:
         assert response.status_code == 403
 
         assert (
-            VariantListAccess.objects.filter(
+            VariantListAccessPermission.objects.filter(
                 user__username="other", variant_list=1
             ).count()
             == 0
@@ -96,10 +100,10 @@ class TestCreateVariantListAccess:
         assert response.status_code == 200
 
         assert (
-            VariantListAccess.objects.filter(
+            VariantListAccessPermission.objects.filter(
                 user__username="other",
                 variant_list=1,
-                level=VariantListAccess.Level.VIEWER,
+                level=VariantListAccessPermission.Level.VIEWER,
             ).count()
             == 1
         )
@@ -115,16 +119,16 @@ class TestCreateVariantListAccess:
                 "level": "Viewer",
             },
         )
-        access = VariantListAccess.objects.get(
+        access = VariantListAccessPermission.objects.get(
             user__username="other",
             variant_list=1,
-            level=VariantListAccess.Level.VIEWER,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
         assert access.created_by.username == "owner"
 
 
 @pytest.mark.django_db
-class TestGetVariantListAccess:
+class TestGetVariantListAccessPermission:
     @pytest.fixture(autouse=True)
     def db_setup(self):
         owner = User.objects.create(username="owner")
@@ -140,27 +144,27 @@ class TestGetVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=1,
             user=owner,
             variant_list=variant_list,
-            level=VariantListAccess.Level.OWNER,
+            level=VariantListAccessPermission.Level.OWNER,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=2,
             user=editor,
             variant_list=variant_list,
-            level=VariantListAccess.Level.EDITOR,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=3,
             user=viewer,
             variant_list=variant_list,
-            level=VariantListAccess.Level.VIEWER,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
     def test_viewing_variant_list_access_requires_authentication(self):
-        access = VariantListAccess.objects.get(id=1)
+        access = VariantListAccessPermission.objects.get(id=1)
         client = APIClient()
         response = client.get(f"/api/variant-list-access/{access.uuid}/")
         assert response.status_code == 403
@@ -187,7 +191,7 @@ class TestGetVariantListAccess:
     ):
         # Variant list owners should be able to see all access for the variant list.
         # Other users should be able to see their own access.
-        access = VariantListAccess.objects.get(id=access_id)
+        access = VariantListAccessPermission.objects.get(id=access_id)
         client = APIClient()
         client.force_authenticate(User.objects.get(username=username))
         response = client.get(f"/api/variant-list-access/{access.uuid}/")
@@ -205,7 +209,7 @@ class TestGetVariantListAccess:
     def test_viewing_variant_list_includes_access_level(
         self, username, access_id, expected_level
     ):
-        access = VariantListAccess.objects.get(id=access_id)
+        access = VariantListAccessPermission.objects.get(id=access_id)
         client = APIClient()
         client.force_authenticate(User.objects.get(username=username))
         response = client.get(f"/api/variant-list-access/{access.uuid}/")
@@ -217,7 +221,7 @@ class TestGetVariantListAccess:
 
 
 @pytest.mark.django_db
-class TestEditVariantListAccess:
+class TestEditVariantListAccessPermission:
     @pytest.fixture(autouse=True)
     def db_setup(self):
         owner = User.objects.create(username="owner")
@@ -233,39 +237,39 @@ class TestEditVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=1,
             user=owner,
             variant_list=variant_list,
-            level=VariantListAccess.Level.OWNER,
+            level=VariantListAccessPermission.Level.OWNER,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=2,
             user=editor,
             variant_list=variant_list,
-            level=VariantListAccess.Level.EDITOR,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=3,
             user=viewer,
             variant_list=variant_list,
-            level=VariantListAccess.Level.VIEWER,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
     def test_editing_variant_list_access_requires_authentication(self):
-        access = VariantListAccess.objects.get(id=1)
+        access = VariantListAccessPermission.objects.get(id=1)
         client = APIClient()
         response = client.patch(
             f"/api/variant-list-access/{access.uuid}/",
-            {"level": VariantListAccess.Level.VIEWER},
+            {"level": VariantListAccessPermission.Level.VIEWER},
         )
         assert response.status_code == 403
         access.refresh_from_db()
-        assert access.level == VariantListAccess.Level.OWNER
+        assert access.level == VariantListAccessPermission.Level.OWNER
 
     def test_editing_variant_list_access_requires_permission(self):
         # Only variant list owners should be able to edit access level.
-        access = VariantListAccess.objects.get(id=3)
+        access = VariantListAccessPermission.objects.get(id=3)
 
         client = APIClient()
 
@@ -277,47 +281,47 @@ class TestEditVariantListAccess:
             client.force_authenticate(User.objects.get(username=username))
             response = client.patch(
                 f"/api/variant-list-access/{access.uuid}/",
-                {"level": VariantListAccess.Level.EDITOR},
+                {"level": VariantListAccessPermission.Level.EDITOR},
             )
             assert response.status_code == expected_status_code
             access.refresh_from_db()
-            assert access.level == VariantListAccess.Level.VIEWER
+            assert access.level == VariantListAccessPermission.Level.VIEWER
 
         client.force_authenticate(User.objects.get(username="owner"))
         response = client.patch(
             f"/api/variant-list-access/{access.uuid}/",
-            {"level": VariantListAccess.Level.EDITOR},
+            {"level": VariantListAccessPermission.Level.EDITOR},
         )
         assert response.status_code == 200
         access.refresh_from_db()
-        assert access.level == VariantListAccess.Level.EDITOR
+        assert access.level == VariantListAccessPermission.Level.EDITOR
 
     def test_user_cannot_edit_their_own_access(self):
-        access = VariantListAccess.objects.get(id=1)
+        access = VariantListAccessPermission.objects.get(id=1)
         client = APIClient()
         client.force_authenticate(User.objects.get(username="owner"))
         response = client.patch(
             f"/api/variant-list-access/{access.uuid}/",
-            {"level": VariantListAccess.Level.VIEWER},
+            {"level": VariantListAccessPermission.Level.VIEWER},
         )
         assert response.status_code == 403
         access.refresh_from_db()
-        assert access.level == VariantListAccess.Level.OWNER
+        assert access.level == VariantListAccessPermission.Level.OWNER
 
     def test_editing_variant_list_stores_user(self):
-        access = VariantListAccess.objects.get(id=2)
+        access = VariantListAccessPermission.objects.get(id=2)
         assert not access.last_updated_by
         client = APIClient()
         client.force_authenticate(User.objects.get(username="owner"))
         client.patch(
             f"/api/variant-list-access/{access.uuid}/",
-            {"level": VariantListAccess.Level.VIEWER},
+            {"level": VariantListAccessPermission.Level.VIEWER},
         )
         access.refresh_from_db()
         assert access.last_updated_by.username == "owner"
 
 
-class TestDeleteVariantListAccess:
+class TestDeleteVariantListAccessPermission:
     @pytest.mark.django_db
     @pytest.fixture(autouse=True, scope="function")
     def db_setup(self):
@@ -334,34 +338,34 @@ class TestDeleteVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=1,
             user=owner,
             variant_list=variant_list,
-            level=VariantListAccess.Level.OWNER,
+            level=VariantListAccessPermission.Level.OWNER,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=2,
             user=editor,
             variant_list=variant_list,
-            level=VariantListAccess.Level.EDITOR,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
+        VariantListAccessPermission.objects.create(
             id=3,
             user=viewer,
             variant_list=variant_list,
-            level=VariantListAccess.Level.VIEWER,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
     @pytest.mark.django_db
     def test_deleting_variant_list_access_requires_authentication(self):
-        acccess = VariantListAccess.objects.get(id=1)
+        acccess = VariantListAccessPermission.objects.get(id=1)
         client = APIClient()
         response = client.delete(
             f"/api/variant-list-access/{acccess.uuid}/",
         )
         assert response.status_code == 403
-        assert VariantListAccess.objects.count() == 3
+        assert VariantListAccessPermission.objects.count() == 3
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
@@ -371,25 +375,25 @@ class TestDeleteVariantListAccess:
     def test_deleting_variant_list_access_requires_permission(
         self, username, expected_response
     ):
-        access = VariantListAccess.objects.get(id=3)
+        access = VariantListAccessPermission.objects.get(id=3)
         client = APIClient()
         client.force_authenticate(User.objects.get(username=username))
         response = client.delete(f"/api/variant-list-access/{access.uuid}/")
         assert response.status_code == expected_response
         if expected_response == 204:
-            assert VariantListAccess.objects.count() == 2
+            assert VariantListAccessPermission.objects.count() == 2
         else:
-            assert VariantListAccess.objects.count() == 3
+            assert VariantListAccessPermission.objects.count() == 3
 
     @pytest.mark.django_db
     def test_user_cannot_delete_their_own_access(self):
-        access = VariantListAccess.objects.get(id=1)
+        access = VariantListAccessPermission.objects.get(id=1)
         client = APIClient()
         client.force_authenticate(User.objects.get(username="owner"))
         response = client.patch(
             f"/api/variant-list-access/{access.uuid}/",
-            {"level": VariantListAccess.Level.VIEWER},
+            {"level": VariantListAccessPermission.Level.VIEWER},
         )
         assert response.status_code == 403
         access.refresh_from_db()
-        assert access.level == VariantListAccess.Level.OWNER
+        assert access.level == VariantListAccessPermission.Level.OWNER

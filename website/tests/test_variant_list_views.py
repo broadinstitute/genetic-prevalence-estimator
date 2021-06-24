@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
-from calculator.models import VariantList, VariantListAccess
+from calculator.models import VariantList, VariantListAccessPermission
 
 
 User = get_user_model()
@@ -23,8 +23,8 @@ class TestGetVariantLists:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(variant_list=list1, user=user1)
-        VariantListAccess.objects.create(variant_list=list1, user=user2)
+        VariantListAccessPermission.objects.create(variant_list=list1, user=user1)
+        VariantListAccessPermission.objects.create(variant_list=list1, user=user2)
 
         list2 = VariantList.objects.create(
             label="List 2",
@@ -33,7 +33,7 @@ class TestGetVariantLists:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(variant_list=list2, user=user1)
+        VariantListAccessPermission.objects.create(variant_list=list2, user=user1)
 
     def test_variants_list_requires_authentication(self):
         client = APIClient()
@@ -99,9 +99,11 @@ class TestCreateVariantList:
         uuid = response.json()["variant_list"]["uuid"]
         variant_list = VariantList.objects.get(uuid=uuid)
 
-        access = VariantListAccess.objects.get(variant_list=variant_list, user=testuser)
+        access = VariantListAccessPermission.objects.get(
+            variant_list=variant_list, user=testuser
+        )
         assert access
-        assert access.level == VariantListAccess.Level.OWNER
+        assert access.level == VariantListAccessPermission.Level.OWNER
 
 
 @pytest.mark.django_db
@@ -134,11 +136,15 @@ class TestGetVariantList:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            user=testuser, variant_list=list1, level=VariantListAccess.Level.EDITOR
+        VariantListAccessPermission.objects.create(
+            user=testuser,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
-            user=testuser, variant_list=list2, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            user=testuser,
+            variant_list=list2,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
     def test_viewing_variant_list_requires_authentication(self):
@@ -190,14 +196,20 @@ class TestEditVariantList:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            user=viewer, variant_list=variant_list, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
-        VariantListAccess.objects.create(
-            user=editor, variant_list=variant_list, level=VariantListAccess.Level.EDITOR
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
-            user=owner, variant_list=variant_list, level=VariantListAccess.Level.OWNER
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
         )
 
     def test_editing_variant_list_requires_authentication(self):
@@ -251,14 +263,20 @@ class TestDeleteVariantList:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            user=viewer, variant_list=variant_list, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
-        VariantListAccess.objects.create(
-            user=editor, variant_list=variant_list, level=VariantListAccess.Level.EDITOR
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
-            user=owner, variant_list=variant_list, level=VariantListAccess.Level.OWNER
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
         )
 
     @pytest.mark.django_db

@@ -5,7 +5,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxLengthValidator
 from rest_framework import serializers
 
-from calculator.models import VariantList, VariantListAccess
+from calculator.models import VariantList, VariantListAccessPermission
 
 
 def is_gene_id(maybe_gene_id):
@@ -154,14 +154,14 @@ class UsernameField(serializers.RelatedField):
             return self.fail("invalid")
 
 
-class NewVariantListAccessSerializer(serializers.ModelSerializer):
+class NewVariantListAccessPermissionSerializer(serializers.ModelSerializer):
     user = UsernameField()
 
     variant_list = serializers.PrimaryKeyRelatedField(
         queryset=VariantList.objects.all()
     )
 
-    level = ChoiceField(choices=VariantListAccess.Level.choices)
+    level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -173,18 +173,18 @@ class NewVariantListAccessSerializer(serializers.ModelSerializer):
         return attrs
 
     class Meta:
-        model = VariantListAccess
+        model = VariantListAccessPermission
 
         fields = ["user", "variant_list", "level"]
 
 
-class VariantListAccessSerializer(serializers.ModelSerializer):
+class VariantListAccessPermissionSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
 
     def get_username(self, obj):  # pylint: disable=no-self-use
         return obj.user.username
 
-    level = ChoiceField(choices=VariantListAccess.Level.choices)
+    level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -212,7 +212,7 @@ class VariantListAccessSerializer(serializers.ModelSerializer):
         return attrs
 
     class Meta:
-        model = VariantListAccess
+        model = VariantListAccessPermission
 
         fields = ["uuid", "username", "level"]
 
@@ -233,7 +233,7 @@ class VariantListSerializer(serializers.ModelSerializer):
 
         else:
             access = self.instance.access_permissions.get(user=current_user)
-            if not access or access.level != VariantListAccess.Level.OWNER:
+            if not access or access.level != VariantListAccessPermission.Level.OWNER:
                 del self.fields["access_permissions"]
 
     status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
@@ -247,7 +247,9 @@ class VariantListSerializer(serializers.ModelSerializer):
         except KeyError:
             return None
 
-    access_permissions = VariantListAccessSerializer(many=True, read_only=True)
+    access_permissions = VariantListAccessPermissionSerializer(
+        many=True, read_only=True
+    )
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)

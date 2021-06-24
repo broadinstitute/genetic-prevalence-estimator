@@ -55,7 +55,7 @@ class VariantList(models.Model):
         indexes = [models.Index(fields=("uuid",))]
 
 
-class VariantListAccess(models.Model):
+class VariantListAccessPermission(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
     user = models.ForeignKey(

@@ -5,7 +5,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
-from calculator.models import VariantList, VariantListAccess
+from calculator.models import VariantList, VariantListAccessPermission
 
 
 User = get_user_model()
@@ -36,7 +36,7 @@ class TestVariantList:
             )
 
 
-class TestVariantListAccess:
+class TestVariantListAccessPermission:
     @pytest.mark.django_db
     def test_uuid_is_unique(self):
         user1 = User.objects.create(username="user1")
@@ -59,9 +59,13 @@ class TestVariantListAccess:
         )
 
         uid = uuid.uuid4()
-        VariantListAccess.objects.create(uuid=uid, user=user1, variant_list=list1)
+        VariantListAccessPermission.objects.create(
+            uuid=uid, user=user1, variant_list=list1
+        )
         with pytest.raises(IntegrityError):
-            VariantListAccess.objects.create(uuid=uid, user=user2, variant_list=list2)
+            VariantListAccessPermission.objects.create(
+                uuid=uid, user=user2, variant_list=list2
+            )
 
     @pytest.mark.django_db
     def test_deleting_variant_list_deletes_permission_models(self):
@@ -79,19 +83,25 @@ class TestVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            user=viewer, variant_list=variant_list, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
-        VariantListAccess.objects.create(
-            user=editor, variant_list=variant_list, level=VariantListAccess.Level.EDITOR
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.EDITOR,
         )
-        VariantListAccess.objects.create(
-            user=owner, variant_list=variant_list, level=VariantListAccess.Level.OWNER
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
         )
 
-        assert VariantListAccess.objects.count() == 3
+        assert VariantListAccessPermission.objects.count() == 3
         variant_list.delete()
-        assert VariantListAccess.objects.count() == 0
+        assert VariantListAccessPermission.objects.count() == 0
 
     @pytest.mark.django_db
     def test_access_level_is_unique(self):
@@ -106,13 +116,15 @@ class TestVariantListAccess:
             variants=["1-55516888-G-GA"],
         )
 
-        VariantListAccess.objects.create(
-            user=user, variant_list=variant_list, level=VariantListAccess.Level.VIEWER
+        VariantListAccessPermission.objects.create(
+            user=user,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.VIEWER,
         )
 
         with pytest.raises(IntegrityError):
-            VariantListAccess.objects.create(
+            VariantListAccessPermission.objects.create(
                 user=user,
                 variant_list=variant_list,
-                level=VariantListAccess.Level.EDITOR,
+                level=VariantListAccessPermission.Level.EDITOR,
             )
