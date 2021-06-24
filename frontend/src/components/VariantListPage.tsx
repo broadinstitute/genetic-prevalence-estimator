@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -139,6 +143,8 @@ export const withVariantList = (
 
     const [isLoading, setIsLoading] = useState(false);
     const [variantList, setVariantList] = useState<VariantList | null>(null);
+    const [error, setError] = useState<Error | null>(null);
+
     useEffect(() => {
       setIsLoading(true);
       setVariantList(null);
@@ -146,7 +152,7 @@ export const withVariantList = (
         .then((response) => response.variant_list)
         .then((variantList) => {
           setVariantList(variantList);
-        })
+        }, setError)
         .finally(() => {
           setIsLoading(false);
         });
@@ -157,6 +163,35 @@ export const withVariantList = (
         <Center>
           <Spinner size="lg" />
         </Center>
+      );
+    }
+
+    if (error) {
+      return (
+        <>
+          <Box mb={2}>
+            <Breadcrumb>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={RRLink} to="/">
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={RRLink} to="/variant-lists/">
+                  Variant Lists
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </Breadcrumb>
+          </Box>
+          <Heading as="h1" mb={4}>
+            Error
+          </Heading>
+          <Alert status="error">
+            <AlertIcon />
+            <AlertTitle>Unable to load variant list</AlertTitle>
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        </>
       );
     }
 
