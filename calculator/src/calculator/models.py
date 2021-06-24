@@ -63,3 +63,10 @@ class VariantListAccess(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "variant_list"), name="unique variant list access level"
+            )
+        ]

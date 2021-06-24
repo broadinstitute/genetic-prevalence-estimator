@@ -1,6 +1,7 @@
 # pylint: disable=no-self-use
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
 from calculator.models import VariantList, VariantListAccess
 
@@ -38,3 +39,27 @@ class TestVariantList:
         assert VariantListAccess.objects.count() == 3
         variant_list.delete()
         assert VariantListAccess.objects.count() == 0
+
+    @pytest.mark.django_db
+    def test_access_level_is_unique(self):
+        user = User.objects.create(username="testuser")
+
+        variant_list = VariantList.objects.create(
+            id=1,
+            label="Test list",
+            description="Initial description",
+            type=VariantList.Type.CUSTOM,
+            metadata={"version": "1", "reference_genome": "GRCh37"},
+            variants=["1-55516888-G-GA"],
+        )
+
+        VariantListAccess.objects.create(
+            user=user, variant_list=variant_list, level=VariantListAccess.Level.VIEWER
+        )
+
+        with pytest.raises(IntegrityError):
+            VariantListAccess.objects.create(
+                user=user,
+                variant_list=variant_list,
+                level=VariantListAccess.Level.EDITOR,
+            )
