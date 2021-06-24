@@ -58,6 +58,9 @@ const VariantListPage = ({ variantList }: { variantList: VariantList }) => {
       {variantList.description && <Text mb={4}>{variantList.description}</Text>}
 
       <DescriptionList mb={4}>
+        <DescriptionListItem label="Status">
+          {variantList.status}
+        </DescriptionListItem>
         <DescriptionListItem label="Created">
           <DateTime datetime={variantList.created_at} />
         </DescriptionListItem>
