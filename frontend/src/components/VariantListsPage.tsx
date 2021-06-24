@@ -53,6 +53,10 @@ const VariantListsContainer = () => {
     );
   }
 
+  if (variantLists.length === 0) {
+    return <Text>No variant lists.</Text>;
+  }
+
   return <VariantLists variantLists={variantLists} />;
 };
 
