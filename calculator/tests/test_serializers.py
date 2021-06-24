@@ -456,3 +456,9 @@ def test_update_variant_list_serializer():
     )
     assert not serializer.is_valid()
     assert "state" in serializer.errors
+
+
+def test_variant_list_serializer_serializes_state_for_display():
+    variant_list = gnomad_variant_list()
+    serializer = VariantListSerializer(variant_list)
+    assert serializer.data["state"] == "Ready"
