@@ -1,5 +1,8 @@
 import re
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import MaxLengthValidator
 from rest_framework import serializers
 
 from calculator.models import VariantList, VariantListAccess
@@ -122,6 +125,57 @@ class NewVariantListSerializer(serializers.ModelSerializer):
     class Meta:
         model = VariantList
         fields = ["label", "description", "type", "metadata", "variants"]
+
+
+class UsernameField(serializers.RelatedField):
+    default_error_messages = {"invalid": "Invalid username."}
+
+    queryset = get_user_model().objects.all()
+
+    def to_representation(self, value):
+        return value.username
+
+    def to_internal_value(self, data):
+        if not isinstance(data, str):
+            return self.fail("invalid")
+
+        for validator in [
+            UnicodeUsernameValidator(),
+            MaxLengthValidator(
+                150, "Ensure this field has no more than 150 characters."
+            ),
+        ]:
+            validator(data)
+
+        try:
+            user, _ = self.get_queryset().get_or_create(username=data)
+            return user
+        except (TypeError, ValueError):
+            return self.fail("invalid")
+
+
+class NewVariantListAccessSerializer(serializers.ModelSerializer):
+    user = UsernameField()
+
+    variant_list = serializers.PrimaryKeyRelatedField(
+        queryset=VariantList.objects.all()
+    )
+
+    level = ChoiceField(choices=VariantListAccess.Level.choices)
+
+    def validate(self, attrs):
+        unknown_fields = set(self.initial_data) - set(self.fields)
+        if unknown_fields:
+            raise serializers.ValidationError(
+                f"Unknown fields: {', '.join(unknown_fields)}"
+            )
+
+        return attrs
+
+    class Meta:
+        model = VariantListAccess
+
+        fields = ["user", "variant_list", "level"]
 
 
 class VariantListAccessSerializer(serializers.ModelSerializer):

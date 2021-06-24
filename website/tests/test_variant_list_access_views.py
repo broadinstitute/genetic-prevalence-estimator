@@ -10,6 +10,102 @@ User = get_user_model()
 
 
 @pytest.mark.django_db
+class TestCreateVariantListAccess:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        owner = User.objects.create(username="owner")
+        viewer = User.objects.create(username="viewer")
+        User.objects.create(username="other")
+
+        list1 = VariantList.objects.create(
+            id=1,
+            label="List 1",
+            type=VariantList.Type.CUSTOM,
+            metadata={"version": "1", "reference_genome": "GRCh37"},
+            variants=["1-55516888-G-GA"],
+        )
+
+        VariantList.objects.create(
+            id=2,
+            label="List 2",
+            type=VariantList.Type.CUSTOM,
+            metadata={"version": "1", "reference_genome": "GRCh37"},
+            variants=["1-55516888-G-GA"],
+        )
+
+        VariantListAccess.objects.create(
+            variant_list=list1, user=owner, level=VariantListAccess.Level.OWNER
+        )
+        VariantListAccess.objects.create(
+            variant_list=list1, user=viewer, level=VariantListAccess.Level.VIEWER
+        )
+
+    def test_granting_variants_list_access_requires_authentication(self):
+        client = APIClient()
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "other",
+                "variant_list": 1,
+                "level": "Viewer",
+            },
+        )
+        assert response.status_code == 403
+
+    def test_granting_variants_list_access_requires_permission(self):
+        # Only variant list owners should be able to grant access to the list.
+        client = APIClient()
+
+        client.force_authenticate(User.objects.get(username="viewer"))
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "other",
+                "variant_list": 1,
+                "level": "Viewer",
+            },
+        )
+        assert response.status_code == 403
+
+        client.force_authenticate(User.objects.get(username="owner"))
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "other",
+                "variant_list": 2,
+                "level": "Viewer",
+            },
+        )
+        assert response.status_code == 403
+
+        assert (
+            VariantListAccess.objects.filter(
+                user__username="other", variant_list=1
+            ).count()
+            == 0
+        )
+
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "other",
+                "variant_list": 1,
+                "level": "Viewer",
+            },
+        )
+        assert response.status_code == 200
+
+        assert (
+            VariantListAccess.objects.filter(
+                user__username="other",
+                variant_list=1,
+                level=VariantListAccess.Level.VIEWER,
+            ).count()
+            == 1
+        )
+
+
+@pytest.mark.django_db
 class TestGetVariantListAccess:
     @pytest.fixture(autouse=True)
     def db_setup(self):

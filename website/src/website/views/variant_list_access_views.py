@@ -6,7 +6,32 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from calculator.models import VariantListAccess
-from calculator.serializers import VariantListAccessSerializer
+from calculator.serializers import (
+    NewVariantListAccessSerializer,
+    VariantListAccessSerializer,
+)
+
+
+class VariantListAccessList(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        create_serializer = NewVariantListAccessSerializer(data=request.data)
+        create_serializer.is_valid(raise_exception=True)
+
+        if (
+            VariantListAccess.objects.filter(
+                user=request.user,
+                variant_list=create_serializer.validated_data["variant_list"],
+                level=VariantListAccess.Level.OWNER,
+            ).count()
+            == 0
+        ):
+            raise PermissionDenied
+
+        new_access = create_serializer.save()
+        serializer = VariantListAccessSerializer(new_access)
+        return Response({"variant_list_access": serializer.data})
 
 
 class VariantListAccessDetail(APIView):

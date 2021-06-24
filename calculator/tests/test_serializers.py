@@ -1,3 +1,4 @@
+# pylint: disable=no-self-use
 import uuid
 
 import pytest
@@ -7,6 +8,7 @@ from calculator.models import VariantList, VariantListAccess
 from calculator.serializers import (
     NewVariantListSerializer,
     VariantListSerializer,
+    NewVariantListAccessSerializer,
     VariantListAccessSerializer,
 )
 
@@ -617,3 +619,48 @@ def test_variant_list_access_serializer_serializes_level_label():
 
     serializer = VariantListAccessSerializer(access)
     assert serializer.data["level"] == "Viewer"
+
+
+@pytest.mark.django_db
+class TestNewVariantListAccessSerializer:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        variant_list = gnomad_variant_list()
+        variant_list.id = 1
+        variant_list.save()
+
+        User.objects.create(username="testuser")
+
+    def test_new_variant_list_access_serializer(self):
+        serializer = NewVariantListAccessSerializer(
+            data={"user": "testuser", "variant_list": 1, "level": "Editor"}
+        )
+        assert serializer.is_valid(), serializer.errors
+
+        serializer = NewVariantListAccessSerializer(
+            data={"user": 12, "variant_list": 1, "level": "Editor"}
+        )
+        assert not serializer.is_valid()
+        assert "user" in serializer.errors
+
+        serializer = NewVariantListAccessSerializer(
+            data={"user": "testuser", "variant_list": "foo", "level": "Editor"}
+        )
+        assert not serializer.is_valid()
+        assert "variant_list" in serializer.errors
+
+        serializer = NewVariantListAccessSerializer(
+            data={"user": "testuser", "variant_list": 1, "level": "foo"}
+        )
+        assert not serializer.is_valid()
+        assert "level" in serializer.errors
+
+        serializer = NewVariantListAccessSerializer(
+            data={
+                "user": "testuser",
+                "variant_list": 1,
+                "level": "Editor",
+                "extra_field": "foo",
+            }
+        )
+        assert not serializer.is_valid()
