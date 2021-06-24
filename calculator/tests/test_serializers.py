@@ -1,7 +1,13 @@
 import uuid
 
-from calculator.models import VariantList
+import pytest
+from django.contrib.auth import get_user_model
+
+from calculator.models import VariantList, VariantListAccess
 from calculator.serializers import NewVariantListSerializer, VariantListSerializer
+
+
+User = get_user_model()
 
 
 def test_new_variant_list_serializer_custom_variant_list():
@@ -462,3 +468,28 @@ def test_variant_list_serializer_serializes_status_for_display():
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(variant_list)
     assert serializer.data["status"] == "Ready"
+
+
+@pytest.mark.django_db
+def test_variant_list_serializer_serializes_access_level():
+    editor = User.objects.create(username="editor")
+    viewer = User.objects.create(username="viewer")
+
+    variant_list = gnomad_variant_list()
+    variant_list.save()
+
+    VariantListAccess.objects.create(
+        variant_list=variant_list, user=editor, level=VariantListAccess.Level.EDITOR
+    )
+    VariantListAccess.objects.create(
+        variant_list=variant_list, user=viewer, level=VariantListAccess.Level.VIEWER
+    )
+
+    serializer = VariantListSerializer(variant_list, context={"current_user": editor})
+    assert serializer.data["access_level"] == "Editor"
+
+    serializer = VariantListSerializer(variant_list, context={"current_user": viewer})
+    assert serializer.data["access_level"] == "Viewer"
+
+    serializer = VariantListSerializer(variant_list)
+    assert "access_level" not in serializer.data

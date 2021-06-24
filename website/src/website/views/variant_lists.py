@@ -49,7 +49,9 @@ class VariantListView(APIView):
 
     def get(self, request, uuid):  # pylint: disable=unused-argument
         variant_list, _ = self.get_variant_list()
-        serializer = VariantListSerializer(variant_list)
+        serializer = VariantListSerializer(
+            variant_list, context={"current_user": request.user}
+        )
         return Response({"variant_list": serializer.data})
 
     def patch(self, request, uuid):  # pylint: disable=unused-argument

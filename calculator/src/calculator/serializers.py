@@ -105,10 +105,25 @@ class NewVariantListSerializer(serializers.ModelSerializer):
 
 
 class VariantListSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        if not kwargs.get("context", {}).get("current_user"):
+            del self.fields["access_level"]
+
+        super().__init__(*args, **kwargs)
+
     status = serializers.SerializerMethodField()
 
     def get_status(self, obj):  # pylint: disable=no-self-use
         return obj.get_status_display()
+
+    access_level = serializers.SerializerMethodField()
+
+    def get_access_level(self, obj):
+        try:
+            current_user = self.context["current_user"]
+            return obj.users_with_access.get(user=current_user).get_level_display()
+        except KeyError:
+            return None
 
     def validate(self, attrs):
         unknown_fields = set(self.initial_data) - set(self.fields)
@@ -148,6 +163,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "status",
+            "access_level",
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "description")]

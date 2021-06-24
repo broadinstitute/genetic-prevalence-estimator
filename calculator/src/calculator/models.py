@@ -54,7 +54,9 @@ class VariantList(models.Model):
 class VariantListAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    variant_list = models.ForeignKey(VariantList, on_delete=models.CASCADE)
+    variant_list = models.ForeignKey(
+        VariantList, on_delete=models.CASCADE, related_name="users_with_access"
+    )
 
     class Level(models.TextChoices):
         OWNER = ("O", "Owner")

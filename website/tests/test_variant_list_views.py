@@ -157,6 +157,20 @@ class TestGetVariantList:
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == expected_response
 
+    @pytest.mark.parametrize(
+        "list_id,expected_access_level",
+        [("1", "Editor"), ("2", "Viewer")],
+    )
+    def test_viewing_variant_list_includes_access_level(
+        self, list_id, expected_access_level
+    ):
+        variant_list = VariantList.objects.get(id=list_id)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="testuser"))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
+        variant_list = response.json()["variant_list"]
+        assert variant_list["access_level"] == expected_access_level
+
 
 @pytest.mark.django_db
 class TestEditVariantList:
