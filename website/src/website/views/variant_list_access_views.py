@@ -68,7 +68,7 @@ class VariantListAccessDetail(APIView):
             access, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(last_updated_by=request.user)
 
         return Response({"variant_list_access": serializer.data})
 

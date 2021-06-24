@@ -104,6 +104,24 @@ class TestCreateVariantListAccess:
             == 1
         )
 
+    def test_granting_variants_list_access_stores_user(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "other",
+                "variant_list": 1,
+                "level": "Viewer",
+            },
+        )
+        access = VariantListAccess.objects.get(
+            user__username="other",
+            variant_list=1,
+            level=VariantListAccess.Level.VIEWER,
+        )
+        assert access.created_by.username == "owner"
+
 
 @pytest.mark.django_db
 class TestGetVariantListAccess:
@@ -285,6 +303,18 @@ class TestEditVariantListAccess:
         assert response.status_code == 403
         access.refresh_from_db()
         assert access.level == VariantListAccess.Level.OWNER
+
+    def test_editing_variant_list_stores_user(self):
+        access = VariantListAccess.objects.get(id=2)
+        assert not access.last_updated_by
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.patch(
+            f"/api/variant-list-access/{access.uuid}/",
+            {"level": VariantListAccess.Level.VIEWER},
+        )
+        access.refresh_from_db()
+        assert access.last_updated_by.username == "owner"
 
 
 class TestDeleteVariantListAccess:
