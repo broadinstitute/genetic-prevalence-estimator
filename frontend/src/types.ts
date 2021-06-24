@@ -14,7 +14,7 @@ export type VariantId = string;
 
 export type VariantListState = "queued" | "processing" | "ready" | "error";
 
-export interface GnomadVariantListDefinition {
+export interface GnomadVariantListMetadata {
   version: "1";
   gnomad_version: GnomadVersion;
   gene_id: string;
@@ -24,7 +24,7 @@ export interface GnomadVariantListDefinition {
     | null;
 }
 
-export interface CustomVariantListDefinition {
+export interface CustomVariantListMetadata {
   version: "1";
   reference_genome: ReferenceGenome;
 }
@@ -33,14 +33,14 @@ export interface GnomadVariantListRequest {
   label: string;
   description: string;
   type: "gnomad";
-  definition: GnomadVariantListDefinition;
+  metadata: GnomadVariantListMetadata;
 }
 
 export interface CustomVariantListRequest {
   label: string;
   description: string;
   type: "custom";
-  definition: CustomVariantListDefinition;
+  metadata: CustomVariantListMetadata;
   variants: VariantId[];
 }
 
@@ -56,12 +56,12 @@ interface VariantListBase {
 
 export interface GnomadVariantList extends VariantListBase {
   type: "gnomad";
-  definition: GnomadVariantListDefinition;
+  metadata: GnomadVariantListMetadata;
 }
 
 export interface CustomVariantList extends VariantListBase {
   type: "custom";
-  definition: CustomVariantListDefinition;
+  metadata: CustomVariantListMetadata;
 }
 
 export type VariantListRequest =

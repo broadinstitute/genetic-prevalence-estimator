@@ -11,7 +11,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "description": "",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
@@ -25,7 +25,7 @@ def test_new_variant_list_serializer_custom_variant_list():
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
@@ -40,7 +40,7 @@ def test_new_variant_list_serializer_custom_variant_list():
         data={
             "label": "",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
@@ -50,24 +50,24 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "label" in serializer.errors
 
-    # Require a definition
+    # Require a metadata
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {},
+            "metadata": {},
             "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
+    assert "metadata" in serializer.errors
 
-    # Require a valid definition version
+    # Require a valid metadata version
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "9000",
                 "reference_genome": "GRCh38",
             },
@@ -75,28 +75,28 @@ def test_new_variant_list_serializer_custom_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
+    assert "metadata" in serializer.errors
 
     # Require a valid reference genome
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
             },
             "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "reference_genome" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "reference_genome" in serializer.errors["metadata"]
 
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "foo",
             },
@@ -104,15 +104,15 @@ def test_new_variant_list_serializer_custom_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "reference_genome" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "reference_genome" in serializer.errors["metadata"]
 
     # Require variants
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
@@ -127,7 +127,7 @@ def test_new_variant_list_serializer_custom_variant_list():
         data={
             "label": "my new variant list",
             "type": "custom",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
@@ -144,7 +144,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -159,7 +159,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -174,7 +174,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -190,7 +190,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -206,7 +206,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -218,23 +218,23 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     assert not serializer.is_valid()
     assert "label" in serializer.errors
 
-    # Require definition
+    # Require metadata
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {},
+            "metadata": {},
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
+    assert "metadata" in serializer.errors
 
-    # Require a valid definition version
+    # Require a valid metadata version
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "9000",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -244,14 +244,14 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
+    assert "metadata" in serializer.errors
 
     # Require valid gnomAD version
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
@@ -260,14 +260,14 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "gnomad_version" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "gnomad_version" in serializer.errors["metadata"]
 
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "8",
                 "gene_id": "ENSG00000169174",
@@ -277,15 +277,15 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "gnomad_version" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "gnomad_version" in serializer.errors["metadata"]
 
     # Require valid gene ID
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "3",
                 "filter_loftee": None,
@@ -294,14 +294,14 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "gene_id" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "gene_id" in serializer.errors["metadata"]
 
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "3",
                 "gene_id": "not-a-gene-id",
@@ -311,15 +311,15 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "gene_id" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "gene_id" in serializer.errors["metadata"]
 
     # Require valid LOFTEE annotations
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "3",
                 "gene_id": "ENSG00000169174",
@@ -329,14 +329,14 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "filter_loftee" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "filter_loftee" in serializer.errors["metadata"]
 
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "3",
                 "gene_id": "ENSG00000169174",
@@ -346,15 +346,15 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "filter_loftee" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "filter_loftee" in serializer.errors["metadata"]
 
     # Require valid ClinVar clinical significances
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -364,15 +364,15 @@ def test_new_variant_list_serializer_gnomad_variant_list():
         }
     )
     assert not serializer.is_valid()
-    assert "definition" in serializer.errors
-    assert "filter_clinvar_clinical_significance" in serializer.errors["definition"]
+    assert "metadata" in serializer.errors
+    assert "filter_clinvar_clinical_significance" in serializer.errors["metadata"]
 
     # Do not allow variants to be uploaded
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": "gnomad",
-            "definition": {
+            "metadata": {
                 "version": "1",
                 "gnomad_version": "2",
                 "gene_id": "ENSG00000169174",
@@ -391,7 +391,7 @@ def test_new_variant_list_serializer_invalid_type():
         data={
             "label": "my new variant list",
             "type": "invalid-type",
-            "definition": {
+            "metadata": {
                 "version": "1",
             },
             "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
@@ -407,7 +407,7 @@ def gnomad_variant_list():
         uuid=uuid.uuid4(),
         label="A gnomAD variant list",
         type=VariantList.Type.GNOMAD,
-        definition={
+        metadata={
             "version": "1",
             "gnomad_version": "2",
             "gene_id": "",

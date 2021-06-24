@@ -71,7 +71,7 @@ const CustomVariantListForm = () => {
             label,
             description,
             type: "custom",
-            definition: {
+            metadata: {
               version: "1",
               reference_genome: referenceGenome as ReferenceGenome,
             },

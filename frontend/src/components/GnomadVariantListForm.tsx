@@ -55,7 +55,7 @@ const GnomadVariantListForm = () => {
             label,
             description,
             type: "gnomad",
-            definition: {
+            metadata: {
               version: "1",
               gene_id: geneId,
               gnomad_version: gnomadVersion as GnomadVersion,
@@ -65,17 +65,17 @@ const GnomadVariantListForm = () => {
           };
 
           if (lofteeFilter === "HC") {
-            variantListRequest.definition.filter_loftee = ["HC"];
+            variantListRequest.metadata.filter_loftee = ["HC"];
           } else if (lofteeFilter === "HC+LC") {
-            variantListRequest.definition.filter_loftee = ["HC", "LC"];
+            variantListRequest.metadata.filter_loftee = ["HC", "LC"];
           }
 
           if (clinvarFilter === "pathogenic") {
-            variantListRequest.definition.filter_clinvar_clinical_significance = [
+            variantListRequest.metadata.filter_clinvar_clinical_significance = [
               "pathogenic",
             ];
           } else if (clinvarFilter === "pathogenic+uncertain") {
-            variantListRequest.definition.filter_clinvar_clinical_significance = [
+            variantListRequest.metadata.filter_clinvar_clinical_significance = [
               "pathogenic",
               "uncertain",
             ];

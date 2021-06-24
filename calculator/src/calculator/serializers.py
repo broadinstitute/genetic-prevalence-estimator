@@ -13,7 +13,7 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
-class GnomadVariantListDefinitionVersion1Serializer(
+class GnomadVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     gnomad_version = serializers.ChoiceField(["2", "3"])
@@ -28,7 +28,7 @@ class GnomadVariantListDefinitionVersion1Serializer(
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
 
 
-class CustomVariantListDefinitionVersion1Serializer(
+class CustomVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     reference_genome = serializers.ChoiceField(["GRCh37", "GRCh38"])
@@ -46,31 +46,31 @@ class NewVariantListSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    def validate_definition(self, value):
+    def validate_metadata(self, value):
         if not value:
             raise serializers.ValidationError("This field is required.")
 
         variant_list_type = self.initial_data.get("type")
         version = value.pop("version")
         if variant_list_type == VariantList.Type.CUSTOM:
-            definition_serializer_class = {
-                "1": CustomVariantListDefinitionVersion1Serializer
+            metadata_serializer_class = {
+                "1": CustomVariantListMetadataVersion1Serializer
             }.get(version)
         elif variant_list_type == VariantList.Type.GNOMAD:
-            definition_serializer_class = {
-                "1": GnomadVariantListDefinitionVersion1Serializer
+            metadata_serializer_class = {
+                "1": GnomadVariantListMetadataVersion1Serializer
             }.get(version)
         else:
             raise serializers.ValidationError(
-                "Unknown variant list type, unable to validate definition."
+                "Unknown variant list type, unable to validate metadata."
             )
 
-        if not definition_serializer_class:
+        if not metadata_serializer_class:
             raise serializers.ValidationError("Invalid version.")
 
-        definition_serializer = definition_serializer_class(data=value)
-        if not definition_serializer.is_valid():
-            raise serializers.ValidationError(definition_serializer.errors)
+        metadata_serializer = metadata_serializer_class(data=value)
+        if not metadata_serializer.is_valid():
+            raise serializers.ValidationError(metadata_serializer.errors)
 
         return value
 
@@ -101,7 +101,7 @@ class NewVariantListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariantList
-        fields = ["label", "description", "type", "definition", "variants"]
+        fields = ["label", "description", "type", "metadata", "variants"]
 
 
 class VariantListSerializer(serializers.ModelSerializer):
@@ -138,7 +138,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             "label",
             "description",
             "type",
-            "definition",
+            "metadata",
             "variants",
             "created_at",
             "updated_at",

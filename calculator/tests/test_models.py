@@ -21,7 +21,7 @@ class TestVariantList:
             label="Test list",
             description="Initial description",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 

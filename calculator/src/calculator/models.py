@@ -17,7 +17,7 @@ class VariantList(models.Model):
 
     type = models.CharField(max_length=10, choices=Type.choices, default=Type.CUSTOM)
 
-    definition = models.JSONField()
+    metadata = models.JSONField()
 
     variants = models.JSONField(default=list)
 

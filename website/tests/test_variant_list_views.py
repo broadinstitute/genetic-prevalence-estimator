@@ -19,7 +19,7 @@ class TestGetVariantLists:
         list1 = VariantList.objects.create(
             label="List 1",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -29,7 +29,7 @@ class TestGetVariantLists:
         list2 = VariantList.objects.create(
             label="List 2",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -72,7 +72,7 @@ class TestCreateVariantList:
             {
                 "label": "A variant list",
                 "type": "custom",
-                "definition": {"version": "1", "reference_genome": "GRCh37"},
+                "metadata": {"version": "1", "reference_genome": "GRCh37"},
                 "variants": ["1-55516888-G-GA"],
             },
         )
@@ -88,7 +88,7 @@ class TestCreateVariantList:
             {
                 "label": "A variant list",
                 "type": "custom",
-                "definition": {"version": "1", "reference_genome": "GRCh37"},
+                "metadata": {"version": "1", "reference_genome": "GRCh37"},
                 "variants": ["1-55516888-G-GA"],
             },
         )
@@ -114,7 +114,7 @@ class TestGetVariantList:
             id=1,
             label="List 1",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -122,7 +122,7 @@ class TestGetVariantList:
             id=2,
             label="List 2",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -130,7 +130,7 @@ class TestGetVariantList:
             id=3,
             label="List 3",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -172,7 +172,7 @@ class TestEditVariantList:
             label="Test list",
             description="Initial description",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
@@ -233,7 +233,7 @@ class TestDeleteVariantList:
             label="Test list",
             description="Initial description",
             type=VariantList.Type.CUSTOM,
-            definition={"version": "1", "reference_genome": "GRCh37"},
+            metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
         )
 
