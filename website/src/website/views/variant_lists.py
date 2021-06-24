@@ -13,12 +13,7 @@ class VariantListsView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        variant_lists = [
-            access.variant_list
-            for access in VariantListAccess.objects.filter(
-                user=request.user
-            ).select_related("variant_list")
-        ]
+        variant_lists = VariantList.objects.filter(access_permission__user=request.user)
         serializer = VariantListSerializer(variant_lists, many=True)
         return Response({"variant_lists": serializer.data})
 
