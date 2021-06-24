@@ -4,7 +4,11 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from calculator.models import VariantList, VariantListAccess
-from calculator.serializers import NewVariantListSerializer, VariantListSerializer
+from calculator.serializers import (
+    NewVariantListSerializer,
+    VariantListSerializer,
+    VariantListAccessSerializer,
+)
 
 
 User = get_user_model()
@@ -551,3 +555,65 @@ def test_variant_list_serializer_serializes_users_with_access_for_owners():
 
     serializer = VariantListSerializer(variant_list)
     assert "users_with_access" not in serializer.data
+
+
+def test_variant_list_access_serializer_only_allows_editing_level():
+    user = User(username="testuser")
+    variant_list = gnomad_variant_list()
+    access = VariantListAccess(
+        uuid=uuid.uuid4(),
+        user=user,
+        variant_list=variant_list,
+        level=VariantListAccess.Level.VIEWER,
+    )
+
+    serializer = VariantListAccessSerializer(
+        access, data={"level": VariantListAccess.Level.EDITOR}, partial=True
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    serializer = VariantListAccessSerializer(
+        access, data={"uuid": uuid.uuid4()}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "uuid" in serializer.errors
+
+    serializer = VariantListAccessSerializer(
+        access, data={"username": "otheruser"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "username" in serializer.errors
+
+    other_list = gnomad_variant_list()
+    serializer = VariantListAccessSerializer(
+        access, data={"variant_list": other_list}, partial=True
+    )
+    assert not serializer.is_valid()
+
+
+def test_variant_list_access_serializer_serializes_username():
+    user = User(username="testuser")
+    variant_list = gnomad_variant_list()
+    access = VariantListAccess(
+        uuid=uuid.uuid4(),
+        user=user,
+        variant_list=variant_list,
+        level=VariantListAccess.Level.VIEWER,
+    )
+
+    serializer = VariantListAccessSerializer(access)
+    assert serializer.data["username"] == "testuser"
+
+
+def test_variant_list_access_serializer_serializes_level_label():
+    user = User(username="testuser")
+    variant_list = gnomad_variant_list()
+    access = VariantListAccess(
+        uuid=uuid.uuid4(),
+        user=user,
+        variant_list=variant_list,
+        level=VariantListAccess.Level.VIEWER,
+    )
+
+    serializer = VariantListAccessSerializer(access)
+    assert serializer.data["level"] == "Viewer"
