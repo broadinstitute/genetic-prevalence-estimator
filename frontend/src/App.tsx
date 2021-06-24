@@ -7,17 +7,26 @@ import {
   Container,
   Flex,
   HStack,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Spinner,
 } from "@chakra-ui/react";
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Link as RRLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 
+import CreateVariantListPage from "./components/CreateVariantListPage";
+import EditVariantListPage from "./components/EditVariantListPage";
+import Link from "./components/Link";
 import SignInButton from "./components/SignInButton";
+import VariantListPage from "./components/VariantListPage";
+import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadAppConfig, useStore } from "./state";
 
@@ -31,9 +40,7 @@ const App = () => {
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <HStack spacing={8} alignItems={"center"}>
               <Box>
-                <Link as={RRLink} py={3} to="/">
-                  Aggregate Frequency Calculator
-                </Link>
+                <Link to="/">Aggregate Frequency Calculator</Link>
               </Box>
             </HStack>
 
@@ -65,6 +72,40 @@ const App = () => {
 
       <Container maxW="container.lg">
         {!isSignedIn && <SignInButton />}
+        {isSignedIn && (
+          <Switch>
+            <Route
+              exact
+              path="/variant-lists/new/"
+              component={CreateVariantListPage}
+            />
+
+            <Route
+              exact
+              path="/variant-lists/:uuid/edit/"
+              render={({ match }) => {
+                return <EditVariantListPage uuid={match.params.uuid} />;
+              }}
+            />
+
+            <Route
+              exact
+              path="/variant-lists/:uuid/"
+              render={({ match }) => {
+                return <VariantListPage uuid={match.params.uuid} />;
+              }}
+            />
+
+            <Route exact path="/variant-lists/" component={VariantListsPage} />
+            <Route
+              exact
+              path="/"
+              render={() => {
+                return <Redirect to="/variant-lists/" />;
+              }}
+            />
+          </Switch>
+        )}
       </Container>
     </>
   );

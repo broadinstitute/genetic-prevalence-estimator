@@ -6,7 +6,8 @@ disable=
   bad-continuation,  # conflicts with Black formatting
   line-too-long,     # conflicts with Black formatting
   duplicate-code,
-  missing-docstring
+  missing-docstring,
+  too-few-public-methods
 
 [MISCELLANEOUS]
 notes=FIXME,TODO

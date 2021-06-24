@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "calculator",
 ]
 
 MIDDLEWARE = [
@@ -182,7 +183,8 @@ LOGGING = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 

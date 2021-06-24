@@ -20,6 +20,12 @@ const getCookie = (name: string): string | null => {
 const request = (path: string, options: RequestInit): Promise<any> => {
   return fetch(`/api${path}`, options).then((response) => {
     const isOk = response.ok;
+
+    // Handle no content
+    if (response.status === 204) {
+      return;
+    }
+
     return response.json().then(
       (data) => {
         if (isOk) {
@@ -72,5 +78,17 @@ export const post = (path: string, data: any): Promise<any> => {
     body: JSON.stringify(data),
     headers,
     method: "POST",
+  });
+};
+
+export const del = (path: string): Promise<any> => {
+  const headers: { [key: string]: string } = {};
+  const csrfToken = getCookie("csrftoken");
+  if (csrfToken) {
+    headers["X-CSRFToken"] = csrfToken;
+  }
+  return request(path, {
+    headers,
+    method: "DELETE",
   });
 };
