@@ -22,7 +22,11 @@ class VariantList(models.Model):
     variants = models.JSONField(default=list)
 
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_variant_lists",
+        related_query_name="created_variant_list",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
