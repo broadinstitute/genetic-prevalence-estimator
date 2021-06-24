@@ -58,7 +58,12 @@ class VariantList(models.Model):
 class VariantListAccess(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="variant_list_access_permissions",
+        related_query_name="variant_list_access_permission",
+    )
 
     variant_list = models.ForeignKey(
         VariantList,
