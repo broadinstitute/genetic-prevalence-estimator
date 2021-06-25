@@ -42,6 +42,7 @@ import { useEffect, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get, patch, post } from "../api";
+import { authStore, useStore } from "../state";
 import { VariantList, VariantListAccessLevel } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
@@ -114,6 +115,9 @@ const VariantListSharingSettings = (props: {
   onChange: (variantList: VariantList) => void;
 }) => {
   const { variantList, onChange } = props;
+
+  const { user } = useStore(authStore);
+
   const toast = useToast();
 
   const shareVariantList = ({
@@ -211,7 +215,11 @@ const VariantListSharingSettings = (props: {
                 <Text>{accessPermission.username}</Text>
                 <HStack>
                   <Menu>
-                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                    <MenuButton
+                      as={Button}
+                      disabled={accessPermission.username === user?.username}
+                      rightIcon={<ChevronDownIcon />}
+                    >
                       {accessPermission.level}
                     </MenuButton>
                     <MenuList>
@@ -248,6 +256,7 @@ const VariantListSharingSettings = (props: {
                     </MenuList>
                   </Menu>
                   <Button
+                    disabled={accessPermission.username === user?.username}
                     onClick={() => {
                       removeAccess(accessPermission.uuid);
                     }}
