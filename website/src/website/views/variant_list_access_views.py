@@ -1,8 +1,6 @@
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from calculator.models import VariantListAccessPermission
 from calculator.serializers import (
@@ -12,26 +10,26 @@ from calculator.serializers import (
 from website.permissions import ViewObjectPermissions
 
 
-class VariantListAccessList(APIView):
-    permission_classes = (IsAuthenticated,)
+class VariantListAccessList(CreateAPIView):
+    queryset = VariantListAccessPermission.objects.all()
 
-    def post(self, request):
-        create_serializer = NewVariantListAccessPermissionSerializer(data=request.data)
-        create_serializer.is_valid(raise_exception=True)
+    permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
-        if (
-            VariantListAccessPermission.objects.filter(
-                user=request.user,
-                variant_list=create_serializer.validated_data["variant_list"],
-                level=VariantListAccessPermission.Level.OWNER,
-            ).count()
-            == 0
+    serializer_class = NewVariantListAccessPermissionSerializer
+
+    def perform_create(self, serializer):
+        if not self.request.user.has_perm(
+            "calculator.share_variantlist", serializer.validated_data["variant_list"]
         ):
             raise PermissionDenied
 
-        new_access = create_serializer.save(created_by=request.user)
-        serializer = VariantListAccessPermissionSerializer(new_access)
-        return Response({"variant_list_access": serializer.data})
+        serializer.save(created_by=self.request.user)
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": f"/api/variant-list-access/{data['uuid']}/"}
+        except KeyError:
+            return {}
 
 
 class VariantListAccessDetail(RetrieveUpdateDestroyAPIView):

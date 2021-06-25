@@ -132,12 +132,12 @@ const VariantListSharingSettings = (props: {
       user: username,
       level,
     }).then(
-      (response) => {
+      (newAccessPermission) => {
         onChange({
           ...variantList,
           access_permissions: [
             ...(variantList.access_permissions || []),
-            response.variant_list_access,
+            newAccessPermission,
           ],
         });
       },

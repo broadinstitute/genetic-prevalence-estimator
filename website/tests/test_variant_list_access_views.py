@@ -97,7 +97,7 @@ class TestCreateVariantListAccessPermission:
                 "level": "Viewer",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
 
         assert (
             VariantListAccessPermission.objects.filter(
@@ -139,6 +139,23 @@ class TestCreateVariantListAccessPermission:
             },
         )
         assert User.objects.filter(username="newuser").count() == 1
+
+    def test_granting_variants_list_access_returns_location_for_permission_detail(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "anotheruser",
+                "variant_list": VariantList.objects.get(id=1).uuid,
+                "level": "Viewer",
+            },
+        )
+        assert response.has_header("Location")
+        access = VariantListAccessPermission.objects.get(
+            user__username="anotheruser", variant_list=1
+        )
+        assert str(access.uuid) in response.headers["Location"]
 
 
 @pytest.mark.django_db

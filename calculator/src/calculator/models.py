@@ -162,6 +162,8 @@ rules.add_perm(
 
 rules.add_perm("calculator.delete_variantlist", rules.is_active & is_variant_list_owner)
 
+rules.add_perm("calculator.share_variantlist", rules.is_active & is_variant_list_owner)
+
 
 @object_level_predicate
 def can_view_associated_variant_list(user, obj):
@@ -185,6 +187,8 @@ def is_owner_of_associated_variant_list(user, obj):
     except VariantListAccessPermission.DoesNotExist:
         return False
 
+
+rules.add_perm("calculator.add_variantlistaccesspermission", rules.is_active)
 
 rules.add_perm(
     "calculator.view_variantlistaccesspermission",

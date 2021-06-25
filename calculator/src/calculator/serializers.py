@@ -176,7 +176,9 @@ class NewVariantListAccessPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = VariantListAccessPermission
 
-        fields = ["user", "variant_list", "level"]
+        fields = ["uuid", "user", "variant_list", "level"]
+
+        read_only_fields = ["uuid"]
 
 
 class VariantListAccessPermissionSerializer(serializers.ModelSerializer):
