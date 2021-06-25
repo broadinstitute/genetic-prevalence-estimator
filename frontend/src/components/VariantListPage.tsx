@@ -11,9 +11,13 @@ import {
   BreadcrumbLink,
   Button,
   Center,
+  Divider,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   HStack,
+  Input,
   ListItem,
   Menu,
   MenuButton,
@@ -27,6 +31,7 @@ import {
   ModalHeader,
   ModalOverlay,
   OrderedList,
+  Select,
   Spinner,
   Text,
   UnorderedList,
@@ -36,12 +41,73 @@ import {
 import { useEffect, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { del, get, patch } from "../api";
+import { del, get, patch, post } from "../api";
 import { VariantList, VariantListAccessLevel } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
 import DateTime from "./DateTime";
 import { DescriptionList, DescriptionListItem } from "./DescriptionList";
+
+interface ShareVariantListFormValue {
+  username: string;
+  level: VariantListAccessLevel;
+}
+
+interface ShareVariantListFormProps {
+  onSubmit: (value: ShareVariantListFormValue) => void;
+}
+
+const ShareVariantListForm = (props: ShareVariantListFormProps) => {
+  const { onSubmit } = props;
+
+  const [username, setUsername] = useState("");
+  const [level, setLevel] = useState("Viewer");
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        onSubmit({
+          level: level as VariantListAccessLevel,
+          username,
+        });
+
+        setUsername("");
+      }}
+    >
+      <HStack align="flex-end">
+        <FormControl id="share-variant-list-user" flexGrow={1}>
+          <FormLabel>User</FormLabel>
+          <Input
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
+          />
+        </FormControl>
+
+        <FormControl id="share-variant-list-level" width={300}>
+          <FormLabel>Access level</FormLabel>
+          <Select
+            value={level}
+            onChange={(e) => {
+              setLevel(e.target.value);
+            }}
+          >
+            <option value="Viewer">Viewer</option>
+            <option value="Editor">Editor</option>
+            <option value="Owner">Owner</option>
+          </Select>
+        </FormControl>
+
+        <Button colorScheme="blue" type="submit" flexShrink={0}>
+          Submit
+        </Button>
+      </HStack>
+    </form>
+  );
+};
 
 const VariantListSharingSettings = (props: {
   variantList: VariantList;
@@ -49,6 +115,39 @@ const VariantListSharingSettings = (props: {
 }) => {
   const { variantList, onChange } = props;
   const toast = useToast();
+
+  const shareVariantList = ({
+    username,
+    level,
+  }: {
+    username: string;
+    level: VariantListAccessLevel;
+  }): Promise<void> => {
+    return post("/variant-list-access/", {
+      variant_list: variantList.uuid,
+      user: username,
+      level,
+    }).then(
+      (response) => {
+        onChange({
+          ...variantList,
+          access_permissions: [
+            ...(variantList.access_permissions || []),
+            response.variant_list_access,
+          ],
+        });
+      },
+      (error) => {
+        toast({
+          title: "Unable to share variant list",
+          description: error.message,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+    );
+  };
 
   const setAccessLevel = (
     uuid: string,
@@ -102,63 +201,69 @@ const VariantListSharingSettings = (props: {
   };
 
   return (
-    <UnorderedList>
-      {variantList.access_permissions?.map((accessPermission) => {
-        return (
-          <ListItem key={accessPermission.uuid}>
-            <Flex align="center" justify="space-between">
-              <Text>{accessPermission.username}</Text>
-              <HStack>
-                <Menu>
-                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                    {accessPermission.level}
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem
-                      onClick={() => {
-                        setAccessLevel(
-                          accessPermission.uuid,
-                          VariantListAccessLevel.OWNER
-                        );
-                      }}
-                    >
-                      Owner
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        setAccessLevel(
-                          accessPermission.uuid,
-                          VariantListAccessLevel.EDITOR
-                        );
-                      }}
-                    >
-                      Editor
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        setAccessLevel(
-                          accessPermission.uuid,
-                          VariantListAccessLevel.VIEWER
-                        );
-                      }}
-                    >
-                      Viewer
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Button
-                  onClick={() => {
-                    removeAccess(accessPermission.uuid);
-                  }}
-                >
-                  Remove
-                </Button>
-              </HStack>
-            </Flex>
-          </ListItem>
-        );
-      })}
-    </UnorderedList>
+    <>
+      <Text mb={2}>Collaborators</Text>
+      <UnorderedList>
+        {variantList.access_permissions?.map((accessPermission) => {
+          return (
+            <ListItem key={accessPermission.uuid} mb={2}>
+              <Flex align="center" justify="space-between">
+                <Text>{accessPermission.username}</Text>
+                <HStack>
+                  <Menu>
+                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                      {accessPermission.level}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        onClick={() => {
+                          setAccessLevel(
+                            accessPermission.uuid,
+                            VariantListAccessLevel.OWNER
+                          );
+                        }}
+                      >
+                        Owner
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          setAccessLevel(
+                            accessPermission.uuid,
+                            VariantListAccessLevel.EDITOR
+                          );
+                        }}
+                      >
+                        Editor
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          setAccessLevel(
+                            accessPermission.uuid,
+                            VariantListAccessLevel.VIEWER
+                          );
+                        }}
+                      >
+                        Viewer
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                  <Button
+                    onClick={() => {
+                      removeAccess(accessPermission.uuid);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </HStack>
+              </Flex>
+            </ListItem>
+          );
+        })}
+      </UnorderedList>
+      <Divider mb={4} mt={4} />
+      <Text mb={2}>Add a collaborator</Text>
+      <ShareVariantListForm onSubmit={shareVariantList} />
+    </>
   );
 };
 
@@ -263,7 +368,7 @@ const VariantListPage = (props: { variantList: VariantList }) => {
             <UnorderedList mb={4}>
               {variantList.access_permissions.map((accessPermission) => {
                 return (
-                  <ListItem key={accessPermission.username}>
+                  <ListItem key={accessPermission.username} mb={2}>
                     {accessPermission.username}{" "}
                     <Badge>{accessPermission.level}</Badge>
                   </ListItem>
