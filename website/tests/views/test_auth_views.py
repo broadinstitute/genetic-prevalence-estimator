@@ -48,3 +48,36 @@ class TestAuth:
 
             user = User.objects.get(username="existinguser")
             assert user.is_active
+
+
+@pytest.mark.django_db
+class TestProfile:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="staffmember", is_staff=True)
+        User.objects.create(username="activeuser")
+        User.objects.create(username="inactiveuser", is_active=False)
+
+    def test_requires_authentication(self):
+        client = APIClient()
+        response = client.get("/api/auth/whoami/")
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize("username", ["staffmember", "activeuser", "inactiveuser"])
+    def test_returns_user_info(self, username):
+        user = User.objects.get(username=username)
+        client = APIClient()
+        client.force_authenticate(user)
+        response = client.get("/api/auth/whoami/").json()
+
+        if user.is_staff:
+            assert response == {
+                "username": user.username,
+                "is_active": user.is_active,
+                "is_staff": user.is_staff,
+            }
+        else:
+            assert response == {
+                "username": user.username,
+                "is_active": user.is_active,
+            }

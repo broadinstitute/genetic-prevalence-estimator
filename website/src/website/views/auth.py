@@ -10,12 +10,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from website.serializers import CurrentUserSerializer
+
 
 logger = logging.getLogger(__name__)
-
-
-def serialize_user(user):
-    return {"username": user.username}
 
 
 def get_username_from_token(request):
@@ -43,7 +41,8 @@ def signin(request):
         username=username, defaults={"is_active": False}
     )
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    return Response(serialize_user(user))
+    serializer = CurrentUserSerializer(user)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])
@@ -56,4 +55,5 @@ def signout(request):
 @api_view()
 @permission_classes([IsAuthenticated])
 def whoami(request):
-    return Response(serialize_user(request.user))
+    serializer = CurrentUserSerializer(request.user)
+    return Response(serializer.data)

@@ -2,7 +2,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from website.serializers import UserSerializer, NewUserSerializer
+from website.serializers import UserSerializer, NewUserSerializer, CurrentUserSerializer
 
 
 User = get_user_model()
@@ -53,3 +53,29 @@ class TestNewUserSerializer:
         )
         assert not serializer.is_valid()
         assert "username" in serializer.errors
+
+
+class TestCurrentUserSerializer:
+    def test_serializer(self):
+        user = User(username="testuser", is_active=True)
+        serializer = CurrentUserSerializer(user)
+        assert serializer.data == {
+            "username": "testuser",
+            "is_active": True,
+        }
+
+        user = User(username="inactiveuser", is_active=False)
+        serializer = CurrentUserSerializer(user)
+        assert serializer.data == {
+            "username": "inactiveuser",
+            "is_active": False,
+        }
+
+    def test_includes_staff_field_for_staff_users(self):
+        user = User(username="staffmember", is_staff=True)
+        serializer = CurrentUserSerializer(user)
+        assert serializer.data == {
+            "username": "staffmember",
+            "is_active": True,
+            "is_staff": True,
+        }
