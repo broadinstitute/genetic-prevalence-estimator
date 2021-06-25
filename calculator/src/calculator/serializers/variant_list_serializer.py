@@ -3,6 +3,7 @@ import re
 from rest_framework import serializers
 
 from calculator.models import VariantList, VariantListAccessPermission
+from calculator.serializers.serializer import ModelSerializer
 from calculator.serializers.serializer_fields import ChoiceField
 from calculator.serializers.variant_list_access_permission_serializer import (
     VariantListAccessPermissionSerializer,
@@ -38,17 +39,8 @@ class CustomVariantListMetadataVersion1Serializer(
     reference_genome = serializers.ChoiceField(["GRCh37", "GRCh38"])
 
 
-class NewVariantListSerializer(serializers.ModelSerializer):
+class NewVariantListSerializer(ModelSerializer):
     description = serializers.CharField(allow_blank=True, required=False)
-
-    def validate(self, attrs):
-        unknown_fields = set(self.initial_data) - set(self.fields)
-        if unknown_fields:
-            raise serializers.ValidationError(
-                f"Unknown fields: {', '.join(unknown_fields)}"
-            )
-
-        return attrs
 
     def validate_metadata(self, value):
         if not value:
@@ -109,7 +101,7 @@ class NewVariantListSerializer(serializers.ModelSerializer):
         read_only_fields = ["uuid"]
 
 
-class VariantListSerializer(serializers.ModelSerializer):
+class VariantListSerializer(ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -140,31 +132,6 @@ class VariantListSerializer(serializers.ModelSerializer):
     access_permissions = VariantListAccessPermissionSerializer(
         many=True, read_only=True
     )
-
-    def validate(self, attrs):
-        unknown_fields = set(self.initial_data) - set(self.fields)
-        if unknown_fields:
-            raise serializers.ValidationError(
-                f"Unknown fields: {', '.join(unknown_fields)}"
-            )
-
-        read_only_fields = set(self.initial_data).intersection(
-            set(
-                field_name
-                for field_name, field in self.fields.items()
-                if field.read_only
-            )
-        )
-
-        if read_only_fields:
-            raise serializers.ValidationError(
-                {
-                    field_name: f"{field_name} cannot be updated."
-                    for field_name in read_only_fields
-                }
-            )
-
-        return attrs
 
     class Meta:
         model = VariantList
