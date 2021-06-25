@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 
 from website.views.app_config import get_app_config
 from website.views.auth import signin, signout, whoami
-from website.views.variant_lists import VariantListsView, VariantListView
+from website.views.variant_list_views import VariantListsView, VariantListView
 from website.views.variant_list_access_views import (
     VariantListAccessList,
     VariantListAccessDetail,
