@@ -223,36 +223,24 @@ const VariantListSharingSettings = (props: {
                       {accessPermission.level}
                     </MenuButton>
                     <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          setAccessLevel(
-                            accessPermission.uuid,
-                            VariantListAccessLevel.OWNER
-                          );
-                        }}
-                      >
-                        Owner
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          setAccessLevel(
-                            accessPermission.uuid,
-                            VariantListAccessLevel.EDITOR
-                          );
-                        }}
-                      >
-                        Editor
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          setAccessLevel(
-                            accessPermission.uuid,
-                            VariantListAccessLevel.VIEWER
-                          );
-                        }}
-                      >
-                        Viewer
-                      </MenuItem>
+                      {[
+                        [VariantListAccessLevel.OWNER, "Owner"],
+                        [VariantListAccessLevel.EDITOR, "Editor"],
+                        [VariantListAccessLevel.VIEWER, "Viewer"],
+                      ].map(([level, label]) => {
+                        return (
+                          <MenuItem
+                            onClick={() => {
+                              setAccessLevel(
+                                accessPermission.uuid,
+                                level as VariantListAccessLevel
+                              );
+                            }}
+                          >
+                            {label}
+                          </MenuItem>
+                        );
+                      })}
                     </MenuList>
                   </Menu>
                   <Button
