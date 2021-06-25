@@ -229,7 +229,7 @@ class TestGetVariantListAccessPermission:
         response = client.get(f"/api/variant-list-access/{access.uuid}/")
         assert response.status_code == 200
 
-        access = response.json()["variant_list_access"]
+        access = response.json()
         assert "level" in access
         assert access["level"] == expected_level
 

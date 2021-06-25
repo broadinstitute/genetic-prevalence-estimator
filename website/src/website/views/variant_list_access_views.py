@@ -1,6 +1,5 @@
-from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +9,7 @@ from calculator.serializers import (
     NewVariantListAccessPermissionSerializer,
     VariantListAccessPermissionSerializer,
 )
+from website.permissions import ViewObjectPermissions
 
 
 class VariantListAccessList(APIView):
@@ -34,54 +34,17 @@ class VariantListAccessList(APIView):
         return Response({"variant_list_access": serializer.data})
 
 
-class VariantListAccessDetail(APIView):
-    permission_classes = (IsAuthenticated,)
+class VariantListAccessDetail(RetrieveUpdateDestroyAPIView):
+    queryset = VariantListAccessPermission.objects.all()
 
-    def get_variant_list_access(self):
-        access = get_object_or_404(
-            VariantListAccessPermission, uuid=self.kwargs["uuid"]
-        )
-        if access.user == self.request.user:
-            return access, access.level
+    lookup_field = "uuid"
 
-        current_user_list_access = get_object_or_404(
-            VariantListAccessPermission,
-            user=self.request.user,
-            variant_list=access.variant_list,
-        )
-        if current_user_list_access.level == VariantListAccessPermission.Level.OWNER:
-            return access, current_user_list_access.level
+    permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
-        raise NotFound
+    serializer_class = VariantListAccessPermissionSerializer
 
-    def get(self, request, uuid):  # pylint: disable=unused-argument
-        access, _ = self.get_variant_list_access()
-        serializer = VariantListAccessPermissionSerializer(
-            access, context={"current_user": request.user}
-        )
-        return Response({"variant_list_access": serializer.data})
+    def get_serializer_context(self):
+        return {"current_user": self.request.user}
 
-    def patch(self, request, uuid):  # pylint: disable=unused-argument
-        access, current_user_access_level = self.get_variant_list_access()
-        if current_user_access_level != VariantListAccessPermission.Level.OWNER:
-            raise PermissionDenied
-        if access.user == request.user:
-            raise PermissionDenied
-
-        serializer = VariantListAccessPermissionSerializer(
-            access, data=request.data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save(last_updated_by=request.user)
-
-        return Response({"variant_list_access": serializer.data})
-
-    def delete(self, request, uuid):  # pylint: disable=unused-argument
-        access, current_user_access_level = self.get_variant_list_access()
-        if current_user_access_level != VariantListAccessPermission.Level.OWNER:
-            raise PermissionDenied
-        if access.user == request.user:
-            raise PermissionDenied
-
-        access.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def perform_update(self, serializer):
+        serializer.save(last_updated_by=self.request.user)

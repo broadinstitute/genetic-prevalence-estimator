@@ -161,3 +161,46 @@ rules.add_perm(
 )
 
 rules.add_perm("calculator.delete_variantlist", rules.is_active & is_variant_list_owner)
+
+
+@object_level_predicate
+def can_view_associated_variant_list(user, obj):
+    try:
+        obj.variant_list.access_permissions.get(user=user)
+        return True
+    except VariantListAccessPermission.DoesNotExist:
+        return False
+
+
+@object_level_predicate
+def is_associated_user(user, obj):
+    return obj.user == user
+
+
+@object_level_predicate
+def is_owner_of_associated_variant_list(user, obj):
+    try:
+        access = obj.variant_list.access_permissions.get(user=user)
+        return access.level == VariantListAccessPermission.Level.OWNER
+    except VariantListAccessPermission.DoesNotExist:
+        return False
+
+
+rules.add_perm(
+    "calculator.view_variantlistaccesspermission",
+    rules.is_active & (is_owner_of_associated_variant_list | is_associated_user),
+)
+
+rules.add_perm(
+    "calculator.change_variantlistaccesspermission",
+    rules.is_active
+    & is_owner_of_associated_variant_list
+    & ~is_associated_user,  # pylint: disable=invalid-unary-operand-type
+)
+
+rules.add_perm(
+    "calculator.delete_variantlistaccesspermission",
+    rules.is_active
+    & is_owner_of_associated_variant_list
+    & ~is_associated_user,  # pylint: disable=invalid-unary-operand-type
+)
