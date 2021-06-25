@@ -1,11 +1,12 @@
 import re
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import MaxLengthValidator
 from rest_framework import serializers
 
 from calculator.models import VariantList, VariantListAccessPermission
+from calculator.serializers.serializer_fields import ChoiceField
+from calculator.serializers.variant_list_access_permission_serializer import (
+    VariantListAccessPermissionSerializer,
+)
 
 
 def is_gene_id(maybe_gene_id):
@@ -14,26 +15,6 @@ def is_gene_id(maybe_gene_id):
 
 def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
-
-
-class ChoiceField(serializers.ChoiceField):
-    """Choice field that serializes the choice's label and accepts either a choice's value or its label."""
-
-    def to_representation(self, value):
-        if value in ("", None):
-            return value
-
-        return self.choices[value]
-
-    def to_internal_value(self, data):
-        if data == "" and self.allow_blank:
-            return ""
-
-        for key, val in self.choices.items():
-            if str(data) in (str(key), str(val)):
-                return key
-
-        return self.fail("invalid_choice", input=data)
 
 
 class GnomadVariantListMetadataVersion1Serializer(
@@ -126,100 +107,6 @@ class NewVariantListSerializer(serializers.ModelSerializer):
         model = VariantList
         fields = ["uuid", "label", "description", "type", "metadata", "variants"]
         read_only_fields = ["uuid"]
-
-
-class UsernameField(serializers.RelatedField):
-    default_error_messages = {"invalid": "Invalid username."}
-
-    queryset = get_user_model().objects.all()
-
-    def to_representation(self, value):
-        return value.username
-
-    def to_internal_value(self, data):
-        if not isinstance(data, str):
-            return self.fail("invalid")
-
-        for validator in [
-            UnicodeUsernameValidator(),
-            MaxLengthValidator(
-                150, "Ensure this field has no more than 150 characters."
-            ),
-        ]:
-            validator(data)
-
-        try:
-            user, _ = self.get_queryset().get_or_create(username=data)
-            return user
-        except (TypeError, ValueError):
-            return self.fail("invalid")
-
-
-class NewVariantListAccessPermissionSerializer(serializers.ModelSerializer):
-    user = UsernameField()
-
-    variant_list = serializers.SlugRelatedField(
-        queryset=VariantList.objects.all(), slug_field="uuid"
-    )
-
-    level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
-
-    def validate(self, attrs):
-        unknown_fields = set(self.initial_data) - set(self.fields)
-        if unknown_fields:
-            raise serializers.ValidationError(
-                f"Unknown fields: {', '.join(unknown_fields)}"
-            )
-
-        return attrs
-
-    class Meta:
-        model = VariantListAccessPermission
-
-        fields = ["uuid", "user", "variant_list", "level"]
-
-        read_only_fields = ["uuid"]
-
-
-class VariantListAccessPermissionSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
-
-    def get_username(self, obj):  # pylint: disable=no-self-use
-        return obj.user.username
-
-    level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
-
-    def validate(self, attrs):
-        unknown_fields = set(self.initial_data) - set(self.fields)
-        if unknown_fields:
-            raise serializers.ValidationError(
-                f"Unknown fields: {', '.join(unknown_fields)}"
-            )
-
-        read_only_fields = set(self.initial_data).intersection(
-            set(
-                field_name
-                for field_name, field in self.fields.items()
-                if field.read_only
-            )
-        )
-
-        if read_only_fields:
-            raise serializers.ValidationError(
-                {
-                    field_name: f"{field_name} cannot be updated."
-                    for field_name in read_only_fields
-                }
-            )
-
-        return attrs
-
-    class Meta:
-        model = VariantListAccessPermission
-
-        fields = ["uuid", "username", "level"]
-
-        read_only_fields = [f for f in fields if f not in ("level",)]
 
 
 class VariantListSerializer(serializers.ModelSerializer):
