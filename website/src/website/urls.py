@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 
 from website.views.app_config import get_app_config
 from website.views.auth import signin, signout, whoami
+from website.views.user_views import UsersList, UserDetail
 from website.views.variant_list_views import VariantListsView, VariantListView
 from website.views.variant_list_access_views import (
     VariantListAccessList,
@@ -19,6 +20,8 @@ urlpatterns = [
     path("api/auth/signin/", signin, name="signin"),
     path("api/auth/signout/", signout, name="signout"),
     path("api/auth/whoami/", whoami, name="whoami"),
+    path("api/users/", UsersList.as_view(), name="users"),
+    path("api/users/<int:id>/", UserDetail.as_view(), name="user"),
     path("api/variant-lists/", VariantListsView.as_view(), name="variant-lists"),
     path(
         "api/variant-lists/<uuid:uuid>/", VariantListView.as_view(), name="variant-list"
