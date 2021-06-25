@@ -18,9 +18,7 @@ def serialize_user(user):
     return {"username": user.username}
 
 
-@api_view(["POST"])
-@csrf_protect
-def signin(request):
+def get_username_from_token(request):
     try:
         google_token = request.data["token"]
     except KeyError as err:
@@ -33,11 +31,19 @@ def signin(request):
         except ValueError as err:
             raise ValidationError("Invalid token") from err
         else:
-            username = idinfo["email"]
+            return idinfo["email"]
 
-            user, _ = get_user_model().objects.get_or_create(username=username)
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return Response(serialize_user(user))
+
+@api_view(["POST"])
+@csrf_protect
+def signin(request):
+    username = get_username_from_token(request)
+
+    user, _ = get_user_model().objects.get_or_create(
+        username=username, defaults={"is_active": False}
+    )
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    return Response(serialize_user(user))
 
 
 @api_view(["POST"])
