@@ -44,7 +44,6 @@ const VariantListsContainer = () => {
   useEffect(() => {
     setIsLoading(true);
     get("/variant-lists/")
-      .then((response) => response.variant_lists)
       .then((variantLists) => setVariantLists(variantLists), setError)
       .finally(() => {
         setIsLoading(false);

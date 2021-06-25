@@ -35,9 +35,7 @@ import {
 const submitVariantList = (
   request: CustomVariantListRequest
 ): Promise<CustomVariantList> => {
-  return post("/variant-lists/", request).then(
-    (response) => response.variant_list
-  );
+  return post("/variant-lists/", request);
 };
 
 interface InputVariant {

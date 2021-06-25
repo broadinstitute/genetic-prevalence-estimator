@@ -1,5 +1,7 @@
 import uuid
+from functools import wraps
 
+import rules
 from django.conf import settings
 from django.db import models
 
@@ -104,3 +106,58 @@ class VariantListAccessPermission(models.Model):
                 fields=("user", "variant_list"), name="unique variant list access level"
             )
         ]
+
+
+def object_level_predicate(fn):  # pylint: disable=invalid-name
+    @rules.predicate
+    @wraps(fn)
+    def predicate(obj, target=None):
+        if target is None:
+            return None
+
+        return fn(obj, target)
+
+    return predicate
+
+
+@object_level_predicate
+def is_variant_list_owner(user, variant_list):
+    try:
+        access = variant_list.access_permissions.get(user=user)
+        return access.level == VariantListAccessPermission.Level.OWNER
+    except VariantListAccessPermission.DoesNotExist:
+        return False
+
+
+@object_level_predicate
+def is_variant_list_editor(user, variant_list):
+    try:
+        access = variant_list.access_permissions.get(user=user)
+        return access.level == VariantListAccessPermission.Level.EDITOR
+    except VariantListAccessPermission.DoesNotExist:
+        return False
+
+
+@object_level_predicate
+def is_variant_list_viewer(user, variant_list):
+    try:
+        access = variant_list.access_permissions.get(user=user)
+        return access.level == VariantListAccessPermission.Level.VIEWER
+    except VariantListAccessPermission.DoesNotExist:
+        return False
+
+
+rules.add_perm("calculator.add_variantlist", rules.is_active)
+
+rules.add_perm(
+    "calculator.view_variantlist",
+    rules.is_active
+    & (is_variant_list_owner | is_variant_list_editor | is_variant_list_viewer),
+)
+
+rules.add_perm(
+    "calculator.change_variantlist",
+    rules.is_active & (is_variant_list_owner | is_variant_list_editor),
+)
+
+rules.add_perm("calculator.delete_variantlist", rules.is_active & is_variant_list_owner)

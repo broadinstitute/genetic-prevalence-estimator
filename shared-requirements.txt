@@ -14,5 +14,7 @@ djangorestframework==3.12.4
     # via -r shared-requirements.in
 pytz==2021.1
     # via django
+rules==3.0
+    # via -r shared-requirements.in
 sqlparse==0.4.1
     # via django

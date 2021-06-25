@@ -33,9 +33,7 @@ const submitVariantList = (
   uuid: string,
   patchData: VariantListPatch
 ): Promise<VariantList> => {
-  return patch(`/variant-lists/${uuid}/`, patchData).then(
-    (response) => response.variant_list
-  );
+  return patch(`/variant-lists/${uuid}/`, patchData);
 };
 
 const EditVariantListPage = ({ variantList }: { variantList: VariantList }) => {

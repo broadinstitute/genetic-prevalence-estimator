@@ -124,7 +124,8 @@ class NewVariantListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariantList
-        fields = ["label", "description", "type", "metadata", "variants"]
+        fields = ["uuid", "label", "description", "type", "metadata", "variants"]
+        read_only_fields = ["uuid"]
 
 
 class UsernameField(serializers.RelatedField):

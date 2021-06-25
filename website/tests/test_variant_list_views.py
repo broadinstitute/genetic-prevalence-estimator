@@ -47,10 +47,7 @@ class TestGetVariantLists:
     def test_listing_variants_list_requires_permission(self, username, expected_lists):
         client = APIClient()
         client.force_authenticate(User.objects.get(username=username))
-        response = client.get("/api/variant-lists/").json()
-        variant_lists = response["variant_lists"]
-
-        print(variant_lists)
+        variant_lists = client.get("/api/variant-lists/").json()
 
         assert len(variant_lists) == len(expected_lists)
         assert (
@@ -93,11 +90,13 @@ class TestCreateVariantList:
             },
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert VariantList.objects.count() == 1
 
-        uuid = response.json()["variant_list"]["uuid"]
-        variant_list = VariantList.objects.get(uuid=uuid)
+        assert response.has_header("Location")
+
+        response = client.get(response.headers["Location"]).json()
+        variant_list = VariantList.objects.get(uuid=response["uuid"])
 
         access = VariantListAccessPermission.objects.get(
             variant_list=variant_list, user=testuser
@@ -174,7 +173,7 @@ class TestGetVariantList:
         client = APIClient()
         client.force_authenticate(User.objects.get(username="testuser"))
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        variant_list = response.json()["variant_list"]
+        variant_list = response.json()
         assert variant_list["access_level"] == expected_access_level
 
 

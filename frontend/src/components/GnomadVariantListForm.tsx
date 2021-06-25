@@ -24,9 +24,7 @@ import {
 const submitVariantList = (
   request: GnomadVariantListRequest
 ): Promise<GnomadVariantList> => {
-  return post("/variant-lists/", request).then(
-    (response) => response.variant_list
-  );
+  return post("/variant-lists/", request);
 };
 
 const GnomadVariantListForm = () => {

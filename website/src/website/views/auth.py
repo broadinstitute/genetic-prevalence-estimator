@@ -36,7 +36,7 @@ def signin(request):
             username = idinfo["email"]
 
             user, _ = get_user_model().objects.get_or_create(username=username)
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return Response(serialize_user(user))
 
 

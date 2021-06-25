@@ -7,7 +7,8 @@ disable=
   line-too-long,     # conflicts with Black formatting
   duplicate-code,
   missing-docstring,
-  too-few-public-methods
+  too-few-public-methods,
+  too-many-ancestors
 
 [MISCELLANEOUS]
 notes=FIXME,TODO

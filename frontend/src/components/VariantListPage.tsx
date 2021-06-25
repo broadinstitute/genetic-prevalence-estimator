@@ -429,10 +429,7 @@ export const withVariantList = (
       setIsLoading(true);
       setVariantList(null);
       get(`/variant-lists/${uuid}/`)
-        .then((response) => response.variant_list)
-        .then((variantList) => {
-          setVariantList(variantList);
-        }, setError)
+        .then(setVariantList, setError)
         .finally(() => {
           setIsLoading(false);
         });
