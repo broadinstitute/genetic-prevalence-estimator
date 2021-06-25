@@ -50,7 +50,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "other",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Viewer",
             },
         )
@@ -65,7 +65,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "other",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Viewer",
             },
         )
@@ -76,7 +76,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "other",
-                "variant_list": 2,
+                "variant_list": VariantList.objects.get(id=2).uuid,
                 "level": "Viewer",
             },
         )
@@ -93,7 +93,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "other",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Viewer",
             },
         )
@@ -115,7 +115,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "other",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Viewer",
             },
         )
@@ -134,7 +134,7 @@ class TestCreateVariantListAccessPermission:
             "/api/variant-list-access/",
             {
                 "user": "newuser",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Viewer",
             },
         )

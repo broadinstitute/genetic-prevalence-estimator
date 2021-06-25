@@ -643,12 +643,20 @@ class TestNewVariantListAccessPermissionSerializer:
 
     def test_new_variant_list_access_serializer(self):
         serializer = NewVariantListAccessPermissionSerializer(
-            data={"user": "testuser", "variant_list": 1, "level": "Editor"}
+            data={
+                "user": "testuser",
+                "variant_list": VariantList.objects.get(id=1).uuid,
+                "level": "Editor",
+            }
         )
         assert serializer.is_valid(), serializer.errors
 
         serializer = NewVariantListAccessPermissionSerializer(
-            data={"user": 12, "variant_list": 1, "level": "Editor"}
+            data={
+                "user": 12,
+                "variant_list": VariantList.objects.get(id=1).uuid,
+                "level": "Editor",
+            }
         )
         assert not serializer.is_valid()
         assert "user" in serializer.errors
@@ -660,7 +668,11 @@ class TestNewVariantListAccessPermissionSerializer:
         assert "variant_list" in serializer.errors
 
         serializer = NewVariantListAccessPermissionSerializer(
-            data={"user": "testuser", "variant_list": 1, "level": "foo"}
+            data={
+                "user": "testuser",
+                "variant_list": VariantList.objects.get(id=1).uuid,
+                "level": "foo",
+            }
         )
         assert not serializer.is_valid()
         assert "level" in serializer.errors
@@ -668,7 +680,7 @@ class TestNewVariantListAccessPermissionSerializer:
         serializer = NewVariantListAccessPermissionSerializer(
             data={
                 "user": "testuser",
-                "variant_list": 1,
+                "variant_list": VariantList.objects.get(id=1).uuid,
                 "level": "Editor",
                 "extra_field": "foo",
             }

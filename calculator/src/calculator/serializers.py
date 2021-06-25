@@ -157,8 +157,8 @@ class UsernameField(serializers.RelatedField):
 class NewVariantListAccessPermissionSerializer(serializers.ModelSerializer):
     user = UsernameField()
 
-    variant_list = serializers.PrimaryKeyRelatedField(
-        queryset=VariantList.objects.all()
+    variant_list = serializers.SlugRelatedField(
+        queryset=VariantList.objects.all(), slug_field="uuid"
     )
 
     level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
