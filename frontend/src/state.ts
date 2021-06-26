@@ -75,6 +75,8 @@ export const loadAppConfig = (): Promise<AppConfig> => {
 
 export interface User {
   username: string;
+  is_active: boolean;
+  is_staff?: boolean;
 }
 
 export interface AuthState {

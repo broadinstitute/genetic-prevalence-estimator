@@ -1,5 +1,9 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Center,
@@ -73,38 +77,54 @@ const App = () => {
       <Container maxW="container.lg">
         {!isSignedIn && <SignInButton />}
         {isSignedIn && (
-          <Switch>
-            <Route
-              exact
-              path="/variant-lists/new/"
-              component={CreateVariantListPage}
-            />
+          <>
+            {user?.is_active ? (
+              <Switch>
+                <Route
+                  exact
+                  path="/variant-lists/new/"
+                  component={CreateVariantListPage}
+                />
 
-            <Route
-              exact
-              path="/variant-lists/:uuid/edit/"
-              render={({ match }) => {
-                return <EditVariantListPage uuid={match.params.uuid} />;
-              }}
-            />
+                <Route
+                  exact
+                  path="/variant-lists/:uuid/edit/"
+                  render={({ match }) => {
+                    return <EditVariantListPage uuid={match.params.uuid} />;
+                  }}
+                />
 
-            <Route
-              exact
-              path="/variant-lists/:uuid/"
-              render={({ match }) => {
-                return <VariantListPage uuid={match.params.uuid} />;
-              }}
-            />
+                <Route
+                  exact
+                  path="/variant-lists/:uuid/"
+                  render={({ match }) => {
+                    return <VariantListPage uuid={match.params.uuid} />;
+                  }}
+                />
 
-            <Route exact path="/variant-lists/" component={VariantListsPage} />
-            <Route
-              exact
-              path="/"
-              render={() => {
-                return <Redirect to="/variant-lists/" />;
-              }}
-            />
-          </Switch>
+                <Route
+                  exact
+                  path="/variant-lists/"
+                  component={VariantListsPage}
+                />
+                <Route
+                  exact
+                  path="/"
+                  render={() => {
+                    return <Redirect to="/variant-lists/" />;
+                  }}
+                />
+              </Switch>
+            ) : (
+              <Alert status="warning">
+                <AlertIcon />
+                <AlertTitle>Inactive account</AlertTitle>
+                <AlertDescription>
+                  Contact site administrators to activate your account.
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
         )}
       </Container>
     </>
