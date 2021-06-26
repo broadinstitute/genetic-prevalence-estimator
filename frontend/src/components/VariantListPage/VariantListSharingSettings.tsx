@@ -5,6 +5,7 @@ import {
   Divider,
   Flex,
   HStack,
+  List,
   ListItem,
   Menu,
   MenuButton,
@@ -28,6 +29,15 @@ import { Store, authStore, useStore } from "../../state";
 import { VariantList, VariantListAccessLevel } from "../../types";
 
 import ShareVariantListForm from "./ShareVariantListForm";
+
+export const accessLevelDescriptions = {
+  [VariantListAccessLevel.OWNER]:
+    "Owners can edit the list, manage collaborators, and delete the list.",
+  [VariantListAccessLevel.EDITOR]:
+    "Editors can change the list's name and description.",
+  [VariantListAccessLevel.VIEWER]:
+    "Viewers can only view and download the list.",
+};
 
 interface VariantListSharingSettingsProps {
   variantListStore: Store<VariantList>;
@@ -130,6 +140,17 @@ export const VariantListSharingSettings = (
   return (
     <>
       <Text mb={2}>Collaborators</Text>
+      <List mb={2}>
+        <ListItem>
+          {accessLevelDescriptions[VariantListAccessLevel.OWNER]}
+        </ListItem>
+        <ListItem>
+          {accessLevelDescriptions[VariantListAccessLevel.EDITOR]}
+        </ListItem>
+        <ListItem>
+          {accessLevelDescriptions[VariantListAccessLevel.VIEWER]}
+        </ListItem>
+      </List>
       <UnorderedList>
         {variantList.access_permissions?.map((accessPermission) => {
           return (

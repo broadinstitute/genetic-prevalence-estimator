@@ -15,6 +15,7 @@ import {
   OrderedList,
   Spinner,
   Text,
+  Tooltip,
   UnorderedList,
   useToast,
 } from "@chakra-ui/react";
@@ -30,7 +31,10 @@ import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
 import { EditVariantListButton } from "./EditVariantList";
-import { VariantListSharingButton } from "./VariantListSharingSettings";
+import {
+  VariantListSharingButton,
+  accessLevelDescriptions,
+} from "./VariantListSharingSettings";
 
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
@@ -113,7 +117,13 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
                 return (
                   <ListItem key={accessPermission.username} mb={2}>
                     {accessPermission.username}{" "}
-                    <Badge>{accessPermission.level}</Badge>
+                    <Tooltip
+                      hasArrow
+                      label={accessLevelDescriptions[accessPermission.level]}
+                      placement="right"
+                    >
+                      <Badge>{accessPermission.level}</Badge>
+                    </Tooltip>
                   </ListItem>
                 );
               })}
