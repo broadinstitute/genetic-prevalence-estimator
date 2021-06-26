@@ -14,12 +14,12 @@ import {
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { post } from "../api";
+import { post } from "../../api";
 import {
   GnomadVariantListRequest,
   GnomadVariantList,
   GnomadVersion,
-} from "../types";
+} from "../../types";
 
 const submitVariantList = (
   request: GnomadVariantListRequest

@@ -25,12 +25,12 @@ import {
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { post } from "../api";
+import { post } from "../../api";
 import {
   CustomVariantListRequest,
   CustomVariantList,
   ReferenceGenome,
-} from "../types";
+} from "../../types";
 
 const submitVariantList = (
   request: CustomVariantListRequest

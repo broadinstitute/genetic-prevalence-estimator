@@ -25,11 +25,11 @@ import {
   Switch,
 } from "react-router-dom";
 
-import CreateVariantListPage from "./components/CreateVariantListPage";
-import EditVariantListPage from "./components/EditVariantListPage";
+import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
+import EditVariantListPage from "./components/VariantListPage/EditVariantListPage";
 import Link from "./components/Link";
 import SignInButton from "./components/SignInButton";
-import VariantListPage from "./components/VariantListPage";
+import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadAppConfig, useStore } from "./state";

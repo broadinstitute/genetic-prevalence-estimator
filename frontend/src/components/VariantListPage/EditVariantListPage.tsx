@@ -19,8 +19,8 @@ import {
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { patch } from "../api";
-import { VariantList, VariantListAccessLevel } from "../types";
+import { patch } from "../../api";
+import { VariantList, VariantListAccessLevel } from "../../types";
 
 import { withVariantList } from "./VariantListPage";
 
