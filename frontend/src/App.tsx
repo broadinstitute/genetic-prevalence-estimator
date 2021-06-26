@@ -26,7 +26,6 @@ import {
 } from "react-router-dom";
 
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
-import EditVariantListPage from "./components/VariantListPage/EditVariantListPage";
 import Link from "./components/Link";
 import SignInButton from "./components/SignInButton";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
@@ -84,14 +83,6 @@ const App = () => {
                   exact
                   path="/variant-lists/new/"
                   component={CreateVariantListPage}
-                />
-
-                <Route
-                  exact
-                  path="/variant-lists/:uuid/edit/"
-                  render={({ match }) => {
-                    return <EditVariantListPage uuid={match.params.uuid} />;
-                  }}
                 />
 
                 <Route

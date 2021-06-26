@@ -8,46 +8,39 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Button,
   Center,
   Heading,
   HStack,
   ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   OrderedList,
   Spinner,
   Text,
   UnorderedList,
-  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get } from "../../api";
+import { Store, atom, useStore } from "../../state";
 import { VariantList, VariantListAccessLevel } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
-import VariantListSharingSettings from "./VariantListSharingSettings";
+import { EditVariantListButton } from "./EditVariantList";
+import { VariantListSharingButton } from "./VariantListSharingSettings";
 
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
 };
 
-const VariantListPage = (props: { variantList: VariantList }) => {
-  const [variantList, setVariantList] = useState(props.variantList);
+const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
+  const { variantListStore } = props;
+  const variantList = useStore(variantListStore);
 
   const history = useHistory();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   const userCanEdit =
@@ -56,24 +49,6 @@ const VariantListPage = (props: { variantList: VariantList }) => {
 
   return (
     <>
-      <Box mb={2}>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <BreadcrumbLink as={RRLink} to="/">
-              Home
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <BreadcrumbLink as={RRLink} to="/variant-lists/">
-              Variant Lists
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem isCurrentPage>
-            <span>{variantList.label}</span>
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </Box>
       <Heading as="h1" mb={4}>
         {variantList.label}
       </Heading>
@@ -94,13 +69,9 @@ const VariantListPage = (props: { variantList: VariantList }) => {
 
       {userCanEdit && (
         <HStack mb={4}>
-          <Button
-            as={RRLink}
-            size="sm"
-            to={`/variant-lists/${variantList.uuid}/edit/`}
-          >
+          <EditVariantListButton size="sm" variantListStore={variantListStore}>
             Edit
-          </Button>
+          </EditVariantListButton>
 
           {variantList.access_level === VariantListAccessLevel.OWNER && (
             <ButtonWithConfirmation
@@ -148,7 +119,12 @@ const VariantListPage = (props: { variantList: VariantList }) => {
               })}
             </UnorderedList>
             <HStack mb={4}>
-              <Button onClick={onOpen}>Edit</Button>
+              <VariantListSharingButton
+                size="sm"
+                variantListStore={variantListStore}
+              >
+                Edit
+              </VariantListSharingButton>
             </HStack>
           </>
         )}
@@ -168,93 +144,95 @@ const VariantListPage = (props: { variantList: VariantList }) => {
           Variants will be automatically populated for gnomAD variant lists.
         </Text>
       )}
-
-      <Modal isOpen={isOpen} size="2xl" onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Sharing</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VariantListSharingSettings
-              variantList={variantList}
-              onChange={setVariantList}
-            />
-          </ModalBody>
-
-          <ModalFooter>
-            <Button onClick={onClose}>Done</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 };
 
-export const withVariantList = (
-  Component: React.ComponentType<{ variantList: VariantList }>
-) => {
-  return (props: { uuid: string }) => {
-    const { uuid } = props;
+const VariantListPageContainer = (props: { uuid: string }) => {
+  const { uuid } = props;
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [variantList, setVariantList] = useState<VariantList | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+  const variantListStoreRef = useRef<Store<VariantList> | null>(null);
 
-    useEffect(() => {
-      setIsLoading(true);
-      setVariantList(null);
-      get(`/variant-lists/${uuid}/`)
-        .then(setVariantList, setError)
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }, [uuid]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-    if (isLoading) {
-      return (
-        <Center>
-          <Spinner size="lg" />
-        </Center>
-      );
-    }
+  useEffect(() => {
+    setIsLoading(true);
+    get(`/variant-lists/${uuid}/`)
+      .then((variantList) => {
+        variantListStoreRef.current = atom(variantList);
+      }, setError)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [uuid]);
 
-    if (error) {
-      return (
-        <>
-          <Box mb={2}>
-            <Breadcrumb>
-              <BreadcrumbItem>
-                <BreadcrumbLink as={RRLink} to="/">
-                  Home
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <BreadcrumbLink as={RRLink} to="/variant-lists/">
-                  Variant Lists
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            </Breadcrumb>
-          </Box>
-          <Heading as="h1" mb={4}>
-            Error
-          </Heading>
-          <Alert status="error">
-            <AlertIcon />
-            <AlertTitle>Unable to load variant list</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
-          </Alert>
-        </>
-      );
-    }
+  if (isLoading) {
+    return (
+      <Center>
+        <Spinner size="lg" />
+      </Center>
+    );
+  }
 
-    if (variantList) {
-      return <Component variantList={variantList} />;
-    }
+  if (error) {
+    return (
+      <>
+        <Box mb={2}>
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink as={RRLink} to="/">
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink as={RRLink} to="/variant-lists/">
+                Variant Lists
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </Breadcrumb>
+        </Box>
+        <Heading as="h1" mb={4}>
+          Error
+        </Heading>
+        <Alert status="error">
+          <AlertIcon />
+          <AlertTitle>Unable to load variant list</AlertTitle>
+          <AlertDescription>{error.message}</AlertDescription>
+        </Alert>
+      </>
+    );
+  }
 
-    return null;
-  };
+  if (variantListStoreRef.current) {
+    const variantListStore = variantListStoreRef.current;
+    const variantList = variantListStore.get();
+    return (
+      <>
+        <Box mb={2}>
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink as={RRLink} to="/">
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink as={RRLink} to="/variant-lists/">
+                Variant Lists
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+
+            <BreadcrumbItem isCurrentPage>
+              <span>{variantList.label}</span>
+            </BreadcrumbItem>
+          </Breadcrumb>
+        </Box>
+        <VariantListPage variantListStore={variantListStore} />
+      </>
+    );
+  }
+
+  return null;
 };
-
-const VariantListPageContainer = withVariantList(VariantListPage);
 
 export default VariantListPageContainer;

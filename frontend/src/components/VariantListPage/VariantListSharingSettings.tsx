@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Button,
+  ButtonProps,
   Divider,
   Flex,
   HStack,
@@ -9,22 +10,34 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   UnorderedList,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 
 import { del, patch, post } from "../../api";
-import { authStore, useStore } from "../../state";
+import { Store, authStore, useStore } from "../../state";
 import { VariantList, VariantListAccessLevel } from "../../types";
 
 import ShareVariantListForm from "./ShareVariantListForm";
 
-const VariantListSharingSettings = (props: {
-  variantList: VariantList;
-  onChange: (variantList: VariantList) => void;
-}) => {
-  const { variantList, onChange } = props;
+interface VariantListSharingSettingsProps {
+  variantListStore: Store<VariantList>;
+}
+
+export const VariantListSharingSettings = (
+  props: VariantListSharingSettingsProps
+) => {
+  const { variantListStore } = props;
+  const variantList = useStore(variantListStore);
 
   const { user } = useStore(authStore);
 
@@ -43,7 +56,7 @@ const VariantListSharingSettings = (props: {
       level,
     }).then(
       (newAccessPermission) => {
-        onChange({
+        variantListStore.set({
           ...variantList,
           access_permissions: [
             ...(variantList.access_permissions || []),
@@ -69,7 +82,7 @@ const VariantListSharingSettings = (props: {
   ): Promise<void> => {
     return patch(`/variant-list-access/${uuid}/`, { level }).then(
       () => {
-        onChange({
+        variantListStore.set({
           ...variantList,
           access_permissions: variantList.access_permissions?.map(
             (accessPermission) => {
@@ -95,7 +108,7 @@ const VariantListSharingSettings = (props: {
   const removeAccess = (uuid: string): Promise<void> => {
     return del(`/variant-list-access/${uuid}/`).then(
       () => {
-        onChange({
+        variantListStore.set({
           ...variantList,
           access_permissions: variantList.access_permissions?.filter(
             (accessPermission) => accessPermission.uuid !== uuid
@@ -140,6 +153,7 @@ const VariantListSharingSettings = (props: {
                       ].map(([level, label]) => {
                         return (
                           <MenuItem
+                            key={level}
                             onClick={() => {
                               setAccessLevel(
                                 accessPermission.uuid,
@@ -174,4 +188,30 @@ const VariantListSharingSettings = (props: {
   );
 };
 
-export default VariantListSharingSettings;
+export const VariantListSharingButton = (
+  props: Omit<ButtonProps, "onClick"> & VariantListSharingSettingsProps
+) => {
+  const { variantListStore, ...otherProps } = props;
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  return (
+    <>
+      <Button {...otherProps} onClick={onOpen} />
+      <Modal isOpen={isOpen} size="2xl" onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Sharing</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VariantListSharingSettings variantListStore={variantListStore} />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={onClose}>Done</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
