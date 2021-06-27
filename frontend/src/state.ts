@@ -73,7 +73,7 @@ export const loadAppConfig = (): Promise<AppConfig> => {
   });
 };
 
-export interface User {
+export interface AuthUser {
   username: string;
   is_active: boolean;
   is_staff?: boolean;
@@ -81,7 +81,7 @@ export interface User {
 
 export interface AuthState {
   isSignedIn: boolean;
-  user: User | null;
+  user: AuthUser | null;
 }
 
 export const authStore: Store<AuthState> = atom({

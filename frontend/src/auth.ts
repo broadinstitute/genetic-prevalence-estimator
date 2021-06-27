@@ -2,7 +2,7 @@
 // https://developers.google.com/identity/sign-in/web/reference
 
 import { post } from "./api";
-import { AppConfig, User, authStore } from "./state";
+import { AppConfig, AuthUser, authStore } from "./state";
 
 export const initializeAuth = (appConfig: AppConfig) => {
   const updateUser = (googleUser: any) => {
@@ -11,7 +11,7 @@ export const initializeAuth = (appConfig: AppConfig) => {
       .then(() => {
         if (googleUser.isSignedIn()) {
           const token = googleUser.getAuthResponse().id_token;
-          post("/auth/signin/", { token }).then((user: User) => {
+          post("/auth/signin/", { token }).then((user: AuthUser) => {
             authStore.set({
               isSignedIn: true,
               user,
