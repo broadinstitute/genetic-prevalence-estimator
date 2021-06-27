@@ -53,6 +53,8 @@ class VariantList(models.Model):
         max_length=1, choices=Status.choices, default=Status.QUEUED
     )
 
+    error = models.TextField(null=True, default=None)
+
     class Meta:
         indexes = [models.Index(fields=("uuid",))]
 
