@@ -112,6 +112,7 @@ class TestGetVariantList:
         User.objects.create(username="staffmember", is_staff=True)
         testuser = User.objects.create(username="testuser")
         inactive_user = User.objects.create(username="inactiveuser", is_active=False)
+        User.objects.create(username="inactivestaff", is_active=False, is_staff=True)
 
         list1 = VariantList.objects.create(
             id=1,
@@ -201,6 +202,12 @@ class TestGetVariantList:
         assert "access_level" not in response
         assert "access_permissions" in response
 
+        # Staff member must be active
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="inactivestaff"))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
+        assert response.status_code == 403
+
 
 @pytest.mark.django_db
 class TestEditVariantList:
@@ -210,6 +217,7 @@ class TestEditVariantList:
         editor = User.objects.create(username="editor")
         owner = User.objects.create(username="owner")
         inactive_user = User.objects.create(username="inactiveuser", is_active=False)
+        User.objects.create(username="staffmember", is_staff=True)
         User.objects.create(username="other")
 
         variant_list = VariantList.objects.create(
@@ -262,6 +270,7 @@ class TestEditVariantList:
             ("owner", 200),
             ("other", 404),
             ("inactiveuser", 403),
+            ("staffmember", 403),
         ],
     )
     def test_editing_variant_list_requires_permission(self, user, expected_response):
@@ -289,6 +298,7 @@ class TestDeleteVariantList:
         editor = User.objects.create(username="editor")
         owner = User.objects.create(username="owner")
         inactive_user = User.objects.create(username="inactiveuser", is_active=False)
+        User.objects.create(username="staffmember", is_staff=True)
         User.objects.create(username="other")
 
         variant_list = VariantList.objects.create(
@@ -339,6 +349,7 @@ class TestDeleteVariantList:
             ("owner", 204),
             ("other", 404),
             ("inactiveuser", 403),
+            ("staffmember", 403),
         ],
     )
     def test_deleting_variant_list_requires_permission(self, user, expected_response):
