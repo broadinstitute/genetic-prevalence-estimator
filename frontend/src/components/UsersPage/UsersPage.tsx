@@ -11,7 +11,9 @@ import {
   BreadcrumbLink,
   Button,
   Center,
+  Divider,
   Heading,
+  HStack,
   Menu,
   MenuButton,
   MenuItem,
@@ -28,8 +30,10 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
-import { get, patch } from "../../api";
+import { get, patch, post } from "../../api";
 import { Store, atom, useStore } from "../../state";
+
+import { AddUserButton } from "./AddUser";
 
 interface User {
   id: number;
@@ -74,57 +78,91 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
   };
 
   return (
-    <Table variant="striped">
-      <Thead>
-        <Tr>
-          <Th scope="col">Username</Th>
-          <Th scope="col">Active</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {users.map((user) => {
-          return (
-            <Tr key={user.username}>
-              <Td>
-                {user.username}
-                {user.is_staff && (
-                  <Badge colorScheme="blue" ml="1ch">
-                    Staff
-                  </Badge>
-                )}
-              </Td>
-              <Td>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    size="sm"
-                    rightIcon={<ChevronDownIcon />}
-                  >
-                    {user.is_active ? "Active" : "Inactive"}
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem
-                      onClick={() => {
-                        updateUser(user, { is_active: true });
-                      }}
+    <>
+      <HStack>
+        <AddUserButton
+          size="sm"
+          onAddUser={(newUser: { username: string }) => {
+            post(`/users/`, newUser).then(
+              (newUser) => {
+                props.usersStore.set([...users, newUser]);
+                toast({
+                  title: "User created",
+                  status: "success",
+                  duration: 30000,
+                  isClosable: true,
+                });
+              },
+              (error) => {
+                toast({
+                  title: "Unable to create user",
+                  description: error.message,
+                  status: "error",
+                  duration: 10000,
+                  isClosable: true,
+                });
+              }
+            );
+          }}
+        >
+          Add user
+        </AddUserButton>
+      </HStack>
+
+      <Divider mb={2} mt={2} />
+
+      <Table variant="striped">
+        <Thead>
+          <Tr>
+            <Th scope="col">Username</Th>
+            <Th scope="col">Active</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {users.map((user) => {
+            return (
+              <Tr key={user.username}>
+                <Td>
+                  {user.username}
+                  {user.is_staff && (
+                    <Badge colorScheme="blue" ml="1ch">
+                      Staff
+                    </Badge>
+                  )}
+                </Td>
+                <Td>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      rightIcon={<ChevronDownIcon />}
                     >
-                      Active
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        updateUser(user, { is_active: true });
-                      }}
-                    >
-                      Inactive
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Td>
-            </Tr>
-          );
-        })}
-      </Tbody>
-    </Table>
+                      {user.is_active ? "Active" : "Inactive"}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        onClick={() => {
+                          updateUser(user, { is_active: true });
+                        }}
+                      >
+                        Active
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          updateUser(user, { is_active: true });
+                        }}
+                      >
+                        Inactive
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                </Td>
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
+    </>
   );
 };
 
