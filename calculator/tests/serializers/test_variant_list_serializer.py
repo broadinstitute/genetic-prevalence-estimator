@@ -574,3 +574,47 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
 
     serializer = VariantListSerializer(variant_list)
     assert "access_permissions" not in serializer.data
+
+
+@pytest.mark.django_db
+def test_variant_list_serializer_includes_error_for_staff_users():
+    staffmember = User.objects.create(username="staffmember", is_staff=True)
+    owner = User.objects.create(username="owner")
+    editor = User.objects.create(username="editor")
+    viewer = User.objects.create(username="viewer")
+    otheruser = User.objects.create(username="other")
+
+    variant_list = gnomad_variant_list()
+    variant_list.error = "Something went wrong"
+    variant_list.save()
+
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=owner,
+        level=VariantListAccessPermission.Level.OWNER,
+    )
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=editor,
+        level=VariantListAccessPermission.Level.EDITOR,
+    )
+    VariantListAccessPermission.objects.create(
+        variant_list=variant_list,
+        user=viewer,
+        level=VariantListAccessPermission.Level.VIEWER,
+    )
+
+    serializer = VariantListSerializer(variant_list)
+    assert "error" not in serializer.data
+
+    for user in [owner, editor, viewer, otheruser]:
+        with patch.object(VariantListSerializer, "get_current_user", return_value=user):
+            serializer = VariantListSerializer(variant_list)
+            assert "error" not in serializer.data
+
+    with patch.object(
+        VariantListSerializer, "get_current_user", return_value=staffmember
+    ):
+        serializer = VariantListSerializer(variant_list)
+        assert "error" in serializer.data
+        assert serializer.data["error"] == "Something went wrong"

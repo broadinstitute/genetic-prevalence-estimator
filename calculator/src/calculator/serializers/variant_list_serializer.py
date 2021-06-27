@@ -122,12 +122,19 @@ class VariantListSerializer(ModelSerializer):
         # All access permissions should only be visible if the current user is an owner of the variant list.
         current_user = self.get_current_user()
         if current_user:
-            access = instance.access_permissions.get(user=current_user)
-            data["access_level"] = access.get_level_display()
-            if access.level != VariantListAccessPermission.Level.OWNER:
+            try:
+                access = instance.access_permissions.get(user=current_user)
+                data["access_level"] = access.get_level_display()
+                if access.level != VariantListAccessPermission.Level.OWNER:
+                    data.pop("access_permissions")
+            except VariantListAccessPermission.DoesNotExist:
                 data.pop("access_permissions")
+
+            if not current_user.is_staff:
+                data.pop("error")
         else:
             data.pop("access_permissions")
+            data.pop("error")
 
         return data
 
@@ -144,6 +151,7 @@ class VariantListSerializer(ModelSerializer):
             "created_at",
             "updated_at",
             "status",
+            "error",
             "access_permissions",
         ]
 
