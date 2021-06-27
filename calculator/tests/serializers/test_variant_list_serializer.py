@@ -544,7 +544,9 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
         assert "access_permissions" in serializer.data
         access_permissions = serializer.data["access_permissions"]
         assert len(access_permissions) == 3
-        assert {user["username"]: user["level"] for user in access_permissions} == {
+        assert {
+            permission["user"]: permission["level"] for permission in access_permissions
+        } == {
             "owner": "Owner",
             "editor": "Editor",
             "viewer": "Viewer",

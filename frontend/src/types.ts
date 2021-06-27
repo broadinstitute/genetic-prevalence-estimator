@@ -52,7 +52,7 @@ export interface CustomVariantListRequest {
 
 interface VariantListAccessPermission {
   uuid: string;
-  username: string;
+  user: string;
   level: VariantListAccessLevel;
 }
 

@@ -156,12 +156,12 @@ export const VariantListSharingSettings = (
           return (
             <ListItem key={accessPermission.uuid} mb={2}>
               <Flex align="center" justify="space-between">
-                <Text>{accessPermission.username}</Text>
+                <Text>{accessPermission.user}</Text>
                 <HStack>
                   <Menu>
                     <MenuButton
                       as={Button}
-                      disabled={accessPermission.username === user?.username}
+                      disabled={accessPermission.user === user?.username}
                       rightIcon={<ChevronDownIcon />}
                     >
                       {accessPermission.level}
@@ -189,7 +189,7 @@ export const VariantListSharingSettings = (
                     </MenuList>
                   </Menu>
                   <Button
-                    disabled={accessPermission.username === user?.username}
+                    disabled={accessPermission.user === user?.username}
                     onClick={() => {
                       removeAccess(accessPermission.uuid);
                     }}

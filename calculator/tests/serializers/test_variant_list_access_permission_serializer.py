@@ -54,10 +54,10 @@ def test_variant_list_access_serializer_only_allows_editing_level():
     assert "uuid" in serializer.errors
 
     serializer = VariantListAccessPermissionSerializer(
-        access, data={"username": "otheruser"}, partial=True
+        access, data={"user": "otheruser"}, partial=True
     )
     assert not serializer.is_valid()
-    assert "username" in serializer.errors
+    assert "user" in serializer.errors
 
     other_list = gnomad_variant_list()
     serializer = VariantListAccessPermissionSerializer(
@@ -77,7 +77,7 @@ def test_variant_list_access_serializer_serializes_username():
     )
 
     serializer = VariantListAccessPermissionSerializer(access)
-    assert serializer.data["username"] == "testuser"
+    assert serializer.data["user"] == "testuser"
 
 
 def test_variant_list_access_serializer_serializes_level_label():

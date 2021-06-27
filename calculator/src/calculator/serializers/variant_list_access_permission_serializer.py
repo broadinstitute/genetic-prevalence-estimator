@@ -23,16 +23,13 @@ class NewVariantListAccessPermissionSerializer(ModelSerializer):
 
 
 class VariantListAccessPermissionSerializer(ModelSerializer):
-    username = serializers.SerializerMethodField()
-
-    def get_username(self, obj):  # pylint: disable=no-self-use
-        return obj.user.username
+    user = serializers.SlugRelatedField(slug_field="username", read_only=True)
 
     level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
 
     class Meta:
         model = VariantListAccessPermission
 
-        fields = ["uuid", "username", "level"]
+        fields = ["uuid", "user", "level"]
 
         read_only_fields = [f for f in fields if f not in ("level",)]

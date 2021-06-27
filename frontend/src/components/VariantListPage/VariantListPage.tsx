@@ -115,8 +115,8 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
             <UnorderedList mb={4}>
               {variantList.access_permissions.map((accessPermission) => {
                 return (
-                  <ListItem key={accessPermission.username} mb={2}>
-                    {accessPermission.username}{" "}
+                  <ListItem key={accessPermission.user} mb={2}>
+                    {accessPermission.user}{" "}
                     <Tooltip
                       hasArrow
                       label={accessLevelDescriptions[accessPermission.level]}
