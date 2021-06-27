@@ -111,6 +111,7 @@ class TestGetVariantList:
     def db_setup(self):
         User.objects.create(username="staffmember", is_staff=True)
         testuser = User.objects.create(username="testuser")
+        inactive_user = User.objects.create(username="inactiveuser", is_active=False)
 
         list1 = VariantList.objects.create(
             id=1,
@@ -146,6 +147,11 @@ class TestGetVariantList:
             variant_list=list2,
             level=VariantListAccessPermission.Level.VIEWER,
         )
+        VariantListAccessPermission.objects.create(
+            user=inactive_user,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
 
     def test_viewing_variant_list_requires_authentication(self):
         variant_list = VariantList.objects.get(id=1)
@@ -162,6 +168,13 @@ class TestGetVariantList:
         client.force_authenticate(User.objects.get(username="testuser"))
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == expected_response
+
+    def test_inactive_users_cannot_view_variant_lists(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="inactiveuser"))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
+        assert response.status_code == 403
 
     @pytest.mark.parametrize(
         "list_id,expected_access_level",
@@ -196,6 +209,7 @@ class TestEditVariantList:
         viewer = User.objects.create(username="viewer")
         editor = User.objects.create(username="editor")
         owner = User.objects.create(username="owner")
+        inactive_user = User.objects.create(username="inactiveuser", is_active=False)
         User.objects.create(username="other")
 
         variant_list = VariantList.objects.create(
@@ -222,6 +236,11 @@ class TestEditVariantList:
             variant_list=variant_list,
             level=VariantListAccessPermission.Level.OWNER,
         )
+        VariantListAccessPermission.objects.create(
+            user=inactive_user,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
 
     def test_editing_variant_list_requires_authentication(self):
         variant_list = VariantList.objects.get(id=1)
@@ -237,7 +256,13 @@ class TestEditVariantList:
 
     @pytest.mark.parametrize(
         "user,expected_response",
-        [("viewer", 403), ("editor", 200), ("owner", 200), ("other", 404)],
+        [
+            ("viewer", 403),
+            ("editor", 200),
+            ("owner", 200),
+            ("other", 404),
+            ("inactiveuser", 403),
+        ],
     )
     def test_editing_variant_list_requires_permission(self, user, expected_response):
         variant_list = VariantList.objects.get(id=1)
@@ -263,6 +288,7 @@ class TestDeleteVariantList:
         viewer = User.objects.create(username="viewer")
         editor = User.objects.create(username="editor")
         owner = User.objects.create(username="owner")
+        inactive_user = User.objects.create(username="inactiveuser", is_active=False)
         User.objects.create(username="other")
 
         variant_list = VariantList.objects.create(
@@ -288,6 +314,11 @@ class TestDeleteVariantList:
             variant_list=variant_list,
             level=VariantListAccessPermission.Level.OWNER,
         )
+        VariantListAccessPermission.objects.create(
+            user=inactive_user,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
 
     @pytest.mark.django_db
     def test_deleting_variant_list_requires_authentication(self):
@@ -302,7 +333,13 @@ class TestDeleteVariantList:
     @pytest.mark.django_db
     @pytest.mark.parametrize(
         "user,expected_response",
-        [("viewer", 403), ("editor", 403), ("owner", 204), ("other", 404)],
+        [
+            ("viewer", 403),
+            ("editor", 403),
+            ("owner", 204),
+            ("other", 404),
+            ("inactiveuser", 403),
+        ],
     )
     def test_deleting_variant_list_requires_permission(self, user, expected_response):
         assert VariantList.objects.count() == 1
