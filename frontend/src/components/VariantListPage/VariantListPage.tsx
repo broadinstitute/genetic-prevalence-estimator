@@ -106,38 +106,37 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         </HStack>
       )}
 
-      {variantList.access_level === VariantListAccessLevel.OWNER &&
-        variantList.access_permissions && (
-          <>
-            <Heading as="h2" size="md" mb={2}>
-              Sharing
-            </Heading>
-            <UnorderedList mb={4}>
-              {variantList.access_permissions.map((accessPermission) => {
-                return (
-                  <ListItem key={accessPermission.user} mb={2}>
-                    {accessPermission.user}{" "}
-                    <Tooltip
-                      hasArrow
-                      label={accessLevelDescriptions[accessPermission.level]}
-                      placement="right"
-                    >
-                      <Badge>{accessPermission.level}</Badge>
-                    </Tooltip>
-                  </ListItem>
-                );
-              })}
-            </UnorderedList>
-            <HStack mb={4}>
-              <VariantListSharingButton
-                size="sm"
-                variantListStore={variantListStore}
-              >
-                Edit
-              </VariantListSharingButton>
-            </HStack>
-          </>
-        )}
+      {variantList.access_permissions && (
+        <>
+          <Heading as="h2" size="md" mb={2}>
+            Sharing
+          </Heading>
+          <UnorderedList mb={4}>
+            {variantList.access_permissions.map((accessPermission) => {
+              return (
+                <ListItem key={accessPermission.user} mb={2}>
+                  {accessPermission.user}{" "}
+                  <Tooltip
+                    hasArrow
+                    label={accessLevelDescriptions[accessPermission.level]}
+                    placement="right"
+                  >
+                    <Badge>{accessPermission.level}</Badge>
+                  </Tooltip>
+                </ListItem>
+              );
+            })}
+          </UnorderedList>
+          <HStack mb={4}>
+            <VariantListSharingButton
+              size="sm"
+              variantListStore={variantListStore}
+            >
+              Edit
+            </VariantListSharingButton>
+          </HStack>
+        </>
+      )}
 
       <Heading as="h2" size="md" mb={2}>
         Variants

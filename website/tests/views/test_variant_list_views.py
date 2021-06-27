@@ -109,6 +109,7 @@ class TestCreateVariantList:
 class TestGetVariantList:
     @pytest.fixture(autouse=True)
     def db_setup(self):
+        User.objects.create(username="staffmember", is_staff=True)
         testuser = User.objects.create(username="testuser")
 
         list1 = VariantList.objects.create(
@@ -175,6 +176,17 @@ class TestGetVariantList:
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         variant_list = response.json()
         assert variant_list["access_level"] == expected_access_level
+
+    @pytest.mark.parametrize("list_id", [1, 2, 3])
+    def test_staff_users_can_view_all_lists(self, list_id):
+        variant_list = VariantList.objects.get(id=list_id)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
+        assert response.status_code == 200
+        response = response.json()
+        assert "access_level" not in response
+        assert "access_permissions" in response
 
 
 @pytest.mark.django_db

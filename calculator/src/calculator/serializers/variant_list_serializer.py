@@ -125,10 +125,14 @@ class VariantListSerializer(ModelSerializer):
             try:
                 access = instance.access_permissions.get(user=current_user)
                 data["access_level"] = access.get_level_display()
-                if access.level != VariantListAccessPermission.Level.OWNER:
+                if (
+                    access.level != VariantListAccessPermission.Level.OWNER
+                    and not current_user.is_staff
+                ):
                     data.pop("access_permissions")
             except VariantListAccessPermission.DoesNotExist:
-                data.pop("access_permissions")
+                if not current_user.is_staff:
+                    data.pop("access_permissions")
 
             if not current_user.is_staff:
                 data.pop("error")

@@ -62,7 +62,7 @@ interface VariantListBase {
   notes: string;
   created_at: string;
   updated_at: string;
-  access_level: VariantListAccessLevel;
+  access_level?: VariantListAccessLevel;
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
   variants: VariantId[];

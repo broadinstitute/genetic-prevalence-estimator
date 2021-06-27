@@ -153,8 +153,11 @@ rules.add_perm("calculator.add_variantlist", rules.is_active)
 
 rules.add_perm(
     "calculator.view_variantlist",
-    rules.is_active
-    & (is_variant_list_owner | is_variant_list_editor | is_variant_list_viewer),
+    (
+        rules.is_active
+        & (is_variant_list_owner | is_variant_list_editor | is_variant_list_viewer)
+    )
+    | (rules.is_active & rules.is_staff),
 )
 
 rules.add_perm(
