@@ -31,7 +31,7 @@ const GnomadVariantListForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [label, setLabel] = useState("");
-  const [description, setDescription] = useState("");
+  const [notes, setNotes] = useState("");
   const [geneId, setGeneId] = useState("");
   const isGeneIdValid = /^ENSG\d{11}$/.test(geneId);
 
@@ -51,7 +51,7 @@ const GnomadVariantListForm = () => {
         if (geneId && isGeneIdValid) {
           const variantListRequest: GnomadVariantListRequest = {
             label,
-            description,
+            notes,
             type: "gnomad",
             metadata: {
               version: "1",
@@ -111,12 +111,12 @@ const GnomadVariantListForm = () => {
           />
         </FormControl>
 
-        <FormControl id="gnomad-variant-list-description">
-          <FormLabel>Description</FormLabel>
+        <FormControl id="gnomad-variant-list-notes">
+          <FormLabel>Notes</FormLabel>
           <Textarea
-            value={description}
+            value={notes}
             onChange={(e) => {
-              setDescription(e.target.value);
+              setNotes(e.target.value);
             }}
           />
         </FormControl>

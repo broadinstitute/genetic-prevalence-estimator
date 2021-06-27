@@ -20,7 +20,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "description": "",
+            "notes": "",
             "type": "custom",
             "metadata": {
                 "version": "1",
@@ -431,7 +431,7 @@ def gnomad_variant_list():
 
 
 def test_update_variant_list_serializer():
-    # Changes to label and description are allowed
+    # Changes to label and notes are allowed
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(
         variant_list, data={"label": "A new label"}, partial=True
@@ -440,7 +440,7 @@ def test_update_variant_list_serializer():
 
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(
-        variant_list, data={"description": "This is a test variant list."}, partial=True
+        variant_list, data={"notes": "This is a test variant list."}, partial=True
     )
     assert serializer.is_valid(), serializer.errors
 

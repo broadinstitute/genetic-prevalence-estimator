@@ -25,7 +25,7 @@ import { VariantList } from "../../types";
 
 interface VariantListPatch {
   label: string;
-  description: string;
+  notes: string;
 }
 
 const submitVariantList = (
@@ -48,7 +48,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [label, setLabel] = useState(variantList.label);
-  const [description, setDescription] = useState(variantList.description);
+  const [notes, setNotes] = useState(variantList.notes);
 
   const toast = useToast();
 
@@ -61,7 +61,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
           setIsSubmitting(true);
           submitVariantList(variantList.uuid, {
             label,
-            description,
+            notes,
           }).then(
             (updatedVariantList) => {
               variantListStore.set(updatedVariantList);
@@ -97,12 +97,12 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
           <FormErrorMessage>A label is required.</FormErrorMessage>
         </FormControl>
 
-        <FormControl id="edit-variant-list-description">
-          <FormLabel>Description</FormLabel>
+        <FormControl id="edit-variant-list-notes">
+          <FormLabel>Notes</FormLabel>
           <Textarea
-            value={description}
+            value={notes}
             onChange={(e) => {
-              setDescription(e.target.value);
+              setNotes(e.target.value);
             }}
           />
         </FormControl>

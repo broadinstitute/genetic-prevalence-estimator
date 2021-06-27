@@ -57,7 +57,7 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         {variantList.label}
       </Heading>
 
-      {variantList.description && <Text mb={4}>{variantList.description}</Text>}
+      {variantList.notes && <Text mb={4}>{variantList.notes}</Text>}
 
       <DescriptionList mb={4}>
         <DescriptionListItem label="Status">

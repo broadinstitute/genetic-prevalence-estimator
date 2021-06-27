@@ -11,7 +11,7 @@ class VariantList(models.Model):
 
     label = models.CharField(max_length=1000)
 
-    description = models.TextField(default="")
+    notes = models.TextField(default="")
 
     class Type(models.TextChoices):
         CUSTOM = ("custom", "Custom")

@@ -189,7 +189,7 @@ class TestEditVariantList:
         variant_list = VariantList.objects.create(
             id=1,
             label="Test list",
-            description="Initial description",
+            notes="Initial notes",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
@@ -213,15 +213,15 @@ class TestEditVariantList:
 
     def test_editing_variant_list_requires_authentication(self):
         variant_list = VariantList.objects.get(id=1)
-        initial_description = variant_list.description
+        initial_notes = variant_list.notes
         client = APIClient()
         response = client.patch(
             f"/api/variant-lists/{variant_list.uuid}/",
-            {"description": "Description by anonymous"},
+            {"notes": "Notes by anonymous"},
         )
         assert response.status_code == 403
         variant_list.refresh_from_db()
-        assert variant_list.description == initial_description
+        assert variant_list.notes == initial_notes
 
     @pytest.mark.parametrize(
         "user,expected_response",
@@ -229,19 +229,19 @@ class TestEditVariantList:
     )
     def test_editing_variant_list_requires_permission(self, user, expected_response):
         variant_list = VariantList.objects.get(id=1)
-        initial_description = variant_list.description
+        initial_notes = variant_list.notes
         client = APIClient()
         client.force_authenticate(User.objects.get(username=user))
         response = client.patch(
             f"/api/variant-lists/{variant_list.uuid}/",
-            {"description": f"Description by {user}"},
+            {"notes": f"Notes by {user}"},
         )
         assert response.status_code == expected_response
         variant_list.refresh_from_db()
         if expected_response == 200:
-            assert variant_list.description == f"Description by {user}"
+            assert variant_list.notes == f"Notes by {user}"
         else:
-            assert variant_list.description == initial_description
+            assert variant_list.notes == initial_notes
 
 
 class TestDeleteVariantList:
@@ -256,7 +256,6 @@ class TestDeleteVariantList:
         variant_list = VariantList.objects.create(
             id=1,
             label="Test list",
-            description="Initial description",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],

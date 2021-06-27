@@ -37,14 +37,14 @@ export interface CustomVariantListMetadata {
 
 export interface GnomadVariantListRequest {
   label: string;
-  description: string;
+  notes: string;
   type: "gnomad";
   metadata: GnomadVariantListMetadata;
 }
 
 export interface CustomVariantListRequest {
   label: string;
-  description: string;
+  notes: string;
   type: "custom";
   metadata: CustomVariantListMetadata;
   variants: VariantId[];
@@ -59,7 +59,7 @@ interface VariantListAccessPermission {
 interface VariantListBase {
   uuid: string;
   label: string;
-  description: string;
+  notes: string;
   created_at: string;
   updated_at: string;
   access_level: VariantListAccessLevel;

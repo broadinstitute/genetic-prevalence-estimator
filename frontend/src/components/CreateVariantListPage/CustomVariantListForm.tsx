@@ -50,7 +50,7 @@ const CustomVariantListForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [label, setLabel] = useState("");
-  const [description, setDescription] = useState("");
+  const [notes, setNotes] = useState("");
   const [referenceGenome, setReferenceGenome] = useState("GRCh37");
   const [variants, setVariants] = useState<InputVariant[]>([]);
 
@@ -67,7 +67,7 @@ const CustomVariantListForm = () => {
 
           const variantListRequest: CustomVariantListRequest = {
             label,
-            description,
+            notes,
             type: "custom",
             metadata: {
               version: "1",
@@ -107,12 +107,12 @@ const CustomVariantListForm = () => {
             />
           </FormControl>
 
-          <FormControl id="custom-variant-list-description">
-            <FormLabel>Description</FormLabel>
+          <FormControl id="custom-variant-list-notes">
+            <FormLabel>Notes</FormLabel>
             <Textarea
-              value={description}
+              value={notes}
               onChange={(e) => {
-                setDescription(e.target.value);
+                setNotes(e.target.value);
               }}
             />
           </FormControl>

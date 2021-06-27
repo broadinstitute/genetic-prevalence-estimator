@@ -40,7 +40,7 @@ class CustomVariantListMetadataVersion1Serializer(
 
 
 class NewVariantListSerializer(ModelSerializer):
-    description = serializers.CharField(allow_blank=True, required=False)
+    notes = serializers.CharField(allow_blank=True, required=False)
 
     def validate_metadata(self, value):
         if not value:
@@ -97,7 +97,7 @@ class NewVariantListSerializer(ModelSerializer):
 
     class Meta:
         model = VariantList
-        fields = ["uuid", "label", "description", "type", "metadata", "variants"]
+        fields = ["uuid", "label", "notes", "type", "metadata", "variants"]
         read_only_fields = ["uuid"]
 
 
@@ -137,7 +137,7 @@ class VariantListSerializer(ModelSerializer):
         fields = [
             "uuid",
             "label",
-            "description",
+            "notes",
             "type",
             "metadata",
             "variants",
@@ -147,4 +147,4 @@ class VariantListSerializer(ModelSerializer):
             "access_permissions",
         ]
 
-        read_only_fields = [f for f in fields if f not in ("label", "description")]
+        read_only_fields = [f for f in fields if f not in ("label", "notes")]

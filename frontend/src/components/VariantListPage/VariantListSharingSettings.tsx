@@ -34,7 +34,7 @@ export const accessLevelDescriptions = {
   [VariantListAccessLevel.OWNER]:
     "Owners can edit the list, manage collaborators, and delete the list.",
   [VariantListAccessLevel.EDITOR]:
-    "Editors can change the list's name and description.",
+    "Editors can rename the list name and edit notes.",
   [VariantListAccessLevel.VIEWER]:
     "Viewers can only view and download the list.",
 };

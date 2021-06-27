@@ -77,7 +77,6 @@ class TestVariantListAccessPermission:
         variant_list = VariantList.objects.create(
             id=1,
             label="Test list",
-            description="Initial description",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
@@ -110,7 +109,6 @@ class TestVariantListAccessPermission:
         variant_list = VariantList.objects.create(
             id=1,
             label="Test list",
-            description="Initial description",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
             variants=["1-55516888-G-GA"],
