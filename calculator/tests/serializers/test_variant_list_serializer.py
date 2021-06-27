@@ -1,5 +1,6 @@
 # pylint: disable=no-self-use
 import uuid
+from unittest.mock import patch
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -500,11 +501,13 @@ def test_variant_list_serializer_serializes_access_level():
         level=VariantListAccessPermission.Level.VIEWER,
     )
 
-    serializer = VariantListSerializer(variant_list, context={"current_user": editor})
-    assert serializer.data["access_level"] == "Editor"
+    with patch.object(VariantListSerializer, "get_current_user", return_value=editor):
+        serializer = VariantListSerializer(variant_list)
+        assert serializer.data["access_level"] == "Editor"
 
-    serializer = VariantListSerializer(variant_list, context={"current_user": viewer})
-    assert serializer.data["access_level"] == "Viewer"
+    with patch.object(VariantListSerializer, "get_current_user", return_value=viewer):
+        serializer = VariantListSerializer(variant_list)
+        assert serializer.data["access_level"] == "Viewer"
 
     serializer = VariantListSerializer(variant_list)
     assert "access_level" not in serializer.data
@@ -536,32 +539,36 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
     )
 
     # Owners should see other users with access to the variant list.
-    serializer = VariantListSerializer(variant_list, context={"current_user": owner})
-    assert "access_permissions" in serializer.data
-    access_permissions = serializer.data["access_permissions"]
-    assert len(access_permissions) == 3
-    assert {user["username"]: user["level"] for user in access_permissions} == {
-        "owner": "Owner",
-        "editor": "Editor",
-        "viewer": "Viewer",
-    }
+    with patch.object(VariantListSerializer, "get_current_user", return_value=owner):
+        serializer = VariantListSerializer(variant_list)
+        assert "access_permissions" in serializer.data
+        access_permissions = serializer.data["access_permissions"]
+        assert len(access_permissions) == 3
+        assert {user["username"]: user["level"] for user in access_permissions} == {
+            "owner": "Owner",
+            "editor": "Editor",
+            "viewer": "Viewer",
+        }
 
     # Users with access is read only.
-    serializer = VariantListSerializer(
-        variant_list,
-        data={"access_permissions": []},
-        context={"current_user": owner},
-        partial=True,
-    )
-    assert not serializer.is_valid()
-    assert "access_permissions" in serializer.errors
+    with patch.object(VariantListSerializer, "get_current_user", return_value=owner):
+        serializer = VariantListSerializer(
+            variant_list,
+            data={"access_permissions": []},
+            partial=True,
+        )
+        assert not serializer.is_valid()
+        assert "access_permissions" in serializer.errors
 
     # Non-owners should not be able to see users with access to the variant list.
-    serializer = VariantListSerializer(variant_list, context={"current_user": editor})
-    assert "access_permissions" not in serializer.data
 
-    serializer = VariantListSerializer(variant_list, context={"current_user": viewer})
-    assert "access_permissions" not in serializer.data
+    with patch.object(VariantListSerializer, "get_current_user", return_value=editor):
+        serializer = VariantListSerializer(variant_list)
+        assert "access_permissions" not in serializer.data
+
+    with patch.object(VariantListSerializer, "get_current_user", return_value=viewer):
+        serializer = VariantListSerializer(variant_list)
+        assert "access_permissions" not in serializer.data
 
     serializer = VariantListSerializer(variant_list)
     assert "access_permissions" not in serializer.data

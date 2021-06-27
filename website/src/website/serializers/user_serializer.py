@@ -4,11 +4,12 @@ from calculator.serializers.serializer import ModelSerializer
 
 
 class CurrentUserSerializer(ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.is_staff:
+            data.pop("is_staff")
 
-        if not self.instance.is_staff:
-            del self.fields["is_staff"]
+        return data
 
     class Meta:
         model = get_user_model()

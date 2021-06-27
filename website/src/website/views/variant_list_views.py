@@ -41,6 +41,3 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
     serializer_class = VariantListSerializer
-
-    def get_serializer_context(self):
-        return {"current_user": self.request.user}

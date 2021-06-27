@@ -102,36 +102,34 @@ class NewVariantListSerializer(ModelSerializer):
 
 
 class VariantListSerializer(ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Whether or not access permissions are visible depends on the current user.
-        # Access level should be visible if there is a current user.
-        # All access permissions should only be visible if the current user is an owner of the variant list.
-        current_user = self.context.get("current_user")
-        if not current_user:
-            del self.fields["access_level"]
-            del self.fields["access_permissions"]
-
-        else:
-            access = self.instance.access_permissions.get(user=current_user)
-            if not access or access.level != VariantListAccessPermission.Level.OWNER:
-                del self.fields["access_permissions"]
-
     status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
-
-    access_level = serializers.SerializerMethodField()
-
-    def get_access_level(self, obj):
-        try:
-            current_user = self.context["current_user"]
-            return obj.access_permissions.get(user=current_user).get_level_display()
-        except KeyError:
-            return None
 
     access_permissions = VariantListAccessPermissionSerializer(
         many=True, read_only=True
     )
+
+    def get_current_user(self):
+        try:
+            return self.context["request"].user
+        except (KeyError, AttributeError):
+            return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Whether or not access permissions are visible depends on the current user.
+        # Access level should be visible if there is a current user.
+        # All access permissions should only be visible if the current user is an owner of the variant list.
+        current_user = self.get_current_user()
+        if current_user:
+            access = instance.access_permissions.get(user=current_user)
+            data["access_level"] = access.get_level_display()
+            if access.level != VariantListAccessPermission.Level.OWNER:
+                data.pop("access_permissions")
+        else:
+            data.pop("access_permissions")
+
+        return data
 
     class Meta:
         model = VariantList
@@ -146,7 +144,6 @@ class VariantListSerializer(ModelSerializer):
             "created_at",
             "updated_at",
             "status",
-            "access_level",
             "access_permissions",
         ]
 

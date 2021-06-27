@@ -41,8 +41,5 @@ class VariantListAccessDetail(RetrieveUpdateDestroyAPIView):
 
     serializer_class = VariantListAccessPermissionSerializer
 
-    def get_serializer_context(self):
-        return {"current_user": self.request.user}
-
     def perform_update(self, serializer):
         serializer.save(last_updated_by=self.request.user)
