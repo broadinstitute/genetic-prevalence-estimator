@@ -20,6 +20,7 @@ import {
 import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
+  Link as RRLink,
   Redirect,
   Route,
   Switch,
@@ -28,6 +29,7 @@ import {
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import Link from "./components/Link";
 import SignInButton from "./components/SignInButton";
+import UsersPage from "./components/UsersPage/UsersPage";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
@@ -65,6 +67,11 @@ const App = () => {
                     >
                       Sign out
                     </MenuItem>
+                    {user!.is_staff && (
+                      <MenuItem as={RRLink} to="/users/">
+                        Manage users
+                      </MenuItem>
+                    )}
                   </MenuList>
                 </Menu>
               </Flex>
@@ -105,6 +112,10 @@ const App = () => {
                     return <Redirect to="/variant-lists/" />;
                   }}
                 />
+
+                {user?.is_staff && (
+                  <Route exact path="/users/" component={UsersPage} />
+                )}
               </Switch>
             ) : (
               <Alert status="warning">
