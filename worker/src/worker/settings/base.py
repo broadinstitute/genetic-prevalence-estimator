@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "worker",
 ]
 
 MIDDLEWARE = [
@@ -164,3 +165,7 @@ LOGGING = {
         }
     },
 }
+
+
+# Application settings
+HAIL_LOG_PATH = os.getenv("HAIL_LOG_PATH", os.devnull)
