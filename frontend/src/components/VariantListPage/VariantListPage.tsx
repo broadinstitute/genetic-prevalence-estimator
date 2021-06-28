@@ -12,7 +12,6 @@ import {
   Heading,
   HStack,
   ListItem,
-  OrderedList,
   Spinner,
   Text,
   Tooltip,
@@ -143,13 +142,13 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
       </Heading>
 
       {variantList.variants.length > 0 ? (
-        <OrderedList>
+        <UnorderedList mb={4}>
           {variantList.variants.map((variantId) => (
             <ListItem key={variantId}>{variantId}</ListItem>
           ))}
-        </OrderedList>
+        </UnorderedList>
       ) : (
-        <Text>
+        <Text mb={4}>
           Variants will be automatically populated for gnomAD variant lists.
         </Text>
       )}
