@@ -34,6 +34,7 @@ import {
   VariantListSharingButton,
   accessLevelDescriptions,
 } from "./VariantListSharingSettings";
+import VariantListStatus from "./VariantListStatus";
 
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
@@ -56,12 +57,11 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         {variantList.label}
       </Heading>
 
+      <VariantListStatus variantList={variantList} />
+
       {variantList.notes && <Text mb={4}>{variantList.notes}</Text>}
 
       <DescriptionList mb={4}>
-        <DescriptionListItem label="Status">
-          {variantList.status}
-        </DescriptionListItem>
         <DescriptionListItem label="Created">
           <DateTime datetime={variantList.created_at} />
         </DescriptionListItem>

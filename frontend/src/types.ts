@@ -65,6 +65,7 @@ interface VariantListBase {
   access_level?: VariantListAccessLevel;
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
+  error?: string;
   variants: VariantId[];
 }
 
