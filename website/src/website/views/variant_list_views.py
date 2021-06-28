@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers import NewVariantListSerializer, VariantListSerializer
 from website.permissions import ViewObjectPermissions
+from website.pubsub import publisher
 
 
 class VariantListsView(ListCreateAPIView):
@@ -24,6 +25,10 @@ class VariantListsView(ListCreateAPIView):
             variant_list=variant_list,
             user=self.request.user,
             level=VariantListAccessPermission.Level.OWNER,
+        )
+
+        publisher.send_to_worker(
+            {"type": "new_variant_list", "args": {"uuid": str(variant_list.uuid)}}
         )
 
     def get_success_headers(self, data):

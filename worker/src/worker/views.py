@@ -7,6 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
+from .tasks import handle_event
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,5 +26,7 @@ def receive_message_view(request):
     payload = json.loads(base64.b64decode(message["data"]).decode("utf-8").strip())
 
     logger.info("Received message %s", payload)
+
+    handle_event(payload)
 
     return Response(status=status.HTTP_204_NO_CONTENT)

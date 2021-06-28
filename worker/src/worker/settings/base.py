@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "calculator",
     "worker",
 ]
 
@@ -169,3 +170,5 @@ LOGGING = {
 
 # Application settings
 HAIL_LOG_PATH = os.getenv("HAIL_LOG_PATH", os.devnull)
+
+DATA_PATH = os.environ["DATA_PATH"].rstrip("/")

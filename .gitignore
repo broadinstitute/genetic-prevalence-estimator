@@ -15,3 +15,6 @@ htmlcov
 
 # Hail logs
 hail-*.log
+
+# dev data
+/data

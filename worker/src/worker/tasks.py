@@ -1,5 +1,14 @@
+import logging
+import traceback
+import uuid
+
 import hail as hl
 from django.conf import settings
+
+from calculator.models import VariantList
+
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_hail():
@@ -9,3 +18,100 @@ def initialize_hail():
         log=settings.HAIL_LOG_PATH,
         quiet=not settings.DEBUG,
     )
+
+
+def variant_id(locus, alleles):
+    return (
+        locus.contig.replace("^chr", "")
+        + "-"
+        + hl.str(locus.position)
+        + "-"
+        + alleles[0]
+        + "-"
+        + alleles[1]
+    )
+
+
+def get_gnomad_variant_list(variant_list):
+    gene_id = variant_list.metadata["gene_id"]
+    gnomad_version = variant_list.metadata["gnomad_version"]
+    assert gnomad_version in (
+        "2.1.1",
+        "3.1.1",
+    ), f"Invalid gnomAD version '{gnomad_version}'"
+
+    ds = hl.read_table(
+        f"{settings.DATA_PATH}/gnomAD_v{gnomad_version}_gene_variant_lists.ht"
+    )
+    ds = ds.filter(ds.gene_id == gene_id)
+
+    ds = ds.explode(ds.variants, name="variant")
+    ds = ds.annotate(**ds.variant)
+
+    if variant_list.metadata["filter_loftee"]:
+        included_loftee_annotations = hl.set(variant_list.metadata["filter_loftee"])
+        ds = ds.annotate(
+            transcript_consequences=ds.transcript_consequences.filter(
+                lambda csq: included_loftee_annotations.contains(csq.lof)
+            )
+        )
+        ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
+
+    if variant_list.metadata["filter_clinvar_clinical_significance"]:
+        reference_genome = ds.locus.dtype.reference_genome.name
+        assert reference_genome in ("GRCh37", "GRCh38")
+
+        included_clinical_significance_categories = hl.set(
+            variant_list.metadata["filter_clinvar_clinical_significance"]
+        )
+        clinvar = hl.read_table(
+            f"{settings.DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+        )
+        ds = ds.filter(
+            included_clinical_significance_categories.contains(
+                clinvar[ds.locus, ds.alleles].clinical_significance_category
+            )
+        )
+
+    ds = ds.annotate(variant_id=variant_id(ds.locus, ds.alleles))
+
+    variants = ds.variant_id.collect()
+    variant_list.variants = variants
+    variant_list.save()
+
+
+def process_new_variant_list(uid):
+    logger.info("Processing new variant list %s", uid)
+
+    variant_list = VariantList.objects.get(uuid=uid)
+    variant_list.status = VariantList.Status.PROCESSING
+    variant_list.save()
+
+    try:
+        if variant_list.type == VariantList.Type.GNOMAD:
+            get_gnomad_variant_list(variant_list)
+
+    except Exception:  # pylint: disable=broad-except
+        logger.exception("Error processing new variant list %s", uid)
+
+        variant_list.status = VariantList.Status.ERROR
+        variant_list.error = traceback.format_exc()
+        variant_list.save()
+
+    else:
+        logger.info("Done processing new variant list %s", uid)
+
+        variant_list.status = VariantList.Status.READY
+        variant_list.save()
+
+
+def handle_event(event):
+    try:
+        event_type = event["type"]
+        args = event["args"]
+
+        if event_type == "new_variant_list":
+            process_new_variant_list(uuid.UUID(hex=args["uuid"]))
+
+    except KeyError:
+        logger.error("Invalid event %s", event)
