@@ -35,6 +35,7 @@ import {
   accessLevelDescriptions,
 } from "./VariantListSharingSettings";
 import VariantListStatus from "./VariantListStatus";
+import VariantListVariants from "./VariantListVariants";
 
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
@@ -141,21 +142,7 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         Variants
       </Heading>
 
-      {variantList.variants.length > 0 ? (
-        <UnorderedList mb={4}>
-          {variantList.variants.map((variantId) => (
-            <ListItem key={variantId}>{variantId}</ListItem>
-          ))}
-        </UnorderedList>
-      ) : (
-        <Text mb={4}>
-          {variantList.type === "gnomad" &&
-          (variantList.status === "Queued" ||
-            variantList.status === "Processing")
-            ? "Variants will be automatically populated for gnomAD variant lists."
-            : "This variant list has no variants."}
-        </Text>
-      )}
+      <VariantListVariants variantList={variantList} />
     </>
   );
 };
