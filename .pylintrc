@@ -8,7 +8,8 @@ disable=
   duplicate-code,
   missing-docstring,
   too-few-public-methods,
-  too-many-ancestors
+  too-many-ancestors,
+  invalid-name
 
 [MISCELLANEOUS]
 notes=FIXME,TODO

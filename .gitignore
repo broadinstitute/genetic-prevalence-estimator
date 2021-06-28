@@ -12,3 +12,6 @@ htmlcov
 
 # dev database
 *.sqlite3
+
+# Hail logs
+hail-*.log

@@ -7,7 +7,7 @@ nox.options.reuse_existing_virtualenvs = True
 @nox.session
 def format(session):
     session.install("-r", "dev-requirements.txt")
-    session.run("black", "--check", "calculator", "website", "worker")
+    session.run("black", "--check", "calculator", "website", "worker", "data-pipelines")
 
 
 def install_website_dependencies(session):
@@ -41,6 +41,7 @@ def pylint(session):
         "calculator/tests",
         "website/src/website",
         "website/tests",
+        "data-pipelines",
         env=WEBSITE_ENV,
     )
 
