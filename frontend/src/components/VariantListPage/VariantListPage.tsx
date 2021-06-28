@@ -149,7 +149,11 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         </UnorderedList>
       ) : (
         <Text mb={4}>
-          Variants will be automatically populated for gnomAD variant lists.
+          {variantList.type === "gnomad" &&
+          (variantList.status === "Queued" ||
+            variantList.status === "Processing")
+            ? "Variants will be automatically populated for gnomAD variant lists."
+            : "This variant list has no variants."}
         </Text>
       )}
     </>
