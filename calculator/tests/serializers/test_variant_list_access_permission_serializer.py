@@ -22,7 +22,7 @@ def gnomad_variant_list():
         type=VariantList.Type.GNOMAD,
         metadata={
             "version": "1",
-            "gnomad_version": "2",
+            "gnomad_version": "2.1.1",
             "gene_id": "",
             "filter_loftee": None,
             "filter_clinvar_clinical_significance": None,

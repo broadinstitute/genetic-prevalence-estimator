@@ -21,7 +21,7 @@ def is_variant_id(maybe_variant_id):
 class GnomadVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
-    gnomad_version = serializers.ChoiceField(["2", "3"])
+    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
     gene_id = serializers.CharField(max_length=15)
     filter_loftee = serializers.MultipleChoiceField(["HC", "LC"], allow_null=True)
     filter_clinvar_clinical_significance = serializers.MultipleChoiceField(

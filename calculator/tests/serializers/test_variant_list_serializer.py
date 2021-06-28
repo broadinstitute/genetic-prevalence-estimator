@@ -157,7 +157,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": ["HC"],
                 "filter_clinvar_clinical_significance": None,
@@ -172,7 +172,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": ["pathogenic"],
@@ -187,7 +187,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": ["HC", "LC"],
                 "filter_clinvar_clinical_significance": ["pathogenic", "uncertain"],
@@ -203,7 +203,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": ["HC"],
                 "filter_clinvar_clinical_significance": None,
@@ -219,7 +219,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
@@ -247,7 +247,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "9000",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
@@ -298,7 +298,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3",
+                "gnomad_version": "3.1.1",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -314,7 +314,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3",
+                "gnomad_version": "3.1.1",
                 "gene_id": "not-a-gene-id",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
@@ -332,7 +332,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3",
+                "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": ["not-a-loftee-annotation"],
                 "filter_clinvar_clinical_significance": None,
@@ -349,7 +349,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3",
+                "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": ["not-a-loftee-annotation"],
                 "filter_clinvar_clinical_significance": None,
@@ -367,7 +367,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": ["not-a-clinical-significance"],
@@ -385,7 +385,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "type": "gnomad",
             "metadata": {
                 "version": "1",
-                "gnomad_version": "2",
+                "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
@@ -420,7 +420,7 @@ def gnomad_variant_list():
         type=VariantList.Type.GNOMAD,
         metadata={
             "version": "1",
-            "gnomad_version": "2",
+            "gnomad_version": "2.1.1",
             "gene_id": "",
             "filter_loftee": None,
             "filter_clinvar_clinical_significance": None,

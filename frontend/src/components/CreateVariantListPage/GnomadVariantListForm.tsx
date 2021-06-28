@@ -35,7 +35,7 @@ const GnomadVariantListForm = () => {
   const [geneId, setGeneId] = useState("");
   const isGeneIdValid = /^ENSG\d{11}$/.test(geneId);
 
-  const [gnomadVersion, setGnomadVersion] = useState("2");
+  const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
   const [lofteeFilter, setLofteeFilter] = useState("HC");
   const [clinvarFilter, setClinvarFilter] = useState("pathogenic");
@@ -141,8 +141,8 @@ const GnomadVariantListForm = () => {
           <FormLabel>gnomAD version</FormLabel>
           <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
             <VStack align="flex-start">
-              <Radio value="2">2.1.1 (GRCh37)</Radio>
-              <Radio value="3">3.1.1 (GRCh38)</Radio>
+              <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
+              <Radio value="3.1.1">3.1.1 (GRCh38)</Radio>
             </VStack>
           </RadioGroup>
         </FormControl>

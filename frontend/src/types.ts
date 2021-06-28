@@ -1,4 +1,4 @@
-export type GnomadVersion = "2" | "3";
+export type GnomadVersion = "2.1.1" | "3.1.1";
 
 export type LofteeAnnotation = "HC" | "LC";
 
