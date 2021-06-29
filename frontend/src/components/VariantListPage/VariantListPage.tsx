@@ -34,6 +34,7 @@ import {
   VariantListSharingButton,
   accessLevelDescriptions,
 } from "./VariantListSharingSettings";
+import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
 
@@ -61,6 +62,8 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
       <VariantListStatus variantList={variantList} />
 
       {variantList.notes && <Text mb={4}>{variantList.notes}</Text>}
+
+      <VariantListMetadata variantList={variantList} />
 
       <DescriptionList mb={4}>
         <DescriptionListItem label="Created">
