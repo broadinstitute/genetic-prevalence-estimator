@@ -279,8 +279,10 @@ def main():
 
     intervals = None
     if args.intervals:
+        reference_genome = "GRCh37" if args.gnomad_version == 2 else "GRCh38"
         intervals = [
-            hl.parse_locus_interval(interval) for interval in args.intervals.split(",")
+            hl.parse_locus_interval(interval, reference_genome=reference_genome)
+            for interval in args.intervals.split(",")
         ]
 
     ds = prepare_gnomad_variants(

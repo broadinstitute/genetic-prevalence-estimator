@@ -153,7 +153,8 @@ def main() -> None:
     intervals = None
     if args.intervals:
         intervals = [
-            hl.parse_locus_interval(interval) for interval in args.intervals.split(",")
+            hl.parse_locus_interval(interval, reference_genome=args.reference_genome)
+            for interval in args.intervals.split(",")
         ]
 
     with tempfile.TemporaryDirectory() as tmp_dir:
