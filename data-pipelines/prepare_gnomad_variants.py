@@ -119,6 +119,7 @@ def get_gnomad_v2_variants():
         ),
         transcript_consequences=exomes.vep.transcript_consequences,
     )
+    exomes = exomes.filter(exomes.exome.overall.AC > 0)
 
     genomes = genomes.select(
         genome=hl.struct(
@@ -129,6 +130,7 @@ def get_gnomad_v2_variants():
         ),
         transcript_consequences=genomes.vep.transcript_consequences,
     )
+    genomes = genomes.filter(genomes.genome.overall.AC > 0)
 
     exomes = exomes.select_globals()
     genomes = genomes.select_globals()
@@ -173,12 +175,14 @@ def get_gnomad_v3_variants():
     )
 
     ds = ds.select(
-        genomes=hl.struct(
+        genome=hl.struct(
             overall=freq(ds),
             populations=hl.struct(**{pop: freq(ds, pop=pop) for pop in populations}),
         ),
         transcript_consequences=ds.vep.transcript_consequences,
     )
+    ds = ds.filter(ds.genome.overall.AC > 0)
+
     ds = ds.annotate(exome=hl.missing(ds.genome.dtype))
 
     ds = ds.select_globals(populations=set(populations))
