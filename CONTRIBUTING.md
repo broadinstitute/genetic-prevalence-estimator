@@ -63,11 +63,3 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 Use [nox](https://nox.thea.codes/en/stable/) to run tasks in a virtualenv with necessary dependencies.
 
 Use `nox -l` to list available tasks. Use `nox -s <name>` to run a specific task.
-
-## Running development tasks in Docker
-
-Use services defined in `docker-compose.dev.yml` to run tasks requiring development dependencies.
-
-```
-docker compose -f docker-compose.dev.yml run --rm website-dev python -m pylint website/src/website
-```

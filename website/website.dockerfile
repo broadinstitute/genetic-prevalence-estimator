@@ -50,20 +50,4 @@ USER app
 # Run
 ENV DJANGO_SETTINGS_MODULE=website.settings.base
 
-###############################################################################
-# Development image
-###############################################################################
-FROM base as development
-
-COPY .pylintrc ./.pylintrc
-COPY dev-requirements.txt ./dev-requirements.txt
-RUN pip install --no-cache-dir -r ./dev-requirements.txt
-
-CMD /bin/bash
-
-###############################################################################
-# Production image
-###############################################################################
-FROM base as production
-
 CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 website.wsgi
