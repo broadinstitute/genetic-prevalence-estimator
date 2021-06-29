@@ -82,7 +82,7 @@ def data_pipelines_pylint(session):
     session.run("pylint", "data-pipelines")
 
 
-@nox.session
+@nox.session(name="tests:website")
 def website_tests(session):
     session.install("-r", "dev-requirements.txt")
     install_website_dependencies(session)
