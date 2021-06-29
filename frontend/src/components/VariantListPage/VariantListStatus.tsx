@@ -65,7 +65,7 @@ const VariantListStatus = (props: { variantList: VariantList }) => {
       <Alert status="info" mb={4}>
         <AlertIcon />
         This variant list is queued for processing. It may be a while before it
-        is ready.
+        is ready. This page will automatically update when it is ready.
       </Alert>
     );
   }
@@ -75,6 +75,7 @@ const VariantListStatus = (props: { variantList: VariantList }) => {
       <Alert status="info" mb={4}>
         <AlertIcon />
         This variant list is currently processing. It should be ready shortly.
+        This page will automatically update when it is ready.
       </Alert>
     );
   }

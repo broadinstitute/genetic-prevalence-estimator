@@ -156,14 +156,54 @@ const VariantListPageContainer = (props: { uuid: string }) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let refreshInterval: number | undefined = undefined;
+    let refreshCanceled = false;
+
+    const refreshVariantList = () => {
+      get(`/variant-lists/${uuid}/`).then(
+        (variantList) => {
+          if (refreshCanceled) {
+            return;
+          }
+
+          variantListStoreRef.current?.set(variantList);
+
+          if (
+            !(
+              variantList.status === "Queued" ||
+              variantList.status === "Processing"
+            )
+          ) {
+            window.clearInterval(refreshInterval);
+          }
+        },
+        (error) => {
+          window.clearInterval(refreshInterval);
+          setError(error);
+        }
+      );
+    };
+
     setIsLoading(true);
     get(`/variant-lists/${uuid}/`)
       .then((variantList) => {
         variantListStoreRef.current = atom(variantList);
+
+        if (
+          variantList.status === "Queued" ||
+          variantList.status === "Processing"
+        ) {
+          refreshInterval = window.setInterval(refreshVariantList, 15000);
+        }
       }, setError)
       .finally(() => {
         setIsLoading(false);
       });
+
+    return () => {
+      window.clearInterval(refreshInterval);
+      refreshCanceled = true;
+    };
   }, [uuid]);
 
   if (isLoading) {
