@@ -38,19 +38,25 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
     referenceGenome === "GRCh37" ? "gnomad_r2_1" : "gnomad_r3";
 
   return (
-    <UnorderedList mb={4}>
-      {variantList.variants.map((variantId) => (
-        <ListItem key={variantId}>
-          <Link
-            href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${gnomadDataset}`}
-            isExternal
-            target="_blank"
-          >
-            {variantId}
-          </Link>
-        </ListItem>
-      ))}
-    </UnorderedList>
+    <>
+      <Text mb={2}>
+        This variant list contains {variantList.variants.length} variant
+        {variantList.variants.length !== 1 ? "s" : ""}.
+      </Text>
+      <UnorderedList mb={4}>
+        {variantList.variants.map((variantId) => (
+          <ListItem key={variantId}>
+            <Link
+              href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${gnomadDataset}`}
+              isExternal
+              target="_blank"
+            >
+              {variantId}
+            </Link>
+          </ListItem>
+        ))}
+      </UnorderedList>
+    </>
   );
 };
 
