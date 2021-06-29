@@ -90,8 +90,18 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
     clinvar_release_date = _get_vcf_meta_info(clinvar_vcf_path, "fileDate")
     reference_genome = _get_vcf_meta_info(clinvar_vcf_path, "reference")
 
+    contig_recoding = None
+    if reference_genome == "GRCh38":
+        ref = hl.get_reference("GRCh38")
+        contig_recoding = {
+            ref_contig.replace("chr", ""): ref_contig
+            for ref_contig in ref.contigs
+            if "chr" in ref_contig
+        }
+
     ds = hl.import_vcf(
         "file://" + os.path.abspath(clinvar_vcf_path),
+        contig_recoding=contig_recoding,
         drop_samples=True,
         force=True,
         reference_genome=reference_genome,
