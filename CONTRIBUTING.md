@@ -62,7 +62,7 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 
 Use [nox](https://nox.thea.codes/en/stable/) to run tasks in a virtualenv with necessary dependencies.
 
-Tasks are defined in `noxfile.py`.
+Use `nox -l` to list available tasks. Use `nox -s <name>` to run a specific task.
 
 ## Running development tasks in Docker
 

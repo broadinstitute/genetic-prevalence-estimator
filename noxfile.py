@@ -6,10 +6,11 @@ import nox
 nox.options.reuse_existing_virtualenvs = True
 
 
-@nox.session
-def format(session):
+@nox.session(name="format")
+def format_code(session):
+    """Format code with Black."""
     session.install("-r", "dev-requirements.txt")
-    session.run("black", "--check", "calculator", "website", "worker", "data-pipelines")
+    session.run("black", "calculator", "website", "worker", "data-pipelines")
 
 
 def install_website_dependencies(session):
@@ -41,12 +42,14 @@ WORKER_ENV = {
 
 @nox.session
 def makemigrations(session):
+    """Run django-admin makemigrations."""
     install_website_dependencies(session)
     session.run("django-admin", "makemigrations", env=WEBSITE_ENV)
 
 
 @nox.session(name="pylint:website")
 def website_pylint(session):
+    """Run Pylint on website and calculator directories."""
     session.install("-r", "dev-requirements.txt")
     install_website_dependencies(session)
 
@@ -63,6 +66,7 @@ def website_pylint(session):
 
 @nox.session(name="pylint:worker")
 def worker_pylint(session):
+    """Run Pylint on worker directory."""
     session.install("-r", "dev-requirements.txt")
     install_worker_dependencies(session)
 
@@ -76,6 +80,7 @@ def worker_pylint(session):
 
 @nox.session(name="pylint:data-pipelines")
 def data_pipelines_pylint(session):
+    """Run Pylint on data-pipelines directory."""
     session.install("-r", "dev-requirements.txt")
     session.install("hail==0.2.65")
 
@@ -84,6 +89,7 @@ def data_pipelines_pylint(session):
 
 @nox.session(name="tests:website")
 def website_tests(session):
+    """Run website and calculator tests."""
     session.install("-r", "dev-requirements.txt")
     install_website_dependencies(session)
     session.run(
