@@ -42,9 +42,9 @@ const GnomadVariantListMetadata = (props: {
           {variantList.metadata.gene_id}
         </Link>
       </DescriptionListItem>
-      <DescriptionListItem label="ClinVar clinical significance">
-        {variantList.metadata.filter_clinvar_clinical_significance
-          ? variantList.metadata.filter_clinvar_clinical_significance.join(", ")
+      <DescriptionListItem label="Included ClinVar variants">
+        {variantList.metadata.included_clinvar_variants
+          ? variantList.metadata.included_clinvar_variants.join(", ")
           : "Any"}
       </DescriptionListItem>
     </DescriptionList>

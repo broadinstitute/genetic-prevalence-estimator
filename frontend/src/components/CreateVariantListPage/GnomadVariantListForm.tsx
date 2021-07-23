@@ -39,7 +39,9 @@ const GnomadVariantListForm = () => {
 
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
-  const [clinvarFilter, setClinvarFilter] = useState("pathogenic");
+  const [includedClinvarVariants, setIncludedClinvarVariants] = useState(
+    "pathogenic"
+  );
 
   const history = useHistory();
   const toast = useToast();
@@ -59,16 +61,16 @@ const GnomadVariantListForm = () => {
               gene_id: geneId,
               transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
-              filter_clinvar_clinical_significance: null,
+              included_clinvar_variants: null,
             },
           };
 
-          if (clinvarFilter === "pathogenic") {
-            variantListRequest.metadata.filter_clinvar_clinical_significance = [
+          if (includedClinvarVariants === "pathogenic") {
+            variantListRequest.metadata.included_clinvar_variants = [
               "pathogenic",
             ];
-          } else if (clinvarFilter === "pathogenic+uncertain") {
-            variantListRequest.metadata.filter_clinvar_clinical_significance = [
+          } else if (includedClinvarVariants === "pathogenic+uncertain") {
+            variantListRequest.metadata.included_clinvar_variants = [
               "pathogenic",
               "uncertain",
             ];
@@ -162,7 +164,10 @@ const GnomadVariantListForm = () => {
 
         <FormControl id="gnomad-variant-list-clinical-significance" isRequired>
           <FormLabel>ClinVar clinical significance</FormLabel>
-          <RadioGroup value={clinvarFilter} onChange={setClinvarFilter}>
+          <RadioGroup
+            value={includedClinvarVariants}
+            onChange={setIncludedClinvarVariants}
+          >
             <VStack align="flex-start">
               <Radio value="pathogenic">Pathogenic only</Radio>
               <Radio value="pathogenic+uncertain">

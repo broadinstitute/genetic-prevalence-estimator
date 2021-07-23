@@ -23,9 +23,7 @@ export interface GnomadVariantListMetadata {
   gnomad_version: GnomadVersion;
   gene_id: string;
   transcript_id: string;
-  filter_clinvar_clinical_significance:
-    | ClinvarClinicalSignificanceCategory[]
-    | null;
+  included_clinvar_variants: ClinvarClinicalSignificanceCategory[] | null;
 }
 
 export interface CustomVariantListMetadata {

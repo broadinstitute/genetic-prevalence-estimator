@@ -64,12 +64,12 @@ def get_gnomad_variant_list(variant_list):
         & (ds.transcript_consequence.lof == "HC")
     )
 
-    if variant_list.metadata["filter_clinvar_clinical_significance"]:
+    if variant_list.metadata["included_clinvar_variants"]:
         reference_genome = ds.locus.dtype.reference_genome.name
         assert reference_genome in ("GRCh37", "GRCh38")
 
         included_clinical_significance_categories = hl.set(
-            variant_list.metadata["filter_clinvar_clinical_significance"]
+            variant_list.metadata["included_clinvar_variants"]
         )
         clinvar = hl.read_table(
             f"{settings.DATA_PATH}/ClinVar_{reference_genome}_variants.ht"

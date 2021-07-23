@@ -160,7 +160,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -175,7 +175,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": ["pathogenic"],
+                "included_clinvar_variants": ["pathogenic"],
             },
         }
     )
@@ -190,7 +190,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": ["pathogenic", "uncertain"],
+                "included_clinvar_variants": ["pathogenic", "uncertain"],
             },
         }
     )
@@ -206,7 +206,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
             "other_field": "value",
         }
@@ -222,7 +222,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -250,7 +250,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -266,7 +266,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -283,7 +283,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "8",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -300,7 +300,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "3.1.1",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -317,7 +317,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "3.1.1",
                 "gene_id": "not-a-gene-id",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -335,7 +335,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": None,
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -352,7 +352,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "not-a-tx-id",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
         }
     )
@@ -370,13 +370,13 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": ["not-a-clinical-significance"],
+                "included_clinvar_variants": ["not-a-clinical-significance"],
             },
         }
     )
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
-    assert "filter_clinvar_clinical_significance" in serializer.errors["metadata"]
+    assert "included_clinvar_variants" in serializer.errors["metadata"]
 
     # Do not allow variants to be uploaded
     serializer = NewVariantListSerializer(
@@ -388,7 +388,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "filter_clinvar_clinical_significance": None,
+                "included_clinvar_variants": None,
             },
             "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
         }
@@ -423,7 +423,7 @@ def gnomad_variant_list():
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174",
             "transcript_id": "ENST00000302118",
-            "filter_clinvar_clinical_significance": None,
+            "included_clinvar_variants": None,
         },
         variants=["1-55516888-G-GA"],
         status=VariantList.Status.READY,
