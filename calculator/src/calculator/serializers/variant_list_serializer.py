@@ -14,6 +14,10 @@ def is_gene_id(maybe_gene_id):
     return bool(re.fullmatch(r"ENSG\d{11}", maybe_gene_id))
 
 
+def is_transcript_id(maybe_transcript_id):
+    return bool(re.fullmatch(r"ENST\d{11}", maybe_transcript_id))
+
+
 def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
@@ -23,6 +27,7 @@ class GnomadVariantListMetadataVersion1Serializer(
 ):  # pylint: disable=abstract-method
     gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
     gene_id = serializers.CharField(max_length=15)
+    transcript_id = serializers.CharField(max_length=15)
     filter_loftee = serializers.MultipleChoiceField(["HC", "LC"], allow_null=True)
     filter_clinvar_clinical_significance = serializers.MultipleChoiceField(
         ["pathogenic", "uncertain", "benign", "other"], allow_null=True
@@ -31,6 +36,12 @@ class GnomadVariantListMetadataVersion1Serializer(
     def validate_gene_id(self, value):  # pylint: disable=no-self-use
         if not is_gene_id(value):
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
+
+    def validate_transcript_id(self, value):  # pylint: disable=no-self-use
+        if not is_transcript_id(value):
+            raise serializers.ValidationError(
+                f"'{value}' is not a valid transcript ID."
+            )
 
 
 class CustomVariantListMetadataVersion1Serializer(

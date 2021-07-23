@@ -24,6 +24,7 @@ export interface GnomadVariantListMetadata {
   version: "1";
   gnomad_version: GnomadVersion;
   gene_id: string;
+  transcript_id: string;
   filter_loftee: LofteeAnnotation[] | null;
   filter_clinvar_clinical_significance:
     | ClinvarClinicalSignificanceCategory[]

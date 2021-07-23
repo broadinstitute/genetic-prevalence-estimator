@@ -23,7 +23,8 @@ def gnomad_variant_list():
         metadata={
             "version": "1",
             "gnomad_version": "2.1.1",
-            "gene_id": "",
+            "gene_id": "ENSG00000169174",
+            "transcript_id": "ENST00000302118",
             "filter_loftee": None,
             "filter_clinvar_clinical_significance": None,
         },

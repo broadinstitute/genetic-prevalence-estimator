@@ -34,6 +34,8 @@ const GnomadVariantListForm = () => {
   const [notes, setNotes] = useState("");
   const [geneId, setGeneId] = useState("");
   const isGeneIdValid = /^ENSG\d{11}$/.test(geneId);
+  const [transcriptId, setTranscriptId] = useState("");
+  const isTranscriptIdValid = /^ENST\d{11}$/.test(transcriptId);
 
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
@@ -56,6 +58,7 @@ const GnomadVariantListForm = () => {
             metadata: {
               version: "1",
               gene_id: geneId,
+              transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
               filter_loftee: null,
               filter_clinvar_clinical_significance: null,
@@ -135,6 +138,24 @@ const GnomadVariantListForm = () => {
             }}
           />
           <FormErrorMessage>An Ensembl gene ID is required.</FormErrorMessage>
+        </FormControl>
+
+        <FormControl
+          id="gnomad-variant-list-transcript-id"
+          isInvalid={!!transcriptId && !isTranscriptIdValid}
+          isRequired
+        >
+          <FormLabel>Ensembl Transcript ID</FormLabel>
+          <Input
+            placeholder="ENST00000302118"
+            value={transcriptId}
+            onChange={(e) => {
+              setTranscriptId(e.target.value);
+            }}
+          />
+          <FormErrorMessage>
+            An Ensembl transcript ID is required.
+          </FormErrorMessage>
         </FormControl>
 
         <FormControl id="gnomad-variant-list-gnomad-version" isRequired>

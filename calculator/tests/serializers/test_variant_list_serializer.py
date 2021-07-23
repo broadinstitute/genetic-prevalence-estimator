@@ -159,6 +159,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": ["HC"],
                 "filter_clinvar_clinical_significance": None,
             },
@@ -174,6 +175,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": ["pathogenic"],
             },
@@ -189,6 +191,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": ["HC", "LC"],
                 "filter_clinvar_clinical_significance": ["pathogenic", "uncertain"],
             },
@@ -205,6 +208,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": ["HC"],
                 "filter_clinvar_clinical_significance": None,
             },
@@ -221,6 +225,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -249,6 +254,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "9000",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -265,6 +271,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "metadata": {
                 "version": "1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -282,6 +289,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "8",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -299,6 +307,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -316,6 +325,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "3.1.1",
                 "gene_id": "not-a-gene-id",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -324,6 +334,43 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
     assert "gene_id" in serializer.errors["metadata"]
+
+    # Require valid transcript ID
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "gnomad",
+            "metadata": {
+                "version": "1",
+                "gnomad_version": "3.1.1",
+                "gene_id": "ENSG00000169174",
+                "transcript_id": None,
+                "filter_loftee": None,
+                "filter_clinvar_clinical_significance": None,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "transcript_id" in serializer.errors["metadata"]
+
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "gnomad",
+            "metadata": {
+                "version": "1",
+                "gnomad_version": "3.1.1",
+                "gene_id": "ENSG00000169174",
+                "transcript_id": "not-a-tx-id",
+                "filter_loftee": None,
+                "filter_clinvar_clinical_significance": None,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "transcript_id" in serializer.errors["metadata"]
 
     # Require valid LOFTEE annotations
     serializer = NewVariantListSerializer(
@@ -334,6 +381,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": ["not-a-loftee-annotation"],
                 "filter_clinvar_clinical_significance": None,
             },
@@ -351,6 +399,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "3.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": ["not-a-loftee-annotation"],
                 "filter_clinvar_clinical_significance": None,
             },
@@ -369,6 +418,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": ["not-a-clinical-significance"],
             },
@@ -387,6 +437,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "version": "1",
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
+                "transcript_id": "ENST00000302118",
                 "filter_loftee": None,
                 "filter_clinvar_clinical_significance": None,
             },
@@ -421,7 +472,8 @@ def gnomad_variant_list():
         metadata={
             "version": "1",
             "gnomad_version": "2.1.1",
-            "gene_id": "",
+            "gene_id": "ENSG00000169174",
+            "transcript_id": "ENST00000302118",
             "filter_loftee": None,
             "filter_clinvar_clinical_significance": None,
         },
