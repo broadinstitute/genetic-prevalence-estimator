@@ -199,6 +199,18 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
 
     ds = ds.annotate(
         transcript_consequences=ds.transcript_consequences.map(
+            lambda c: c.annotate(
+                consequence_terms=c.consequence_terms.filter(
+                    lambda t: ~hl.set(
+                        ["upstream_gene_variant", "downstream_gene_variant"]
+                    ).contains(t)
+                )
+            )
+        ).filter(lambda c: c.consequence_terms.size() > 0)
+    )
+
+    ds = ds.annotate(
+        transcript_consequences=ds.transcript_consequences.map(
             lambda csq: csq.annotate(
                 major_consequence=hl.sorted(
                     csq.consequence_terms,
