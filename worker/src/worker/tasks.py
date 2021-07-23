@@ -33,7 +33,7 @@ def variant_id(locus, alleles):
 
 
 def get_gnomad_variant_list(variant_list):
-    gene_id = variant_list.metadata["gene_id"]
+    transcript_id = variant_list.metadata["transcript_id"]
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
@@ -41,21 +41,18 @@ def get_gnomad_variant_list(variant_list):
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
     ds = hl.read_table(
-        f"{settings.DATA_PATH}/gnomAD_v{gnomad_version}_gene_variant_lists.ht"
+        f"{settings.DATA_PATH}/gnomAD_v{gnomad_version}_variant_lists.ht"
     )
-    ds = ds.filter(ds.gene_id == gene_id)
+    ds = ds.filter(ds.transcript_id == transcript_id)
 
     ds = ds.explode(ds.variants, name="variant")
     ds = ds.annotate(**ds.variant)
 
     if variant_list.metadata["filter_loftee"]:
         included_loftee_annotations = hl.set(variant_list.metadata["filter_loftee"])
-        ds = ds.annotate(
-            transcript_consequences=ds.transcript_consequences.filter(
-                lambda csq: included_loftee_annotations.contains(csq.lof)
-            )
+        ds = ds.filter(
+            included_loftee_annotations.contains(ds.transcript_consequence.lof)
         )
-        ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
 
     if variant_list.metadata["filter_clinvar_clinical_significance"]:
         reference_genome = ds.locus.dtype.reference_genome.name
