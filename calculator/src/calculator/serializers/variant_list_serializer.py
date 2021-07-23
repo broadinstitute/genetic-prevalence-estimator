@@ -28,7 +28,6 @@ class GnomadVariantListMetadataVersion1Serializer(
     gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
     gene_id = serializers.CharField(max_length=15)
     transcript_id = serializers.CharField(max_length=15)
-    filter_loftee = serializers.MultipleChoiceField(["HC", "LC"], allow_null=True)
     filter_clinvar_clinical_significance = serializers.MultipleChoiceField(
         ["pathogenic", "uncertain", "benign", "other"], allow_null=True
     )

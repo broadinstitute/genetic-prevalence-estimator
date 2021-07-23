@@ -25,7 +25,6 @@ def gnomad_variant_list():
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174",
             "transcript_id": "ENST00000302118",
-            "filter_loftee": None,
             "filter_clinvar_clinical_significance": None,
         },
         variants=["1-55516888-G-GA"],

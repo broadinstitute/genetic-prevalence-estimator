@@ -39,7 +39,6 @@ const GnomadVariantListForm = () => {
 
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
-  const [lofteeFilter, setLofteeFilter] = useState("HC");
   const [clinvarFilter, setClinvarFilter] = useState("pathogenic");
 
   const history = useHistory();
@@ -60,16 +59,9 @@ const GnomadVariantListForm = () => {
               gene_id: geneId,
               transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
-              filter_loftee: null,
               filter_clinvar_clinical_significance: null,
             },
           };
-
-          if (lofteeFilter === "HC") {
-            variantListRequest.metadata.filter_loftee = ["HC"];
-          } else if (lofteeFilter === "HC+LC") {
-            variantListRequest.metadata.filter_loftee = ["HC", "LC"];
-          }
 
           if (clinvarFilter === "pathogenic") {
             variantListRequest.metadata.filter_clinvar_clinical_significance = [
@@ -168,18 +160,7 @@ const GnomadVariantListForm = () => {
           </RadioGroup>
         </FormControl>
 
-        <FormControl id="gnomad-variant-list-loftee" isRequired>
-          <FormLabel>LOFTEE</FormLabel>
-          <RadioGroup value={lofteeFilter} onChange={setLofteeFilter}>
-            <VStack align="flex-start">
-              <Radio value="HC">High-confidence only</Radio>
-              <Radio value="HC+LC">High-confidence and low-confidence</Radio>
-              <Radio value="none">Any</Radio>
-            </VStack>
-          </RadioGroup>
-        </FormControl>
-
-        <FormControl id="gnomad-variant-list-loftee" isRequired>
+        <FormControl id="gnomad-variant-list-clinical-significance" isRequired>
           <FormLabel>ClinVar clinical significance</FormLabel>
           <RadioGroup value={clinvarFilter} onChange={setClinvarFilter}>
             <VStack align="flex-start">

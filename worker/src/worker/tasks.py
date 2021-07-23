@@ -61,13 +61,8 @@ def get_gnomad_variant_list(variant_list):
 
     ds = ds.filter(
         PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.transcript_consequence.major_consequence)
+        & (ds.transcript_consequence.lof == "HC")
     )
-
-    if variant_list.metadata["filter_loftee"]:
-        included_loftee_annotations = hl.set(variant_list.metadata["filter_loftee"])
-        ds = ds.filter(
-            included_loftee_annotations.contains(ds.transcript_consequence.lof)
-        )
 
     if variant_list.metadata["filter_clinvar_clinical_significance"]:
         reference_genome = ds.locus.dtype.reference_genome.name

@@ -1,7 +1,5 @@
 export type GnomadVersion = "2.1.1" | "3.1.1";
 
-export type LofteeAnnotation = "HC" | "LC";
-
 export type ClinvarClinicalSignificanceCategory =
   | "pathogenic"
   | "uncertain"
@@ -25,7 +23,6 @@ export interface GnomadVariantListMetadata {
   gnomad_version: GnomadVersion;
   gene_id: string;
   transcript_id: string;
-  filter_loftee: LofteeAnnotation[] | null;
   filter_clinvar_clinical_significance:
     | ClinvarClinicalSignificanceCategory[]
     | null;
