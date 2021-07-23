@@ -11,6 +11,17 @@ from calculator.models import VariantList
 logger = logging.getLogger(__name__)
 
 
+PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
+    [
+        "transcript_ablation",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "stop_gained",
+        "frameshift_variant",
+    ]
+)
+
+
 def initialize_hail():
     hl.init(
         idempotent=True,
@@ -47,6 +58,10 @@ def get_gnomad_variant_list(variant_list):
 
     ds = ds.explode(ds.variants, name="variant")
     ds = ds.annotate(**ds.variant)
+
+    ds = ds.filter(
+        PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.transcript_consequence.major_consequence)
+    )
 
     if variant_list.metadata["filter_loftee"]:
         included_loftee_annotations = hl.set(variant_list.metadata["filter_loftee"])

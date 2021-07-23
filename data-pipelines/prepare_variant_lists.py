@@ -3,17 +3,6 @@ import argparse
 import hail as hl
 
 
-PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
-    [
-        "transcript_ablation",
-        "splice_acceptor_variant",
-        "splice_donor_variant",
-        "stop_gained",
-        "frameshift_variant",
-    ]
-)
-
-
 def prepare_variant_lists(ds):
     ds = ds.select_globals()
     ds = ds.drop("freq")
@@ -21,10 +10,6 @@ def prepare_variant_lists(ds):
     ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
 
     ds = ds.explode(ds.transcript_consequences, name="transcript_consequence")
-
-    ds = ds.filter(
-        PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.transcript_consequence.major_consequence)
-    )
 
     ds = ds.group_by(transcript_id=ds.transcript_consequence.transcript_id).aggregate(
         variants=hl.agg.collect(ds.row)
