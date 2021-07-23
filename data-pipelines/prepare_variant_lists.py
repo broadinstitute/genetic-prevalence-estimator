@@ -7,6 +7,12 @@ def prepare_variant_lists(ds):
     ds = ds.select_globals()
     ds = ds.drop("freq")
 
+    # Only include variants that passed QC filters in at least one of exome/genome samples.
+    ds = ds.filter(
+        (hl.is_defined(ds.filters.exome) & (hl.len(ds.filters.exome) == 0))
+        | (hl.is_defined(ds.filters.genome) & (hl.len(ds.filters.genome) == 0))
+    )
+
     ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
 
     ds = ds.explode(ds.transcript_consequences, name="transcript_consequence")
