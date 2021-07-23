@@ -3,9 +3,29 @@ import argparse
 import hail as hl
 
 
+PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
+    [
+        "transcript_ablation",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "stop_gained",
+        "frameshift_variant",
+    ]
+)
+
+
 def prepare_gene_variant_lists(ds):
     ds = ds.select_globals()
     ds = ds.drop("freq")
+
+    # Filter to only pLoF variants
+    ds = ds.annotate(
+        transcript_consequences=ds.transcript_consequences.filter(
+            lambda csq: PLOF_VEP_CONSEQUENCE_TERMS.contains(csq.major_consequence)
+        )
+    )
+    ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
+
     ds = ds.annotate(gene_ids=hl.set(ds.transcript_consequences.gene_id))
     ds = ds.explode(ds.gene_ids, name="gene_id")
     ds = ds.annotate(

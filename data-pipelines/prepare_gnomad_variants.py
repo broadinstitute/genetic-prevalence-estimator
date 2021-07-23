@@ -51,17 +51,6 @@ VEP_CONSEQUENCE_TERM_RANK = hl.dict(
 )
 
 
-PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
-    [
-        "transcript_ablation",
-        "splice_acceptor_variant",
-        "splice_donor_variant",
-        "stop_gained",
-        "frameshift_variant",
-    ]
-)
-
-
 def _get_gnomad_populations(ds):
     return hl.eval(
         hl.set(
@@ -253,14 +242,6 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
             )
         ),
     )
-
-    # Filter to only pLoF variants
-    ds = ds.annotate(
-        transcript_consequences=ds.transcript_consequences.filter(
-            lambda csq: PLOF_VEP_CONSEQUENCE_TERMS.contains(csq.major_consequence)
-        )
-    )
-    ds = ds.filter(hl.len(ds.transcript_consequences) > 0)
 
     ds = ds.repartition(partitions, shuffle=True)
 
