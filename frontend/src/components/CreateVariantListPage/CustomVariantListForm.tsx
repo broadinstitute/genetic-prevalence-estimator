@@ -51,7 +51,7 @@ const CustomVariantListForm = () => {
 
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
-  const [referenceGenome, setReferenceGenome] = useState("GRCh37");
+  const [referenceGenome, setReferenceGenome] = useState("GRCh38");
   const [variants, setVariants] = useState<InputVariant[]>([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -121,8 +121,8 @@ const CustomVariantListForm = () => {
             <FormLabel>Reference genome</FormLabel>
             <RadioGroup value={referenceGenome} onChange={setReferenceGenome}>
               <VStack align="flex-start">
-                <Radio value="GRCh37">GRCh37</Radio>
                 <Radio value="GRCh38">GRCh38</Radio>
+                <Radio value="GRCh37">GRCh37</Radio>
               </VStack>
             </RadioGroup>
           </FormControl>

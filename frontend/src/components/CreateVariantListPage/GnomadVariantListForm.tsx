@@ -37,7 +37,7 @@ const GnomadVariantListForm = () => {
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}$/.test(transcriptId);
 
-  const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
+  const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
 
   const [includedClinvarVariants, setIncludedClinvarVariants] = useState(
     "pathogenic"
@@ -156,8 +156,8 @@ const GnomadVariantListForm = () => {
           <FormLabel>gnomAD version</FormLabel>
           <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
             <VStack align="flex-start">
-              <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
               <Radio value="3.1.1">3.1.1 (GRCh38)</Radio>
+              <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
             </VStack>
           </RadioGroup>
         </FormControl>
