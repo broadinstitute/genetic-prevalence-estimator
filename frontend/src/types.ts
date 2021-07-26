@@ -1,9 +1,10 @@
 export type GnomadVersion = "2.1.1" | "3.1.1";
 
 export type ClinvarClinicalSignificanceCategory =
-  | "pathogenic"
-  | "uncertain"
-  | "benign"
+  | "pathogenic_or_likely_pathogenic"
+  | "conflicting_interpretations"
+  | "uncertain_significance"
+  | "benign_or_likely_benign"
   | "other";
 
 export type ReferenceGenome = "GRCh37" | "GRCh38";

@@ -42,7 +42,7 @@ def download_clinvar_vcf(output_path, reference_genome):
 CLINICAL_SIGNIFICANCE_CATEGORIES = hl.literal(
     [
         (
-            "pathogenic",
+            "pathogenic_or_likely_pathogenic",
             {
                 "association",
                 "Likely_pathogenic",
@@ -52,14 +52,22 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.literal(
             },
         ),
         (
-            "uncertain",
+            "conflicting_interpretations",
             {
                 "conflicting_data_from_submitters",
                 "Conflicting_interpretations_of_pathogenicity",
+            },
+        ),
+        (
+            "uncertain_significance",
+            {
                 "Uncertain_significance",
             },
         ),
-        ("benign", {"Benign", "Benign/Likely_benign", "Likely_benign"}),
+        (
+            "benign_or_likely_benign",
+            {"Benign", "Benign/Likely_benign", "Likely_benign"},
+        ),
         (
             "other",
             {

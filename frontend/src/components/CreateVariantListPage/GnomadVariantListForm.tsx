@@ -16,6 +16,7 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { post } from "../../api";
 import {
+  ClinvarClinicalSignificanceCategory,
   GnomadVariantListRequest,
   GnomadVariantList,
   GnomadVersion,
@@ -40,7 +41,7 @@ const GnomadVariantListForm = () => {
   const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
 
   const [includedClinvarVariants, setIncludedClinvarVariants] = useState(
-    "pathogenic"
+    "pathogenic_or_likely_pathogenic"
   );
 
   const history = useHistory();
@@ -65,15 +66,10 @@ const GnomadVariantListForm = () => {
             },
           };
 
-          if (includedClinvarVariants === "pathogenic") {
-            variantListRequest.metadata.included_clinvar_variants = [
-              "pathogenic",
-            ];
-          } else if (includedClinvarVariants === "pathogenic+uncertain") {
-            variantListRequest.metadata.included_clinvar_variants = [
-              "pathogenic",
-              "uncertain",
-            ];
+          if (includedClinvarVariants !== "none") {
+            variantListRequest.metadata.included_clinvar_variants = includedClinvarVariants.split(
+              "|"
+            ) as ClinvarClinicalSignificanceCategory[];
           }
 
           if (!isSubmitting) {
@@ -172,9 +168,12 @@ const GnomadVariantListForm = () => {
             onChange={setIncludedClinvarVariants}
           >
             <VStack align="flex-start">
-              <Radio value="pathogenic">Pathogenic</Radio>
-              <Radio value="pathogenic+uncertain">
-                Pathogenic and uncertain
+              <Radio value="pathogenic_or_likely_pathogenic">
+                Pathogenic / likely pathogenic
+              </Radio>
+              <Radio value="pathogenic_or_likely_pathogenic|conflicting_interpretations">
+                Pathogenic / likely pathogenic, Conflicting interpretations of
+                pathogenicity
               </Radio>
               <Radio value="none">None</Radio>
             </VStack>

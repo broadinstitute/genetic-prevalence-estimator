@@ -189,7 +189,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "included_clinvar_variants": ["pathogenic"],
+                "included_clinvar_variants": ["pathogenic_or_likely_pathogenic"],
             },
         }
     )
@@ -204,7 +204,10 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "gnomad_version": "2.1.1",
                 "gene_id": "ENSG00000169174",
                 "transcript_id": "ENST00000302118",
-                "included_clinvar_variants": ["pathogenic", "uncertain"],
+                "included_clinvar_variants": [
+                    "pathogenic_or_likely_pathogenic",
+                    "conflicting_interpretations",
+                ],
             },
         }
     )

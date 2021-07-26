@@ -44,7 +44,13 @@ const GnomadVariantListMetadata = (props: {
       </DescriptionListItem>
       <DescriptionListItem label="Included ClinVar variants">
         {variantList.metadata.included_clinvar_variants
-          ? variantList.metadata.included_clinvar_variants.join(", ")
+          ? variantList.metadata.included_clinvar_variants
+              .map((category) =>
+                (category.charAt(0).toUpperCase() + category.slice(1))
+                  .split("_")
+                  .join(" ")
+              )
+              .join(", ")
           : "Any"}
       </DescriptionListItem>
     </DescriptionList>

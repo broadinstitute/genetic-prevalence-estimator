@@ -29,7 +29,14 @@ class GnomadVariantListMetadataVersion1Serializer(
     gene_id = serializers.CharField(max_length=15)
     transcript_id = serializers.CharField(max_length=15)
     included_clinvar_variants = serializers.MultipleChoiceField(
-        ["pathogenic", "uncertain", "benign", "other"], allow_null=True
+        [
+            "pathogenic_or_likely_pathogenic",
+            "conflicting_interpretations",
+            "uncertain_significance",
+            "benign_or_likely_benign",
+            "other",
+        ],
+        allow_null=True,
     )
 
     def validate_gene_id(self, value):  # pylint: disable=no-self-use
