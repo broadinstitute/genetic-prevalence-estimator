@@ -59,26 +59,29 @@ def get_gnomad_variant_list(variant_list):
     ds = ds.explode(ds.variants, name="variant")
     ds = ds.annotate(**ds.variant)
 
-    ds = ds.filter(
-        PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.transcript_consequence.major_consequence)
-        & (ds.transcript_consequence.lof == "HC")
-    )
+    should_include_variant = PLOF_VEP_CONSEQUENCE_TERMS.contains(
+        ds.transcript_consequence.major_consequence
+    ) & (ds.transcript_consequence.lof == "HC")
 
     if variant_list.metadata["included_clinvar_variants"]:
         reference_genome = ds.locus.dtype.reference_genome.name
         assert reference_genome in ("GRCh37", "GRCh38")
 
-        included_clinical_significance_categories = hl.set(
+        include_clinvar_variant_categories = hl.set(
             variant_list.metadata["included_clinvar_variants"]
         )
         clinvar = hl.read_table(
             f"{settings.DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
         )
-        ds = ds.filter(
-            included_clinical_significance_categories.contains(
+
+        should_include_variant = (
+            should_include_variant
+            | include_clinvar_variant_categories.contains(
                 clinvar[ds.locus, ds.alleles].clinical_significance_category
             )
         )
+
+    ds = ds.filter(should_include_variant)
 
     ds = ds.annotate(variant_id=variant_id(ds.locus, ds.alleles))
 

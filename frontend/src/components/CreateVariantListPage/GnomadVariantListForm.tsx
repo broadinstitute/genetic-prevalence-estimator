@@ -162,18 +162,21 @@ const GnomadVariantListForm = () => {
           </RadioGroup>
         </FormControl>
 
-        <FormControl id="gnomad-variant-list-clinical-significance" isRequired>
-          <FormLabel>ClinVar clinical significance</FormLabel>
+        <FormControl
+          id="gnomad-variant-list-included-clinvar-variants"
+          isRequired
+        >
+          <FormLabel>Include ClinVar variants</FormLabel>
           <RadioGroup
             value={includedClinvarVariants}
             onChange={setIncludedClinvarVariants}
           >
             <VStack align="flex-start">
-              <Radio value="pathogenic">Pathogenic only</Radio>
+              <Radio value="pathogenic">Pathogenic</Radio>
               <Radio value="pathogenic+uncertain">
                 Pathogenic and uncertain
               </Radio>
-              <Radio value="none">Any</Radio>
+              <Radio value="none">None</Radio>
             </VStack>
           </RadioGroup>
         </FormControl>
