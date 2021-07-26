@@ -42,6 +42,15 @@ const GnomadVariantListMetadata = (props: {
           {variantList.metadata.gene_id}
         </Link>
       </DescriptionListItem>
+      <DescriptionListItem label="Transcript">
+        <Link
+          href={`https://gnomad.broadinstitute.org/transcript/${variantList.metadata.transcript_id}?dataset=${gnomadDataset}`}
+          isExternal
+          target="_blank"
+        >
+          {variantList.metadata.transcript_id}
+        </Link>
+      </DescriptionListItem>
       <DescriptionListItem label="Included ClinVar variants">
         {variantList.metadata.included_clinvar_variants
           ? variantList.metadata.included_clinvar_variants
