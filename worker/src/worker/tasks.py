@@ -83,9 +83,9 @@ def get_gnomad_variant_list(variant_list):
 
     ds = ds.filter(should_include_variant)
 
-    ds = ds.annotate(variant_id=variant_id(ds.locus, ds.alleles))
+    ds = ds.select(id=variant_id(ds.locus, ds.alleles))
 
-    variants = ds.variant_id.collect()
+    variants = [dict(variant) for variant in ds.collect()]
     variant_list.variants = variants
     variant_list.save()
 

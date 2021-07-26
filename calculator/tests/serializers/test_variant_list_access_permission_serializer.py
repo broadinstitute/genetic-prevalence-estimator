@@ -27,7 +27,7 @@ def gnomad_variant_list():
             "transcript_id": "ENST00000302118",
             "included_clinvar_variants": None,
         },
-        variants=["1-55516888-G-GA"],
+        variants=[{"id": "1-55516888-G-GA"}],
         status=VariantList.Status.READY,
     )
 

@@ -10,6 +10,10 @@ export type ReferenceGenome = "GRCh37" | "GRCh38";
 
 export type VariantId = string;
 
+export interface Variant {
+  id: VariantId;
+}
+
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
 export enum VariantListAccessLevel {
@@ -43,7 +47,7 @@ export interface CustomVariantListRequest {
   notes: string;
   type: "custom";
   metadata: CustomVariantListMetadata;
-  variants: VariantId[];
+  variants: Variant[];
 }
 
 interface VariantListAccessPermission {
@@ -62,7 +66,7 @@ interface VariantListBase {
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
   error?: string;
-  variants: VariantId[];
+  variants: Variant[];
 }
 
 export interface GnomadVariantList extends VariantListBase {

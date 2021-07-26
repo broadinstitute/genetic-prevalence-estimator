@@ -20,7 +20,7 @@ class TestGetVariantLists:
             label="List 1",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantListAccessPermission.objects.create(variant_list=list1, user=user1)
@@ -30,7 +30,7 @@ class TestGetVariantLists:
             label="List 2",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantListAccessPermission.objects.create(variant_list=list2, user=user1)
@@ -70,7 +70,7 @@ class TestCreateVariantList:
                 "label": "A variant list",
                 "type": "custom",
                 "metadata": {"version": "1", "reference_genome": "GRCh37"},
-                "variants": ["1-55516888-G-GA"],
+                "variants": [{"id": "1-55516888-G-GA"}],
             },
         )
         assert response.status_code == 403
@@ -86,7 +86,7 @@ class TestCreateVariantList:
                 "label": "A variant list",
                 "type": "custom",
                 "metadata": {"version": "1", "reference_genome": "GRCh37"},
-                "variants": ["1-55516888-G-GA"],
+                "variants": [{"id": "1-55516888-G-GA"}],
             },
         )
 
@@ -119,7 +119,7 @@ class TestGetVariantList:
             label="List 1",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         list2 = VariantList.objects.create(
@@ -127,7 +127,7 @@ class TestGetVariantList:
             label="List 2",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantList.objects.create(
@@ -135,7 +135,7 @@ class TestGetVariantList:
             label="List 3",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantListAccessPermission.objects.create(
@@ -226,7 +226,7 @@ class TestEditVariantList:
             notes="Initial notes",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantListAccessPermission.objects.create(
@@ -306,7 +306,7 @@ class TestDeleteVariantList:
             label="Test list",
             type=VariantList.Type.CUSTOM,
             metadata={"version": "1", "reference_genome": "GRCh37"},
-            variants=["1-55516888-G-GA"],
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
         VariantListAccessPermission.objects.create(

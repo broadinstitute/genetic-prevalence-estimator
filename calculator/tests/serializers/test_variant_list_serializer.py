@@ -26,7 +26,7 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert serializer.is_valid(), serializer.errors
@@ -40,7 +40,7 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
             "other_field": "value",
         }
     )
@@ -55,7 +55,7 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -67,7 +67,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": "custom",
             "metadata": {},
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -82,7 +82,7 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "9000",
                 "reference_genome": "GRCh38",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -96,7 +96,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -111,7 +111,7 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "1",
                 "reference_genome": "foo",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -142,7 +142,21 @@ def test_new_variant_list_serializer_custom_variant_list():
                 "version": "1",
                 "reference_genome": "GRCh37",
             },
-            "variants": ["not-a-variant-id"],
+            "variants": [{"field": "value"}],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "variants" in serializer.errors
+
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "custom",
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+            },
+            "variants": [{"id": "not-a-variant-id"}],
         }
     )
     assert not serializer.is_valid()
@@ -390,7 +404,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
                 "transcript_id": "ENST00000302118",
                 "included_clinvar_variants": None,
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -405,7 +419,7 @@ def test_new_variant_list_serializer_invalid_type():
             "metadata": {
                 "version": "1",
             },
-            "variants": ["1-55516888-G-GA", "1-55516888-G-A"],
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -425,7 +439,7 @@ def gnomad_variant_list():
             "transcript_id": "ENST00000302118",
             "included_clinvar_variants": None,
         },
-        variants=["1-55516888-G-GA"],
+        variants=[{"id": "1-55516888-G-GA"}],
         status=VariantList.Status.READY,
     )
 
@@ -455,7 +469,7 @@ def test_update_variant_list_serializer():
     variant_list = gnomad_variant_list()
     serializer = VariantListSerializer(
         variant_list,
-        data={"variants": ["1-55516888-G-GA", "1-55516888-G-A"]},
+        data={"variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}]},
         partial=True,
     )
     assert not serializer.is_valid()

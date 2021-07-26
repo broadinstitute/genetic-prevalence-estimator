@@ -44,7 +44,7 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
       <UnorderedList mb={4}>
-        {variantList.variants.map((variantId) => (
+        {variantList.variants.map(({ id: variantId }) => (
           <ListItem key={variantId}>
             <Link
               href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${gnomadDataset}`}

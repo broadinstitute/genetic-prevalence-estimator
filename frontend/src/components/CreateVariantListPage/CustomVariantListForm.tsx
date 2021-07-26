@@ -40,7 +40,7 @@ const submitVariantList = (
 
 interface InputVariant {
   key: string;
-  variantId: string;
+  id: string;
 }
 
 let counter = 0;
@@ -73,7 +73,7 @@ const CustomVariantListForm = () => {
               version: "1",
               reference_genome: referenceGenome as ReferenceGenome,
             },
-            variants: variants.map(({ variantId }) => variantId),
+            variants: variants.map(({ id }) => ({ id })),
           };
 
           if (!isSubmitting) {
@@ -129,24 +129,24 @@ const CustomVariantListForm = () => {
 
           {variants.map((variant, i) => {
             const isValid = /(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+/.test(
-              variant.variantId
+              variant.id
             );
             return (
               <FormControl
                 key={variant.key}
                 id={`custom-variant-list-variant-${variant.key}`}
-                isInvalid={!!variant.variantId && !isValid}
+                isInvalid={!!variant.id && !isValid}
                 isRequired
               >
                 <FormLabel>Variant #{i + 1}</FormLabel>
                 <Flex align="center">
                   <Input
                     flex={1}
-                    value={variant.variantId}
+                    value={variant.id}
                     onChange={(e) => {
                       setVariants([
                         ...variants.slice(0, i),
-                        { ...variant, variantId: e.target.value },
+                        { ...variant, id: e.target.value },
                         ...variants.slice(i + 1),
                       ]);
                     }}
@@ -183,7 +183,7 @@ const CustomVariantListForm = () => {
           <HStack>
             <Button
               onClick={() => {
-                setVariants([...variants, { key: nextKey(), variantId: "" }]);
+                setVariants([...variants, { key: nextKey(), id: "" }]);
               }}
             >
               Add variant
@@ -241,7 +241,7 @@ const CustomVariantListForm = () => {
                         setVariants(
                           lines.filter(Boolean).map((line) => ({
                             key: nextKey(),
-                            variantId: line,
+                            id: line,
                           }))
                         );
                       }

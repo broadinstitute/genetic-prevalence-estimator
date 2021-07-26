@@ -92,15 +92,12 @@ class NewVariantListSerializer(ModelSerializer):
 
         invalid_variants = []
         for variant in value:
-            if not is_variant_id(variant):
+            if "id" not in variant or not is_variant_id(variant["id"]):
                 invalid_variants.append(variant)
 
         if invalid_variants:
             raise serializers.ValidationError(
-                [
-                    f"'{variant}' is not a valid variant ID"
-                    for variant in invalid_variants
-                ]
+                [f"'{variant}' is not a valid variant" for variant in invalid_variants]
             )
 
         return value
