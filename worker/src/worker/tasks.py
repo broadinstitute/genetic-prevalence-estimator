@@ -104,6 +104,7 @@ def process_new_variant_list(uid):
     except Exception:  # pylint: disable=broad-except
         logger.exception("Error processing new variant list %s", uid)
 
+        variant_list.refresh_from_db()
         variant_list.status = VariantList.Status.ERROR
         variant_list.error = traceback.format_exc()
         variant_list.save()
