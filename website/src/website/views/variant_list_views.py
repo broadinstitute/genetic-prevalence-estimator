@@ -1,3 +1,5 @@
+from django.conf import settings
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -20,6 +22,14 @@ class VariantListsView(ListCreateAPIView):
         return VariantListSerializer
 
     def perform_create(self, serializer):
+        if (
+            self.request.user.created_variant_lists.count()
+            >= settings.MAX_VARIANT_LISTS_PER_USER
+        ):
+            raise ValidationError(
+                f"Each user is limited to {settings.MAX_VARIANT_LISTS_PER_USER} variant lists. Delete one to create another."
+            )
+
         variant_list = serializer.save(created_by=self.request.user)
         VariantListAccessPermission.objects.create(
             variant_list=variant_list,

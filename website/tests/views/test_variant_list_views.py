@@ -1,6 +1,7 @@
 # pylint: disable=no-self-use
 import pytest
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from rest_framework.test import APIClient
 
 from calculator.models import VariantList, VariantListAccessPermission
@@ -56,12 +57,13 @@ class TestGetVariantLists:
         )
 
 
-@pytest.mark.django_db
 class TestCreateVariantList:
+    @pytest.mark.django_db
     @pytest.fixture(autouse=True)
     def db_setup(self):
         User.objects.create(username="testuser")
 
+    @pytest.mark.django_db
     def test_creating_variant_list_requires_authentication(self):
         client = APIClient()
         response = client.post(
@@ -76,6 +78,7 @@ class TestCreateVariantList:
         assert response.status_code == 403
         assert VariantList.objects.count() == 0
 
+    @pytest.mark.django_db
     def test_user_is_assigned_ownership_of_new_list(self):
         client = APIClient()
         testuser = User.objects.get(username="testuser")
@@ -103,6 +106,41 @@ class TestCreateVariantList:
         )
         assert access
         assert access.level == VariantListAccessPermission.Level.OWNER
+
+    @pytest.mark.django_db
+    @override_settings(MAX_VARIANT_LISTS_PER_USER=5)
+    def test_user_is_allowed_a_limited_number_of_variant_lists(self):
+        client = APIClient()
+        testuser = User.objects.get(username="testuser")
+        client.force_authenticate(testuser)
+
+        for _ in range(5):
+            response = client.post(
+                "/api/variant-lists/",
+                {
+                    "label": "A variant list",
+                    "type": "custom",
+                    "metadata": {"version": "1", "reference_genome": "GRCh37"},
+                    "variants": [{"id": "1-55516888-G-GA"}],
+                },
+            )
+
+            assert response.status_code == 201
+
+        assert VariantList.objects.count() == 5
+
+        response = client.post(
+            "/api/variant-lists/",
+            {
+                "label": "A variant list",
+                "type": "custom",
+                "metadata": {"version": "1", "reference_genome": "GRCh37"},
+                "variants": [{"id": "1-55516888-G-GA"}],
+            },
+        )
+
+        assert response.status_code == 400
+        assert VariantList.objects.count() == 5
 
 
 @pytest.mark.django_db
