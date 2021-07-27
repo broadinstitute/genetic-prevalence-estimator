@@ -51,17 +51,23 @@ const GnomadVariantListMetadata = (props: {
           {variantList.metadata.transcript_id}
         </Link>
       </DescriptionListItem>
-      <DescriptionListItem label="Included ClinVar variants">
-        {variantList.metadata.included_clinvar_variants
-          ? variantList.metadata.included_clinvar_variants
-              .map((category) =>
-                (category.charAt(0).toUpperCase() + category.slice(1))
-                  .split("_")
-                  .join(" ")
-              )
-              .join(", ")
-          : "Any"}
-      </DescriptionListItem>
+      {variantList.metadata.included_clinvar_variants && (
+        <DescriptionListItem label="Included ClinVar variants">
+          {variantList.metadata.included_clinvar_variants
+            .map((category) =>
+              (category.charAt(0).toUpperCase() + category.slice(1))
+                .split("_")
+                .join(" ")
+            )
+            .join(", ")}
+          {variantList.metadata.clinvar_version && (
+            <>
+              {" "}
+              (from ClinVar's {variantList.metadata.clinvar_version} release)
+            </>
+          )}
+        </DescriptionListItem>
+      )}
     </DescriptionList>
   );
 };

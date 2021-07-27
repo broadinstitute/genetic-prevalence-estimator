@@ -38,6 +38,7 @@ class GnomadVariantListMetadataVersion1Serializer(
         ],
         allow_null=True,
     )
+    clinvar_version = serializers.CharField(max_length=10, read_only=True)
 
     def validate_gene_id(self, value):  # pylint: disable=no-self-use
         if not is_gene_id(value):

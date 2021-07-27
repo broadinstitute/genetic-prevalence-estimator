@@ -74,6 +74,8 @@ def get_gnomad_variant_list(variant_list):
             f"{settings.DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
         )
 
+        variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
+
         should_include_variant = (
             should_include_variant
             | include_clinvar_variant_categories.contains(
