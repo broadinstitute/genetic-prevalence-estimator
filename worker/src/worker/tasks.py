@@ -56,6 +56,7 @@ def get_gnomad_variant_list(variant_list):
     )
     ds = ds.filter(ds.transcript_id == transcript_id)
 
+    ds = ds.key_by()
     ds = ds.explode(ds.variants, name="variant")
     ds = ds.annotate(**ds.variant)
 
