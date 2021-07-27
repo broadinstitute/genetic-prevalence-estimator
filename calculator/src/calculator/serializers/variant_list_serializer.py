@@ -107,6 +107,12 @@ class NewVariantListSerializer(ModelSerializer):
                 [f"'{variant}' is not a valid variant" for variant in invalid_variants]
             )
 
+        max_num_variants = 5000
+        if len(value) > max_num_variants:
+            raise serializers.ValidationError(
+                f"Variant lists may not contain more than {max_num_variants} variants"
+            )
+
         return value
 
     class Meta:

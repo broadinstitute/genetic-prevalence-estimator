@@ -162,6 +162,21 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "variants" in serializer.errors
 
+    # Limit number of variants
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "custom",
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+            },
+            "variants": [{"id": f"1-{pos}-C-G"} for pos in range(1, 10_000)],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "variants" in serializer.errors
+
 
 def test_new_variant_list_serializer_gnomad_variant_list():
     # Valid variant lists
