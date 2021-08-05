@@ -34,6 +34,7 @@ import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadAppConfig, useStore } from "./state";
+import theme from "./theme";
 
 const App = () => {
   const { isSignedIn, user } = useStore(authStore);
@@ -45,7 +46,12 @@ const App = () => {
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <HStack spacing={8} alignItems={"center"}>
               <Box>
-                <Link to="/">Aggregate Frequency Calculator</Link>
+                <Link
+                  to="/"
+                  style={{ color: "inherit", textDecoration: "none" }}
+                >
+                  Aggregate Frequency Calculator
+                </Link>
               </Box>
             </HStack>
 
@@ -156,7 +162,7 @@ const AppContainer = () => {
 
   return (
     <Router>
-      <ChakraProvider>{content}</ChakraProvider>
+      <ChakraProvider theme={theme}>{content}</ChakraProvider>
     </Router>
   );
 };
