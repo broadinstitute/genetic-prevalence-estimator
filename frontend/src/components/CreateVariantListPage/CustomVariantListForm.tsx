@@ -22,6 +22,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import { isVariantId, normalizeVariantId } from "@gnomad/identifiers";
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
@@ -80,7 +81,9 @@ const CustomVariantListForm = () => {
               reference_genome: referenceGenome as ReferenceGenome,
               gnomad_version: gnomadVersion as GnomadVersion,
             },
-            variants: variants.map(({ id }) => ({ id })),
+            variants: variants.map(({ id }) => ({
+              id: normalizeVariantId(id),
+            })),
           };
 
           if (!isSubmitting) {
@@ -141,9 +144,7 @@ const CustomVariantListForm = () => {
           />
 
           {variants.map((variant, i) => {
-            const isValid = /(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+/.test(
-              variant.id
-            );
+            const isValid = isVariantId(variant.id);
             return (
               <FormControl
                 key={variant.key}
