@@ -21,7 +21,11 @@ class TestVariantList:
             id=1,
             label="List 1",
             type=VariantList.Type.CUSTOM,
-            metadata={"version": "1", "reference_genome": "GRCh37"},
+            metadata={
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
             variants=["1-55516888-G-GA"],
         )
 
@@ -31,7 +35,11 @@ class TestVariantList:
                 id=2,
                 label="List 2",
                 type=VariantList.Type.CUSTOM,
-                metadata={"version": "1", "reference_genome": "GRCh37"},
+                metadata={
+                    "version": "1",
+                    "reference_genome": "GRCh37",
+                    "gnomad_version": "2.1.1",
+                },
                 variants=["1-55516888-G-GA"],
             )
 
@@ -46,7 +54,11 @@ class TestVariantListAccessPermission:
             id=1,
             label="List 1",
             type=VariantList.Type.CUSTOM,
-            metadata={"version": "1", "reference_genome": "GRCh37"},
+            metadata={
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
             variants=["1-55516888-G-GA"],
         )
 
@@ -54,7 +66,11 @@ class TestVariantListAccessPermission:
             id=2,
             label="List 2",
             type=VariantList.Type.CUSTOM,
-            metadata={"version": "1", "reference_genome": "GRCh37"},
+            metadata={
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
             variants=["1-55516888-G-GA"],
         )
 
@@ -78,7 +94,11 @@ class TestVariantListAccessPermission:
             id=1,
             label="Test list",
             type=VariantList.Type.CUSTOM,
-            metadata={"version": "1", "reference_genome": "GRCh37"},
+            metadata={
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
             variants=["1-55516888-G-GA"],
         )
 
@@ -110,7 +130,11 @@ class TestVariantListAccessPermission:
             id=1,
             label="Test list",
             type=VariantList.Type.CUSTOM,
-            metadata={"version": "1", "reference_genome": "GRCh37"},
+            metadata={
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
             variants=["1-55516888-G-GA"],
         )
 

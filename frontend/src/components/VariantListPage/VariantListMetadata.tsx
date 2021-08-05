@@ -15,6 +15,9 @@ const CustomVariantListMetadata = (props: {
       <DescriptionListItem label="Reference genome">
         {variantList.metadata.reference_genome}
       </DescriptionListItem>
+      <DescriptionListItem label="gnomAD version">
+        {variantList.metadata.gnomad_version}
+      </DescriptionListItem>
     </DescriptionList>
   );
 };

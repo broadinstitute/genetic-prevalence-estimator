@@ -35,6 +35,7 @@ export interface GnomadVariantListMetadata {
 export interface CustomVariantListMetadata {
   version: "1";
   reference_genome: ReferenceGenome;
+  gnomad_version: GnomadVersion;
 }
 
 export interface GnomadVariantListRequest {

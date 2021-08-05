@@ -55,6 +55,20 @@ class CustomVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     reference_genome = serializers.ChoiceField(["GRCh37", "GRCh38"])
+    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
+
+    def validate(self, attrs):
+        gnomad_reference_genome = {
+            "2.1.1": "GRCh37",
+            "3.1.1": "GRCh38",
+        }[attrs["gnomad_version"]]
+
+        if attrs["reference_genome"] != gnomad_reference_genome:
+            raise serializers.ValidationError(
+                f"Unable to use gnomAD v{attrs['gnomad_version']} with variants based on {attrs['reference_genome']}"
+            )
+
+        return attrs
 
 
 class NewVariantListSerializer(ModelSerializer):

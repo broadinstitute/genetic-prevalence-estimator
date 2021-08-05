@@ -29,6 +29,7 @@ import { post } from "../../api";
 import {
   CustomVariantListRequest,
   CustomVariantList,
+  GnomadVersion,
   ReferenceGenome,
 } from "../../types";
 
@@ -54,6 +55,11 @@ const CustomVariantListForm = () => {
   const [referenceGenome, setReferenceGenome] = useState("GRCh38");
   const [variants, setVariants] = useState<InputVariant[]>([]);
 
+  const gnomadVersion = {
+    GRCh37: "2.1.1",
+    GRCh38: "3.1.1",
+  }[referenceGenome];
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const history = useHistory();
@@ -72,6 +78,7 @@ const CustomVariantListForm = () => {
             metadata: {
               version: "1",
               reference_genome: referenceGenome as ReferenceGenome,
+              gnomad_version: gnomadVersion as GnomadVersion,
             },
             variants: variants.map(({ id }) => ({ id })),
           };
@@ -126,6 +133,12 @@ const CustomVariantListForm = () => {
               </VStack>
             </RadioGroup>
           </FormControl>
+
+          <input
+            type="hidden"
+            id="custom-variant-list-gnomad-version"
+            value={gnomadVersion}
+          />
 
           {variants.map((variant, i) => {
             const isValid = /(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+/.test(

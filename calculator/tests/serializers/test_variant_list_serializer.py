@@ -25,6 +25,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -39,6 +40,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
             "other_field": "value",
@@ -54,6 +56,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -81,6 +84,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "9000",
                 "reference_genome": "GRCh38",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -95,6 +99,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "type": "custom",
             "metadata": {
                 "version": "1",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -110,6 +115,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "foo",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -117,6 +123,54 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
     assert "reference_genome" in serializer.errors["metadata"]
+
+    # Require a version of gnomAD
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "custom",
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+            },
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "gnomad_version" in serializer.errors["metadata"]
+
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "custom",
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "0.1",
+            },
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "gnomad_version" in serializer.errors["metadata"]
+
+    # Require that reference genome matches gnomAD version
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "custom",
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "3.1.1",
+            },
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
 
     # Require variants
     serializer = NewVariantListSerializer(
@@ -126,6 +180,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [],
         }
@@ -141,6 +196,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"field": "value"}],
         }
@@ -155,6 +211,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "not-a-variant-id"}],
         }
@@ -170,6 +227,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
             },
             "variants": [{"id": f"1-{pos}-C-G"} for pos in range(1, 10_000)],
         }
