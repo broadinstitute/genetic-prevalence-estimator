@@ -80,7 +80,8 @@ services:
       - DB_PASSWORD
       - ALLOWED_HOSTS=localhost,worker
       - PORT=8080
-      - DATA_PATH=/mnt/data
+      - GNOMAD_DATA_PATH=/mnt/data
+      - CLINVAR_DATA_PATH=/mnt/data
     ports:
       - 127.0.0.1:8081:8080
     volumes:

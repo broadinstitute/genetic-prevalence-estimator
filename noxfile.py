@@ -36,7 +36,8 @@ WEBSITE_ENV = {
 
 WORKER_ENV = {
     "DJANGO_SETTINGS_MODULE": "worker.settings.development",
-    "DATA_PATH": os.path.join(os.path.dirname(__file__), "data"),
+    "GNOMAD_DATA_PATH": os.path.join(os.path.dirname(__file__), "data"),
+    "CLINVAR_DATA_PATH": os.path.join(os.path.dirname(__file__), "data"),
 }
 
 

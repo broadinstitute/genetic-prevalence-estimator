@@ -52,7 +52,7 @@ def get_gnomad_variant_list(variant_list):
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
     ds = hl.read_table(
-        f"{settings.DATA_PATH}/gnomAD_v{gnomad_version}_variant_lists.ht"
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variant_lists.ht"
     )
     ds = ds.filter(ds.transcript_id == transcript_id)
 
@@ -72,7 +72,7 @@ def get_gnomad_variant_list(variant_list):
             variant_list.metadata["included_clinvar_variants"]
         )
         clinvar = hl.read_table(
-            f"{settings.DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+            f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
         )
 
         variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
