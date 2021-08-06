@@ -36,6 +36,9 @@ const GnomadVariantListMetadata = (props: {
   return (
     <DescriptionList mb={4}>
       <DescriptionListItem label="Type">gnomAD</DescriptionListItem>
+      <DescriptionListItem label="gnomAD version">
+        {variantList.metadata.gnomad_version}
+      </DescriptionListItem>
       <DescriptionListItem label="Gene">
         <Link
           href={`https://gnomad.broadinstitute.org/gene/${variantList.metadata.gene_id}?dataset=${gnomadDataset}`}
