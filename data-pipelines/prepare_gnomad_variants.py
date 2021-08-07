@@ -95,33 +95,29 @@ def get_gnomad_v2_variants():
         "gs://gcp-public-data--gnomad/release/2.1.1/ht/genomes/gnomad.genomes.r2.1.1.sites.ht"
     )
 
-    populations = _get_gnomad_populations(exomes).union(
-        _get_gnomad_populations(genomes)
+    populations = sorted(
+        _get_gnomad_populations(exomes).union(_get_gnomad_populations(genomes))
     )
 
     exomes = exomes.select(
-        exome=hl.struct(
-            overall=freq(exomes),
-            populations=hl.struct(
-                **{pop: freq(exomes, pop=pop) for pop in populations}
-            ),
+        exome_freq=hl.struct(
+            AC=[freq(exomes).AC, *(freq(exomes, pop=pop).AC for pop in populations)],
+            AN=[freq(exomes).AN, *(freq(exomes, pop=pop).AN for pop in populations)],
         ),
         exome_filters=exomes.filters,
         transcript_consequences=exomes.vep.transcript_consequences,
     )
-    exomes = exomes.filter(exomes.exome.overall.AC > 0)
+    exomes = exomes.filter(exomes.exome_freq.AC[0] > 0)
 
     genomes = genomes.select(
-        genome=hl.struct(
-            overall=freq(genomes),
-            populations=hl.struct(
-                **{pop: freq(genomes, pop=pop) for pop in populations}
-            ),
+        genome_freq=hl.struct(
+            AC=[freq(genomes).AC, *(freq(genomes, pop=pop).AC for pop in populations)],
+            AN=[freq(genomes).AN, *(freq(genomes, pop=pop).AN for pop in populations)],
         ),
         genome_filters=genomes.filters,
         transcript_consequences=genomes.vep.transcript_consequences,
     )
-    genomes = genomes.filter(genomes.genome.overall.AC > 0)
+    genomes = genomes.filter(genomes.genome_freq.AC[0] > 0)
 
     exomes = exomes.select_globals()
     genomes = genomes.select_globals()
@@ -132,7 +128,7 @@ def get_gnomad_v2_variants():
         )
     )
 
-    ds = ds.annotate_globals(populations=set(populations))
+    ds = ds.annotate_globals(populations=populations)
 
     return ds
 
@@ -157,30 +153,24 @@ def get_gnomad_v3_variants():
         "gs://gcp-public-data--gnomad/release/3.1.1/ht/genomes/gnomad.genomes.v3.1.1.sites.ht"
     )
 
-    populations = hl.eval(
-        hl.set(
-            ds.freq_meta.filter(lambda meta: hl.is_missing(meta.get("downsampling")))
-            .filter(lambda meta: hl.is_missing(meta.get("subset")))
-            .map(lambda meta: meta.get("pop"))
-        ).remove(hl.missing(hl.tstr))
-    )
+    populations = sorted(_get_gnomad_populations(ds))
 
     ds = ds.select(
-        genome=hl.struct(
-            overall=freq(ds),
-            populations=hl.struct(**{pop: freq(ds, pop=pop) for pop in populations}),
+        genome_freq=hl.struct(
+            AC=[freq(ds).AC, *(freq(ds, pop=pop).AC for pop in populations)],
+            AN=[freq(ds).AN, *(freq(ds, pop=pop).AN for pop in populations)],
         ),
         genome_filters=ds.filters,
         transcript_consequences=ds.vep.transcript_consequences,
     )
-    ds = ds.filter(ds.genome.overall.AC > 0)
+    ds = ds.filter(ds.genome_freq.AC[0] > 0)
 
     ds = ds.annotate(
-        exome=hl.missing(ds.genome.dtype),
+        exome_freq=hl.missing(ds.genome_freq.dtype),
         exome_filters=hl.missing(ds.genome_filters.dtype),
     )
 
-    ds = ds.select_globals(populations=set(populations))
+    ds = ds.select_globals(populations=populations)
 
     return ds
 
@@ -201,7 +191,7 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
     if intervals:
         ds = hl.filter_intervals(ds, intervals)
 
-    ds = ds.transmute(freq=hl.struct(exome=ds.exome, genome=ds.genome))
+    ds = ds.transmute(freq=hl.struct(exome=ds.exome_freq, genome=ds.genome_freq))
 
     ds = ds.transmute(
         filters=hl.struct(exome=ds.exome_filters, genome=ds.genome_filters)
