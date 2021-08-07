@@ -60,9 +60,19 @@ def get_gnomad_variant_list(variant_list):
     ds = ds.explode(ds.variants, name="variant")
     ds = ds.annotate(**ds.variant)
 
+    gnomad = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
+    )
+    ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
+    ds = ds.transmute(
+        **ds.transcript_consequences.find(
+            lambda csq: csq.transcript_id == transcript_id
+        )
+    )
+
     should_include_variant = PLOF_VEP_CONSEQUENCE_TERMS.contains(
-        ds.transcript_consequence.major_consequence
-    ) & (ds.transcript_consequence.lof == "HC")
+        ds.major_consequence
+    ) & (ds.lof == "HC")
 
     if variant_list.metadata["included_clinvar_variants"]:
         reference_genome = ds.locus.dtype.reference_genome.name
