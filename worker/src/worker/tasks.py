@@ -22,6 +22,9 @@ PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
 )
 
 
+VARIANT_FIELDS = ["id"]
+
+
 def initialize_hail():
     hl.init(
         idempotent=True,
@@ -110,7 +113,9 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.filter(should_include_variant)
 
-    ds = ds.select(id=variant_id(ds.locus, ds.alleles))
+    ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
+
+    ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
 
     variants = [dict(variant) for variant in ds.collect()]
     variant_list.variants = variants
@@ -130,7 +135,7 @@ def process_new_custom_variant_list(variant_list):
 
     ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
 
-    ds = ds.select("id")
+    ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
 
     variants = [dict(variant) for variant in ds.collect()]
     variant_list.variants = variants
