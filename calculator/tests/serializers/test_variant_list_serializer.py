@@ -235,6 +235,26 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "variants" in serializer.errors
 
+    # Require unique variants
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.CUSTOM,
+            "metadata": {
+                "version": "1",
+                "reference_genome": "GRCh37",
+                "gnomad_version": "2.1.1",
+            },
+            "variants": [
+                {"id": "1-55512222-C-G"},
+                {"id": "1-55505697-AC-A"},
+                {"id": "1-55512222-C-G"},
+            ],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "variants" in serializer.errors
+
 
 def test_new_variant_list_serializer_recommended_variant_list():
     # Valid variant lists

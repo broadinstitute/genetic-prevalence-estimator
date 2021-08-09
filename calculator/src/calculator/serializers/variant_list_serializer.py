@@ -122,6 +122,10 @@ class NewVariantListSerializer(ModelSerializer):
                 [f"'{variant}' is not a valid variant" for variant in invalid_variants]
             )
 
+        num_unique_variants = len(set(variant["id"] for variant in value))
+        if num_unique_variants != len(value):
+            raise serializers.ValidationError("Variants must be unique.")
+
         max_num_variants = 5000
         if len(value) > max_num_variants:
             raise serializers.ValidationError(
