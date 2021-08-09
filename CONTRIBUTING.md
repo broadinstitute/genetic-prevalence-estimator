@@ -58,6 +58,27 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   docker compose up
   ```
 
+- On first run, create a user.
+
+  Users created by the application are inactive by default. The first user cannot be activated through the application UI.
+
+  - Start a REPL.
+
+    ```
+    docker compose exec website django-admin shell
+    ```
+
+  - Create a user or activate an existing user.
+
+    ```
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    User.objects.create(username="new_user")
+
+    User.objects.filter(username="existing_user").update(is_active=True)
+    ```
+
 ## Running development tasks
 
 Use [nox](https://nox.thea.codes/en/stable/) to run tasks in a virtualenv with necessary dependencies.
