@@ -43,6 +43,20 @@ def variant_id(locus, alleles):
     )
 
 
+def parse_variant_id(variant_id_str, reference_genome):
+    assert reference_genome in ("GRCh37", "GRCh38")
+
+    return hl.rbind(
+        variant_id_str.split("-"),
+        lambda parts: hl.struct(
+            locus=hl.locus(
+                parts[0], hl.int(parts[1]), reference_genome=reference_genome
+            ),
+            alleles=[parts[2], parts[3]],
+        ),
+    )
+
+
 def process_new_recommended_variant_list(variant_list):
     transcript_id = variant_list.metadata["transcript_id"]
     gnomad_version = variant_list.metadata["gnomad_version"]
@@ -103,6 +117,26 @@ def process_new_recommended_variant_list(variant_list):
     variant_list.save()
 
 
+def process_new_custom_variant_list(variant_list):
+    reference_genome = variant_list.metadata["reference_genome"]
+
+    gnomad_version = variant_list.metadata["gnomad_version"]
+    assert gnomad_version in (
+        "2.1.1",
+        "3.1.1",
+    ), f"Invalid gnomAD version '{gnomad_version}'"
+
+    ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
+
+    ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
+
+    ds = ds.select("id")
+
+    variants = [dict(variant) for variant in ds.collect()]
+    variant_list.variants = variants
+    variant_list.save()
+
+
 def process_new_variant_list(uid):
     logger.info("Processing new variant list %s", uid)
 
@@ -113,6 +147,9 @@ def process_new_variant_list(uid):
     try:
         if variant_list.type == VariantList.Type.RECOMMENDED:
             process_new_recommended_variant_list(variant_list)
+
+        if variant_list.type == VariantList.Type.CUSTOM:
+            process_new_custom_variant_list(variant_list)
 
     except Exception:  # pylint: disable=broad-except
         logger.exception("Error processing new variant list %s", uid)
