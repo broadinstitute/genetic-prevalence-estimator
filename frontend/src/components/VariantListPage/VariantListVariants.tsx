@@ -1,13 +1,13 @@
 import { Link, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 
-import { VariantList } from "../../types";
+import { VariantList, VariantListType } from "../../types";
 
 const getReferenceGenomeForVariantList = (variantList: VariantList) => {
-  if (variantList.type === "custom") {
+  if (variantList.type === VariantListType.CUSTOM) {
     return variantList.metadata.reference_genome;
   }
 
-  if (variantList.type === "gnomad") {
+  if (variantList.type === VariantListType.GNOMAD) {
     const gnomadVersion = variantList.metadata.gnomad_version;
     const majorVersion = gnomadVersion.split(".")[0];
     return majorVersion === "2" ? "GRCh37" : "GRCh38";
@@ -21,7 +21,7 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
 
   if (variants.length === 0) {
     if (
-      variantList.type === "gnomad" &&
+      variantList.type === VariantListType.GNOMAD &&
       (variantList.status === "Queued" || variantList.status === "Processing")
     ) {
       return (

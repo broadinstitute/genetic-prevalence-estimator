@@ -20,6 +20,7 @@ import {
   GnomadVariantListRequest,
   GnomadVariantList,
   GnomadVersion,
+  VariantListType,
 } from "../../types";
 
 const submitVariantList = (
@@ -56,7 +57,7 @@ const GnomadVariantListForm = () => {
           const variantListRequest: GnomadVariantListRequest = {
             label,
             notes,
-            type: "gnomad",
+            type: VariantListType.GNOMAD,
             metadata: {
               version: "1",
               gene_id: geneId,

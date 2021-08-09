@@ -1,6 +1,11 @@
 import { Link } from "@chakra-ui/react";
 
-import { VariantList, GnomadVariantList, CustomVariantList } from "../../types";
+import {
+  VariantList,
+  VariantListType,
+  GnomadVariantList,
+  CustomVariantList,
+} from "../../types";
 
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
@@ -81,11 +86,11 @@ const GnomadVariantListMetadata = (props: {
 const VariantListMetadata = (props: { variantList: VariantList }) => {
   const { variantList } = props;
 
-  if (variantList.type === "gnomad") {
+  if (variantList.type === VariantListType.GNOMAD) {
     return <GnomadVariantListMetadata variantList={variantList} />;
   }
 
-  if (variantList.type === "custom") {
+  if (variantList.type === VariantListType.CUSTOM) {
     return <CustomVariantListMetadata variantList={variantList} />;
   }
 

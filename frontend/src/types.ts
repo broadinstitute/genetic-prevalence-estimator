@@ -23,6 +23,11 @@ export enum VariantListAccessLevel {
   VIEWER = "Viewer",
 }
 
+export enum VariantListType {
+  CUSTOM = "custom",
+  GNOMAD = "gnomad",
+}
+
 export interface GnomadVariantListMetadata {
   version: "1";
   gnomad_version: GnomadVersion;
@@ -41,14 +46,14 @@ export interface CustomVariantListMetadata {
 export interface GnomadVariantListRequest {
   label: string;
   notes: string;
-  type: "gnomad";
+  type: VariantListType.GNOMAD;
   metadata: GnomadVariantListMetadata;
 }
 
 export interface CustomVariantListRequest {
   label: string;
   notes: string;
-  type: "custom";
+  type: VariantListType.CUSTOM;
   metadata: CustomVariantListMetadata;
   variants: Variant[];
 }
@@ -73,12 +78,12 @@ interface VariantListBase {
 }
 
 export interface GnomadVariantList extends VariantListBase {
-  type: "gnomad";
+  type: VariantListType.GNOMAD;
   metadata: GnomadVariantListMetadata;
 }
 
 export interface CustomVariantList extends VariantListBase {
-  type: "custom";
+  type: VariantListType.CUSTOM;
   metadata: CustomVariantListMetadata;
 }
 

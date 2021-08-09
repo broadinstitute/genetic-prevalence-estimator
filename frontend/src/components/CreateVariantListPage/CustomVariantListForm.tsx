@@ -32,6 +32,7 @@ import {
   CustomVariantList,
   GnomadVersion,
   ReferenceGenome,
+  VariantListType,
 } from "../../types";
 
 const submitVariantList = (
@@ -75,7 +76,7 @@ const CustomVariantListForm = () => {
           const variantListRequest: CustomVariantListRequest = {
             label,
             notes,
-            type: "custom",
+            type: VariantListType.CUSTOM,
             metadata: {
               version: "1",
               reference_genome: referenceGenome as ReferenceGenome,
