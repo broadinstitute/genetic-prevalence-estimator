@@ -13,7 +13,7 @@ import {
 import { Link as RRLink } from "react-router-dom";
 
 import CustomVariantListForm from "./CustomVariantListForm";
-import GnomadVariantListForm from "./GnomadVariantListForm";
+import RecommendedVariantListForm from "./RecommendedVariantListForm";
 
 const CreateVariantListPage = () => {
   return (
@@ -42,13 +42,13 @@ const CreateVariantListPage = () => {
 
       <Tabs>
         <TabList>
-          <Tab>gnomAD</Tab>
+          <Tab>Recommended</Tab>
           <Tab>Custom</Tab>
         </TabList>
 
         <TabPanels>
           <TabPanel>
-            <GnomadVariantListForm />
+            <RecommendedVariantListForm />
           </TabPanel>
           <TabPanel>
             <CustomVariantListForm />

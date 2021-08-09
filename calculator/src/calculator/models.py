@@ -14,10 +14,10 @@ class VariantList(models.Model):
     notes = models.TextField(default="")
 
     class Type(models.TextChoices):
-        CUSTOM = ("custom", "Custom")
-        GNOMAD = ("gnomad", "gnomAD")
+        CUSTOM = ("c", "Custom")
+        RECOMMENDED = ("r", "Recommended")
 
-    type = models.CharField(max_length=10, choices=Type.choices, default=Type.CUSTOM)
+    type = models.CharField(max_length=1, choices=Type.choices, default=Type.CUSTOM)
 
     metadata = models.JSONField()
 

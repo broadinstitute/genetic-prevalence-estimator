@@ -18,8 +18,8 @@ def variant_list_fixture():
     return VariantList(
         id=1,
         uuid=uuid.uuid4(),
-        label="A gnomAD variant list",
-        type=VariantList.Type.GNOMAD,
+        label="A variant list",
+        type=VariantList.Type.RECOMMENDED,
         metadata={
             "version": "1",
             "gnomad_version": "2.1.1",

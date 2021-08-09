@@ -43,7 +43,7 @@ def variant_id(locus, alleles):
     )
 
 
-def get_gnomad_variant_list(variant_list):
+def process_new_recommended_variant_list(variant_list):
     transcript_id = variant_list.metadata["transcript_id"]
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
@@ -111,8 +111,8 @@ def process_new_variant_list(uid):
     variant_list.save()
 
     try:
-        if variant_list.type == VariantList.Type.GNOMAD:
-            get_gnomad_variant_list(variant_list)
+        if variant_list.type == VariantList.Type.RECOMMENDED:
+            process_new_recommended_variant_list(variant_list)
 
     except Exception:  # pylint: disable=broad-except
         logger.exception("Error processing new variant list %s", uid)

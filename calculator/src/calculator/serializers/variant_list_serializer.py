@@ -22,7 +22,7 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
-class GnomadVariantListMetadataVersion1Serializer(
+class RecommendedVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
@@ -84,9 +84,9 @@ class NewVariantListSerializer(ModelSerializer):
             metadata_serializer_class = {
                 "1": CustomVariantListMetadataVersion1Serializer
             }.get(version)
-        elif variant_list_type == VariantList.Type.GNOMAD:
+        elif variant_list_type == VariantList.Type.RECOMMENDED:
             metadata_serializer_class = {
-                "1": GnomadVariantListMetadataVersion1Serializer
+                "1": RecommendedVariantListMetadataVersion1Serializer
             }.get(version)
         else:
             raise serializers.ValidationError(

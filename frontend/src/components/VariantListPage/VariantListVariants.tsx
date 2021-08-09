@@ -7,7 +7,7 @@ const getReferenceGenomeForVariantList = (variantList: VariantList) => {
     return variantList.metadata.reference_genome;
   }
 
-  if (variantList.type === VariantListType.GNOMAD) {
+  if (variantList.type === VariantListType.RECOMMENDED) {
     const gnomadVersion = variantList.metadata.gnomad_version;
     const majorVersion = gnomadVersion.split(".")[0];
     return majorVersion === "2" ? "GRCh37" : "GRCh38";
@@ -21,12 +21,13 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
 
   if (variants.length === 0) {
     if (
-      variantList.type === VariantListType.GNOMAD &&
+      variantList.type === VariantListType.RECOMMENDED &&
       (variantList.status === "Queued" || variantList.status === "Processing")
     ) {
       return (
         <Text mb={4}>
-          Variants will be automatically populated for gnomAD variant lists.
+          Variants will be automatically populated for recommended variant
+          lists.
         </Text>
       );
     }

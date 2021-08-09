@@ -17,19 +17,19 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 import { post } from "../../api";
 import {
   ClinvarClinicalSignificanceCategory,
-  GnomadVariantListRequest,
-  GnomadVariantList,
+  RecommendedVariantListRequest,
+  RecommendedVariantList,
   GnomadVersion,
   VariantListType,
 } from "../../types";
 
 const submitVariantList = (
-  request: GnomadVariantListRequest
-): Promise<GnomadVariantList> => {
+  request: RecommendedVariantListRequest
+): Promise<RecommendedVariantList> => {
   return post("/variant-lists/", request);
 };
 
-const GnomadVariantListForm = () => {
+const RecommendedVariantListForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [label, setLabel] = useState("");
@@ -54,10 +54,10 @@ const GnomadVariantListForm = () => {
         e.preventDefault();
 
         if (geneId && isGeneIdValid) {
-          const variantListRequest: GnomadVariantListRequest = {
+          const variantListRequest: RecommendedVariantListRequest = {
             label,
             notes,
-            type: VariantListType.GNOMAD,
+            type: VariantListType.RECOMMENDED,
             metadata: {
               version: "1",
               gene_id: geneId,
@@ -194,4 +194,4 @@ const GnomadVariantListForm = () => {
   );
 };
 
-export default GnomadVariantListForm;
+export default RecommendedVariantListForm;

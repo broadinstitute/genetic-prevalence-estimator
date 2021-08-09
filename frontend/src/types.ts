@@ -24,11 +24,11 @@ export enum VariantListAccessLevel {
 }
 
 export enum VariantListType {
-  CUSTOM = "custom",
-  GNOMAD = "gnomad",
+  CUSTOM = "c",
+  RECOMMENDED = "r",
 }
 
-export interface GnomadVariantListMetadata {
+export interface RecommendedVariantListMetadata {
   version: "1";
   gnomad_version: GnomadVersion;
   gene_id: string;
@@ -43,11 +43,11 @@ export interface CustomVariantListMetadata {
   gnomad_version: GnomadVersion;
 }
 
-export interface GnomadVariantListRequest {
+export interface RecommendedVariantListRequest {
   label: string;
   notes: string;
-  type: VariantListType.GNOMAD;
-  metadata: GnomadVariantListMetadata;
+  type: VariantListType.RECOMMENDED;
+  metadata: RecommendedVariantListMetadata;
 }
 
 export interface CustomVariantListRequest {
@@ -77,9 +77,9 @@ interface VariantListBase {
   variants: Variant[];
 }
 
-export interface GnomadVariantList extends VariantListBase {
-  type: VariantListType.GNOMAD;
-  metadata: GnomadVariantListMetadata;
+export interface RecommendedVariantList extends VariantListBase {
+  type: VariantListType.RECOMMENDED;
+  metadata: RecommendedVariantListMetadata;
 }
 
 export interface CustomVariantList extends VariantListBase {
@@ -88,7 +88,7 @@ export interface CustomVariantList extends VariantListBase {
 }
 
 export type VariantListRequest =
-  | GnomadVariantListRequest
+  | RecommendedVariantListRequest
   | CustomVariantListRequest;
 
-export type VariantList = GnomadVariantList | CustomVariantList;
+export type VariantList = RecommendedVariantList | CustomVariantList;

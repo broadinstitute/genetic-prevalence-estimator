@@ -236,12 +236,12 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert "variants" in serializer.errors
 
 
-def test_new_variant_list_serializer_gnomad_variant_list():
+def test_new_variant_list_serializer_recommended_variant_list():
     # Valid variant lists
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -256,7 +256,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -271,7 +271,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -290,7 +290,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -306,7 +306,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     # Require label
     serializer = NewVariantListSerializer(
         data={
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -323,7 +323,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {},
         }
     )
@@ -334,7 +334,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "9000",
                 "gnomad_version": "2.1.1",
@@ -351,7 +351,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gene_id": "ENSG00000169174",
@@ -367,7 +367,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "8",
@@ -385,7 +385,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -401,7 +401,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -419,7 +419,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -436,7 +436,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -454,7 +454,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -472,7 +472,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.GNOMAD,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -506,8 +506,8 @@ def variant_list_fixture():
     return VariantList(
         id=1,
         uuid=uuid.uuid4(),
-        label="A gnomAD variant list",
-        type=VariantList.Type.GNOMAD,
+        label="A variant list",
+        type=VariantList.Type.RECOMMENDED,
         metadata={
             "version": "1",
             "gnomad_version": "2.1.1",
