@@ -78,7 +78,7 @@ class TestCreateVariantList:
             "/api/variant-lists/",
             {
                 "label": "A variant list",
-                "type": "custom",
+                "type": VariantList.Type.CUSTOM,
                 "metadata": {
                     "version": "1",
                     "reference_genome": "GRCh37",
@@ -99,7 +99,7 @@ class TestCreateVariantList:
             "/api/variant-lists/",
             {
                 "label": "A variant list",
-                "type": "custom",
+                "type": VariantList.Type.CUSTOM,
                 "metadata": {
                     "version": "1",
                     "reference_genome": "GRCh37",
@@ -135,7 +135,7 @@ class TestCreateVariantList:
                 "/api/variant-lists/",
                 {
                     "label": "A variant list",
-                    "type": "custom",
+                    "type": VariantList.Type.CUSTOM,
                     "metadata": {
                         "version": "1",
                         "reference_genome": "GRCh37",
@@ -153,7 +153,7 @@ class TestCreateVariantList:
             "/api/variant-lists/",
             {
                 "label": "A variant list",
-                "type": "custom",
+                "type": VariantList.Type.CUSTOM,
                 "metadata": {
                     "version": "1",
                     "reference_genome": "GRCh37",

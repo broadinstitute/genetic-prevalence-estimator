@@ -21,7 +21,7 @@ def test_new_variant_list_serializer_custom_variant_list():
         data={
             "label": "my new variant list",
             "notes": "",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -36,7 +36,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -52,7 +52,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -68,7 +68,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {},
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -80,7 +80,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "9000",
                 "reference_genome": "GRCh38",
@@ -96,7 +96,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -111,7 +111,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "foo",
@@ -128,7 +128,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -143,7 +143,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -160,7 +160,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -176,7 +176,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -192,7 +192,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -207,7 +207,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -223,7 +223,7 @@ def test_new_variant_list_serializer_custom_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "custom",
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
@@ -241,7 +241,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -256,7 +256,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -271,7 +271,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -290,7 +290,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -306,7 +306,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     # Require label
     serializer = NewVariantListSerializer(
         data={
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -323,7 +323,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {},
         }
     )
@@ -334,7 +334,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "9000",
                 "gnomad_version": "2.1.1",
@@ -351,7 +351,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gene_id": "ENSG00000169174",
@@ -367,7 +367,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "8",
@@ -385,7 +385,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -401,7 +401,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -419,7 +419,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -436,7 +436,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "3.1.1",
@@ -454,7 +454,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
@@ -472,7 +472,7 @@ def test_new_variant_list_serializer_gnomad_variant_list():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": "gnomad",
+            "type": VariantList.Type.GNOMAD,
             "metadata": {
                 "version": "1",
                 "gnomad_version": "2.1.1",
