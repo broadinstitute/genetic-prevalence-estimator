@@ -3,7 +3,7 @@ import argparse
 import hail as hl
 
 
-def prepare_variant_lists(ds):
+def prepare_transcript_variant_lists(ds):
     ds = ds.select_globals()
 
     # Only include variants that passed QC filters in at least one of exome/genome samples.
@@ -40,7 +40,7 @@ def main():
 
     hl.init()
 
-    ds = prepare_variant_lists(hl.read_table(args.input))
+    ds = prepare_transcript_variant_lists(hl.read_table(args.input))
     ds = ds.repartition(args.partitions, shuffle=True)
     ds.write(args.output, overwrite=True)
 
