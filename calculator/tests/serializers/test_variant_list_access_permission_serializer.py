@@ -14,7 +14,7 @@ from calculator.serializers import (
 User = get_user_model()
 
 
-def gnomad_variant_list():
+def variant_list_fixture():
     return VariantList(
         id=1,
         uuid=uuid.uuid4(),
@@ -34,7 +34,7 @@ def gnomad_variant_list():
 
 def test_variant_list_access_serializer_only_allows_editing_level():
     user = User(username="testuser")
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
@@ -59,7 +59,7 @@ def test_variant_list_access_serializer_only_allows_editing_level():
     assert not serializer.is_valid()
     assert "user" in serializer.errors
 
-    other_list = gnomad_variant_list()
+    other_list = variant_list_fixture()
     serializer = VariantListAccessPermissionSerializer(
         access, data={"variant_list": other_list}, partial=True
     )
@@ -68,7 +68,7 @@ def test_variant_list_access_serializer_only_allows_editing_level():
 
 def test_variant_list_access_serializer_serializes_username():
     user = User(username="testuser")
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
@@ -82,7 +82,7 @@ def test_variant_list_access_serializer_serializes_username():
 
 def test_variant_list_access_serializer_serializes_level_label():
     user = User(username="testuser")
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     access = VariantListAccessPermission(
         uuid=uuid.uuid4(),
         user=user,
@@ -98,7 +98,7 @@ def test_variant_list_access_serializer_serializes_level_label():
 class TestNewVariantListAccessPermissionSerializer:
     @pytest.fixture(autouse=True)
     def db_setup(self):
-        variant_list = gnomad_variant_list()
+        variant_list = variant_list_fixture()
         variant_list.id = 1
         variant_list.save()
 

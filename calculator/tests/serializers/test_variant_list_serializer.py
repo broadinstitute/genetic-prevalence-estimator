@@ -502,7 +502,7 @@ def test_new_variant_list_serializer_invalid_type():
     assert "type" in serializer.errors
 
 
-def gnomad_variant_list():
+def variant_list_fixture():
     return VariantList(
         id=1,
         uuid=uuid.uuid4(),
@@ -522,27 +522,27 @@ def gnomad_variant_list():
 
 def test_update_variant_list_serializer():
     # Changes to label and notes are allowed
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"label": "A new label"}, partial=True
     )
     assert serializer.is_valid(), serializer.errors
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"notes": "This is a test variant list."}, partial=True
     )
     assert serializer.is_valid(), serializer.errors
 
     # Other fields cannot be updated
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"type": VariantList.Type.CUSTOM}, partial=True
     )
     assert not serializer.is_valid()
     assert "type" in serializer.errors
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list,
         data={"variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}]},
@@ -551,14 +551,14 @@ def test_update_variant_list_serializer():
     assert not serializer.is_valid()
     assert "variants" in serializer.errors
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"status": VariantList.Status.PROCESSING}, partial=True
     )
     assert not serializer.is_valid()
     assert "status" in serializer.errors
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"access_permissions": []}, partial=True
     )
@@ -567,7 +567,7 @@ def test_update_variant_list_serializer():
 
 @pytest.mark.django_db
 def test_variant_list_serializer_serializes_status_for_display():
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     serializer = VariantListSerializer(variant_list)
     assert serializer.data["status"] == "Ready"
 
@@ -577,7 +577,7 @@ def test_variant_list_serializer_serializes_access_level():
     editor = User.objects.create(username="editor")
     viewer = User.objects.create(username="viewer")
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     variant_list.save()
 
     VariantListAccessPermission.objects.create(
@@ -609,7 +609,7 @@ def test_variant_list_serializer_serializes_access_permissions_for_owners():
     editor = User.objects.create(username="editor")
     viewer = User.objects.create(username="viewer")
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     variant_list.save()
 
     VariantListAccessPermission.objects.create(
@@ -674,7 +674,7 @@ def test_variant_list_serializer_includes_error_for_staff_users():
     viewer = User.objects.create(username="viewer")
     otheruser = User.objects.create(username="other")
 
-    variant_list = gnomad_variant_list()
+    variant_list = variant_list_fixture()
     variant_list.error = "Something went wrong"
     variant_list.save()
 
