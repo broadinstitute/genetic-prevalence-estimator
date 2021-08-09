@@ -212,6 +212,8 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
     ds = ds.annotate(
         transcript_consequences=ds.transcript_consequences.map(
             lambda csq: csq.annotate(
+                hgvsc=csq.hgvsc.split(":")[-1],
+                hgvsp=csq.hgvsp.split(":")[-1],
                 major_consequence=hl.sorted(
                     csq.consequence_terms,
                     lambda term: VEP_CONSEQUENCE_TERM_RANK[term],
