@@ -9,6 +9,17 @@ import {
 
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
+const clinvarDateFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "long",
+  timeZone: "UTC",
+});
+
+const formatClinvarReleaseDate = (releaseDate: string) => {
+  const [year, month, day] = releaseDate.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return clinvarDateFormatter.format(date);
+};
+
 const CustomVariantListMetadata = (props: {
   variantList: CustomVariantList;
 }) => {
@@ -74,7 +85,11 @@ const RecommendedVariantListMetadata = (props: {
           {variantList.metadata.clinvar_version && (
             <>
               {" "}
-              (from ClinVar's {variantList.metadata.clinvar_version} release)
+              (from ClinVar's{" "}
+              {formatClinvarReleaseDate(
+                variantList.metadata.clinvar_version
+              )}{" "}
+              release)
             </>
           )}
         </DescriptionListItem>
