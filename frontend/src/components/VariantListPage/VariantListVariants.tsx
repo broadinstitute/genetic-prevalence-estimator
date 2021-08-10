@@ -1,4 +1,16 @@
-import { Link, Table, Thead, Tbody, Tr, Th, Td, Text } from "@chakra-ui/react";
+import {
+  Badge,
+  Flex,
+  Link,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import { FC } from "react";
 
 import { VariantList, VariantListType } from "../../types";
@@ -135,7 +147,41 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
                       <Td>
                         <Cell maxWidth={150}>{variant.hgvsp}</Cell>
                       </Td>
-                      <Td isNumeric>{renderCount(ac)}</Td>
+                      <Td isNumeric>
+                        <Flex as="span" justify="flex-end">
+                          <span>{renderCount(ac)}</span>
+                          {variant.flags?.includes("not_found") && (
+                            <Tooltip
+                              hasArrow
+                              label="This variant is not found in gnomAD."
+                            >
+                              <Badge
+                                colorScheme="red"
+                                fontSize="0.8em"
+                                mr={2}
+                                style={{ order: -1 }}
+                              >
+                                Not found
+                              </Badge>
+                            </Tooltip>
+                          )}
+                          {variant.flags?.includes("filtered") && (
+                            <Tooltip
+                              hasArrow
+                              label="Some samples are not included because this variant failed gnomAD quality control filters."
+                            >
+                              <Badge
+                                colorScheme="yellow"
+                                fontSize="0.8em"
+                                mr={2}
+                                style={{ order: -1 }}
+                              >
+                                Filtered
+                              </Badge>
+                            </Tooltip>
+                          )}
+                        </Flex>
+                      </Td>
                       <Td isNumeric>{renderCount(an)}</Td>
                       <Td isNumeric>{renderAlleleFrequency(af)}</Td>
                     </>
