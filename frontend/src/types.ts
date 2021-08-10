@@ -13,6 +13,13 @@ export type VariantId = string;
 
 export interface Variant {
   id: VariantId;
+  hgvsc?: string | null;
+  hgvsp?: string | null;
+  lof?: string | null;
+  major_consequence?: string | null;
+  AC?: number[];
+  AN?: number[];
+  flags?: string[];
 }
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";

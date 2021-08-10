@@ -8,6 +8,13 @@ const theme = extendTheme({
         textDecoration: "underline",
       },
     },
+    Table: {
+      baseStyle: {
+        th: {
+          textTransform: "none",
+        },
+      },
+    },
   },
 });
 
