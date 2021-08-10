@@ -1,7 +1,8 @@
-import { ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 
 import { VariantList, VariantListType } from "../../types";
 
+import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
 const VariantListVariants = (props: { variantList: VariantList }) => {
@@ -26,10 +27,16 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
 
   return (
     <>
-      <Text mb={4}>
+      <Text mb={2}>
         This variant list contains {variantList.variants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
+
+      <Box mb={4}>
+        <DownloadVariantListLink variantList={variantList}>
+          Download variants
+        </DownloadVariantListLink>
+      </Box>
 
       {variantList.status === "Ready" ? (
         <div style={{ width: "100%", overflowX: "auto" }}>
