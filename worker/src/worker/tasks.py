@@ -22,7 +22,19 @@ PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
 )
 
 
-VARIANT_FIELDS = ["id"]
+VARIANT_FIELDS = [
+    "id",
+    # Consequence
+    "hgvsc",
+    "hgvsp",
+    "lof",
+    "major_consequence",
+    # Frequency
+    "AC",
+    "AN",
+    # Other
+    "flags",
+]
 
 
 def initialize_hail():
@@ -58,6 +70,54 @@ def parse_variant_id(variant_id_str, reference_genome):
             alleles=[parts[2], parts[3]],
         ),
     )
+
+
+def combined_freq(ds, n_populations, include_filtered=False):
+    zeroes = hl.range(1 + n_populations).map(lambda _: 0)
+    return hl.struct(
+        **{
+            field: hl.zip(
+                *(
+                    hl.if_else(
+                        hl.is_defined(ds.freq[sample_set])
+                        & (
+                            hl.literal(True)
+                            if include_filtered
+                            else (
+                                hl.len(
+                                    hl.or_else(
+                                        ds.filters[sample_set], hl.empty_set(hl.tstr)
+                                    )
+                                )
+                                == 0
+                            )
+                        ),
+                        ds.freq[sample_set][field],
+                        zeroes,
+                    )
+                    for sample_set in ("exome", "genome")
+                )
+            ).map(lambda f: f[0] + f[1])
+            for field in ("AC", "AN")
+        }
+    )
+
+
+def flags(ds):
+    return hl.array(
+        [
+            hl.or_missing(hl.is_missing(ds.freq), "not_found"),
+            hl.or_missing(
+                hl.len(
+                    hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
+                        hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
+                    )
+                )
+                > 0,
+                "filtered",
+            ),
+        ]
+    ).filter(hl.is_defined)
 
 
 def process_new_recommended_variant_list(variant_list):
@@ -113,6 +173,13 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.filter(should_include_variant)
 
+    populations = hl.eval(gnomad.globals.populations)
+    variant_list.metadata["populations"] = populations
+
+    ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
+    ds = ds.annotate(flags=flags(ds))
+    ds = ds.drop("freq", "filters")
+
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
     ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
@@ -134,6 +201,19 @@ def process_new_custom_variant_list(variant_list):
     ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
 
     ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
+
+    gnomad = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
+    )
+    ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
+    ds = ds.transmute(**ds.transcript_consequences.first())
+
+    populations = hl.eval(gnomad.globals.populations)
+    variant_list.metadata["populations"] = populations
+
+    ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
+    ds = ds.annotate(flags=flags(ds))
+    ds = ds.drop("freq", "filters")
 
     ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
 
