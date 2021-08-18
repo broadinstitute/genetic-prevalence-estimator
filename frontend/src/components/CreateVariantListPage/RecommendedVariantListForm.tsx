@@ -22,6 +22,7 @@ import {
   GnomadVersion,
   VariantListType,
 } from "../../types";
+import GeneInput from "./GeneInput";
 
 const submitVariantList = (
   request: RecommendedVariantListRequest
@@ -115,21 +116,13 @@ const RecommendedVariantListForm = () => {
           />
         </FormControl>
 
-        <FormControl
+        <GeneInput
           id="gnomad-variant-list-gene-id"
-          isInvalid={!!geneId && !isGeneIdValid}
+          label="Gene"
           isRequired
-        >
-          <FormLabel>Ensembl Gene ID</FormLabel>
-          <Input
-            placeholder="ENSG00000169174"
-            value={geneId}
-            onChange={(e) => {
-              setGeneId(e.target.value);
-            }}
-          />
-          <FormErrorMessage>An Ensembl gene ID is required.</FormErrorMessage>
-        </FormControl>
+          referenceGenome={gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"}
+          onChange={setGeneId}
+        />
 
         <FormControl
           id="gnomad-variant-list-transcript-id"
