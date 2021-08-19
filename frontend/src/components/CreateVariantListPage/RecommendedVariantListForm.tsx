@@ -54,7 +54,7 @@ const RecommendedVariantListForm = () => {
       onSubmit={(e) => {
         e.preventDefault();
 
-        if (geneId && isGeneIdValid) {
+        if (geneId && isGeneIdValid && transcriptId && isTranscriptIdValid) {
           const variantListRequest: RecommendedVariantListRequest = {
             label,
             notes,
