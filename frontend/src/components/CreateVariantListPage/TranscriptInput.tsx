@@ -12,6 +12,7 @@ const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
           gene(gene_id: $geneId, reference_genome: $referenceGenome) {
             transcripts {
               transcript_id
+              transcript_version
             }
           }
         }
@@ -43,6 +44,7 @@ interface TranscriptInputProps {
 
 type Transcript = {
   transcript_id: string;
+  transcript_version: string;
 };
 
 const TranscriptInput = (props: TranscriptInputProps) => {
@@ -93,7 +95,7 @@ const TranscriptInput = (props: TranscriptInputProps) => {
             key={transcript.transcript_id}
             value={transcript.transcript_id}
           >
-            {transcript.transcript_id}
+            {transcript.transcript_id}.{transcript.transcript_version}
           </option>
         ))}
       </Select>

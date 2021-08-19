@@ -11,6 +11,7 @@ interface GeneInputProps {
 
 type GeneSearchResult = {
   ensembl_id: string;
+  ensembl_version: string;
   symbol: string;
 };
 
@@ -21,6 +22,7 @@ const fetchGenes = (query: string, referenceGenome: ReferenceGenome) => {
         query GeneSearch($query: String!, $referenceGenome: ReferenceGenomeId!) {
           gene_search(query: $query, reference_genome: $referenceGenome) {
             ensembl_id
+            ensembl_version
             symbol
           }
         }
@@ -49,7 +51,9 @@ const GeneInput = (props: GeneInputProps) => {
       placeholder="PCSK9"
       isRequired={isRequired}
       fetchItems={(inputValue) => fetchGenes(inputValue, referenceGenome)}
-      itemToString={(result) => `${result.symbol} (${result.ensembl_id})`}
+      itemToString={(result) =>
+        `${result.symbol} (${result.ensembl_id}.${result.ensembl_version})`
+      }
       onSelectItem={(result) => onChange(result.ensembl_id)}
     />
   );
