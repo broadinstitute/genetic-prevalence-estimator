@@ -4,12 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import CancelablePromise from "../../CancelablePromise";
 import { ReferenceGenome } from "../../types";
 
+type Transcript = {
+  transcript_id: string;
+  transcript_version: string;
+};
+
 const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
   return fetch("https://gnomad.broadinstitute.org/api/", {
     body: JSON.stringify({
       query: `
         query GeneTranscript($geneId: String!, $referenceGenome: ReferenceGenomeId!) {
           gene(gene_id: $geneId, reference_genome: $referenceGenome) {
+            canonical_transcript_id
+            mane_select_transcript {
+              ensembl_id
+              ensembl_version
+            }
             transcripts {
               transcript_id
               transcript_version
@@ -31,7 +41,31 @@ const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
         throw new Error("Unable to retrieve transcripts");
       }
 
-      return response.data.gene.transcripts;
+      const gene = response.data.gene;
+
+      const preferredTranscripts: string[] = [];
+      if (gene.mane_select_transcript) {
+        preferredTranscripts.push(gene.mane_select_transcript.ensembl_id);
+      }
+      if (gene.canonical_transcript_id) {
+        preferredTranscripts.push(gene.canonical_transcript_id);
+      }
+
+      return gene.transcripts.sort((t1: Transcript, t2: Transcript) => {
+        const t1PreferredIndex = preferredTranscripts.indexOf(t1.transcript_id);
+        const t2PreferredIndex = preferredTranscripts.indexOf(t2.transcript_id);
+
+        if (t1PreferredIndex === -1 && t2PreferredIndex === -1) {
+          return t1.transcript_id.localeCompare(t2.transcript_id);
+        }
+        if (t1PreferredIndex !== -1 && t2PreferredIndex === -1) {
+          return -1;
+        }
+        if (t1PreferredIndex === -1 && t2PreferredIndex !== -1) {
+          return 1;
+        }
+        return t1PreferredIndex - t2PreferredIndex;
+      });
     });
 };
 
@@ -44,11 +78,6 @@ interface TranscriptInputProps {
   value: string;
   onChange: (value: string) => void;
 }
-
-type Transcript = {
-  transcript_id: string;
-  transcript_version: string;
-};
 
 const TranscriptInput = (props: TranscriptInputProps) => {
   const {
