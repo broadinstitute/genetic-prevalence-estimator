@@ -36,9 +36,14 @@ const RecommendedVariantListForm = () => {
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
   const [geneId, setGeneId] = useState("");
-  const isGeneIdValid = /^ENSG\d{11}$/.test(geneId);
+  const isGeneIdValid = /^ENSG\d{11}\.\d+$/.test(geneId);
   const [transcriptId, setTranscriptId] = useState("");
-  const isTranscriptIdValid = /^ENST\d{11}$/.test(transcriptId);
+  const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
+
+  console.log(geneId);
+  console.log(isGeneIdValid);
+  console.log(transcriptId);
+  console.log(isTranscriptIdValid);
 
   const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
 

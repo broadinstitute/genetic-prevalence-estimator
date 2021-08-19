@@ -121,7 +121,7 @@ def flags(ds):
 
 
 def process_new_recommended_variant_list(variant_list):
-    transcript_id = variant_list.metadata["transcript_id"]
+    transcript_id = variant_list.metadata["transcript_id"].split(".")[0]
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",

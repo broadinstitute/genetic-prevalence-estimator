@@ -17,7 +17,10 @@ const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
           }
         }
       `,
-      variables: { geneId, referenceGenome },
+      variables: {
+        geneId: geneId.split(".")[0],
+        referenceGenome,
+      },
     }),
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -73,7 +76,10 @@ const TranscriptInput = (props: TranscriptInputProps) => {
 
       activeRequest.current.then((fetchedTranscripts) => {
         setTranscripts(fetchedTranscripts);
-        onChange(fetchedTranscripts[0].transcript_id);
+        const defaultTranscript = fetchedTranscripts[0];
+        onChange(
+          `${defaultTranscript.transcript_id}.${defaultTranscript.transcript_version}`
+        );
       });
     } else {
       activeRequest.current = null;
@@ -93,7 +99,7 @@ const TranscriptInput = (props: TranscriptInputProps) => {
         {transcripts.map((transcript) => (
           <option
             key={transcript.transcript_id}
-            value={transcript.transcript_id}
+            value={`${transcript.transcript_id}.${transcript.transcript_version}`}
           >
             {transcript.transcript_id}.{transcript.transcript_version}
           </option>

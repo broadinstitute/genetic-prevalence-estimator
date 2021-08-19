@@ -54,7 +54,9 @@ const GeneInput = (props: GeneInputProps) => {
       itemToString={(result) =>
         `${result.symbol} (${result.ensembl_id}.${result.ensembl_version})`
       }
-      onSelectItem={(result) => onChange(result.ensembl_id)}
+      onSelectItem={(result) =>
+        onChange(`${result.ensembl_id}.${result.ensembl_version}`)
+      }
     />
   );
 };

@@ -57,7 +57,9 @@ const RecommendedVariantListMetadata = (props: {
       </DescriptionListItem>
       <DescriptionListItem label="Gene">
         <Link
-          href={`https://gnomad.broadinstitute.org/gene/${variantList.metadata.gene_id}?dataset=${gnomadDataset}`}
+          href={`https://gnomad.broadinstitute.org/gene/${
+            variantList.metadata.gene_id.split(".")[0]
+          }?dataset=${gnomadDataset}`}
           isExternal
           target="_blank"
         >
@@ -66,7 +68,9 @@ const RecommendedVariantListMetadata = (props: {
       </DescriptionListItem>
       <DescriptionListItem label="Transcript">
         <Link
-          href={`https://gnomad.broadinstitute.org/transcript/${variantList.metadata.transcript_id}?dataset=${gnomadDataset}`}
+          href={`https://gnomad.broadinstitute.org/transcript/${
+            variantList.metadata.transcript_id.split(".")[0]
+          }?dataset=${gnomadDataset}`}
           isExternal
           target="_blank"
         >

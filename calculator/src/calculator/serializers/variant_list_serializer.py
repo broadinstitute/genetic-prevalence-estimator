@@ -11,11 +11,11 @@ from calculator.serializers.variant_list_access_permission_serializer import (
 
 
 def is_gene_id(maybe_gene_id):
-    return bool(re.fullmatch(r"ENSG\d{11}", maybe_gene_id))
+    return bool(re.fullmatch(r"ENSG\d{11}\.\d+", maybe_gene_id))
 
 
 def is_transcript_id(maybe_transcript_id):
-    return bool(re.fullmatch(r"ENST\d{11}", maybe_transcript_id))
+    return bool(re.fullmatch(r"ENST\d{11}\.\d+", maybe_transcript_id))
 
 
 def is_variant_id(maybe_variant_id):
@@ -26,8 +26,8 @@ class RecommendedVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
-    gene_id = serializers.CharField(max_length=15)
-    transcript_id = serializers.CharField(max_length=15)
+    gene_id = serializers.CharField(max_length=20)
+    transcript_id = serializers.CharField(max_length=20)
     included_clinvar_variants = serializers.MultipleChoiceField(
         [
             "pathogenic_or_likely_pathogenic",
