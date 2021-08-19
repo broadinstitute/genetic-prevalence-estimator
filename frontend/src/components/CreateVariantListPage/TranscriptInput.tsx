@@ -4,12 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import CancelablePromise from "../../CancelablePromise";
 import { ReferenceGenome } from "../../types";
 
-type Transcript = {
+interface Transcript {
   transcript_id: string;
   transcript_version: string;
-};
+}
 
-const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
+interface TranscriptWithNotes extends Transcript {
+  notes: string[];
+}
+
+const fetchTranscripts = (
+  geneId: string,
+  referenceGenome: ReferenceGenome
+): Promise<TranscriptWithNotes[]> => {
   return fetch("https://gnomad.broadinstitute.org/api/", {
     body: JSON.stringify({
       query: `
@@ -51,21 +58,46 @@ const fetchTranscripts = (geneId: string, referenceGenome: ReferenceGenome) => {
         preferredTranscripts.push(gene.canonical_transcript_id);
       }
 
-      return gene.transcripts.sort((t1: Transcript, t2: Transcript) => {
-        const t1PreferredIndex = preferredTranscripts.indexOf(t1.transcript_id);
-        const t2PreferredIndex = preferredTranscripts.indexOf(t2.transcript_id);
+      return gene.transcripts
+        .sort((t1: Transcript, t2: Transcript) => {
+          const t1PreferredIndex = preferredTranscripts.indexOf(
+            t1.transcript_id
+          );
+          const t2PreferredIndex = preferredTranscripts.indexOf(
+            t2.transcript_id
+          );
 
-        if (t1PreferredIndex === -1 && t2PreferredIndex === -1) {
-          return t1.transcript_id.localeCompare(t2.transcript_id);
-        }
-        if (t1PreferredIndex !== -1 && t2PreferredIndex === -1) {
-          return -1;
-        }
-        if (t1PreferredIndex === -1 && t2PreferredIndex !== -1) {
-          return 1;
-        }
-        return t1PreferredIndex - t2PreferredIndex;
-      });
+          if (t1PreferredIndex === -1 && t2PreferredIndex === -1) {
+            return t1.transcript_id.localeCompare(t2.transcript_id);
+          }
+          if (t1PreferredIndex !== -1 && t2PreferredIndex === -1) {
+            return -1;
+          }
+          if (t1PreferredIndex === -1 && t2PreferredIndex !== -1) {
+            return 1;
+          }
+          return t1PreferredIndex - t2PreferredIndex;
+        })
+        .map((transcript: Transcript) => {
+          const notes: string[] = [];
+          if (
+            transcript.transcript_id === gene.mane_select_transcript?.ensembl_id
+          ) {
+            notes.push(
+              transcript.transcript_version ===
+                gene.mane_select_transcript.ensembl_version
+                ? "MANE Select transcript"
+                : "version of MANE Select transcript"
+            );
+          }
+          if (transcript.transcript_id === gene.canonical_transcript_id) {
+            notes.push("Ensembl canonical transcript");
+          }
+          return {
+            ...transcript,
+            notes,
+          };
+        });
     });
 };
 
@@ -90,9 +122,11 @@ const TranscriptInput = (props: TranscriptInputProps) => {
     onChange,
   } = props;
 
-  const [transcripts, setTranscripts] = useState<Transcript[]>([]);
+  const [transcripts, setTranscripts] = useState<TranscriptWithNotes[]>([]);
 
-  const activeRequest = useRef<CancelablePromise<Transcript[]> | null>(null);
+  const activeRequest = useRef<CancelablePromise<TranscriptWithNotes[]> | null>(
+    null
+  );
   useEffect(() => {
     if (activeRequest.current) {
       activeRequest.current.cancel();
@@ -131,6 +165,7 @@ const TranscriptInput = (props: TranscriptInputProps) => {
             value={`${transcript.transcript_id}.${transcript.transcript_version}`}
           >
             {transcript.transcript_id}.{transcript.transcript_version}
+            {transcript.notes.length > 0 && ` (${transcript.notes.join(", ")})`}
           </option>
         ))}
       </Select>
