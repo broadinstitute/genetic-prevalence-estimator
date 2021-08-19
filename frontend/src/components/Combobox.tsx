@@ -9,7 +9,11 @@ import {
   List,
   ListItem,
 } from "@chakra-ui/react";
-import { useCombobox } from "downshift";
+import {
+  useCombobox,
+  UseComboboxState,
+  UseComboboxStateChangeOptions,
+} from "downshift";
 import { debounce } from "lodash";
 import { useCallback, useRef, useState } from "react";
 
@@ -57,6 +61,28 @@ const Combobox = <ComboboxItem,>(props: ComboboxProps<ComboboxItem>) => {
     []
   );
 
+  const stateReducer = useCallback(
+    (
+      state: UseComboboxState<ComboboxItem>,
+      actionAndChanges: UseComboboxStateChangeOptions<ComboboxItem>
+    ) => {
+      const { type, changes } = actionAndChanges;
+      switch (type) {
+        // If the input is blurred while an item is selected, reset the input value to the selected item.
+        case useCombobox.stateChangeTypes.InputBlur:
+          return {
+            ...changes,
+            ...(changes.selectedItem && {
+              inputValue: itemToString(changes.selectedItem),
+            }),
+          };
+        default:
+          return changes; // otherwise business as usual.
+      }
+    },
+    [itemToString]
+  );
+
   const {
     isOpen,
     getToggleButtonProps,
@@ -69,6 +95,7 @@ const Combobox = <ComboboxItem,>(props: ComboboxProps<ComboboxItem>) => {
   } = useCombobox({
     items: inputItems,
     itemToString: (item) => itemToString((item as unknown) as ComboboxItem),
+    stateReducer,
     onInputValueChange: ({ inputValue }) => {
       debouncedFetchItems(inputValue!);
     },
