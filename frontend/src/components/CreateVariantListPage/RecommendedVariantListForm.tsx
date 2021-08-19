@@ -96,7 +96,7 @@ const RecommendedVariantListForm = () => {
       }}
     >
       <VStack spacing={4} align="flex-start">
-        <FormControl id="gnomad-variant-list-label" isRequired>
+        <FormControl id="recommended-variant-list-label" isRequired>
           <FormLabel>Label</FormLabel>
           <Input
             value={label}
@@ -106,7 +106,7 @@ const RecommendedVariantListForm = () => {
           />
         </FormControl>
 
-        <FormControl id="gnomad-variant-list-notes">
+        <FormControl id="recommended-variant-list-notes">
           <FormLabel>Notes</FormLabel>
           <Textarea
             value={notes}
@@ -117,7 +117,7 @@ const RecommendedVariantListForm = () => {
         </FormControl>
 
         <GeneInput
-          id="gnomad-variant-list-gene-id"
+          id="recommended-variant-list-gene-id"
           label="Gene"
           isRequired
           referenceGenome={gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"}
@@ -130,7 +130,7 @@ const RecommendedVariantListForm = () => {
         />
 
         <TranscriptInput
-          id="gnomad-variant-list-transcript-id"
+          id="recommended-variant-list-transcript-id"
           label="Transcript"
           isRequired
           geneId={geneId}
@@ -139,7 +139,7 @@ const RecommendedVariantListForm = () => {
           onChange={setTranscriptId}
         />
 
-        <FormControl id="gnomad-variant-list-gnomad-version" isRequired>
+        <FormControl id="recommended-variant-list-gnomad-version" isRequired>
           <FormLabel>gnomAD version</FormLabel>
           <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
             <VStack align="flex-start">
@@ -150,7 +150,7 @@ const RecommendedVariantListForm = () => {
         </FormControl>
 
         <FormControl
-          id="gnomad-variant-list-included-clinvar-variants"
+          id="recommended-variant-list-included-clinvar-variants"
           isRequired
         >
           <FormLabel>Include ClinVar variants</FormLabel>
