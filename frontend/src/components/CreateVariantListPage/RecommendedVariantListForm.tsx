@@ -1,7 +1,6 @@
 import {
   Button,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   HStack,
   Input,
@@ -23,6 +22,7 @@ import {
   VariantListType,
 } from "../../types";
 import GeneInput from "./GeneInput";
+import TranscriptInput from "./TranscriptInput";
 
 const submitVariantList = (
   request: RecommendedVariantListRequest
@@ -121,26 +121,23 @@ const RecommendedVariantListForm = () => {
           label="Gene"
           isRequired
           referenceGenome={gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"}
-          onChange={setGeneId}
+          onChange={(selectedGeneId) => {
+            setGeneId(selectedGeneId);
+            if (selectedGeneId !== geneId) {
+              setTranscriptId("");
+            }
+          }}
         />
 
-        <FormControl
+        <TranscriptInput
           id="gnomad-variant-list-transcript-id"
-          isInvalid={!!transcriptId && !isTranscriptIdValid}
+          label="Transcript"
           isRequired
-        >
-          <FormLabel>Ensembl Transcript ID</FormLabel>
-          <Input
-            placeholder="ENST00000302118"
-            value={transcriptId}
-            onChange={(e) => {
-              setTranscriptId(e.target.value);
-            }}
-          />
-          <FormErrorMessage>
-            An Ensembl transcript ID is required.
-          </FormErrorMessage>
-        </FormControl>
+          geneId={geneId}
+          referenceGenome={gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"}
+          value={transcriptId}
+          onChange={setTranscriptId}
+        />
 
         <FormControl id="gnomad-variant-list-gnomad-version" isRequired>
           <FormLabel>gnomAD version</FormLabel>
