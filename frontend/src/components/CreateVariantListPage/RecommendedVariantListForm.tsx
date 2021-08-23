@@ -40,11 +40,6 @@ const RecommendedVariantListForm = () => {
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
 
-  console.log(geneId);
-  console.log(isGeneIdValid);
-  console.log(transcriptId);
-  console.log(isTranscriptIdValid);
-
   const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
 
   const [includedClinvarVariants, setIncludedClinvarVariants] = useState(
