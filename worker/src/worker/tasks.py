@@ -32,6 +32,9 @@ VARIANT_FIELDS = [
     # Frequency
     "AC",
     "AN",
+    # ClinVar
+    "clinvar_variation_id",
+    "clinical_significance",
     # Other
     "flags",
 ]
@@ -151,18 +154,17 @@ def process_new_recommended_variant_list(variant_list):
         ds.major_consequence
     ) & (ds.lof == "HC")
 
-    if variant_list.metadata["included_clinvar_variants"]:
-        reference_genome = ds.locus.dtype.reference_genome.name
-        assert reference_genome in ("GRCh37", "GRCh38")
+    reference_genome = ds.locus.dtype.reference_genome.name
+    assert reference_genome in ("GRCh37", "GRCh38")
+    clinvar = hl.read_table(
+        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    )
+    variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
 
+    if variant_list.metadata["included_clinvar_variants"]:
         include_clinvar_variant_categories = hl.set(
             variant_list.metadata["included_clinvar_variants"]
         )
-        clinvar = hl.read_table(
-            f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
-        )
-
-        variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
 
         should_include_variant = (
             should_include_variant
@@ -179,6 +181,12 @@ def process_new_recommended_variant_list(variant_list):
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
     ds = ds.annotate(flags=flags(ds))
     ds = ds.drop("freq", "filters")
+
+    ds = ds.annotate(
+        **clinvar[ds.locus, ds.alleles].select(
+            "clinvar_variation_id", "clinical_significance"
+        )
+    )
 
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
@@ -214,6 +222,17 @@ def process_new_custom_variant_list(variant_list):
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
     ds = ds.annotate(flags=flags(ds))
     ds = ds.drop("freq", "filters")
+
+    clinvar = hl.read_table(
+        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    )
+    variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
+
+    ds = ds.annotate(
+        **clinvar[ds.locus, ds.alleles].select(
+            "clinvar_variation_id", "clinical_significance"
+        )
+    )
 
     ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
 

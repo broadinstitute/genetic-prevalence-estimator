@@ -31,6 +31,14 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
       getValue: (variant: Variant) => variant.hgvsp,
     },
     {
+      label: "Clinical significance",
+      getValue: (variant: Variant) => variant.clinical_significance?.join(", "),
+    },
+    {
+      label: "ClinVar variation ID",
+      getValue: (variant: Variant) => variant.clinvar_variation_id,
+    },
+    {
       label: "Allele count",
       getValue: (variant: Variant) => (variant.AC || [])[0],
     },

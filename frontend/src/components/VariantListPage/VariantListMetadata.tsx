@@ -34,6 +34,12 @@ const CustomVariantListMetadata = (props: {
       <DescriptionListItem label="gnomAD version">
         {variantList.metadata.gnomad_version}
       </DescriptionListItem>
+      {variantList.metadata.clinvar_version && (
+        <DescriptionListItem label="ClinVar version">
+          {formatClinvarReleaseDate(variantList.metadata.clinvar_version)}{" "}
+          release
+        </DescriptionListItem>
+      )}
     </DescriptionList>
   );
 };
@@ -86,16 +92,12 @@ const RecommendedVariantListMetadata = (props: {
                 .join(" ")
             )
             .join(", ")}
-          {variantList.metadata.clinvar_version && (
-            <>
-              {" "}
-              (from ClinVar's{" "}
-              {formatClinvarReleaseDate(
-                variantList.metadata.clinvar_version
-              )}{" "}
-              release)
-            </>
-          )}
+        </DescriptionListItem>
+      )}
+      {variantList.metadata.clinvar_version && (
+        <DescriptionListItem label="ClinVar version">
+          {formatClinvarReleaseDate(variantList.metadata.clinvar_version)}{" "}
+          release
         </DescriptionListItem>
       )}
     </DescriptionList>

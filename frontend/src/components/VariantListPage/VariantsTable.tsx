@@ -72,6 +72,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
           <Th scope="col">LOFTEE</Th>
           <Th scope="col">HGVSc</Th>
           <Th scope="col">HGVSp</Th>
+          <Th scope="col">Clinical significance</Th>
           <Th scope="col" isNumeric>
             Allele count
           </Th>
@@ -113,6 +114,17 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Td>
               <Td>
                 <Cell maxWidth={150}>{variant.hgvsp}</Cell>
+              </Td>
+              <Td>
+                {variant.clinical_significance && (
+                  <Link
+                    href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
+                    isExternal
+                    target="_blank"
+                  >
+                    {variant.clinical_significance?.join(", ")}
+                  </Link>
+                )}
               </Td>
               <Td isNumeric>
                 <Flex as="span" justify="flex-end">

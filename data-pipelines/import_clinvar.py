@@ -127,7 +127,8 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
     )
 
     ds = ds.select(
-        clinical_significance=hl.set(ds.info.CLNSIG.map(lambda s: s.replace("^_", "")))
+        clinvar_variation_id=ds.rsid,
+        clinical_significance=hl.set(ds.info.CLNSIG.map(lambda s: s.replace("^_", ""))),
     )
 
     all_clinical_significances = ds.aggregate(
@@ -147,10 +148,15 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
         len(uncategorized_clinical_significances) == 0
     ), f"Uncategorized clinical significances: {', '.join(uncategorized_clinical_significances)}"
 
-    ds = ds.transmute(
+    ds = ds.annotate(
+        clinical_significance=hl.array(
+            ds.clinical_significance.map(
+                lambda clinical_significance: clinical_significance.replace("_", " ")
+            )
+        ),
         clinical_significance_category=get_clinical_significance_category(
             ds.clinical_significance
-        )
+        ),
     )
 
     return ds

@@ -20,6 +20,8 @@ export interface Variant {
   AC?: number[];
   AN?: number[];
   flags?: string[];
+  clinvar_variation_id?: string | null;
+  clinical_significance?: string[] | null;
 }
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
@@ -48,6 +50,7 @@ export interface CustomVariantListMetadata {
   version: "1";
   reference_genome: ReferenceGenome;
   gnomad_version: GnomadVersion;
+  clinvar_version?: string;
 }
 
 export interface RecommendedVariantListRequest {
