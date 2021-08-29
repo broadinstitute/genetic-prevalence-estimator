@@ -42,9 +42,9 @@ const RecommendedVariantListForm = () => {
 
   const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
 
-  const [includedClinvarVariants, setIncludedClinvarVariants] = useState(
-    "pathogenic_or_likely_pathogenic"
-  );
+  const [includedClinvarVariants, setIncludedClinvarVariants] = useState<
+    ClinvarClinicalSignificanceCategory[]
+  >(["pathogenic_or_likely_pathogenic"]);
 
   const history = useHistory();
   const toast = useToast();
@@ -64,15 +64,9 @@ const RecommendedVariantListForm = () => {
               gene_id: geneId,
               transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
-              included_clinvar_variants: null,
+              included_clinvar_variants: includedClinvarVariants,
             },
           };
-
-          if (includedClinvarVariants !== "none") {
-            variantListRequest.metadata.included_clinvar_variants = includedClinvarVariants.split(
-              "|"
-            ) as ClinvarClinicalSignificanceCategory[];
-          }
 
           if (!isSubmitting) {
             setIsSubmitting(true);
@@ -155,8 +149,14 @@ const RecommendedVariantListForm = () => {
         >
           <FormLabel>Include ClinVar variants</FormLabel>
           <RadioGroup
-            value={includedClinvarVariants}
-            onChange={setIncludedClinvarVariants}
+            value={includedClinvarVariants.join("|")}
+            onChange={(value) => {
+              setIncludedClinvarVariants(
+                value
+                  .split("|")
+                  .filter(Boolean) as ClinvarClinicalSignificanceCategory[]
+              );
+            }}
           >
             <VStack align="flex-start">
               <Radio value="pathogenic_or_likely_pathogenic">
@@ -166,7 +166,7 @@ const RecommendedVariantListForm = () => {
                 Pathogenic / likely pathogenic, Conflicting interpretations of
                 pathogenicity
               </Radio>
-              <Radio value="none">None</Radio>
+              <Radio value="">None</Radio>
             </VStack>
           </RadioGroup>
         </FormControl>
