@@ -1,7 +1,7 @@
 import { Link, LinkProps } from "@chakra-ui/react";
 import { FC, useEffect, useState } from "react";
 
-import { renderVepConsequence } from "./vepConsequences";
+import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
 
 import { Variant, VariantList } from "../../types";
 
@@ -15,7 +15,7 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
       label: "VEP consequence",
       getValue: (variant: Variant) =>
         variant.major_consequence
-          ? renderVepConsequence(variant.major_consequence)
+          ? VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
           : "",
     },
     {

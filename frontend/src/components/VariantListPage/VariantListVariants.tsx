@@ -40,11 +40,7 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
 
       {variantList.status === "Ready" ? (
         <div style={{ width: "100%", overflowX: "auto" }}>
-          <VariantsTable
-            gnomadVersion={variantList.metadata.gnomad_version}
-            variants={variantList.variants}
-            mb={4}
-          />
+          <VariantsTable variantList={variantList} mb={4} />
         </div>
       ) : (
         <UnorderedList mb={4}>

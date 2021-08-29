@@ -13,9 +13,48 @@ import {
 } from "@chakra-ui/react";
 import { FC } from "react";
 
-import { GnomadVersion, Variant } from "../../types";
+import { CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES } from "../../constants/clinvar";
+import {
+  PLOF_VEP_CONSEQUENCES,
+  VEP_CONSEQUENCE_LABELS,
+} from "../../constants/vepConsequences";
+import {
+  RecommendedVariantList,
+  Variant,
+  VariantList,
+  VariantListType,
+} from "../../types";
 
-import { renderVepConsequence } from "./vepConsequences";
+type VariantSource = "ClinVar" | "gnomAD";
+
+const getVariantSources = (
+  variant: Variant,
+  variantList: RecommendedVariantList
+): VariantSource[] => {
+  const isIncludedFromClinvar = variantList.metadata.included_clinvar_variants?.some(
+    (category) =>
+      variant.clinical_significance?.some((clinicalSignificance) =>
+        CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES[category].has(
+          clinicalSignificance
+        )
+      )
+  );
+
+  const isIncludedFromGnomad =
+    variant.major_consequence &&
+    PLOF_VEP_CONSEQUENCES.has(variant.major_consequence) &&
+    variant.lof === "HC";
+
+  const reasons: VariantSource[] = [];
+  if (isIncludedFromClinvar) {
+    reasons.push("ClinVar");
+  }
+  if (isIncludedFromGnomad) {
+    reasons.push("gnomAD");
+  }
+
+  return reasons;
+};
 
 const countFormatter = new Intl.NumberFormat(undefined, {});
 
@@ -49,15 +88,14 @@ const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
 };
 
 interface VariantsTableProps extends TableProps {
-  gnomadVersion: GnomadVersion;
-  variants: Variant[];
+  variantList: VariantList;
 }
 
 const VariantsTable: FC<VariantsTableProps> = ({
-  gnomadVersion,
-  variants,
+  variantList,
   ...tableProps
 }) => {
+  const gnomadVersion = variantList.metadata.gnomad_version;
   const gnomadDataset = {
     "2.1.1": "gnomad_r2_1",
     "3.1.1": "gnomad_r3",
@@ -82,10 +120,13 @@ const VariantsTable: FC<VariantsTableProps> = ({
           <Th scope="col" isNumeric>
             Allele frequency
           </Th>
+          {variantList.type === VariantListType.RECOMMENDED && (
+            <Th scope="col">Included from</Th>
+          )}
         </Tr>
       </Thead>
       <Tbody>
-        {variants.map((variant) => {
+        {variantList.variants.map((variant) => {
           const ac = (variant.AC || [])[0] || 0;
           const an = (variant.AN || [])[0] || 0;
           const af = ac === 0 ? 0 : ac / an;
@@ -105,7 +146,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Th>
               <Td>
                 {variant.major_consequence
-                  ? renderVepConsequence(variant.major_consequence)
+                  ? VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
                   : ""}
               </Td>
               <Td>{variant.lof}</Td>
@@ -163,6 +204,47 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Td>
               <Td isNumeric>{renderCount(an)}</Td>
               <Td isNumeric>{renderAlleleFrequency(af)}</Td>
+              {variantList.type === VariantListType.RECOMMENDED && (
+                <Td>
+                  {getVariantSources(variant, variantList)
+                    .map((source) => {
+                      if (source === "ClinVar") {
+                        return (
+                          <Tooltip
+                            key="ClinVar"
+                            hasArrow
+                            label={`This variant was included from ClinVar, where it has a clinical significance in one of the included categories (${variantList.metadata.included_clinvar_variants
+                              ?.map((category) =>
+                                (
+                                  category.charAt(0).toUpperCase() +
+                                  category.slice(1)
+                                )
+                                  .split("_")
+                                  .join(" ")
+                              )
+                              .join(", ")}).`}
+                            maxWidth="500px"
+                          >
+                            ClinVar
+                          </Tooltip>
+                        );
+                      } else {
+                        return (
+                          <Tooltip
+                            key="gnomAD"
+                            hasArrow
+                            label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
+                            maxWidth="500px"
+                          >
+                            gnomAD
+                          </Tooltip>
+                        );
+                      }
+                    })
+                    .flatMap((el) => [", ", el])
+                    .slice(1)}
+                </Td>
+              )}
             </Tr>
           );
         })}

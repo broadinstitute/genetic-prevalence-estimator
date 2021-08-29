@@ -1,4 +1,4 @@
-const RANKED_VEP_CONSEQUENCES = [
+export const RANKED_VEP_CONSEQUENCES = [
   {
     term: "transcript_ablation",
     label: "transcript ablation",
@@ -145,11 +145,16 @@ const RANKED_VEP_CONSEQUENCES = [
   },
 ];
 
-const CONSEQUENCE_LABELS: Map<string, string> = new Map();
+export const VEP_CONSEQUENCE_LABELS: Map<string, string> = new Map();
 RANKED_VEP_CONSEQUENCES.forEach(({ term, label }) => {
-  CONSEQUENCE_LABELS.set(term, label);
+  VEP_CONSEQUENCE_LABELS.set(term, label);
 });
 
-export const renderVepConsequence = (consequenceTerm: string) => {
-  return CONSEQUENCE_LABELS.get(consequenceTerm);
-};
+export const PLOF_VEP_CONSEQUENCES = new Set(
+  RANKED_VEP_CONSEQUENCES.slice(
+    0,
+    RANKED_VEP_CONSEQUENCES.findIndex(
+      ({ term }) => term === "frameshift_variant"
+    ) + 1
+  ).map(({ term }) => term)
+);
