@@ -42,7 +42,7 @@ const App = () => {
   return (
     <>
       <Box boxShadow="base" mb={4}>
-        <Container maxW="container.xl">
+        <Container maxW="1400px">
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <HStack spacing={8} alignItems={"center"}>
               <Box>
@@ -86,7 +86,7 @@ const App = () => {
         </Container>
       </Box>
 
-      <Container maxW="container.xl">
+      <Container maxW="1400px">
         {!isSignedIn && <SignInButton />}
         {isSignedIn && (
           <>
