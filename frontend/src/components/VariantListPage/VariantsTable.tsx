@@ -14,11 +14,13 @@ import {
 import { FC } from "react";
 
 import { CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES } from "../../constants/clinvar";
+import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
   PLOF_VEP_CONSEQUENCES,
   VEP_CONSEQUENCE_LABELS,
 } from "../../constants/vepConsequences";
 import {
+  GnomadPopulationId,
   RecommendedVariantList,
   Variant,
   VariantList,
@@ -88,10 +90,12 @@ const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
 };
 
 interface VariantsTableProps extends TableProps {
+  includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
 }
 
 const VariantsTable: FC<VariantsTableProps> = ({
+  includePopulationFrequencies,
   variantList,
   ...tableProps
 }) => {
@@ -100,6 +104,10 @@ const VariantsTable: FC<VariantsTableProps> = ({
     "2.1.1": "gnomad_r2_1",
     "3.1.1": "gnomad_r3",
   }[gnomadVersion];
+
+  const includedPopulationIndices = includePopulationFrequencies.map(
+    (popId) => variantList.metadata.populations!.indexOf(popId) + 1
+  );
 
   return (
     <Table {...tableProps} size="sm">
@@ -120,6 +128,17 @@ const VariantsTable: FC<VariantsTableProps> = ({
           <Th scope="col" isNumeric>
             Allele frequency
           </Th>
+          {includePopulationFrequencies.flatMap((popId) => [
+            <Td key={`population-${popId}-ac`} isNumeric>
+              Allele count ({GNOMAD_POPULATION_NAMES[popId]})
+            </Td>,
+            <Td key={`population-${popId}-an`} isNumeric>
+              Allele number ({GNOMAD_POPULATION_NAMES[popId]})
+            </Td>,
+            <Td key={`population-${popId}-af`} isNumeric>
+              Allele frequency ({GNOMAD_POPULATION_NAMES[popId]})
+            </Td>,
+          ])}
           {variantList.type === VariantListType.RECOMMENDED && (
             <Th scope="col">Included from</Th>
           )}
@@ -204,6 +223,24 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Td>
               <Td isNumeric>{renderCount(an)}</Td>
               <Td isNumeric>{renderAlleleFrequency(af)}</Td>
+              {includedPopulationIndices.flatMap((popIndex) => {
+                const popAC = (variant.AC || [])[popIndex] || 0;
+                const popAN = (variant.AN || [])[popIndex] || 0;
+                const popAF = ac === 0 ? 0 : ac / an;
+
+                return [
+                  <Td key={`population-${popIndex}-ac`} isNumeric>
+                    {renderCount(popAC)}
+                  </Td>,
+                  <Td key={`population-${popIndex}-an`} isNumeric>
+                    {renderCount(popAN)}
+                  </Td>,
+                  <Td key={`population-${popIndex}-af`} isNumeric>
+                    {renderAlleleFrequency(popAF)}
+                  </Td>,
+                ];
+              })}
+
               {variantList.type === VariantListType.RECOMMENDED && (
                 <Td>
                   {getVariantSources(variant, variantList)

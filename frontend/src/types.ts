@@ -1,5 +1,17 @@
 export type GnomadVersion = "2.1.1" | "3.1.1";
 
+export type GnomadPopulationId =
+  | "afr"
+  | "ami"
+  | "amr"
+  | "asj"
+  | "eas"
+  | "fin"
+  | "mid"
+  | "nfe"
+  | "oth"
+  | "sas";
+
 export type ClinvarClinicalSignificanceCategory =
   | "pathogenic_or_likely_pathogenic"
   | "conflicting_interpretations"
@@ -37,20 +49,23 @@ export enum VariantListType {
   RECOMMENDED = "r",
 }
 
-export interface RecommendedVariantListMetadata {
-  version: "1";
+interface VariantListMetadataBase {
   gnomad_version: GnomadVersion;
+  clinvar_version?: string;
+  populations?: GnomadPopulationId[];
+}
+
+export interface RecommendedVariantListMetadata
+  extends VariantListMetadataBase {
+  version: "1";
   gene_id: string;
   transcript_id: string;
   included_clinvar_variants: ClinvarClinicalSignificanceCategory[] | null;
-  clinvar_version?: string;
 }
 
-export interface CustomVariantListMetadata {
+export interface CustomVariantListMetadata extends VariantListMetadataBase {
   version: "1";
   reference_genome: ReferenceGenome;
-  gnomad_version: GnomadVersion;
-  clinvar_version?: string;
 }
 
 export interface RecommendedVariantListRequest {
