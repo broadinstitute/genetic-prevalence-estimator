@@ -15,7 +15,13 @@ import {
 import { useMemo, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
-import { GnomadPopulationId, Variant } from "../../types";
+import {
+  CustomVariantList,
+  RecommendedVariantList,
+  Variant,
+  VariantList,
+  VariantListType,
+} from "../../types";
 
 const calculateCarrierFrequencyAndPrevalence = (variants: Variant[]) => {
   const alleleFrequencies = variants.map((variant) => {
@@ -60,18 +66,123 @@ const renderFrequency = (f: number, format: CalculationsDisplayFormat) => {
   }
 };
 
-interface VariantListCalculationsProps {
-  populations: GnomadPopulationId[];
+interface CustomVariantListCalculationsTableProps {
+  displayFormat: CalculationsDisplayFormat;
   variants: Variant[];
+  variantList: CustomVariantList;
 }
 
-const VariantListCalculations = (props: VariantListCalculationsProps) => {
-  const { populations, variants } = props;
+const CustomVariantListCalculationsTable = (
+  props: CustomVariantListCalculationsTableProps
+) => {
+  const { displayFormat, variants, variantList } = props;
 
   const { carrierFrequency, prevalence } = useMemo(
     () => calculateCarrierFrequencyAndPrevalence(variants),
     [variants]
   );
+
+  return (
+    <Table size="sm">
+      <Thead>
+        <Tr>
+          <Th scope="col">Population</Th>
+          <Th scope="col" isNumeric>
+            Carrier frequency
+          </Th>
+          <Th scope="col" isNumeric>
+            Prevalence
+          </Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Th scope="row">Global</Th>
+          <Td isNumeric>
+            {renderFrequency(carrierFrequency[0], displayFormat)}
+          </Td>
+          <Td isNumeric>{renderFrequency(prevalence[0], displayFormat)}</Td>
+        </Tr>
+        {variantList.metadata.populations!.map((popId, popIndex) => {
+          return (
+            <Tr key={popId}>
+              <Th scope="row">{GNOMAD_POPULATION_NAMES[popId]}</Th>
+              <Td isNumeric>
+                {renderFrequency(carrierFrequency[popIndex + 1], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(prevalence[popIndex + 1], displayFormat)}
+              </Td>
+            </Tr>
+          );
+        })}
+      </Tbody>
+    </Table>
+  );
+};
+
+interface RecommendedVariantListCalculationsTableProps {
+  displayFormat: CalculationsDisplayFormat;
+  variants: Variant[];
+  variantList: RecommendedVariantList;
+}
+
+const RecommendedVariantListCalculationsTable = (
+  props: RecommendedVariantListCalculationsTableProps
+) => {
+  const { displayFormat, variants, variantList } = props;
+
+  const { carrierFrequency, prevalence } = useMemo(
+    () => calculateCarrierFrequencyAndPrevalence(variants),
+    [variants]
+  );
+
+  return (
+    <Table size="sm">
+      <Thead>
+        <Tr>
+          <Th scope="col">Population</Th>
+          <Th scope="col" isNumeric>
+            Carrier frequency
+          </Th>
+          <Th scope="col" isNumeric>
+            Prevalence
+          </Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Th scope="row">Global</Th>
+          <Td isNumeric>
+            {renderFrequency(carrierFrequency[0], displayFormat)}
+          </Td>
+          <Td isNumeric>{renderFrequency(prevalence[0], displayFormat)}</Td>
+        </Tr>
+        {variantList.metadata.populations!.map((popId, popIndex) => {
+          return (
+            <Tr key={popId}>
+              <Th scope="row">{GNOMAD_POPULATION_NAMES[popId]}</Th>
+              <Td isNumeric>
+                {renderFrequency(carrierFrequency[popIndex + 1], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(prevalence[popIndex + 1], displayFormat)}
+              </Td>
+            </Tr>
+          );
+        })}
+      </Tbody>
+    </Table>
+  );
+};
+
+interface VariantListCalculationsProps {
+  variantList: VariantList;
+  variants: Variant[];
+}
+
+const VariantListCalculations = (props: VariantListCalculationsProps) => {
+  const { variantList, variants } = props;
 
   const [displayFormat, setDisplayFormat] = useState<CalculationsDisplayFormat>(
     "fraction"
@@ -79,44 +190,21 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
 
   return (
     <Box>
-      <Table size="sm">
-        <Thead>
-          <Tr>
-            <Th scope="col">Population</Th>
-            <Th scope="col" isNumeric>
-              Carrier frequency
-            </Th>
-            <Th scope="col" isNumeric>
-              Prevalence
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <Tr>
-            <Th scope="row">Global</Th>
-            <Td isNumeric>
-              {renderFrequency(carrierFrequency[0], displayFormat)}
-            </Td>
-            <Td isNumeric>{renderFrequency(prevalence[0], displayFormat)}</Td>
-          </Tr>
-          {populations.map((popId, popIndex) => {
-            return (
-              <Tr key={popId}>
-                <Th scope="row">{GNOMAD_POPULATION_NAMES[popId]}</Th>
-                <Td isNumeric>
-                  {renderFrequency(
-                    carrierFrequency[popIndex + 1],
-                    displayFormat
-                  )}
-                </Td>
-                <Td isNumeric>
-                  {renderFrequency(prevalence[popIndex + 1], displayFormat)}
-                </Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      {variantList.type === VariantListType.CUSTOM && (
+        <CustomVariantListCalculationsTable
+          displayFormat={displayFormat}
+          variants={variants}
+          variantList={variantList}
+        />
+      )}
+
+      {variantList.type === VariantListType.RECOMMENDED && (
+        <RecommendedVariantListCalculationsTable
+          displayFormat={displayFormat}
+          variants={variants}
+          variantList={variantList}
+        />
+      )}
 
       <FormControl id="calculations-format" as="fieldset" mt={2}>
         <FormLabel as="legend">Display format</FormLabel>

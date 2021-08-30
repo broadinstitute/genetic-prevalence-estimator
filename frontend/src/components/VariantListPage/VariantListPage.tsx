@@ -150,7 +150,7 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
 
           <Box mb={4}>
             <VariantListCalculations
-              populations={variantList.metadata.populations!}
+              variantList={variantList}
               variants={variantList.variants}
             />
           </Box>
