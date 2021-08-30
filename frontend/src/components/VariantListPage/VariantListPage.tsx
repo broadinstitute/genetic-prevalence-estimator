@@ -30,6 +30,7 @@ import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
 import { EditVariantListButton } from "./EditVariantList";
+import VariantListCalculations from "./VariantListCalculations";
 import {
   VariantListSharingButton,
   accessLevelDescriptions,
@@ -138,6 +139,21 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
               Edit
             </VariantListSharingButton>
           </HStack>
+        </>
+      )}
+
+      {variantList.status === "Ready" && (
+        <>
+          <Heading as="h2" size="md" mb={2}>
+            Carrier frequency and Prevalence
+          </Heading>
+
+          <Box mb={4}>
+            <VariantListCalculations
+              populations={variantList.metadata.populations!}
+              variants={variantList.variants}
+            />
+          </Box>
         </>
       )}
 
