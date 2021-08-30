@@ -23,6 +23,8 @@ import {
   VariantListType,
 } from "../../types";
 
+import { getVariantSources } from "./variantSources";
+
 const calculateCarrierFrequencyAndPrevalence = (variants: Variant[]) => {
   const alleleFrequencies = variants.map((variant) => {
     return variant.AC!.map((ac, i) => {
@@ -137,16 +139,70 @@ const RecommendedVariantListCalculationsTable = (
     [variants]
   );
 
+  const {
+    carrierFrequency: clinvarOnlyCarrierFrequency,
+    prevalence: clinvarOnlyPrevalence,
+  } = useMemo(
+    () =>
+      calculateCarrierFrequencyAndPrevalence(
+        variants.filter((variant) =>
+          getVariantSources(variant, variantList).includes("ClinVar")
+        )
+      ),
+    [variantList, variants]
+  );
+
+  const {
+    carrierFrequency: gnomadOnlyCarrierFrequency,
+    prevalence: gnomadOnlyPrevalence,
+  } = useMemo(
+    () =>
+      calculateCarrierFrequencyAndPrevalence(
+        variants.filter((variant) =>
+          getVariantSources(variant, variantList).includes("gnomAD")
+        )
+      ),
+    [variantList, variants]
+  );
+
   return (
     <Table size="sm">
+      <colgroup>
+        <col />
+        <col span={2} />
+        <col span={2} />
+        <col span={2} />
+      </colgroup>
       <Thead>
         <Tr>
-          <Th scope="col">Population</Th>
+          <Th scope="col" rowSpan={2}>
+            Population
+          </Th>
           <Th scope="col" isNumeric>
             Carrier frequency
           </Th>
           <Th scope="col" isNumeric>
             Prevalence
+          </Th>
+          <Th scope="col" isNumeric>
+            Carrier frequency
+            <br />
+            (ClinVar only)
+          </Th>
+          <Th scope="col" isNumeric>
+            Prevalence
+            <br />
+            (ClinVar only)
+          </Th>
+          <Th scope="col" isNumeric>
+            Carrier frequency
+            <br />
+            (gnomAD only)
+          </Th>
+          <Th scope="col" isNumeric>
+            Prevalence
+            <br />
+            (gnomAD only)
           </Th>
         </Tr>
       </Thead>
@@ -157,6 +213,18 @@ const RecommendedVariantListCalculationsTable = (
             {renderFrequency(carrierFrequency[0], displayFormat)}
           </Td>
           <Td isNumeric>{renderFrequency(prevalence[0], displayFormat)}</Td>
+          <Td isNumeric>
+            {renderFrequency(clinvarOnlyCarrierFrequency[0], displayFormat)}
+          </Td>
+          <Td isNumeric>
+            {renderFrequency(clinvarOnlyPrevalence[0], displayFormat)}
+          </Td>
+          <Td isNumeric>
+            {renderFrequency(gnomadOnlyCarrierFrequency[0], displayFormat)}
+          </Td>
+          <Td isNumeric>
+            {renderFrequency(gnomadOnlyPrevalence[0], displayFormat)}
+          </Td>
         </Tr>
         {variantList.metadata.populations!.map((popId, popIndex) => {
           return (
@@ -167,6 +235,30 @@ const RecommendedVariantListCalculationsTable = (
               </Td>
               <Td isNumeric>
                 {renderFrequency(prevalence[popIndex + 1], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(
+                  clinvarOnlyCarrierFrequency[popIndex + 1],
+                  displayFormat
+                )}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(
+                  clinvarOnlyPrevalence[popIndex + 1],
+                  displayFormat
+                )}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(
+                  gnomadOnlyCarrierFrequency[popIndex + 1],
+                  displayFormat
+                )}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(
+                  gnomadOnlyPrevalence[popIndex + 1],
+                  displayFormat
+                )}
               </Td>
             </Tr>
           );

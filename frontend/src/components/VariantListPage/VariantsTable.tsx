@@ -13,50 +13,11 @@ import {
 } from "@chakra-ui/react";
 import { FC } from "react";
 
-import { CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES } from "../../constants/clinvar";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
-import {
-  PLOF_VEP_CONSEQUENCES,
-  VEP_CONSEQUENCE_LABELS,
-} from "../../constants/vepConsequences";
-import {
-  GnomadPopulationId,
-  RecommendedVariantList,
-  Variant,
-  VariantList,
-  VariantListType,
-} from "../../types";
+import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
+import { GnomadPopulationId, VariantList, VariantListType } from "../../types";
 
-type VariantSource = "ClinVar" | "gnomAD";
-
-const getVariantSources = (
-  variant: Variant,
-  variantList: RecommendedVariantList
-): VariantSource[] => {
-  const isIncludedFromClinvar = variantList.metadata.included_clinvar_variants?.some(
-    (category) =>
-      variant.clinical_significance?.some((clinicalSignificance) =>
-        CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES[category].has(
-          clinicalSignificance
-        )
-      )
-  );
-
-  const isIncludedFromGnomad =
-    variant.major_consequence &&
-    PLOF_VEP_CONSEQUENCES.has(variant.major_consequence) &&
-    variant.lof === "HC";
-
-  const reasons: VariantSource[] = [];
-  if (isIncludedFromClinvar) {
-    reasons.push("ClinVar");
-  }
-  if (isIncludedFromGnomad) {
-    reasons.push("gnomAD");
-  }
-
-  return reasons;
-};
+import { getVariantSources } from "./variantSources";
 
 const countFormatter = new Intl.NumberFormat(undefined, {});
 
