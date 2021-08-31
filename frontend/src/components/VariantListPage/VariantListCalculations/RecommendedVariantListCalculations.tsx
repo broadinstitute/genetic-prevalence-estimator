@@ -1,4 +1,14 @@
-import { Box, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import {
+  Box,
+  Checkbox,
+  Flex,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
@@ -26,6 +36,7 @@ interface RecommendedVariantListCalculationsTableProps {
   gnomadOnlyPrevalence: number[];
   populations: GnomadPopulationId[];
   displayFormat: DisplayFormat;
+  showContributionsBySource: boolean;
 }
 
 const RecommendedVariantListCalculationsTable = (
@@ -40,6 +51,7 @@ const RecommendedVariantListCalculationsTable = (
     gnomadOnlyPrevalence,
     populations,
     displayFormat,
+    showContributionsBySource,
   } = props;
 
   return (
@@ -47,8 +59,12 @@ const RecommendedVariantListCalculationsTable = (
       <colgroup>
         <col />
         <col span={2} />
-        <col span={2} />
-        <col span={2} />
+        {showContributionsBySource && (
+          <>
+            <col span={2} />
+            <col span={2} />
+          </>
+        )}
       </colgroup>
       <Thead>
         <Tr>
@@ -56,31 +72,35 @@ const RecommendedVariantListCalculationsTable = (
             Population
           </Th>
           <Th scope="col" isNumeric>
-            Carrier frequency
+            Carrier frequency{showContributionsBySource && " (Overall)"}
           </Th>
           <Th scope="col" isNumeric>
-            Prevalence
+            Prevalence{showContributionsBySource && " (Overall)"}
           </Th>
-          <Th scope="col" isNumeric>
-            Carrier frequency
-            <br />
-            (ClinVar only)
-          </Th>
-          <Th scope="col" isNumeric>
-            Prevalence
-            <br />
-            (ClinVar only)
-          </Th>
-          <Th scope="col" isNumeric>
-            Carrier frequency
-            <br />
-            (gnomAD only)
-          </Th>
-          <Th scope="col" isNumeric>
-            Prevalence
-            <br />
-            (gnomAD only)
-          </Th>
+          {showContributionsBySource && (
+            <>
+              <Th scope="col" isNumeric>
+                Carrier frequency
+                <br />
+                (ClinVar only)
+              </Th>
+              <Th scope="col" isNumeric>
+                Prevalence
+                <br />
+                (ClinVar only)
+              </Th>
+              <Th scope="col" isNumeric>
+                Carrier frequency
+                <br />
+                (gnomAD only)
+              </Th>
+              <Th scope="col" isNumeric>
+                Prevalence
+                <br />
+                (gnomAD only)
+              </Th>
+            </>
+          )}
         </Tr>
       </Thead>
       <Tbody>
@@ -90,18 +110,22 @@ const RecommendedVariantListCalculationsTable = (
             {renderFrequency(carrierFrequency[0], displayFormat)}
           </Td>
           <Td isNumeric>{renderFrequency(prevalence[0], displayFormat)}</Td>
-          <Td isNumeric>
-            {renderFrequency(clinvarOnlyCarrierFrequency[0], displayFormat)}
-          </Td>
-          <Td isNumeric>
-            {renderFrequency(clinvarOnlyPrevalence[0], displayFormat)}
-          </Td>
-          <Td isNumeric>
-            {renderFrequency(gnomadOnlyCarrierFrequency[0], displayFormat)}
-          </Td>
-          <Td isNumeric>
-            {renderFrequency(gnomadOnlyPrevalence[0], displayFormat)}
-          </Td>
+          {showContributionsBySource && (
+            <>
+              <Td isNumeric>
+                {renderFrequency(clinvarOnlyCarrierFrequency[0], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(clinvarOnlyPrevalence[0], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(gnomadOnlyCarrierFrequency[0], displayFormat)}
+              </Td>
+              <Td isNumeric>
+                {renderFrequency(gnomadOnlyPrevalence[0], displayFormat)}
+              </Td>
+            </>
+          )}
         </Tr>
         {populations.map((popId, popIndex) => {
           return (
@@ -113,30 +137,34 @@ const RecommendedVariantListCalculationsTable = (
               <Td isNumeric>
                 {renderFrequency(prevalence[popIndex + 1], displayFormat)}
               </Td>
-              <Td isNumeric>
-                {renderFrequency(
-                  clinvarOnlyCarrierFrequency[popIndex + 1],
-                  displayFormat
-                )}
-              </Td>
-              <Td isNumeric>
-                {renderFrequency(
-                  clinvarOnlyPrevalence[popIndex + 1],
-                  displayFormat
-                )}
-              </Td>
-              <Td isNumeric>
-                {renderFrequency(
-                  gnomadOnlyCarrierFrequency[popIndex + 1],
-                  displayFormat
-                )}
-              </Td>
-              <Td isNumeric>
-                {renderFrequency(
-                  gnomadOnlyPrevalence[popIndex + 1],
-                  displayFormat
-                )}
-              </Td>
+              {showContributionsBySource && (
+                <>
+                  <Td isNumeric>
+                    {renderFrequency(
+                      clinvarOnlyCarrierFrequency[popIndex + 1],
+                      displayFormat
+                    )}
+                  </Td>
+                  <Td isNumeric>
+                    {renderFrequency(
+                      clinvarOnlyPrevalence[popIndex + 1],
+                      displayFormat
+                    )}
+                  </Td>
+                  <Td isNumeric>
+                    {renderFrequency(
+                      gnomadOnlyCarrierFrequency[popIndex + 1],
+                      displayFormat
+                    )}
+                  </Td>
+                  <Td isNumeric>
+                    {renderFrequency(
+                      gnomadOnlyPrevalence[popIndex + 1],
+                      displayFormat
+                    )}
+                  </Td>
+                </>
+              )}
             </Tr>
           );
         })}
@@ -187,6 +215,9 @@ const RecommendedVariantListCalculations = (
   );
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
+  const [showContributionsBySource, setShowContributionsBySource] = useState(
+    false
+  );
 
   return (
     <Box mb={4}>
@@ -200,10 +231,29 @@ const RecommendedVariantListCalculations = (
           gnomadOnlyPrevalence={gnomadOnlyPrevalence}
           populations={variantList.metadata.populations!}
           displayFormat={displayFormat}
+          showContributionsBySource={showContributionsBySource}
         />
       </Box>
 
-      <DisplayFormatInput value={displayFormat} onChange={setDisplayFormat} />
+      <Flex align="flex-end" justify="space-between" wrap="wrap">
+        <div>
+          <DisplayFormatInput
+            value={displayFormat}
+            onChange={setDisplayFormat}
+          />
+        </div>
+
+        <Checkbox
+          isChecked={showContributionsBySource}
+          onChange={(e) => {
+            setShowContributionsBySource(e.target.checked);
+          }}
+        >
+          <span style={{ whiteSpace: "nowrap" }}>
+            Compare contributions of ClinVar and gnomAD variants
+          </span>
+        </Checkbox>
+      </Flex>
     </Box>
   );
 };
