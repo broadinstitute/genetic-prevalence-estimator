@@ -96,7 +96,7 @@ const CustomVariantListCalculations = (
 
   return (
     <Box mb={4}>
-      <Box mb={2}>
+      <Box mb={2} style={{ width: "100%", overflowX: "auto" }}>
         <CustomVariantListCalculationsTable
           carrierFrequency={
             carrierFrequencyModel === "simplified"

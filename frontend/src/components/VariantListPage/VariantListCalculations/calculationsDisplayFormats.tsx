@@ -18,7 +18,11 @@ const renderFrequencyScientific = (f: number) => {
 };
 
 const renderFrequencyFraction = (f: number) => {
-  return f === 0 ? "–" : `1 / ${Math.round(1 / f).toLocaleString()}`;
+  return (
+    <span style={{ whiteSpace: "nowrap" }}>
+      {f === 0 ? "–" : `1 / ${Math.round(1 / f).toLocaleString()}`}
+    </span>
+  );
 };
 
 export const renderFrequency = (f: number, format: DisplayFormat) => {
