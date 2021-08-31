@@ -73,9 +73,7 @@ const RecommendedVariantListCalculationsTable = (
       </colgroup>
       <Thead>
         <Tr>
-          <Th scope="col" rowSpan={2}>
-            Population
-          </Th>
+          <Th scope="col">Population</Th>
           <Th scope="col" isNumeric>
             Carrier frequency{showContributionsBySource && " (Overall)"}
           </Th>
