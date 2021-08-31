@@ -30,7 +30,7 @@ import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 
 import { EditVariantListButton } from "./EditVariantList";
-import VariantListCalculations from "./VariantListCalculations";
+import VariantListCalculations from "./VariantListCalculations/VariantListCalculations";
 import {
   VariantListSharingButton,
   accessLevelDescriptions,
