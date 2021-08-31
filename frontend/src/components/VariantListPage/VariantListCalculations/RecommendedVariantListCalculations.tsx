@@ -2,6 +2,7 @@ import {
   Box,
   Checkbox,
   Flex,
+  HStack,
   Table,
   Thead,
   Tbody,
@@ -26,6 +27,10 @@ import {
   renderFrequency,
   DisplayFormatInput,
 } from "./calculationsDisplayFormats";
+import {
+  CarrierFrequencyModel,
+  CarrierFrequencyModelInput,
+} from "./carrierFrequencyModels";
 
 interface RecommendedVariantListCalculationsTableProps {
   carrierFrequency: number[];
@@ -183,13 +188,17 @@ const RecommendedVariantListCalculations = (
 ) => {
   const { variants, variantList } = props;
 
-  const { carrierFrequency, prevalence } = useMemo(
-    () => calculateCarrierFrequencyAndPrevalence(variants),
-    [variants]
-  );
+  const {
+    carrierFrequency,
+    carrierFrequencySimplified,
+    prevalence,
+  } = useMemo(() => calculateCarrierFrequencyAndPrevalence(variants), [
+    variants,
+  ]);
 
   const {
     carrierFrequency: clinvarOnlyCarrierFrequency,
+    carrierFrequencySimplified: clinvarOnlyCarrierFrequencySimplified,
     prevalence: clinvarOnlyPrevalence,
   } = useMemo(
     () =>
@@ -203,6 +212,7 @@ const RecommendedVariantListCalculations = (
 
   const {
     carrierFrequency: gnomadOnlyCarrierFrequency,
+    carrierFrequencySimplified: gnomadOnlyCarrierFrequencySimplified,
     prevalence: gnomadOnlyPrevalence,
   } = useMemo(
     () =>
@@ -215,6 +225,10 @@ const RecommendedVariantListCalculations = (
   );
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
+  const [
+    carrierFrequencyModel,
+    setCarrierFrequencyModel,
+  ] = useState<CarrierFrequencyModel>("full");
   const [showContributionsBySource, setShowContributionsBySource] = useState(
     false
   );
@@ -223,11 +237,23 @@ const RecommendedVariantListCalculations = (
     <Box mb={4}>
       <Box mb={2}>
         <RecommendedVariantListCalculationsTable
-          carrierFrequency={carrierFrequency}
+          carrierFrequency={
+            carrierFrequencyModel === "simplified"
+              ? carrierFrequencySimplified
+              : carrierFrequency
+          }
           prevalence={prevalence}
-          clinvarOnlyCarrierFrequency={clinvarOnlyCarrierFrequency}
+          clinvarOnlyCarrierFrequency={
+            carrierFrequencyModel === "simplified"
+              ? clinvarOnlyCarrierFrequencySimplified
+              : clinvarOnlyCarrierFrequency
+          }
           clinvarOnlyPrevalence={clinvarOnlyPrevalence}
-          gnomadOnlyCarrierFrequency={gnomadOnlyCarrierFrequency}
+          gnomadOnlyCarrierFrequency={
+            carrierFrequencyModel === "simplified"
+              ? gnomadOnlyCarrierFrequencySimplified
+              : gnomadOnlyCarrierFrequency
+          }
           gnomadOnlyPrevalence={gnomadOnlyPrevalence}
           populations={variantList.metadata.populations!}
           displayFormat={displayFormat}
@@ -236,12 +262,21 @@ const RecommendedVariantListCalculations = (
       </Box>
 
       <Flex align="flex-end" justify="space-between" wrap="wrap">
-        <div>
-          <DisplayFormatInput
-            value={displayFormat}
-            onChange={setDisplayFormat}
-          />
-        </div>
+        <HStack spacing={16}>
+          <div>
+            <DisplayFormatInput
+              value={displayFormat}
+              onChange={setDisplayFormat}
+            />
+          </div>
+
+          <div>
+            <CarrierFrequencyModelInput
+              value={carrierFrequencyModel}
+              onChange={setCarrierFrequencyModel}
+            />
+          </div>
+        </HStack>
 
         <Checkbox
           isChecked={showContributionsBySource}

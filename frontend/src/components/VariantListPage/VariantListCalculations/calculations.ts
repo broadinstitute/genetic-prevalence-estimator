@@ -12,9 +12,13 @@ export const calculateCarrierFrequencyAndPrevalence = (variants: Variant[]) => {
     .map((af) => af.map((q) => 2 * (1 - q) * q))
     .reduce((acc, values) => acc.map((n, i) => n + values[i]));
 
+  const carrierFrequencySimplified = alleleFrequencies
+    .map((af) => af.map((q) => 2 * q))
+    .reduce((acc, values) => acc.map((n, i) => n + values[i]));
+
   const prevalence = alleleFrequencies
     .map((af) => af.map((q) => q ** 2))
     .reduce((acc, values) => acc.map((n, i) => n + values[i]));
 
-  return { carrierFrequency, prevalence };
+  return { carrierFrequency, carrierFrequencySimplified, prevalence };
 };

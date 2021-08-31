@@ -1,4 +1,4 @@
-import { Box, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import { Box, HStack, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
@@ -10,6 +10,10 @@ import {
   renderFrequency,
   DisplayFormatInput,
 } from "./calculationsDisplayFormats";
+import {
+  CarrierFrequencyModel,
+  CarrierFrequencyModelInput,
+} from "./carrierFrequencyModels";
 
 interface CustomVariantListCalculationsTableProps {
   carrierFrequency: number[];
@@ -72,25 +76,50 @@ const CustomVariantListCalculations = (
 ) => {
   const { variants, variantList } = props;
 
-  const { carrierFrequency, prevalence } = useMemo(
-    () => calculateCarrierFrequencyAndPrevalence(variants),
-    [variants]
-  );
+  const {
+    carrierFrequency,
+    carrierFrequencySimplified,
+    prevalence,
+  } = useMemo(() => calculateCarrierFrequencyAndPrevalence(variants), [
+    variants,
+  ]);
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
+  const [
+    carrierFrequencyModel,
+    setCarrierFrequencyModel,
+  ] = useState<CarrierFrequencyModel>("full");
 
   return (
     <Box mb={4}>
       <Box mb={2}>
         <CustomVariantListCalculationsTable
-          carrierFrequency={carrierFrequency}
+          carrierFrequency={
+            carrierFrequencyModel === "simplified"
+              ? carrierFrequencySimplified
+              : carrierFrequency
+          }
           prevalence={prevalence}
           populations={variantList.metadata.populations!}
           displayFormat={displayFormat}
         />
       </Box>
 
-      <DisplayFormatInput value={displayFormat} onChange={setDisplayFormat} />
+      <HStack spacing={16}>
+        <div>
+          <DisplayFormatInput
+            value={displayFormat}
+            onChange={setDisplayFormat}
+          />
+        </div>
+
+        <div>
+          <CarrierFrequencyModelInput
+            value={carrierFrequencyModel}
+            onChange={setCarrierFrequencyModel}
+          />
+        </div>
+      </HStack>
     </Box>
   );
 };
