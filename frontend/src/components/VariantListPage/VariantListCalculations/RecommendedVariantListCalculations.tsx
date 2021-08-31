@@ -108,7 +108,9 @@ const RecommendedVariantListCalculationsTable = (
       </Thead>
       <Tbody>
         <Tr>
-          <Th scope="row">Global</Th>
+          <Td as="th" scope="row" fontWeight="normal">
+            Global
+          </Td>
           <Td isNumeric>
             {renderFrequency(carrierFrequency[0], displayFormat)}
           </Td>
@@ -133,7 +135,9 @@ const RecommendedVariantListCalculationsTable = (
         {populations.map((popId, popIndex) => {
           return (
             <Tr key={popId}>
-              <Th scope="row">{GNOMAD_POPULATION_NAMES[popId]}</Th>
+              <Td as="th" scope="row" fontWeight="normal">
+                {GNOMAD_POPULATION_NAMES[popId]}
+              </Td>
               <Td isNumeric>
                 {renderFrequency(carrierFrequency[popIndex + 1], displayFormat)}
               </Td>

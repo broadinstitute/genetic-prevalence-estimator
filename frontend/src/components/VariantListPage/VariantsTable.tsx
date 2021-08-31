@@ -113,7 +113,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
 
           return (
             <Tr key={variant.id}>
-              <Th scope="row" style={{ fontWeight: "normal" }}>
+              <Td as="th" scope="row" fontWeight="normal">
                 <Cell maxWidth={200}>
                   <Link
                     href={`https://gnomad.broadinstitute.org/variant/${variant.id}?dataset=${gnomadDataset}`}
@@ -123,7 +123,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
                     {variant.id}
                   </Link>
                 </Cell>
-              </Th>
+              </Td>
               <Td>
                 {variant.major_consequence
                   ? VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
