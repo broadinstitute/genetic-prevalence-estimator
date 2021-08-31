@@ -41,14 +41,14 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
 
-      <Box mb={4}>
-        <DownloadVariantListLink variantList={variantList}>
-          Download variants
-        </DownloadVariantListLink>
-      </Box>
-
       {variantList.status === "Ready" ? (
         <>
+          <Box mb={4}>
+            <DownloadVariantListLink variantList={variantList}>
+              Download variants
+            </DownloadVariantListLink>
+          </Box>
+
           <Box mb={4}>
             <MultipleSelect
               id="variant-table-included-population"
