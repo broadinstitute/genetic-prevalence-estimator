@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
+import { LegendOrdinal } from "@visx/legend";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { Bar, BarGroup } from "@visx/shape";
 import React, { useRef } from "react";
@@ -98,6 +99,21 @@ const BarGraph = (props: BarGraphProps) => {
   return (
     <figure>
       <figcaption>{label}</figcaption>
+      {series.length > 1 && (
+        <Box
+          sx={{
+            "& .visx-legend-label": {
+              fontSize: 11,
+            },
+          }}
+        >
+          <LegendOrdinal
+            scale={colorScale}
+            direction="row"
+            labelMargin="0 15px 0 0"
+          />
+        </Box>
+      )}
       <svg width={width} height={height}>
         <Group top={margin.top} left={margin.left}>
           <BarGroup

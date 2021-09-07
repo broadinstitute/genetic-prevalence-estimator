@@ -20,6 +20,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@visx/axis": "^2.1.0",
     "@visx/group": "^2.1.0",
+    "@visx/legend": "^2.1.0",
     "@visx/scale": "^2.1.0",
     "@visx/shape": "^2.1.0",
     "downshift": "^6.1.7",
