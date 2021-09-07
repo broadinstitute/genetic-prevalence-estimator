@@ -1,7 +1,9 @@
+import { Box, useDimensions, useMediaQuery } from "@chakra-ui/react";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { Bar, BarGroup } from "@visx/shape";
+import { useRef } from "react";
 
 import theme from "../../../theme";
 import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
@@ -149,4 +151,24 @@ const BarGraph = (props: BarGraphProps) => {
   );
 };
 
-export default BarGraph;
+const AutosizedBarGraph = (props: Omit<BarGraphProps, "height" | "width">) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const dimensions = useDimensions(ref, true);
+
+  const [oneColumn] = useMediaQuery("(max-width: 600px)");
+
+  return (
+    <Box
+      ref={ref}
+      width={oneColumn ? "100%" : "calc(50% - 20px)"}
+      maxWidth="600px"
+    >
+      {dimensions && (
+        <BarGraph {...props} width={dimensions.contentBox.width} height={300} />
+      )}
+    </Box>
+  );
+};
+
+export default AutosizedBarGraph;
