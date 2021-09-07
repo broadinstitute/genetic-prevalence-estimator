@@ -90,7 +90,7 @@ const BarGraph = (props: BarGraphProps) => {
   const yScale = scaleLinear({
     domain: [
       0,
-      series.flatMap((s) => s.data).reduce((acc, d) => Math.max(acc, d)),
+      series.flatMap((s) => s.data).reduce((acc, d) => Math.max(acc, d)) || 1,
     ],
     range: [height - (margin.top + margin.bottom), 0],
     round: true,

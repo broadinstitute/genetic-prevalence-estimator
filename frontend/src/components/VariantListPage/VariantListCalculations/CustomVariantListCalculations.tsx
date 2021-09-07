@@ -95,9 +95,10 @@ const CustomVariantListCalculations = (
     carrierFrequency,
     carrierFrequencySimplified,
     prevalence,
-  } = useMemo(() => calculateCarrierFrequencyAndPrevalence(variants), [
-    variants,
-  ]);
+  } = useMemo(
+    () => calculateCarrierFrequencyAndPrevalence(variants, variantList),
+    [variants, variantList]
+  );
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
   const [

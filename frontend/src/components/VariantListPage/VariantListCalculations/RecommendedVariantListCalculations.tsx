@@ -195,9 +195,10 @@ const RecommendedVariantListCalculations = (
     carrierFrequency,
     carrierFrequencySimplified,
     prevalence,
-  } = useMemo(() => calculateCarrierFrequencyAndPrevalence(variants), [
-    variants,
-  ]);
+  } = useMemo(
+    () => calculateCarrierFrequencyAndPrevalence(variants, variantList),
+    [variants, variantList]
+  );
 
   const {
     carrierFrequency: clinvarOnlyCarrierFrequency,
@@ -208,7 +209,8 @@ const RecommendedVariantListCalculations = (
       calculateCarrierFrequencyAndPrevalence(
         variants.filter((variant) =>
           getVariantSources(variant, variantList).includes("ClinVar")
-        )
+        ),
+        variantList
       ),
     [variantList, variants]
   );
@@ -222,7 +224,8 @@ const RecommendedVariantListCalculations = (
       calculateCarrierFrequencyAndPrevalence(
         variants.filter((variant) =>
           getVariantSources(variant, variantList).includes("gnomAD")
-        )
+        ),
+        variantList
       ),
     [variantList, variants]
   );
