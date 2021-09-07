@@ -1,15 +1,25 @@
-import { Box, useDimensions, useMediaQuery } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Tooltip,
+  useDimensions,
+  useMediaQuery,
+} from "@chakra-ui/react";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { Bar, BarGroup } from "@visx/shape";
-import { useRef } from "react";
+import React, { useRef } from "react";
 
 import theme from "../../../theme";
 import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
 import { GnomadPopulationId } from "../../../types";
 
-import { renderFrequencyScientific } from "./calculationsDisplayFormats";
+import {
+  DisplayFormat,
+  renderFrequency,
+  renderFrequencyScientific,
+} from "./calculationsDisplayFormats";
 
 type Series = {
   label: string;
@@ -20,6 +30,7 @@ interface BarGraphProps {
   populations: GnomadPopulationId[];
   series: Series[];
   label: string;
+  displayFormat: DisplayFormat;
   width?: number;
   height?: number;
 }
@@ -32,7 +43,14 @@ const margin = {
 };
 
 const BarGraph = (props: BarGraphProps) => {
-  const { populations, series, width = 400, height = 300, label } = props;
+  const {
+    populations,
+    series,
+    width = 400,
+    height = 300,
+    label,
+    displayFormat,
+  } = props;
 
   const data = [
     {
@@ -93,22 +111,59 @@ const BarGraph = (props: BarGraphProps) => {
             height={height - (margin.top + margin.bottom)}
           >
             {(barGroups) =>
-              barGroups.map((barGroup) => (
-                <Group key={`group-${barGroup.index}`} left={barGroup.x0}>
-                  {barGroup.bars.map((bar) => (
-                    <Bar
-                      key={bar.key}
-                      x={bar.x}
-                      y={bar.y}
-                      width={bar.width}
-                      height={bar.height}
-                      fill={bar.color}
-                      stroke="#333"
-                      strokeWidth={1}
-                    />
-                  ))}
-                </Group>
-              ))
+              barGroups.map((barGroup) => {
+                const population = xScale.domain()[barGroup.index];
+                return (
+                  <Group key={`group-${barGroup.index}`} left={barGroup.x0}>
+                    <Tooltip
+                      label={
+                        <div style={{ padding: "0.5em" }}>
+                          <strong>
+                            {GNOMAD_POPULATION_NAMES[
+                              population as GnomadPopulationId
+                            ] || population}
+                          </strong>
+                          <dl>
+                            {barGroup.bars.map((bar) => (
+                              <React.Fragment key={bar.key}>
+                                <HStack>
+                                  <dt>{bar.key}</dt>
+                                  <dd>
+                                    {renderFrequency(bar.value, displayFormat)}
+                                  </dd>
+                                </HStack>
+                              </React.Fragment>
+                            ))}
+                          </dl>
+                        </div>
+                      }
+                      maxWidth="500px"
+                    >
+                      <rect
+                        x={0}
+                        y={0}
+                        width={xBandwidth}
+                        height={height - (margin.top + margin.bottom)}
+                        fill="none"
+                        pointerEvents="all"
+                      />
+                    </Tooltip>
+                    {barGroup.bars.map((bar) => (
+                      <Bar
+                        key={bar.key}
+                        x={bar.x}
+                        y={bar.y}
+                        width={bar.width}
+                        height={bar.height}
+                        fill={bar.color}
+                        stroke="#333"
+                        strokeWidth={1}
+                        pointerEvents="none"
+                      />
+                    ))}
+                  </Group>
+                );
+              })
             }
           </BarGroup>
 

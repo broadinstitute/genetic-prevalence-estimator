@@ -133,6 +133,7 @@ const CustomVariantListCalculations = (
                   : carrierFrequency,
             },
           ]}
+          displayFormat={displayFormat}
         />
 
         <BarGraph
@@ -144,6 +145,7 @@ const CustomVariantListCalculations = (
               data: prevalence,
             },
           ]}
+          displayFormat={displayFormat}
         />
       </Flex>
 

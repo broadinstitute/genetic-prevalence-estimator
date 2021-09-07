@@ -295,6 +295,7 @@ const RecommendedVariantListCalculations = (
                 ]
               : []),
           ]}
+          displayFormat={displayFormat}
         />
 
         <BarGraph
@@ -318,6 +319,7 @@ const RecommendedVariantListCalculations = (
                 ]
               : []),
           ]}
+          displayFormat={displayFormat}
         />
       </Flex>
 
