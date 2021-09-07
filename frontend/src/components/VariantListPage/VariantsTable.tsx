@@ -85,7 +85,26 @@ const VariantsTable: FC<VariantsTableProps> = ({
     <Table {...tableProps} size="sm">
       <Thead>
         <Tr>
-          <Th scope="col" />
+          <Th scope="col">
+            <Checkbox
+              isChecked={selectedVariants.size === variantList.variants.length}
+              isIndeterminate={
+                selectedVariants.size > 0 &&
+                selectedVariants.size < variantList.variants.length
+              }
+              onChange={(e) => {
+                if (e.target.checked) {
+                  onChangeSelectedVariants(
+                    new Set(variantList.variants.map((variant) => variant.id))
+                  );
+                } else {
+                  onChangeSelectedVariants(new Set());
+                }
+              }}
+            >
+              <VisuallyHidden>Include variants in calculations</VisuallyHidden>
+            </Checkbox>
+          </Th>
           <Th scope="col">Variant ID</Th>
           <Th scope="col">VEP consequence</Th>
           <Th scope="col">LOFTEE</Th>
