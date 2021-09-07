@@ -2,15 +2,26 @@ import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
-import { GnomadPopulationId, VariantList, VariantListType } from "../../types";
+import {
+  GnomadPopulationId,
+  VariantId,
+  VariantList,
+  VariantListType,
+} from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
 
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
-const VariantListVariants = (props: { variantList: VariantList }) => {
-  const { variantList } = props;
+interface VariantListVariantsProps {
+  variantList: VariantList;
+  selectedVariants: Set<VariantId>;
+  onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+}
+
+const VariantListVariants = (props: VariantListVariantsProps) => {
+  const { variantList, selectedVariants, onChangeSelectedVariants } = props;
 
   const [
     populationsDisplayedInTable,
@@ -68,6 +79,8 @@ const VariantListVariants = (props: { variantList: VariantList }) => {
             <VariantsTable
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
+              selectedVariants={selectedVariants}
+              onChangeSelectedVariants={onChangeSelectedVariants}
               mb={4}
             />
           </div>

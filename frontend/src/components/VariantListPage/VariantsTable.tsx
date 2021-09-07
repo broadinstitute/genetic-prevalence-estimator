@@ -1,5 +1,6 @@
 import {
   Badge,
+  Checkbox,
   Flex,
   Link,
   Table,
@@ -10,12 +11,18 @@ import {
   Th,
   Td,
   Tooltip,
+  VisuallyHidden,
 } from "@chakra-ui/react";
 import { FC } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
-import { GnomadPopulationId, VariantList, VariantListType } from "../../types";
+import {
+  GnomadPopulationId,
+  VariantId,
+  VariantList,
+  VariantListType,
+} from "../../types";
 
 import { getVariantSources } from "./variantSources";
 
@@ -53,11 +60,15 @@ const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
 interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
+  selectedVariants: Set<VariantId>;
+  onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
 }
 
 const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
+  selectedVariants,
+  onChangeSelectedVariants,
   ...tableProps
 }) => {
   const gnomadVersion = variantList.metadata.gnomad_version;
@@ -74,6 +85,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
     <Table {...tableProps} size="sm">
       <Thead>
         <Tr>
+          <Th scope="col" />
           <Th scope="col">Variant ID</Th>
           <Th scope="col">VEP consequence</Th>
           <Th scope="col">LOFTEE</Th>
@@ -113,6 +125,30 @@ const VariantsTable: FC<VariantsTableProps> = ({
 
           return (
             <Tr key={variant.id}>
+              <Td>
+                <Checkbox
+                  isChecked={selectedVariants.has(variant.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      onChangeSelectedVariants(
+                        new Set([...selectedVariants, variant.id])
+                      );
+                    } else {
+                      onChangeSelectedVariants(
+                        new Set(
+                          [...selectedVariants].filter(
+                            (variantId) => variantId !== variant.id
+                          )
+                        )
+                      );
+                    }
+                  }}
+                >
+                  <VisuallyHidden>
+                    Include this variant in calculations
+                  </VisuallyHidden>
+                </Checkbox>
+              </Td>
               <Td as="th" scope="row" fontWeight="normal">
                 <Cell maxWidth={200}>
                   <Link

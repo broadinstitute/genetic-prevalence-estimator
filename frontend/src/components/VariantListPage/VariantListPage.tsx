@@ -23,7 +23,7 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get } from "../../api";
 import { Store, atom, useStore } from "../../state";
-import { VariantList, VariantListAccessLevel } from "../../types";
+import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DateTime from "../DateTime";
@@ -46,6 +46,18 @@ const deleteVariantList = (uuid: string): Promise<void> => {
 const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
   const { variantListStore } = props;
   const variantList = useStore(variantListStore);
+
+  const [
+    selectedVariants,
+    setSelectedVariants,
+  ] = useState<Set<VariantId> | null>(null);
+  useEffect(() => {
+    if (variantList.status === "Ready") {
+      setSelectedVariants(
+        new Set(variantList.variants.map((variant) => variant.id))
+      );
+    }
+  }, [variantList]);
 
   const history = useHistory();
   const toast = useToast();
@@ -151,7 +163,13 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
           <Box mb={4}>
             <VariantListCalculations
               variantList={variantList}
-              variants={variantList.variants}
+              variants={
+                selectedVariants
+                  ? variantList.variants.filter((variant) =>
+                      selectedVariants.has(variant.id)
+                    )
+                  : variantList.variants
+              }
             />
           </Box>
         </>
@@ -161,7 +179,11 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         Variants
       </Heading>
 
-      <VariantListVariants variantList={variantList} />
+      <VariantListVariants
+        variantList={variantList}
+        selectedVariants={selectedVariants || new Set<VariantId>()}
+        onChangeSelectedVariants={setSelectedVariants}
+      />
     </>
   );
 };
