@@ -21,6 +21,7 @@ import {
 
 import { getVariantSources } from "../variantSources";
 
+import BarGraph from "./BarGraph";
 import { calculateCarrierFrequencyAndPrevalence } from "./calculations";
 import {
   DisplayFormat,
@@ -262,6 +263,63 @@ const RecommendedVariantListCalculations = (
           showContributionsBySource={showContributionsBySource}
         />
       </Box>
+
+      <Flex justify="space-around" wrap="wrap" mb={2}>
+        <BarGraph
+          label="Carrier frequency"
+          populations={variantList.metadata.populations!}
+          series={[
+            {
+              label: "Carrier frequency",
+              data:
+                carrierFrequencyModel === "simplified"
+                  ? carrierFrequencySimplified
+                  : carrierFrequency,
+            },
+            ...(showContributionsBySource
+              ? [
+                  {
+                    label: "Carrier frequency (ClinVar only)",
+                    data:
+                      carrierFrequencyModel === "simplified"
+                        ? clinvarOnlyCarrierFrequencySimplified
+                        : clinvarOnlyCarrierFrequency,
+                  },
+                  {
+                    label: "Carrier frequency (gnomAD only)",
+                    data:
+                      carrierFrequencyModel === "simplified"
+                        ? gnomadOnlyCarrierFrequencySimplified
+                        : gnomadOnlyCarrierFrequency,
+                  },
+                ]
+              : []),
+          ]}
+        />
+
+        <BarGraph
+          label="Prevalence"
+          populations={variantList.metadata.populations!}
+          series={[
+            {
+              label: "Prevalence",
+              data: prevalence,
+            },
+            ...(showContributionsBySource
+              ? [
+                  {
+                    label: "Prevalence (ClinVar only)",
+                    data: clinvarOnlyPrevalence,
+                  },
+                  {
+                    label: "Prevalence (gnomAD only)",
+                    data: gnomadOnlyPrevalence,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </Flex>
 
       <Flex align="flex-end" justify="space-between" wrap="wrap">
         <HStack spacing={16}>

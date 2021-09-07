@@ -8,7 +8,7 @@ import {
 
 export type DisplayFormat = "scientific" | "fraction";
 
-const renderFrequencyScientific = (f: number) => {
+export const renderFrequencyScientific = (f: number) => {
   const truncated = Number(f.toPrecision(3));
   if (truncated === 0 || truncated === 1) {
     return f.toFixed(0);
@@ -17,7 +17,7 @@ const renderFrequencyScientific = (f: number) => {
   }
 };
 
-const renderFrequencyFraction = (f: number) => {
+export const renderFrequencyFraction = (f: number) => {
   return (
     <span style={{ whiteSpace: "nowrap" }}>
       {f === 0 ? "–" : `1 / ${Math.round(1 / f).toLocaleString()}`}

@@ -1,9 +1,20 @@
-import { Box, HStack, Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  HStack,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
 import { CustomVariantList, GnomadPopulationId, Variant } from "../../../types";
 
+import BarGraph from "./BarGraph";
 import { calculateCarrierFrequencyAndPrevalence } from "./calculations";
 import {
   DisplayFormat,
@@ -108,6 +119,33 @@ const CustomVariantListCalculations = (
           displayFormat={displayFormat}
         />
       </Box>
+
+      <Flex justify="space-around" wrap="wrap" mb={2}>
+        <BarGraph
+          label="Carrier frequency"
+          populations={variantList.metadata.populations!}
+          series={[
+            {
+              label: "Carrier frequency",
+              data:
+                carrierFrequencyModel === "simplified"
+                  ? carrierFrequencySimplified
+                  : carrierFrequency,
+            },
+          ]}
+        />
+
+        <BarGraph
+          label="Prevalence"
+          populations={variantList.metadata.populations!}
+          series={[
+            {
+              label: "Prevalence",
+              data: prevalence,
+            },
+          ]}
+        />
+      </Flex>
 
       <HStack spacing={16}>
         <div>
