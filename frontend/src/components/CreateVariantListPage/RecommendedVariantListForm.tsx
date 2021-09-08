@@ -110,7 +110,25 @@ const RecommendedVariantListForm = () => {
           />
         </FormControl>
 
+        <FormControl id="recommended-variant-list-gnomad-version" isRequired>
+          <FormLabel>gnomAD version</FormLabel>
+          <RadioGroup
+            value={gnomadVersion}
+            onChange={(selectedGnomadVersion) => {
+              setGnomadVersion(selectedGnomadVersion);
+              setGeneId("");
+              setTranscriptId("");
+            }}
+          >
+            <VStack align="flex-start">
+              <Radio value="3.1.1">3.1.1 (GRCh38)</Radio>
+              <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
+            </VStack>
+          </RadioGroup>
+        </FormControl>
+
         <GeneInput
+          key={`${gnomadVersion}-gene`}
           id="recommended-variant-list-gene-id"
           label="Gene"
           isRequired
@@ -124,6 +142,7 @@ const RecommendedVariantListForm = () => {
         />
 
         <TranscriptInput
+          key={`${gnomadVersion}-transcript`}
           id="recommended-variant-list-transcript-id"
           label="Transcript"
           isRequired
@@ -132,16 +151,6 @@ const RecommendedVariantListForm = () => {
           value={transcriptId}
           onChange={setTranscriptId}
         />
-
-        <FormControl id="recommended-variant-list-gnomad-version" isRequired>
-          <FormLabel>gnomAD version</FormLabel>
-          <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
-            <VStack align="flex-start">
-              <Radio value="3.1.1">3.1.1 (GRCh38)</Radio>
-              <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
-            </VStack>
-          </RadioGroup>
-        </FormControl>
 
         <FormControl
           id="recommended-variant-list-included-clinvar-variants"
