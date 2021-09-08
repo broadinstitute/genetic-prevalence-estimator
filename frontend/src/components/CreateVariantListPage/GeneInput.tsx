@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import { ReferenceGenome } from "../../types";
 import Combobox from "../Combobox";
 
@@ -44,13 +46,19 @@ const fetchGenes = (query: string, referenceGenome: ReferenceGenome) => {
 
 const GeneInput = (props: GeneInputProps) => {
   const { id, label, isRequired, referenceGenome, onChange } = props;
+
+  const fetchItems = useCallback(
+    (inputValue) => fetchGenes(inputValue, referenceGenome),
+    [referenceGenome]
+  );
+
   return (
     <Combobox<GeneSearchResult>
       id={id}
       label={label}
       placeholder="PCSK9"
       isRequired={isRequired}
-      fetchItems={(inputValue) => fetchGenes(inputValue, referenceGenome)}
+      fetchItems={fetchItems}
       itemToString={(result) =>
         `${result.symbol} (${result.ensembl_id}.${result.ensembl_version})`
       }

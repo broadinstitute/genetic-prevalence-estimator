@@ -58,7 +58,7 @@ const Combobox = <ComboboxItem,>(props: ComboboxProps<ComboboxItem>) => {
         setInputItems(fetchedItems);
       });
     }, 400),
-    []
+    [fetchItems]
   );
 
   const stateReducer = useCallback(
