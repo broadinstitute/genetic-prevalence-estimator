@@ -1,8 +1,10 @@
+import json
 import logging
 import traceback
 import uuid
 
 import hail as hl
+import requests
 from django.conf import settings
 
 from calculator.models import VariantList
@@ -123,13 +125,86 @@ def flags(ds):
     ).filter(hl.is_defined)
 
 
-def process_new_recommended_variant_list(variant_list):
-    transcript_id = variant_list.metadata["transcript_id"].split(".")[0]
+def fetch_transcript(transcript_id, gnomad_version):
+    query = """
+    query Transcript($transcript_id: String!, $reference_genome: ReferenceGenomeId!) {
+        transcript(transcript_id: $transcript_id, reference_genome: $reference_genome) {
+            transcript_id
+            transcript_version
+            gene {
+                gene_id
+                gene_version
+            }
+        }
+    }
+    """
+
+    variables = {
+        "transcript_id": transcript_id,
+        "reference_genome": "GRCh37"
+        if gnomad_version.split(".")[0] == "2"
+        else "GRCh38",
+    }
+
+    for _ in range(3):
+        try:
+            response = requests.post(
+                "https://gnomad.broadinstitute.org/api",
+                json={"query": query, "variables": variables},
+                headers={"content-type": "application/json"},
+            )
+
+            response = json.loads(response.text)
+
+            errors = response.get("errors", [])
+            if errors:
+                raise Exception(
+                    f"Error in response: {','.join(error['message'] for error in errors)}"
+                )
+
+            return response["data"]["transcript"]
+
+        except Exception:  # pylint: disable=broad-except
+            pass
+
+    raise Exception("Failed to fetch transcript.")
+
+
+def validate_recommended_variant_list(variant_list):
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
         "3.1.1",
     ), f"Invalid gnomAD version '{gnomad_version}'"
+
+    transcript_id, transcript_version = variant_list.metadata["transcript_id"].split(
+        "."
+    )
+    gene_id, gene_version = variant_list.metadata["gene_id"].split(".")
+
+    try:
+        transcript = fetch_transcript(transcript_id, gnomad_version)
+        assert (
+            transcript_version == transcript["transcript_version"]
+        ), f"Requested transcript version ({transcript_version}) differs from version in gnomAD ({transcript['transcript_version']})"
+
+        assert (
+            gene_id == transcript["gene"]["gene_id"]
+        ), f"Requested gene ({gene_id}) does not match the gene associated with transcript {transcript_id} in gnomAD ({transcript['gene']['gene_id']})"
+
+        assert (
+            gene_version == transcript["gene"]["gene_version"]
+        ), f"Requested gene version ({gene_version}) differs from version in gnomAD ({transcript['gene']['gene_version']})"
+
+    except Exception as e:  # pylint: disable=broad-except
+        raise Exception("Unable to validate transcript and gene") from e
+
+
+def process_new_recommended_variant_list(variant_list):
+    validate_recommended_variant_list(variant_list)
+
+    transcript_id = variant_list.metadata["transcript_id"].split(".")[0]
+    gnomad_version = variant_list.metadata["gnomad_version"]
 
     ds = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_transcript_variant_lists.ht"

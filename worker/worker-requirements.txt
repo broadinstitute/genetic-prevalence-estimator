@@ -130,6 +130,7 @@ requests-oauthlib==1.3.0
     # via google-auth-oauthlib
 requests==2.22.0
     # via
+    #   -r worker/worker-requirements.in
     #   gcsfs
     #   google-api-core
     #   hail
