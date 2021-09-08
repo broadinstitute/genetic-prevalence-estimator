@@ -161,6 +161,16 @@ rules.add_perm(
 )
 
 rules.add_perm(
+    "calculator.view_variantlist_error",
+    (rules.is_active & rules.is_staff),
+)
+
+rules.add_perm(
+    "calculator.view_variantlist_accesspermissions",
+    (rules.is_active & is_variant_list_owner) | (rules.is_active & rules.is_staff),
+)
+
+rules.add_perm(
     "calculator.change_variantlist",
     rules.is_active & (is_variant_list_owner | is_variant_list_editor),
 )
