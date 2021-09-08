@@ -29,6 +29,7 @@ import {
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import Link from "./components/Link";
 import SignInButton from "./components/SignInButton";
+import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
@@ -74,9 +75,14 @@ const App = () => {
                       Sign out
                     </MenuItem>
                     {user!.is_staff && (
-                      <MenuItem as={RRLink} to="/users/">
-                        Manage users
-                      </MenuItem>
+                      <>
+                        <MenuItem as={RRLink} to="/users/">
+                          Manage users
+                        </MenuItem>
+                        <MenuItem as={RRLink} to="/status/">
+                          System status
+                        </MenuItem>
+                      </>
                     )}
                   </MenuList>
                 </Menu>
@@ -120,7 +126,10 @@ const App = () => {
                 />
 
                 {user?.is_staff && (
-                  <Route exact path="/users/" component={UsersPage} />
+                  <>
+                    <Route exact path="/status/" component={SystemStatusPage} />
+                    <Route exact path="/users/" component={UsersPage} />
+                  </>
                 )}
               </Switch>
             ) : (
