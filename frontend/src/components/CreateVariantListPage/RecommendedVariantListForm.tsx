@@ -1,9 +1,11 @@
 import {
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   HStack,
   Input,
+  Link,
   Radio,
   RadioGroup,
   Textarea,
@@ -132,6 +134,15 @@ const RecommendedVariantListForm = () => {
               <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
             </VStack>
           </RadioGroup>
+
+          <FormHelperText>
+            <Link
+              href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-gnomad-v2-and-v3"
+              isExternal
+            >
+              What's the difference between gnomAD v2 and v3?
+            </Link>
+          </FormHelperText>
         </FormControl>
 
         <GeneInput

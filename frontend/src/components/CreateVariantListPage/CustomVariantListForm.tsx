@@ -4,9 +4,11 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   HStack,
   Input,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -136,6 +138,15 @@ const CustomVariantListForm = () => {
                 <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
               </VStack>
             </RadioGroup>
+
+            <FormHelperText>
+              <Link
+                href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-gnomad-v2-and-v3"
+                isExternal
+              >
+                What's the difference between gnomAD v2 and v3?
+              </Link>
+            </FormHelperText>
           </FormControl>
 
           {variants.map((variant, i) => {
