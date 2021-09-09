@@ -90,6 +90,13 @@ const RecommendedVariantListForm = () => {
       }}
     >
       <VStack spacing={4} align="flex-start">
+        <p>
+          Recommended variant lists include variants from gnomAD that occur in
+          the selected transcript and are predicted loss-of-function with high
+          confidence. Optionally, they may include additional variants based on
+          their clinical significance in ClinVar.
+        </p>
+
         <FormControl id="recommended-variant-list-label" isRequired>
           <FormLabel>Label</FormLabel>
           <Input
@@ -156,7 +163,9 @@ const RecommendedVariantListForm = () => {
           id="recommended-variant-list-included-clinvar-variants"
           isRequired
         >
-          <FormLabel>Include ClinVar variants</FormLabel>
+          <FormLabel>
+            Include variants based on clinical significance in ClinVar?
+          </FormLabel>
           <RadioGroup
             value={includedClinvarVariants.join("|")}
             onChange={(value) => {
@@ -169,13 +178,15 @@ const RecommendedVariantListForm = () => {
           >
             <VStack align="flex-start">
               <Radio value="pathogenic_or_likely_pathogenic">
-                Pathogenic / likely pathogenic
+                Include pathogenic and likely pathogenic variants
               </Radio>
               <Radio value="pathogenic_or_likely_pathogenic|conflicting_interpretations">
-                Pathogenic / likely pathogenic, Conflicting interpretations of
-                pathogenicity
+                Include pathogenic and likely pathogenic variants and variants
+                with conflicting interpretations of pathogenicity
               </Radio>
-              <Radio value="">None</Radio>
+              <Radio value="">
+                Do not include variants based on clinical significance
+              </Radio>
             </VStack>
           </RadioGroup>
         </FormControl>
