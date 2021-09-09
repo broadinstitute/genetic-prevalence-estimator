@@ -1,4 +1,5 @@
 import base64
+import binascii
 import json
 import logging
 
@@ -23,7 +24,15 @@ def receive_message_view(request):
 
     message = request.data["message"]
 
-    payload = json.loads(base64.b64decode(message["data"]).decode("utf-8").strip())
+    if not isinstance(message, dict) or "data" not in message:
+        raise ValidationError("Invalid message format")
+
+    try:
+        payload = json.loads(
+            base64.b64decode(message["data"], validate=True).decode("utf-8").strip()
+        )
+    except (binascii.Error, json.JSONDecodeError) as e:
+        raise ValidationError("Invalid payload format") from e
 
     logger.info("Received message %s", payload)
 
