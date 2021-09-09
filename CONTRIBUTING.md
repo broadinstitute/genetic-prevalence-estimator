@@ -23,6 +23,28 @@
   python3 -m pre_commit install
   ```
 
+## Preparing data
+
+Run [data pipelines](./data-pipelines/README.md) to prepare a local copy of gnomAD and ClinVar data.
+
+Some data pipeline scripts take an `intervals` argument to select a subset of data.
+All take a `partitions` argument to control the number of partitions in the resulting Hail Table.
+
+The Docker Compose configuration for the development environment expects Hail Tables to be located in the `data` directory.
+
+For example, to prepare data for variants in PCSK9:
+
+```
+python data-pipelines/prepare_gnomad_variants.py --gnomad-version 2 --intervals 1:55505221-55530525 --partitions 2 ./data/gnomAD_v2.1.1_variants.ht
+python data-pipelines/prepare_gnomad_variants.py --gnomad-version 3 --intervals chr1:55039447-55064852 --partitions 2 ./data/gnomAD_v3.1.1_variants.ht
+
+python data-pipelines/prepare_transcript_variant_lists.py ./data/gnomAD_v2.1.1_variants.ht ./data/gnomAD_v2.1.1_transcript_variant_lists.ht --partitions=1
+python data-pipelines/prepare_transcript_variant_lists.py ./data/gnomAD_v3.1.1_variants.ht ./data/gnomAD_v3.1.1_transcript_variant_lists.ht --partitions=1
+
+python data-pipelines/import_clinvar.py --reference-genome GRCh37 --intervals 1:55505221-55530525 --partitions 2 ./data/ClinVar_GRCh37_variants.ht
+python data-pipelines/import_clinvar.py --reference-genome GRCh38 --intervals chr1:55039447-55064852 --partitions 2 ./data/ClinVar_GRCh38_variants.ht
+```
+
 ## Running in Docker
 
 This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) is enabled.
