@@ -1,4 +1,9 @@
-import { FormControl, FormLabel, Select } from "@chakra-ui/react";
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Select,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 
 import CancelablePromise from "../../CancelablePromise";
@@ -169,6 +174,12 @@ const TranscriptInput = (props: TranscriptInputProps) => {
           </option>
         ))}
       </Select>
+
+      {!geneId && (
+        <FormHelperText>
+          Select a gene to see transcripts for that gene.
+        </FormHelperText>
+      )}
     </FormControl>
   );
 };
