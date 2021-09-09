@@ -39,7 +39,13 @@ const CustomVariantListCalculationsTable = (
   const { carrierFrequency, prevalence, populations, displayFormat } = props;
 
   return (
-    <Table size="sm">
+    <Table
+      size="sm"
+      sx={{
+        "& th:first-child, & td:first-child": { paddingLeft: 0 },
+        "& td:last-child, & th:last-child": { paddingRight: 0 },
+      }}
+    >
       <Thead>
         <Tr>
           <Th scope="col">Population</Th>

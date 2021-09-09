@@ -61,7 +61,13 @@ const RecommendedVariantListCalculationsTable = (
   } = props;
 
   return (
-    <Table size="sm">
+    <Table
+      size="sm"
+      sx={{
+        "& th:first-child, & td:first-child": { paddingLeft: 0 },
+        "& td:last-child, & th:last-child": { paddingRight: 0 },
+      }}
+    >
       <colgroup>
         <col />
         <col span={2} />

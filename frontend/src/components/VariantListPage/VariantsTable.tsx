@@ -82,7 +82,17 @@ const VariantsTable: FC<VariantsTableProps> = ({
   );
 
   return (
-    <Table {...tableProps} size="sm">
+    <Table
+      {...tableProps}
+      size="sm"
+      sx={{
+        "& th:first-child, & td:first-child": {
+          paddingLeft: "3px",
+          paddingRight: "3px",
+        },
+        "& td:last-child, & th:last-child": { paddingRight: 0 },
+      }}
+    >
       <Thead>
         <Tr>
           <Th scope="col">
