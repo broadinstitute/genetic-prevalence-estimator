@@ -168,6 +168,14 @@ LOGGING = {
 }
 
 
+# Django REST Framework settings
+# https://www.django-rest-framework.org/api-guide/settings/
+
+REST_FRAMEWORK = {
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+}
+
+
 # Application settings
 HAIL_LOG_PATH = os.getenv("HAIL_LOG_PATH", os.devnull)
 

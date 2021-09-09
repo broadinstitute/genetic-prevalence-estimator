@@ -75,6 +75,7 @@ def worker_pylint(session):
         "pylint",
         "--load-plugins=pylint_django",
         "worker/src/worker",
+        "worker/tests",
         env=WORKER_ENV,
     )
 
@@ -102,4 +103,16 @@ def website_tests(session):
         "pytest",
         "website/tests",
         env={**WEBSITE_ENV, "DJANGO_SETTINGS_MODULE": "website.settings.test"},
+    )
+
+
+@nox.session(name="tests:worker")
+def worker_tests(session):
+    """Run worker tests."""
+    session.install("-r", "dev-requirements.txt")
+    install_worker_dependencies(session)
+    session.run(
+        "pytest",
+        "worker/tests",
+        env={**WORKER_ENV, "DJANGO_SETTINGS_MODULE": "worker.settings.test"},
     )
