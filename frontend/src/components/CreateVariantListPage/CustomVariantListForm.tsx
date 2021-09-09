@@ -54,13 +54,8 @@ const CustomVariantListForm = () => {
 
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
-  const [referenceGenome, setReferenceGenome] = useState("GRCh38");
+  const [gnomadVersion, setGnomadVersion] = useState("3.1.1");
   const [variants, setVariants] = useState<InputVariant[]>([]);
-
-  const gnomadVersion = {
-    GRCh37: "2.1.1",
-    GRCh38: "3.1.1",
-  }[referenceGenome];
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -72,6 +67,11 @@ const CustomVariantListForm = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+
+          const referenceGenome = {
+            "2.1.1": "GRCh37",
+            "3.1.1": "GRCh38",
+          }[gnomadVersion];
 
           const variantListRequest: CustomVariantListRequest = {
             label,
@@ -128,21 +128,15 @@ const CustomVariantListForm = () => {
             />
           </FormControl>
 
-          <FormControl id="custom-variant-list-reference-genome" isRequired>
-            <FormLabel>Reference genome</FormLabel>
-            <RadioGroup value={referenceGenome} onChange={setReferenceGenome}>
+          <FormControl id="custom-variant-list-gnomad-version" isRequired>
+            <FormLabel>gnomAD version</FormLabel>
+            <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
               <VStack align="flex-start">
-                <Radio value="GRCh38">GRCh38</Radio>
-                <Radio value="GRCh37">GRCh37</Radio>
+                <Radio value="3.1.1">3.1.1 (GRCh38)</Radio>
+                <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
               </VStack>
             </RadioGroup>
           </FormControl>
-
-          <input
-            type="hidden"
-            id="custom-variant-list-gnomad-version"
-            value={gnomadVersion}
-          />
 
           {variants.map((variant, i) => {
             const isValid = isVariantId(variant.id);
