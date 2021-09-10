@@ -155,24 +155,16 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
       )}
 
       {variantList.status === "Ready" && (
-        <>
-          <Heading as="h2" size="md" mb={2}>
-            Carrier frequency and Prevalence
-          </Heading>
-
-          <Box mb={4}>
-            <VariantListCalculations
-              variantList={variantList}
-              variants={
-                selectedVariants
-                  ? variantList.variants.filter((variant) =>
-                      selectedVariants.has(variant.id)
-                    )
-                  : variantList.variants
-              }
-            />
-          </Box>
-        </>
+        <VariantListCalculations
+          variantList={variantList}
+          variants={
+            selectedVariants
+              ? variantList.variants.filter((variant) =>
+                  selectedVariants.has(variant.id)
+                )
+              : variantList.variants
+          }
+        />
       )}
 
       <Heading as="h2" size="md" mb={2}>
