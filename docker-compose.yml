@@ -22,6 +22,9 @@ services:
     command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
     environment:
       - PUBSUB_PROJECT_ID=${GCP_PROJECT}
+    volumes:
+      - cloud_sdk_config:/root/.config
+      - cloud_sdk_kube:/root/.kube
   setup-subscriber:
     build:
       context: .
@@ -58,8 +61,8 @@ services:
       - 127.0.0.1:8080:8080
     volumes:
       - ./website/src/website:/app/website/src/website
-      - /app/website/src/website/static
-      - /app/website/src/website/templates/frontend
+      - website_static:/app/website/src/website/static
+      - website_frontend:/app/website/src/website/templates/frontend
       - ./calculator/src/calculator:/app/calculator/src/calculator
     depends_on:
       - database
@@ -91,5 +94,9 @@ services:
     depends_on:
       - database
 volumes:
+  cloud_sdk_config:
+  cloud_sdk_kube:
   frontend_node_modules:
   postgres_data:
+  website_static:
+  website_frontend:
