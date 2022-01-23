@@ -40,3 +40,13 @@
    ```
    terraform init -backend-config="bucket=my-bucket"
    ```
+
+6. Install the Cloud Build app and connect GitHub repository.
+
+   https://cloud.google.com/build/docs/automating-builds/build-repos-from-github#installing_gcb_app
+
+7. Apply configuration.
+
+   ```
+   terraform apply
+   ```

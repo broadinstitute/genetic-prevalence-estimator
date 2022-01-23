@@ -8,3 +8,9 @@ variable "gcp_region" {
   type        = string
   default     = "us-central1"
 }
+
+variable "github_repository" {
+  description = "GitHub repository"
+  type        = string
+  default     = "broadinstitute/aggregate-frequency-calculator"
+}

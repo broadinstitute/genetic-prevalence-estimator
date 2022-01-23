@@ -16,8 +16,7 @@ provider "google" {
   region  = var.gcp_region
 }
 
-resource "google_project_service" "enable_dataproc" {
-  service = "dataproc.googleapis.com"
+data "google_project" "project" {
 }
 
 resource "google_storage_bucket" "data_bucket" {
