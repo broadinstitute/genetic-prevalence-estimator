@@ -10,6 +10,18 @@ resource "google_project_service" "enable_cloud_build" {
   service = "cloudbuild.googleapis.com"
 }
 
+resource "google_project_service" "enable_cloud_sql" {
+  service = "sqladmin.googleapis.com"
+}
+
+resource "google_project_service" "enable_service_networking" {
+  service = "servicenetworking.googleapis.com"
+}
+
+resource "google_project_service" "enable_secret_manager" {
+  service = "secretmanager.googleapis.com"
+}
+
 resource "google_project_service" "enable_dataproc" {
   service = "dataproc.googleapis.com"
 }
