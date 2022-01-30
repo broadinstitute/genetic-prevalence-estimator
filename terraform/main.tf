@@ -19,6 +19,12 @@ provider "google" {
 data "google_project" "project" {
 }
 
+resource "google_container_registry" "registry" {
+  depends_on = [
+    google_project_service.enable_container_registry,
+  ]
+}
+
 resource "google_storage_bucket" "data_bucket" {
   name                        = "${var.gcp_project}-data"
   location                    = var.gcp_region

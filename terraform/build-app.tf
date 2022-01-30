@@ -1,9 +1,3 @@
-resource "google_container_registry" "registry" {
-  depends_on = [
-    google_project_service.enable_container_registry,
-  ]
-}
-
 resource "google_service_account" "builder" {
   account_id  = "builder"
   description = "Used by Cloud Build to build and deploy application"
@@ -13,16 +7,6 @@ resource "google_storage_bucket_iam_member" "builder_gcr_storage_admin" {
   bucket = google_container_registry.registry.id
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.builder.email}"
-}
-
-resource "google_storage_bucket" "build_logs_bucket" {
-  name                        = "${var.gcp_project}-build-logs"
-  location                    = var.gcp_region
-  uniform_bucket_level_access = true
-
-  labels = {
-    bucket : "${var.gcp_project}-build-logs"
-  }
 }
 
 resource "google_storage_bucket_iam_member" "builder_build_logs_storage_admin" {
