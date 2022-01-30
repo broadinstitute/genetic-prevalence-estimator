@@ -22,6 +22,10 @@ resource "google_project_service" "enable_secret_manager" {
   service = "secretmanager.googleapis.com"
 }
 
+resource "google_project_service" "enable_vpc_access" {
+  service  = "vpcaccess.googleapis.com"
+}
+
 resource "google_project_service" "enable_dataproc" {
   service = "dataproc.googleapis.com"
 }
