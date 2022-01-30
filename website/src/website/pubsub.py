@@ -13,6 +13,9 @@ class Publisher:
             self.client = pubsub_v1.PublisherClient()
 
         if not self.topic_path:
+            if not settings.GCP_PROJECT:
+                raise RuntimeError("Missing required configuration: GCP_PROJECT")
+
             self.topic_path = self.client.topic_path(  # pylint: disable=no-member
                 settings.GCP_PROJECT, "worker-requests"
             )

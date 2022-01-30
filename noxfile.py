@@ -29,8 +29,6 @@ def install_worker_dependencies(session):
 
 WEBSITE_ENV = {
     "DJANGO_SETTINGS_MODULE": "website.settings.development",
-    "GCP_PROJECT": "",
-    "GOOGLE_AUTH_CLIENT_ID": "",
 }
 
 
