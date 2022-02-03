@@ -15,6 +15,18 @@ resource "google_storage_bucket_iam_member" "builder_build_logs_storage_admin" {
   member = "serviceAccount:${google_service_account.builder.email}"
 }
 
+resource "google_project_iam_member" "builder_cloud_run_admin" {
+  project = data.google_project.project.id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.builder.email}"
+}
+
+resource "google_service_account_iam_member" "builder_act_as_website" {
+  service_account_id = google_service_account.website.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.builder.email}"
+}
+
 resource "google_cloudbuild_trigger" "build_app_trigger" {
   name        = "build-and-deploy-app-trigger"
   description = "Build and deploy application"
@@ -53,6 +65,22 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "--cache=true",
         "--cache-ttl=168h",
       ]
+    }
+
+    step {
+      id         = "deploy-website"
+      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint = "gcloud"
+      args = [
+        "run",
+        "deploy",
+        google_cloud_run_service.website.name,
+        "--image",
+        "gcr.io/$PROJECT_ID/website:$COMMIT_SHA",
+        "--region",
+        google_cloud_run_service.website.location,
+      ]
+      wait_for = ["build-website"]
     }
 
     step {
