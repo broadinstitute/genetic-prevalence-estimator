@@ -26,6 +26,10 @@ resource "google_project_service" "enable_vpc_access" {
   service  = "vpcaccess.googleapis.com"
 }
 
+resource "google_project_service" "enable_cloud_run" {
+  service = "run.googleapis.com"
+}
+
 resource "google_project_service" "enable_dataproc" {
   service = "dataproc.googleapis.com"
 }

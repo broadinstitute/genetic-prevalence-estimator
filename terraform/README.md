@@ -8,8 +8,12 @@
    cat > terraform.tfvars <<EOF
    gcp_project = ""
    gcp_region = ""
+   google_oauth_client_id = ""
    EOF
    ```
+
+   See https://developers.google.com/identity/sign-in/web/sign-in#create_authorization_credentials
+   for instructions on creating a Google OAuth client ID.
 
 3. Create a bucket to store Terraform state (if one does not already exist).
 
