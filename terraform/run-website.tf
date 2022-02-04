@@ -171,10 +171,8 @@ resource "google_cloud_run_service" "website" {
 
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale"        = "1"
-        "run.googleapis.com/cloudsql-instances"   = google_sql_database_instance.app_db_instance.connection_name
-        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.app_vpc_connector.name
-        "run.googleapis.com/vpc-access-egress"    = "private-ranges-only"
+        "autoscaling.knative.dev/maxScale"      = "1"
+        "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.app_db_instance.connection_name
       }
     }
   }
