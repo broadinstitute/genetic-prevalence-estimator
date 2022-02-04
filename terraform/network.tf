@@ -16,5 +16,5 @@ resource "google_service_networking_connection" "private_services_connection" {
   network                 = google_compute_network.app_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_services_address_range.name]
-  depends_on              = [google_project_service.enable_service_networking]
+  depends_on              = [google_project_service.service_networking]
 }

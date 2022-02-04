@@ -2,7 +2,7 @@
 
 resource "google_secret_manager_secret" "app_db_user_password" {
   secret_id  = "app-db-user-password"
-  depends_on = [google_project_service.enable_secret_manager]
+  depends_on = [google_project_service.secret_manager]
 
   replication {
     automatic = true
@@ -23,7 +23,7 @@ resource "random_password" "website_secret_key" {
 
 resource "google_secret_manager_secret" "website_secret_key" {
   secret_id  = "website-secret-key"
-  depends_on = [google_project_service.enable_secret_manager]
+  depends_on = [google_project_service.secret_manager]
 
   replication {
     automatic = true

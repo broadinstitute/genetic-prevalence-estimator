@@ -4,7 +4,7 @@ resource "google_sql_database_instance" "app_db_instance" {
   region           = var.gcp_region
 
   depends_on = [
-    google_project_service.enable_cloud_sql,
+    google_project_service.cloud_sql,
     google_service_networking_connection.private_services_connection,
   ]
 

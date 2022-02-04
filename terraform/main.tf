@@ -30,7 +30,7 @@ data "google_project" "project" {
 
 resource "google_container_registry" "registry" {
   depends_on = [
-    google_project_service.enable_container_registry,
+    google_project_service.container_registry,
   ]
 }
 

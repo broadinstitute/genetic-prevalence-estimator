@@ -26,7 +26,7 @@ resource "google_cloud_run_service" "website" {
   location = var.gcp_region
 
   depends_on = [
-    google_project_service.enable_cloud_run,
+    google_project_service.cloud_run,
     google_secret_manager_secret_iam_member.website_access_app_db_user_password,
     google_secret_manager_secret_iam_member.website_access_website_secret_key,
   ]
