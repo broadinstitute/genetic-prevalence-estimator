@@ -3,6 +3,12 @@ resource "google_service_account" "website" {
   description = "Used by website service"
 }
 
+resource "google_project_iam_member" "website_cloud_sql_client" {
+  project = data.google_project.project.id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.website.email}"
+}
+
 resource "google_secret_manager_secret_iam_member" "website_access_app_db_instance_server_cert" {
   secret_id = google_secret_manager_secret.app_db_instance_server_cert.secret_id
   role      = "roles/secretmanager.secretAccessor"
@@ -65,7 +71,7 @@ resource "google_cloud_run_service" "website" {
 
         env {
           name  = "DB_HOST"
-          value = google_sql_database_instance.app_db_instance.private_ip_address
+          value = "/cloudsql/${google_sql_database_instance.app_db_instance.connection_name}"
         }
 
         env {
@@ -81,16 +87,6 @@ resource "google_cloud_run_service" "website" {
               key  = "latest"
             }
           }
-        }
-
-        env {
-          name = "DB_OPTIONS"
-          value = jsonencode({
-            "sslmode"     = "verify-full",
-            "sslrootcert" = "/secrets/app_db_instance_server_cert/server.crt",
-            "sslcert"     = "/secrets/app_db_instance_client_cert/client.crt",
-            "sslkey"      = "/secrets/app_db_instance_client_cert_private_key/client.key",
-          })
         }
 
         env {
