@@ -68,8 +68,3 @@ resource "random_password" "app_db_user_password" {
   length  = 24
   special = true
 }
-
-resource "google_sql_ssl_cert" "app_db_client_cert" {
-  common_name = "app"
-  instance    = google_sql_database_instance.app_db_instance.name
-}

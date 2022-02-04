@@ -9,24 +9,6 @@ resource "google_project_iam_member" "website_cloud_sql_client" {
   member  = "serviceAccount:${google_service_account.website.email}"
 }
 
-resource "google_secret_manager_secret_iam_member" "website_access_app_db_instance_server_cert" {
-  secret_id = google_secret_manager_secret.app_db_instance_server_cert.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.website.email}"
-}
-
-resource "google_secret_manager_secret_iam_member" "website_access_app_db_instance_client_cert" {
-  secret_id = google_secret_manager_secret.app_db_instance_client_cert.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.website.email}"
-}
-
-resource "google_secret_manager_secret_iam_member" "website_access_app_db_instance_client_cert_private_key" {
-  secret_id = google_secret_manager_secret.app_db_instance_client_cert_private_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.website.email}"
-}
-
 resource "google_secret_manager_secret_iam_member" "website_access_app_db_user_password" {
   secret_id = google_secret_manager_secret.app_db_user_password.secret_id
   role      = "roles/secretmanager.secretAccessor"
@@ -45,9 +27,6 @@ resource "google_cloud_run_service" "website" {
 
   depends_on = [
     google_project_service.enable_cloud_run,
-    google_secret_manager_secret_iam_member.website_access_app_db_instance_server_cert,
-    google_secret_manager_secret_iam_member.website_access_app_db_instance_client_cert,
-    google_secret_manager_secret_iam_member.website_access_app_db_instance_client_cert_private_key,
     google_secret_manager_secret_iam_member.website_access_app_db_user_password,
     google_secret_manager_secret_iam_member.website_access_website_secret_key,
   ]
@@ -117,54 +96,6 @@ resource "google_cloud_run_service" "website" {
         env {
           name  = "GOOGLE_AUTH_CLIENT_ID"
           value = var.google_oauth_client_id
-        }
-
-        volume_mounts {
-          name       = "app_db_instance_server_cert"
-          mount_path = "/secrets/app_db_instance_server_cert"
-        }
-
-        volume_mounts {
-          name       = "app_db_instance_client_cert"
-          mount_path = "/secrets/app_db_instance_client_cert"
-        }
-
-        volume_mounts {
-          name       = "app_db_instance_client_cert_private_key"
-          mount_path = "/secrets/app_db_instance_client_cert_private_key"
-        }
-      }
-
-      volumes {
-        name = "app_db_instance_server_cert"
-        secret {
-          secret_name = google_secret_manager_secret.app_db_instance_server_cert.secret_id
-          items {
-            key  = "latest"
-            path = "server.crt"
-          }
-        }
-      }
-
-      volumes {
-        name = "app_db_instance_client_cert"
-        secret {
-          secret_name = google_secret_manager_secret.app_db_instance_client_cert.secret_id
-          items {
-            key  = "latest"
-            path = "client.crt"
-          }
-        }
-      }
-
-      volumes {
-        name = "app_db_instance_client_cert_private_key"
-        secret {
-          secret_name = google_secret_manager_secret.app_db_instance_client_cert_private_key.secret_id
-          items {
-            key  = "latest"
-            path = "client.key"
-          }
         }
       }
     }
