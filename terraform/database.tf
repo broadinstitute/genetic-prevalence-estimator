@@ -1,19 +1,3 @@
-resource "google_compute_global_address" "db_private_ip_address" {
-  name          = "app-db-address"
-  network       = google_compute_network.app_network.id
-  purpose       = "VPC_PEERING"
-  address       = "172.16.0.0"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-}
-
-resource "google_service_networking_connection" "db_private_vpc_connection" {
-  network                 = google_compute_network.app_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.db_private_ip_address.name]
-  depends_on              = [google_project_service.enable_service_networking]
-}
-
 resource "google_sql_database_instance" "app_db_instance" {
   name             = "app"
   database_version = "POSTGRES_13"
@@ -21,7 +5,7 @@ resource "google_sql_database_instance" "app_db_instance" {
 
   depends_on = [
     google_project_service.enable_cloud_sql,
-    google_service_networking_connection.db_private_vpc_connection,
+    google_service_networking_connection.private_services_connection,
   ]
 
   settings {
