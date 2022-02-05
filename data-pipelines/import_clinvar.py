@@ -169,10 +169,11 @@ def main() -> None:
     )
     parser.add_argument("--intervals")
     parser.add_argument("--partitions", default=2000, type=int)
+    parser.add_argument("--quiet", action="store_true")
     parser.add_argument("output")
     args = parser.parse_args()
 
-    hl.init()
+    hl.init(quiet=args.quiet)
 
     intervals = None
     if args.intervals:

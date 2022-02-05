@@ -36,9 +36,10 @@ def main():
     parser.add_argument("input")
     parser.add_argument("output")
     parser.add_argument("--partitions", default=2000, type=int)
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
-    hl.init()
+    hl.init(quiet=args.quiet)
 
     ds = prepare_transcript_variant_lists(hl.read_table(args.input))
     ds = ds.repartition(args.partitions, shuffle=True)
