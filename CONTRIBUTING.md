@@ -36,10 +36,10 @@ For example, to prepare data for variants in PCSK9:
 
 ```
 python data-pipelines/prepare_gnomad_variants.py --gnomad-version 2 --intervals 1:55505221-55530525 --partitions 2 ./data/gnomAD_v2.1.1_variants.ht
-python data-pipelines/prepare_gnomad_variants.py --gnomad-version 3 --intervals chr1:55039447-55064852 --partitions 2 ./data/gnomAD_v3.1.1_variants.ht
+python data-pipelines/prepare_gnomad_variants.py --gnomad-version 3 --intervals chr1:55039447-55064852 --partitions 2 ./data/gnomAD_v3.1.2_variants.ht
 
 python data-pipelines/prepare_transcript_variant_lists.py ./data/gnomAD_v2.1.1_variants.ht ./data/gnomAD_v2.1.1_transcript_variant_lists.ht --partitions=1
-python data-pipelines/prepare_transcript_variant_lists.py ./data/gnomAD_v3.1.1_variants.ht ./data/gnomAD_v3.1.1_transcript_variant_lists.ht --partitions=1
+python data-pipelines/prepare_transcript_variant_lists.py ./data/gnomAD_v3.1.2_variants.ht ./data/gnomAD_v3.1.2_transcript_variant_lists.ht --partitions=1
 
 python data-pipelines/import_clinvar.py --reference-genome GRCh37 --intervals 1:55505221-55530525 --partitions 2 ./data/ClinVar_GRCh37_variants.ht
 python data-pipelines/import_clinvar.py --reference-genome GRCh38 --intervals chr1:55039447-55064852 --partitions 2 ./data/ClinVar_GRCh38_variants.ht

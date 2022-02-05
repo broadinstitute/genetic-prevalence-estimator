@@ -25,7 +25,7 @@ def is_variant_id(maybe_variant_id):
 class RecommendedVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
-    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
+    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.2"])
     gene_id = serializers.CharField(max_length=20)
     transcript_id = serializers.CharField(max_length=20)
     included_clinvar_variants = serializers.MultipleChoiceField(
@@ -55,12 +55,12 @@ class CustomVariantListMetadataVersion1Serializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
     reference_genome = serializers.ChoiceField(["GRCh37", "GRCh38"])
-    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.1"])
+    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.2"])
 
     def validate(self, attrs):
         gnomad_reference_genome = {
             "2.1.1": "GRCh37",
-            "3.1.1": "GRCh38",
+            "3.1.2": "GRCh38",
         }[attrs["gnomad_version"]]
 
         if attrs["reference_genome"] != gnomad_reference_genome:

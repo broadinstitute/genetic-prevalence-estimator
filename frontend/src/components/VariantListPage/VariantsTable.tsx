@@ -74,7 +74,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   const gnomadVersion = variantList.metadata.gnomad_version;
   const gnomadDataset = {
     "2.1.1": "gnomad_r2_1",
-    "3.1.1": "gnomad_r3",
+    "3.1.2": "gnomad_r3",
   }[gnomadVersion];
 
   const includedPopulationIndices = includePopulationFrequencies.map(

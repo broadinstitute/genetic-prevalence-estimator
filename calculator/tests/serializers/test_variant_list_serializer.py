@@ -164,7 +164,7 @@ def test_new_variant_list_serializer_custom_variant_list():
             "metadata": {
                 "version": "1",
                 "reference_genome": "GRCh37",
-                "gnomad_version": "3.1.1",
+                "gnomad_version": "3.1.2",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
@@ -408,7 +408,7 @@ def test_new_variant_list_serializer_recommended_variant_list():
             "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3.1.1",
+                "gnomad_version": "3.1.2",
                 "transcript_id": "ENST00000302118.5",
                 "included_clinvar_variants": None,
             },
@@ -424,7 +424,7 @@ def test_new_variant_list_serializer_recommended_variant_list():
             "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3.1.1",
+                "gnomad_version": "3.1.2",
                 "gene_id": "not-a-gene-id",
                 "transcript_id": "ENST00000302118.5",
                 "included_clinvar_variants": None,
@@ -442,7 +442,7 @@ def test_new_variant_list_serializer_recommended_variant_list():
             "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3.1.1",
+                "gnomad_version": "3.1.2",
                 "gene_id": "ENSG00000169174.11",
                 "transcript_id": None,
                 "included_clinvar_variants": None,
@@ -459,7 +459,7 @@ def test_new_variant_list_serializer_recommended_variant_list():
             "type": VariantList.Type.RECOMMENDED,
             "metadata": {
                 "version": "1",
-                "gnomad_version": "3.1.1",
+                "gnomad_version": "3.1.2",
                 "gene_id": "ENSG00000169174.11",
                 "transcript_id": "not-a-tx-id",
                 "included_clinvar_variants": None,

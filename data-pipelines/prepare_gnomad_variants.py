@@ -150,7 +150,7 @@ def get_gnomad_v3_variants():
         )
 
     ds = hl.read_table(
-        "gs://gcp-public-data--gnomad/release/3.1.1/ht/genomes/gnomad.genomes.v3.1.1.sites.ht"
+        "gs://gcp-public-data--gnomad/release/3.1.2/ht/genomes/gnomad.genomes.v3.1.2.sites.ht"
     )
 
     populations = sorted(_get_gnomad_populations(ds))

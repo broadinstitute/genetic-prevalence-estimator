@@ -174,7 +174,7 @@ def validate_recommended_variant_list(variant_list):
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
-        "3.1.1",
+        "3.1.2",
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
     transcript_id, transcript_version = variant_list.metadata["transcript_id"].split(
@@ -278,7 +278,7 @@ def process_new_custom_variant_list(variant_list):
     gnomad_version = variant_list.metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
-        "3.1.1",
+        "3.1.2",
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
     ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
