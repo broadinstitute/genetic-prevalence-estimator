@@ -33,13 +33,3 @@ resource "google_container_registry" "registry" {
     google_project_service.container_registry,
   ]
 }
-
-resource "google_storage_bucket" "data_bucket" {
-  name                        = "${var.gcp_project}-data"
-  location                    = var.gcp_region
-  uniform_bucket_level_access = true
-
-  labels = {
-    bucket : "${var.gcp_project}-data"
-  }
-}
