@@ -76,13 +76,29 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
     }
 
     step {
-      id   = "start-cluster"
-      name = "hailgenetics/hail:$_HAIL_VERSION"
+      id         = "start-cluster"
+      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint = "gcloud"
       args = [
-        "hailctl",
         "dataproc",
-        "start",
+        "clusters",
+        "create",
         "import-gnomad-$BUILD_ID",
+        # Options set by hailctl
+        "--image-version=2.0.29-debian10",
+        "--properties=^|||^spark:spark.task.maxFailures=20|||spark:spark.driver.extraJavaOptions=-Xss4M|||spark:spark.executor.extraJavaOptions=-Xss4M|||spark:spark.speculation=true|||hdfs:dfs.replication=1|||dataproc:dataproc.logging.stackdriver.enable=false|||dataproc:dataproc.monitoring.stackdriver.enable=false|||spark:spark.driver.memory=41g|||yarn:yarn.nodemanager.resource.memory-mb=29184|||yarn:yarn.scheduler.maximum-allocation-mb=14592|||spark:spark.executor.cores=4|||spark:spark.executor.memory=5837m|||spark:spark.executor.memoryOverhead=8755m|||spark:spark.memory.storageFraction=0.2|||spark:spark.executorEnv.HAIL_WORKER_OFF_HEAP_MEMORY_PER_CORE_MB=2188",
+        "--initialization-actions=gs://hail-common/hailctl/dataproc/0.2.83/init_notebook.py",
+        "--metadata=^|||^WHEEL=gs://hail-common/hailctl/dataproc/0.2.83/hail-0.2.83-py3-none-any.whl|||PKGS=aiohttp==3.7.4|aiohttp_session>=2.7,<2.8|asyncinit>=0.2.4,<0.3|avro>=1.10,<1.11|azure-identity==1.6.0|azure-storage-blob==12.8.1|bokeh>1.3,<2.0|boto3>=1.17,<2.0|botocore>=1.20,<2.0|decorator<5|Deprecated>=1.2.10,<1.3|dill>=0.3.1.1,<0.4|gcsfs==2021.*|google-auth==1.27.0|google-cloud-storage==1.25.*|humanize==1.0.0|hurry.filesize==0.9|janus>=0.6,<0.7|nest_asyncio==1.5.4|numpy<2|orjson==3.6.4|pandas>=1.3.0,<1.4.0|parsimonious<0.9|plotly>=5.5.0,<5.6|PyJWT|python-json-logger==0.1.11|requests==2.25.1|scipy>1.2,<1.8|sortedcontainers==2.1.0|tabulate==0.8.3|tqdm==4.*|uvloop==0.16.0",
+        "--master-machine-type=n1-highmem-8",
+        "--master-boot-disk-size=100GB",
+        "--num-master-local-ssds=0",
+        "--num-worker-local-ssds=0",
+        "--num-workers=2",
+        "--secondary-worker-boot-disk-size=40GB",
+        "--worker-boot-disk-size=40GB",
+        "--worker-machine-type=n1-standard-8",
+        "--initialization-action-timeout=20m",
+        # Additional options
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "--subnet=${google_compute_subnetwork.dataproc_subnet.id}",
         "--service-account=${google_service_account.data_pipeline.email}",
@@ -224,13 +240,30 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
     }
 
     step {
-      id   = "start-cluster"
-      name = "hailgenetics/hail:$_HAIL_VERSION"
+      id         = "start-cluster"
+      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint = "gcloud"
       args = [
-        "hailctl",
         "dataproc",
-        "start",
+        "clusters",
+        "create",
         "import-clinvar-$BUILD_ID",
+        # Options set by hailctl
+        "--image-version=2.0.29-debian10",
+        "--properties=^|||^spark:spark.task.maxFailures=20|||spark:spark.driver.extraJavaOptions=-Xss4M|||spark:spark.executor.extraJavaOptions=-Xss4M|||spark:spark.speculation=true|||hdfs:dfs.replication=1|||dataproc:dataproc.logging.stackdriver.enable=false|||dataproc:dataproc.monitoring.stackdriver.enable=false|||spark:spark.driver.memory=41g|||yarn:yarn.nodemanager.resource.memory-mb=29184|||yarn:yarn.scheduler.maximum-allocation-mb=14592|||spark:spark.executor.cores=4|||spark:spark.executor.memory=5837m|||spark:spark.executor.memoryOverhead=8755m|||spark:spark.memory.storageFraction=0.2|||spark:spark.executorEnv.HAIL_WORKER_OFF_HEAP_MEMORY_PER_CORE_MB=2188",
+        "--initialization-actions=gs://hail-common/hailctl/dataproc/0.2.83/init_notebook.py",
+        "--metadata=^|||^WHEEL=gs://hail-common/hailctl/dataproc/0.2.83/hail-0.2.83-py3-none-any.whl|||PKGS=aiohttp==3.7.4|aiohttp_session>=2.7,<2.8|asyncinit>=0.2.4,<0.3|avro>=1.10,<1.11|azure-identity==1.6.0|azure-storage-blob==12.8.1|bokeh>1.3,<2.0|boto3>=1.17,<2.0|botocore>=1.20,<2.0|decorator<5|Deprecated>=1.2.10,<1.3|dill>=0.3.1.1,<0.4|gcsfs==2021.*|google-auth==1.27.0|google-cloud-storage==1.25.*|humanize==1.0.0|hurry.filesize==0.9|janus>=0.6,<0.7|nest_asyncio==1.5.4|numpy<2|orjson==3.6.4|pandas>=1.3.0,<1.4.0|parsimonious<0.9|plotly>=5.5.0,<5.6|PyJWT|python-json-logger==0.1.11|requests==2.25.1|scipy>1.2,<1.8|sortedcontainers==2.1.0|tabulate==0.8.3|tqdm==4.*|uvloop==0.16.0",
+        "--master-machine-type=n1-highmem-8",
+        "--master-boot-disk-size=100GB",
+        "--num-master-local-ssds=0",
+        "--num-secondary-workers=0",
+        "--num-worker-local-ssds=0",
+        "--num-workers=2",
+        "--secondary-worker-boot-disk-size=40GB",
+        "--worker-boot-disk-size=40GB",
+        "--worker-machine-type=n1-standard-8",
+        "--initialization-action-timeout=20m",
+        # Additional options
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "--subnet=${google_compute_subnetwork.dataproc_subnet.id}",
         "--service-account=${google_service_account.data_pipeline.email}",
