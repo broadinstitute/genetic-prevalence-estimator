@@ -68,12 +68,10 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
     timeout     = "10800s"
 
     options {
-      dynamic_substitutions = true
-      logging               = "GCS_ONLY"
+      logging = "GCS_ONLY"
     }
 
     substitutions = {
-      _CLUSTER_NAME = "import-gnomad-$BUILD_ID"
       _HAIL_VERSION = local.data_pipelines_default_hail_version
     }
 
@@ -84,7 +82,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "hailctl",
         "dataproc",
         "start",
-        "$_CLUSTER_NAME",
+        "import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "--subnet=${google_compute_subnetwork.dataproc_subnet.id}",
         "--service-account=${google_service_account.data_pipeline.email}",
@@ -104,7 +102,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/prepare_gnomad_variants.py",
         "--",
@@ -123,7 +121,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/prepare_transcript_variant_lists.py",
         "--",
@@ -142,7 +140,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/prepare_gnomad_variants.py",
         "--",
@@ -161,7 +159,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/prepare_transcript_variant_lists.py",
         "--",
@@ -180,7 +178,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "clusters",
         "delete",
         "--quiet",
-        "$_CLUSTER_NAME",
+        "import-gnomad-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
       ]
     }
@@ -218,12 +216,10 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
     timeout     = "3600s"
 
     options {
-      dynamic_substitutions = true
-      logging               = "GCS_ONLY"
+      logging = "GCS_ONLY"
     }
 
     substitutions = {
-      _CLUSTER_NAME = "import-clinvar-$BUILD_ID"
       _HAIL_VERSION = local.data_pipelines_default_hail_version
     }
 
@@ -234,7 +230,7 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
         "hailctl",
         "dataproc",
         "start",
-        "$_CLUSTER_NAME",
+        "import-clinvar-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "--subnet=${google_compute_subnetwork.dataproc_subnet.id}",
         "--service-account=${google_service_account.data_pipeline.email}",
@@ -253,7 +249,7 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-clinvar-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/import_clinvar.py",
         "--",
@@ -272,7 +268,7 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
         "jobs",
         "submit",
         "pyspark",
-        "--cluster=$_CLUSTER_NAME",
+        "--cluster=import-clinvar-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
         "./data-pipelines/import_clinvar.py",
         "--",
@@ -291,7 +287,7 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
         "clusters",
         "delete",
         "--quiet",
-        "$_CLUSTER_NAME",
+        "import-clinvar-$BUILD_ID",
         "--region=${google_compute_subnetwork.dataproc_subnet.region}",
       ]
     }
