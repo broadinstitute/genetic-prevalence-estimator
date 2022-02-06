@@ -1,6 +1,7 @@
 import argparse
 import gzip
 import os
+import shutil
 import subprocess
 import tempfile
 
@@ -107,8 +108,22 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
             if "chr" in ref_contig
         }
 
+    clinvar_vcf_url = "file://" + os.path.abspath(clinvar_vcf_path)
+    if shutil.which("hdfs"):
+        subprocess.check_call(
+            [
+                "hdfs",
+                "dfs",
+                "-cp",
+                "-f",
+                clinvar_vcf_url,
+                "/tmp/" + os.path.basename(clinvar_vcf_path),
+            ]
+        )
+        clinvar_vcf_url = "/tmp/" + os.path.basename(clinvar_vcf_path)
+
     ds = hl.import_vcf(
-        "file://" + os.path.abspath(clinvar_vcf_path),
+        clinvar_vcf_url,
         contig_recoding=contig_recoding,
         drop_samples=True,
         force=True,
