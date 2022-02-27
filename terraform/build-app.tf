@@ -96,6 +96,8 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "--dockerfile=worker/worker.dockerfile",
         "--destination=gcr.io/$PROJECT_ID/worker:$COMMIT_SHA",
         "--destination=gcr.io/$PROJECT_ID/worker:latest",
+        "--cache=true",
+        "--cache-ttl=168h",
       ]
       wait_for = ["-"]
     }
