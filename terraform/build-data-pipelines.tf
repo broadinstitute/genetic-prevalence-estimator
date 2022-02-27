@@ -124,6 +124,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "--",
         "--quiet",
         "--gnomad-version=2",
+        "--partitions=40000",
         "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v2.1.1_variants.ht",
       ]
     }
@@ -143,6 +144,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "--",
         "--quiet",
         "--gnomad-version=3",
+        "--partitions=100000",
         "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v3.1.2_variants.ht",
       ]
     }
