@@ -96,7 +96,7 @@ resource "google_cloud_run_service" "website" {
 
         env {
           name  = "GCP_PROJECT"
-          value = data.google_project.project.id
+          value = data.google_project.project.project_id
         }
 
         env {
