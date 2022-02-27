@@ -1,4 +1,6 @@
 from django.urls import path
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 
 from website.views.app_config import get_app_config
@@ -12,7 +14,12 @@ from website.views.variant_list_access_views import (
 )
 
 
-html = TemplateView.as_view(template_name="frontend/index.html")
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class UIView(TemplateView):
+    template_name = "frontend/index.html"
+
+
+html = UIView.as_view()
 
 
 urlpatterns = [
