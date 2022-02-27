@@ -22,8 +22,18 @@ class UIView(TemplateView):
 html = UIView.as_view()
 
 
+ui_views = [
+    ("", "home"),
+    ("variant-lists/", "variant-lists"),
+    ("variant-lists/<uuid:variant_list_id>/", "variant-list"),
+    ("variant-lists/new/", "new-variant-list"),
+    ("status/", "status"),
+    ("users/", "users"),
+]
+
+
 urlpatterns = [
-    *[path(p, html, name=name) for p, name in [("", "home")]],
+    *(path(p, html, name=name) for p, name in ui_views),
     path("api/config/", get_app_config, name="app_config"),
     path("api/auth/signin/", signin, name="signin"),
     path("api/auth/signout/", signout, name="signout"),
