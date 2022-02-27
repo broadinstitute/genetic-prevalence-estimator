@@ -25,7 +25,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install dependencies
-RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.8.6
+RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.3
 
 COPY website/website-requirements.txt ./website/website-requirements.txt
 RUN pip install --no-cache-dir -r ./website/website-requirements.txt

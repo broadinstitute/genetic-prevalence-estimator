@@ -20,7 +20,7 @@ RUN apt-get -qq update && \
   apt-get -qq install adoptopenjdk-8-hotspot && \
   rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.8.6
+RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.3
 
 COPY worker/worker-requirements.txt ./worker/worker-requirements.txt
 RUN pip install --no-cache-dir -r ./worker/worker-requirements.txt
