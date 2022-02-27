@@ -45,7 +45,7 @@ VARIANT_FIELDS = [
 def initialize_hail():
     hl.init(
         idempotent=True,
-        local="local[1]",
+        master="local[1]",
         log=settings.HAIL_LOG_PATH,
         quiet=not settings.DEBUG,
     )
