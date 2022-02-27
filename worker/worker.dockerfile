@@ -28,6 +28,15 @@ RUN pip install --no-cache-dir -r ./worker/worker-requirements.txt
 COPY shared-requirements.txt ./shared-requirements.txt
 RUN pip install --no-cache-dir -r ./shared-requirements.txt
 
+# Install and configure GCS connector
+# https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/branch-2.2.x/gcs/CONFIGURATION.md#authentication
+RUN export SPARK_HOME=$(find_spark_home.py) && \
+    wget -O $SPARK_HOME/jars/gcs-connector-hadoop2-2.2.5.jar \
+      https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-2.2.5.jar && \
+    mkdir -p $SPARK_HOME/conf && \
+    touch $SPARK_HOME/conf/spark-defaults.conf && \
+    echo "spark.hadoop.google.cloud.auth.service.account.enable true" >> $SPARK_HOME/conf/spark-defaults.conf
+
 # Copy code
 COPY calculator ./calculator
 RUN pip install --no-cache-dir -e calculator
