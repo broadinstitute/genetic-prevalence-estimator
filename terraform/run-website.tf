@@ -21,6 +21,12 @@ resource "google_secret_manager_secret_iam_member" "website_access_website_secre
   member    = "serviceAccount:${google_service_account.website.email}"
 }
 
+resource "google_pubsub_topic_iam_member" "website_worker_requests_publisher" {
+  topic  = google_pubsub_topic.worker_requests.name
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.website.email}"
+}
+
 resource "google_cloud_run_service" "website" {
   name     = "website"
   location = var.gcp_region
