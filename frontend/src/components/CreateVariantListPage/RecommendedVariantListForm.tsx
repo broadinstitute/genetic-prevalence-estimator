@@ -203,7 +203,7 @@ const RecommendedVariantListForm = () => {
         </FormControl>
 
         <HStack>
-          <Button colorScheme="blue" type="submit">
+          <Button colorScheme="blue" isLoading={isSubmitting} type="submit">
             Submit
           </Button>
           <Button as={RRLink} to="/variant-lists/">
