@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import traceback
 import uuid
 
@@ -43,11 +44,16 @@ VARIANT_FIELDS = [
 
 
 def initialize_hail():
+    spark_conf = os.getenv("SPARK_CONF", default=None)
+    if spark_conf:
+        spark_conf = json.loads(spark_conf)
+
     hl.init(
         idempotent=True,
         master="local[1]",
         log=settings.HAIL_LOG_PATH,
         quiet=not settings.DEBUG,
+        spark_conf=spark_conf,
     )
 
 
