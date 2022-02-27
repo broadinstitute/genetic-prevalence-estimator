@@ -129,25 +129,6 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
     }
 
     step {
-      id         = "prepare-gnomad-v2-transcript-variant-lists"
-      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
-      entrypoint = "gcloud"
-      args = [
-        "dataproc",
-        "jobs",
-        "submit",
-        "pyspark",
-        "--cluster=import-gnomad-$BUILD_ID",
-        "--region=${google_compute_subnetwork.dataproc_subnet.region}",
-        "./data-pipelines/prepare_transcript_variant_lists.py",
-        "--",
-        "--quiet",
-        "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v2.1.1_variants.ht",
-        "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v2.1.1_transcript_variant_lists.ht",
-      ]
-    }
-
-    step {
       id         = "prepare-gnomad-v3-variants"
       name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
       entrypoint = "gcloud"
@@ -163,25 +144,6 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_data_pipeline" {
         "--quiet",
         "--gnomad-version=3",
         "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v3.1.2_variants.ht",
-      ]
-    }
-
-    step {
-      id         = "prepare-gnomad-v3-transcript-variant-lists"
-      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
-      entrypoint = "gcloud"
-      args = [
-        "dataproc",
-        "jobs",
-        "submit",
-        "pyspark",
-        "--cluster=import-gnomad-$BUILD_ID",
-        "--region=${google_compute_subnetwork.dataproc_subnet.region}",
-        "./data-pipelines/prepare_transcript_variant_lists.py",
-        "--",
-        "--quiet",
-        "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v3.1.2_variants.ht",
-        "gs://${google_storage_bucket.data_bucket.name}/gnomAD/gnomAD_v3.1.2_transcript_variant_lists.ht",
       ]
     }
 
