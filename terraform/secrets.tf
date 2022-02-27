@@ -34,3 +34,22 @@ resource "google_secret_manager_secret_version" "website_secret_key" {
   secret      = google_secret_manager_secret.website_secret_key.id
   secret_data = random_password.website_secret_key.result
 }
+
+resource "random_password" "worker_secret_key" {
+  length  = 24
+  special = true
+}
+
+resource "google_secret_manager_secret" "worker_secret_key" {
+  secret_id  = "worker-secret-key"
+  depends_on = [google_project_service.secret_manager]
+
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "worker_secret_key" {
+  secret      = google_secret_manager_secret.worker_secret_key.id
+  secret_data = random_password.worker_secret_key.result
+}

@@ -27,6 +27,12 @@ resource "google_service_account_iam_member" "builder_act_as_website" {
   member             = "serviceAccount:${google_service_account.builder.email}"
 }
 
+resource "google_service_account_iam_member" "builder_act_as_worker" {
+  service_account_id = google_service_account.worker.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.builder.email}"
+}
+
 resource "google_cloudbuild_trigger" "build_app_trigger" {
   name        = "build-and-deploy-app-trigger"
   description = "Build and deploy application"
@@ -92,6 +98,22 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "--destination=gcr.io/$PROJECT_ID/worker:latest",
       ]
       wait_for = ["-"]
+    }
+
+    step {
+      id         = "deploy-worker"
+      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk"
+      entrypoint = "gcloud"
+      args = [
+        "run",
+        "deploy",
+        google_cloud_run_service.worker.name,
+        "--image",
+        "gcr.io/$PROJECT_ID/worker:$COMMIT_SHA",
+        "--region",
+        google_cloud_run_service.worker.location,
+      ]
+      wait_for = ["build-worker"]
     }
   }
 }
