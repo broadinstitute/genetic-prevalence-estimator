@@ -161,6 +161,8 @@ SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
 
+CSRF_FAILURE_VIEW = "website.views.error_views.csrf_failure"
+
 X_FRAME_OPTIONS = "DENY"
 
 
