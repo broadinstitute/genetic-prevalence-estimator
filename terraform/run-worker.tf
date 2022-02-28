@@ -117,6 +117,13 @@ resource "google_cloud_run_service" "worker" {
           name  = "SPARK_LOCAL_IP"
           value = "127.0.0.1"
         }
+
+        resources {
+          limits = {
+            cpu    = "1"
+            memory = "4Gi"
+          }
+        }
       }
 
       container_concurrency = 1
