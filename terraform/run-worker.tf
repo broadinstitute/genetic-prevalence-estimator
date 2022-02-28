@@ -104,6 +104,19 @@ resource "google_cloud_run_service" "worker" {
           name  = "CLINVAR_DATA_PATH"
           value = "gs://${google_storage_bucket.data_bucket.name}/ClinVar"
         }
+
+        env {
+          name = "SPARK_CONF"
+          value = jsonencode({
+            "spark.ui.enabled"  = "false",
+            "spark.driver.host" = "localhost"
+          })
+        }
+
+        env {
+          name  = "SPARK_LOCAL_IP"
+          value = "127.0.0.1"
+        }
       }
     }
 
