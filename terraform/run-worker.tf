@@ -118,6 +118,8 @@ resource "google_cloud_run_service" "worker" {
           value = "127.0.0.1"
         }
       }
+
+      container_concurrency = 1
     }
 
     metadata {
