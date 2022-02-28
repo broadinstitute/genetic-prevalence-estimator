@@ -42,7 +42,7 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
     name  = split("/", var.github_repository)[1]
 
     push {
-      branch = "^cloudbuild$"
+      branch = "^main$"
     }
   }
 
