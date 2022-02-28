@@ -23,6 +23,23 @@ resource "google_pubsub_topic" "worker_requests" {
   depends_on = [google_project_service.pubsub]
 }
 
+resource "google_pubsub_topic" "failed_worker_requests" {
+  name       = "failed-worker-requests"
+  depends_on = [google_project_service.pubsub]
+}
+
+resource "google_pubsub_topic_iam_member" "pubsub_service_agent_failed_worker_requests_publisher" {
+  topic  = google_pubsub_topic.failed_worker_requests.name
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_pubsub_subscription_iam_member" "pubsub_service_agent_worker_requests_subscriber" {
+  subscription = google_pubsub_subscription.worker_requests_subscription.name
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
 resource "google_pubsub_subscription" "worker_requests_subscription" {
   name  = "worker-requests-subscription"
   topic = google_pubsub_topic.worker_requests.name
@@ -44,6 +61,11 @@ resource "google_pubsub_subscription" "worker_requests_subscription" {
   retry_policy {
     minimum_backoff = "30s"
     maximum_backoff = "300s"
+  }
+
+  dead_letter_policy {
+    dead_letter_topic     = google_pubsub_topic.failed_worker_requests.id
+    max_delivery_attempts = 5
   }
 
   expiration_policy {
