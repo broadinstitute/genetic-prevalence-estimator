@@ -257,7 +257,7 @@ const CustomVariantListForm = () => {
                     reader.onload = (e) => {
                       const result = e.target?.result as string;
                       if (result) {
-                        const lines = result.split("\n");
+                        const lines = result.replace(/\r\n/g, "\n").split("\n");
                         setVariants(
                           lines.filter(Boolean).map((line) => ({
                             key: nextKey(),
