@@ -554,6 +554,10 @@ def test_update_variant_list_serializer():
     )
     assert serializer.is_valid(), serializer.errors
 
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(variant_list, data={"notes": ""}, partial=True)
+    assert serializer.is_valid(), serializer.errors
+
     # Other fields cannot be updated
     variant_list = variant_list_fixture()
     serializer = VariantListSerializer(

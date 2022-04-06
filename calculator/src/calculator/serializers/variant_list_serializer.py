@@ -141,6 +141,7 @@ class NewVariantListSerializer(ModelSerializer):
 
 
 class VariantListSerializer(ModelSerializer):
+    notes = serializers.CharField(allow_blank=True, required=False)
     status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
 
     access_permissions = VariantListAccessPermissionSerializer(
