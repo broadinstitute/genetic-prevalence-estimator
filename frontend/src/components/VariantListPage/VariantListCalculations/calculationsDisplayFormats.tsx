@@ -52,7 +52,7 @@ export const DisplayFormatInput = (props: DisplayFormatInputProps) => {
       >
         <HStack spacing="24px">
           <Radio value="fraction">Fraction</Radio>
-          <Radio value="scientific">Scientific</Radio>
+          <Radio value="scientific">Scientific notation</Radio>
         </HStack>
       </RadioGroup>
     </FormControl>
