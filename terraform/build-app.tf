@@ -58,7 +58,8 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
     timeout     = "1200s"
 
     options {
-      logging = "GCS_ONLY"
+      logging      = "GCS_ONLY"
+      machine_type = "E2_HIGHCPU_8"
     }
 
     step {
