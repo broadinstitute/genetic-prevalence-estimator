@@ -5,31 +5,31 @@ export const CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES: {
 } = {
   pathogenic_or_likely_pathogenic: new Set([
     "association",
-    "Likely_pathogenic",
+    "Likely pathogenic",
     "Pathogenic",
-    "Pathogenic/Likely_pathogenic",
-    "risk_factor",
+    "Pathogenic/Likely pathogenic",
+    "risk factor",
   ]),
 
   conflicting_interpretations: new Set([
-    "conflicting_data_from_submitters",
-    "Conflicting_interpretations_of_pathogenicity",
+    "conflicting data from submitters",
+    "Conflicting interpretations of pathogenicity",
   ]),
 
-  uncertain_significance: new Set(["Uncertain_significance"]),
+  uncertain_significance: new Set(["Uncertain significance"]),
 
   benign_or_likely_benign: new Set([
     "Benign",
-    "Benign/Likely_benign",
-    "Likely_benign",
+    "Benign/Likely benign",
+    "Likely benign",
   ]),
 
   other: new Set([
     "Affects",
-    "association_not_found",
-    "confers_sensitivity",
-    "drug_response",
-    "not_provided",
+    "association not found",
+    "confers sensitivity",
+    "drug response",
+    "not provided",
     "other",
     "protective",
   ]),
