@@ -40,43 +40,45 @@ def download_clinvar_vcf(output_path, reference_genome):
     )
 
 
+# These categories must stay in sync with CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES
+# in frontend/src/constants/clinvar.ts
 CLINICAL_SIGNIFICANCE_CATEGORIES = hl.literal(
     [
         (
             "pathogenic_or_likely_pathogenic",
             {
                 "association",
-                "Likely_pathogenic",
+                "Likely pathogenic",
                 "Pathogenic",
-                "Pathogenic/Likely_pathogenic",
-                "risk_factor",
+                "Pathogenic/Likely pathogenic",
+                "risk factor",
             },
         ),
         (
             "conflicting_interpretations",
             {
-                "conflicting_data_from_submitters",
-                "Conflicting_interpretations_of_pathogenicity",
+                "conflicting data from submitters",
+                "Conflicting interpretations of pathogenicity",
             },
         ),
         (
             "uncertain_significance",
             {
-                "Uncertain_significance",
+                "Uncertain significance",
             },
         ),
         (
             "benign_or_likely_benign",
-            {"Benign", "Benign/Likely_benign", "Likely_benign"},
+            {"Benign", "Benign/Likely benign", "Likely benign"},
         ),
         (
             "other",
             {
                 "Affects",
-                "association_not_found",
-                "confers_sensitivity",
-                "drug_response",
-                "not_provided",
+                "association not found",
+                "confers sensitivity",
+                "drug response",
+                "not provided",
                 "other",
                 "protective",
             },
@@ -143,7 +145,9 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
 
     ds = ds.select(
         clinvar_variation_id=ds.rsid,
-        clinical_significance=hl.set(ds.info.CLNSIG.map(lambda s: s.replace("^_", ""))),
+        clinical_significance=hl.set(
+            ds.info.CLNSIG.map(lambda s: s.replace("^_", "").replace("_", " "))
+        ),
     )
 
     all_clinical_significances = ds.aggregate(
@@ -164,15 +168,12 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
     ), f"Uncategorized clinical significances: {', '.join(uncategorized_clinical_significances)}"
 
     ds = ds.annotate(
-        clinical_significance=hl.array(
-            ds.clinical_significance.map(
-                lambda clinical_significance: clinical_significance.replace("_", " ")
-            )
-        ),
         clinical_significance_category=get_clinical_significance_category(
             ds.clinical_significance
         ),
     )
+
+    ds = ds.annotate(clinical_significance=hl.array(ds.clinical_significance))
 
     return ds
 

@@ -1,5 +1,7 @@
 import { ClinvarClinicalSignificanceCategory } from "../types";
 
+// These categories must stay in sync with CLINICAL_SIGNIFICANCE_CATEGORIES
+// in data-pipelines/import_clinvar.py
 export const CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES: {
   [key in ClinvarClinicalSignificanceCategory]: Set<string>;
 } = {
