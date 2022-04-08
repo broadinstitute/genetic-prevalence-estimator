@@ -17,6 +17,8 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 
+import { USERNAME_LABEL } from "../../constants/config";
+
 interface NewUser {
   username: string;
 }
@@ -47,14 +49,14 @@ const NewUserForm = (props: NewUserFormProps) => {
           isInvalid={username.length === 0}
           isRequired
         >
-          <FormLabel>Username</FormLabel>
+          <FormLabel>{USERNAME_LABEL}</FormLabel>
           <Input
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
             }}
           />
-          <FormErrorMessage>A username is required.</FormErrorMessage>
+          <FormErrorMessage>{USERNAME_LABEL} is required.</FormErrorMessage>
         </FormControl>
 
         <HStack justify="flex-end" width="100%">

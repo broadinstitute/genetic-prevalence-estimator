@@ -31,6 +31,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { get, patch, post } from "../../api";
+import { USERNAME_LABEL } from "../../constants/config";
 import { Store, atom, useStore } from "../../state";
 
 import { AddUserButton } from "./AddUser";
@@ -114,7 +115,7 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
       <Table variant="striped">
         <Thead>
           <Tr>
-            <Th scope="col">Username</Th>
+            <Th scope="col">{USERNAME_LABEL}</Th>
             <Th scope="col">Active</Th>
           </Tr>
         </Thead>

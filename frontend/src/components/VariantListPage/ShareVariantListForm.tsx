@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 
+import { USERNAME_LABEL } from "../../constants/config";
 import { VariantListAccessLevel } from "../../types";
 
 interface ShareVariantListFormValue {
@@ -40,7 +41,7 @@ const ShareVariantListForm = (props: ShareVariantListFormProps) => {
     >
       <HStack align="flex-end">
         <FormControl id="share-variant-list-user" flexGrow={1}>
-          <FormLabel>User</FormLabel>
+          <FormLabel>{USERNAME_LABEL}</FormLabel>
           <Input
             value={username}
             onChange={(e) => {
