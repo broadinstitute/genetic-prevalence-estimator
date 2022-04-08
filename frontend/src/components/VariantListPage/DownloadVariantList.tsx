@@ -46,6 +46,14 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
       label: "Allele number",
       getValue: (variant: Variant) => (variant.AN || [])[0],
     },
+    {
+      label: "Allele frequency",
+      getValue: (variant: Variant) => {
+        const ac = (variant.AC || [])[0];
+        const an = (variant.AN || [])[0];
+        return ac === 0 ? 0 : ac / an;
+      },
+    },
   ];
 
   const headerRow = columns.map((c) => c.label);
