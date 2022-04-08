@@ -1,11 +1,19 @@
 import { Link, LinkProps } from "@chakra-ui/react";
 import { FC, useEffect, useState } from "react";
 
+import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
 
-import { Variant, VariantList } from "../../types";
+import { GnomadPopulationId, Variant, VariantList } from "../../types";
 
-export const renderVariantsToTSV = (variants: Variant[]) => {
+export const renderVariantsToTSV = (
+  variantList: VariantList,
+  includePopulationFrequencies: GnomadPopulationId[] = []
+) => {
+  const includedPopulationIndices = includePopulationFrequencies.map(
+    (popId) => variantList.metadata.populations!.indexOf(popId) + 1
+  );
+
   const columns = [
     {
       label: "Variant ID",
@@ -54,6 +62,27 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
         return ac === 0 ? 0 : ac / an;
       },
     },
+    ...includePopulationFrequencies.flatMap((popId, i) => {
+      const popIndex = includedPopulationIndices[i];
+      return [
+        {
+          label: `Allele count (${GNOMAD_POPULATION_NAMES[popId]})`,
+          getValue: (variant: Variant) => (variant.AC || [])[popIndex],
+        },
+        {
+          label: `Allele number (${GNOMAD_POPULATION_NAMES[popId]})`,
+          getValue: (variant: Variant) => (variant.AN || [])[popIndex],
+        },
+        {
+          label: `Allele frequency (${GNOMAD_POPULATION_NAMES[popId]})`,
+          getValue: (variant: Variant) => {
+            const ac = (variant.AC || [])[popIndex];
+            const an = (variant.AN || [])[popIndex];
+            return ac === 0 ? 0 : ac / an;
+          },
+        },
+      ];
+    }),
   ];
 
   const headerRow = columns.map((c) => c.label);
@@ -61,7 +90,7 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
   return (
     [
       headerRow,
-      ...variants.map((variant) =>
+      ...variantList.variants.map((variant) =>
         columns.map((column) => {
           const value = column.getValue(variant);
           return value === null ? "" : value;
@@ -75,22 +104,24 @@ export const renderVariantsToTSV = (variants: Variant[]) => {
 
 interface DownloadVariantListLinkProps extends LinkProps {
   variantList: VariantList;
+  includePopulationFrequencies: GnomadPopulationId[];
 }
 
 export const DownloadVariantListLink: FC<DownloadVariantListLinkProps> = ({
   variantList,
+  includePopulationFrequencies = [],
   ...linkProps
 }) => {
   const [linkUrl, setLinkUrl] = useState("");
   useEffect(() => {
-    const tsv = renderVariantsToTSV(variantList.variants);
+    const tsv = renderVariantsToTSV(variantList, includePopulationFrequencies);
     const blob = new Blob([tsv], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     setLinkUrl(url);
     return () => {
       URL.revokeObjectURL(url);
     };
-  }, [variantList]);
+  }, [variantList, includePopulationFrequencies]);
 
   return (
     <Link

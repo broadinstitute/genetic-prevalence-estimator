@@ -55,12 +55,6 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
       {variantList.status === "Ready" ? (
         <>
           <Box mb={4}>
-            <DownloadVariantListLink variantList={variantList}>
-              Download variants
-            </DownloadVariantListLink>
-          </Box>
-
-          <Box mb={4}>
             <MultipleSelect
               id="variant-table-included-population"
               label="Show population frequencies"
@@ -73,6 +67,15 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
                 setPopulationsDisplayedInTable(value as GnomadPopulationId[])
               }
             />
+          </Box>
+
+          <Box mb={4}>
+            <DownloadVariantListLink
+              variantList={variantList}
+              includePopulationFrequencies={populationsDisplayedInTable}
+            >
+              Download variants
+            </DownloadVariantListLink>
           </Box>
 
           <div style={{ width: "100%", overflowX: "auto" }}>
