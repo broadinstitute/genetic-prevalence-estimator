@@ -56,7 +56,7 @@ const CustomVariantListForm = () => {
 
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
-  const [gnomadVersion, setGnomadVersion] = useState("3.1.2");
+  const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
   const [variants, setVariants] = useState<InputVariant[]>([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -134,8 +134,8 @@ const CustomVariantListForm = () => {
             <FormLabel>gnomAD version</FormLabel>
             <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
               <VStack align="flex-start">
-                <Radio value="3.1.2">3.1.2 (GRCh38)</Radio>
                 <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
+                <Radio value="3.1.2">3.1.2 (GRCh38)</Radio>
               </VStack>
             </RadioGroup>
 
