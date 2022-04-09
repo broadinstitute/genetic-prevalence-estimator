@@ -1,3 +1,4 @@
+import { ArrowDownIcon, ArrowUpIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Checkbox,
@@ -13,7 +14,8 @@ import {
   Tooltip,
   VisuallyHidden,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { sortBy } from "lodash";
+import { FC, useCallback, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
@@ -62,6 +64,10 @@ interface ColumnDef {
   key: string;
   heading: string;
   isNumeric?: boolean;
+  sortKey?: (
+    variant: Variant,
+    variantList: VariantList
+  ) => string | number | (string | number)[];
   render: (
     variant: Variant,
     variantList: VariantList
@@ -78,6 +84,10 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "variant_id",
     heading: "Variant ID",
+    sortKey: (variant) => {
+      const [chrom, pos, ref, alt] = variant.id.split("-");
+      return [chrom, Number(pos), ref, alt];
+    },
     render: (variant, variantList) => {
       const gnomadVersion = variantList.metadata.gnomad_version;
       const gnomadDataset = {
@@ -101,6 +111,10 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "consequence",
     heading: "VEP consequence",
+    sortKey: (variant) =>
+      (variant.major_consequence &&
+        VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)) ||
+      "",
     render: (variant) => {
       return (
         variant.major_consequence &&
@@ -111,6 +125,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "loftee",
     heading: "LOFTEE",
+    sortKey: (variant) => variant.lof || "",
     render: (variant) => {
       return variant.lof;
     },
@@ -118,6 +133,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsc",
     heading: "HGVSc",
+    sortKey: (variant) => variant.hgvsc || "",
     render: (variant) => {
       return <Cell maxWidth={150}>{variant.hgvsc}</Cell>;
     },
@@ -125,6 +141,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsp",
     heading: "HGVSp",
+    sortKey: (variant) => variant.hgvsp || "",
     render: (variant) => {
       return <Cell maxWidth={150}>{variant.hgvsp}</Cell>;
     },
@@ -132,6 +149,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "clinical_significance",
     heading: "Clinical significance",
+    sortKey: (variant) => sortBy(variant.clinical_significance),
     render: (variant) => {
       return (
         variant.clinical_significance && (
@@ -150,6 +168,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "ac",
     heading: "Allele count",
     isNumeric: true,
+    sortKey: (variant) => (variant.AC || [])[0] || 0,
     render: (variant) => {
       const ac = (variant.AC || [])[0] || 0;
       return (
@@ -190,6 +209,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "an",
     heading: "Allele number",
     isNumeric: true,
+    sortKey: (variant) => (variant.AN || [])[0] || 0,
     render: (variant) => {
       return renderCount((variant.AN || [])[0] || 0);
     },
@@ -198,6 +218,11 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "af",
     heading: "Allele frequency",
     isNumeric: true,
+    sortKey: (variant) => {
+      const ac = (variant.AC || [])[0] || 0;
+      const an = (variant.AN || [])[0] || 0;
+      return ac === 0 ? 0 : ac / an;
+    },
     render: (variant) => {
       const ac = (variant.AC || [])[0] || 0;
       const an = (variant.AN || [])[0] || 0;
@@ -210,6 +235,11 @@ const BASE_COLUMNS: ColumnDef[] = [
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
   heading: "Included from",
+  sortKey: (variant, variantList) => {
+    return variantList.type === VariantListType.RECOMMENDED
+      ? getVariantSources(variant, variantList)
+      : [];
+  },
   render: (variant, variantList) => {
     if (variantList.type !== VariantListType.RECOMMENDED) {
       return null;
@@ -263,6 +293,7 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-ac`,
       heading: `Allele count (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      sortKey: (variant) => (variant.AC || [])[popIndex] || 0,
       render: (variant) => {
         const ac = (variant.AC || [])[popIndex] || 0;
         return renderCount(ac);
@@ -272,6 +303,7 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-an`,
       heading: `Allele number (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      sortKey: (variant) => (variant.AN || [])[popIndex] || 0,
       render: (variant) => {
         const an = (variant.AN || [])[popIndex] || 0;
         return renderCount(an);
@@ -281,6 +313,11 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-af`,
       heading: `Allele frequency (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      sortKey: (variant) => {
+        const ac = (variant.AC || [])[popIndex] || 0;
+        const an = (variant.AN || [])[popIndex] || 0;
+        return ac === 0 ? 0 : ac / an;
+      },
       render: (variant) => {
         const ac = (variant.AC || [])[popIndex] || 0;
         const an = (variant.AN || [])[popIndex] || 0;
@@ -298,6 +335,46 @@ interface VariantsTableProps extends TableProps {
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
 }
 
+type SortOrder = "ascending" | "descending";
+interface SortState {
+  key: string;
+  order: SortOrder;
+}
+const useSort = (
+  columns: ColumnDef[]
+): [ColumnDef, SortOrder, (sortKey: string) => void] => {
+  const defaultSortColumn = columns.find((column) => column.sortKey)!;
+  const [sortState, setSortState] = useState<SortState>({
+    key: defaultSortColumn.key,
+    order: "ascending",
+  });
+
+  const setSortKey = useCallback(
+    (sortKey: string) =>
+      setSortState((prevSortState) => {
+        if (sortKey === prevSortState.key) {
+          return {
+            ...prevSortState,
+            order:
+              prevSortState.order === "ascending" ? "descending" : "ascending",
+          };
+        }
+        return { key: sortKey, order: "ascending" };
+      }),
+    []
+  );
+
+  const selectedSortColumn = columns.find(
+    (column) => column.key === sortState.key
+  );
+  // A population specific column may be removed from the table while the table
+  // is sorted by that column.
+  if (!selectedSortColumn) {
+    return [defaultSortColumn, "ascending", setSortKey];
+  }
+  return [selectedSortColumn, sortState.order, setSortKey];
+};
+
 const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
@@ -313,6 +390,15 @@ const VariantsTable: FC<VariantsTableProps> = ({
   ];
   if (variantList.type === VariantListType.RECOMMENDED) {
     columns.push(SOURCE_COLUMN);
+  }
+
+  const [sortColumn, sortOrder, setSortKey] = useSort(columns);
+
+  const sortedVariants = sortBy(variantList.variants, (variant) =>
+    sortColumn.sortKey!(variant, variantList)
+  );
+  if (sortOrder === "descending") {
+    sortedVariants.reverse();
   }
 
   return (
@@ -351,15 +437,59 @@ const VariantsTable: FC<VariantsTableProps> = ({
           </Th>
           {columns.map((column) => {
             return (
-              <Th key={column.key} scope="col" isNumeric={column.isNumeric}>
-                {column.heading}
+              <Th
+                key={column.key}
+                scope="col"
+                isNumeric={column.isNumeric}
+                aria-sort={
+                  column.key === sortColumn.key ? sortOrder : undefined
+                }
+                style={{ position: "relative" }}
+              >
+                {column.sortKey ? (
+                  <>
+                    <button
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                        appearance: "none",
+                        fontSize: "inherit",
+                        fontWeight: "inherit",
+                        textAlign: "inherit",
+                      }}
+                      onClick={() => {
+                        setSortKey(column.key);
+                      }}
+                    >
+                      {column.heading}
+                    </button>
+                    {column.key === sortColumn.key && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          right: "3px",
+                          top: "calc(50% - 10px)",
+                        }}
+                      >
+                        {sortOrder === "descending" ? (
+                          <ArrowDownIcon />
+                        ) : (
+                          <ArrowUpIcon />
+                        )}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  column.heading
+                )}
               </Th>
             );
           })}
         </Tr>
       </Thead>
       <Tbody>
-        {variantList.variants.map((variant) => {
+        {sortedVariants.map((variant) => {
           return (
             <Tr key={variant.id}>
               <Td>
