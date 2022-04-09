@@ -326,12 +326,16 @@ interface SortState {
   order: SortOrder;
 }
 const useSort = (
-  columns: ColumnDef[]
+  columns: ColumnDef[],
+  defaultSortKey: string,
+  defaultSortOrder: SortOrder = "ascending"
 ): [ColumnDef, SortOrder, (sortKey: string) => void] => {
-  const defaultSortColumn = columns.find((column) => column.sortKey)!;
+  const defaultSortColumn = columns.find(
+    (column) => column.key === defaultSortKey
+  )!;
   const [sortState, setSortState] = useState<SortState>({
     key: defaultSortColumn.key,
-    order: "ascending",
+    order: defaultSortOrder,
   });
 
   const setSortKey = useCallback(
@@ -377,7 +381,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
     columns.push(SOURCE_COLUMN);
   }
 
-  const [sortColumn, sortOrder, setSortKey] = useSort(columns);
+  const [sortColumn, sortOrder, setSortKey] = useSort(
+    columns,
+    "af",
+    "descending"
+  );
 
   const sortedVariants = sortBy(variantList.variants, (variant) =>
     sortColumn.sortKey!(variant, variantList)
