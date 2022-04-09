@@ -29,6 +29,17 @@ import {
 
 import { getVariantSources } from "./variantSources";
 
+const variantAC = (variant: Variant, popIndex: number = 0) =>
+  (variant.AC || [])[popIndex] || 0;
+
+const variantAN = (variant: Variant, popIndex: number = 0) =>
+  (variant.AN || [])[popIndex] || 0;
+
+const variantAF = (variant: Variant, popIndex: number = 0) => {
+  const ac = variantAC(variant, popIndex);
+  return ac === 0 ? 0 : ac / variantAN(variant, popIndex);
+};
+
 const countFormatter = new Intl.NumberFormat(undefined, {});
 
 const renderCount = (n: number) => {
@@ -168,9 +179,9 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "ac",
     heading: "Allele count",
     isNumeric: true,
-    sortKey: (variant) => (variant.AC || [])[0] || 0,
+    sortKey: (variant) => variantAC(variant),
     render: (variant) => {
-      const ac = (variant.AC || [])[0] || 0;
+      const ac = variantAC(variant);
       return (
         <Flex as="span" justify="flex-end">
           <span>{renderCount(ac)}</span>
@@ -209,26 +220,15 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "an",
     heading: "Allele number",
     isNumeric: true,
-    sortKey: (variant) => (variant.AN || [])[0] || 0,
-    render: (variant) => {
-      return renderCount((variant.AN || [])[0] || 0);
-    },
+    sortKey: (variant) => variantAN(variant),
+    render: (variant) => renderCount(variantAN(variant)),
   },
   {
     key: "af",
     heading: "Allele frequency",
     isNumeric: true,
-    sortKey: (variant) => {
-      const ac = (variant.AC || [])[0] || 0;
-      const an = (variant.AN || [])[0] || 0;
-      return ac === 0 ? 0 : ac / an;
-    },
-    render: (variant) => {
-      const ac = (variant.AC || [])[0] || 0;
-      const an = (variant.AN || [])[0] || 0;
-      const af = ac === 0 ? 0 : ac / an;
-      return renderAlleleFrequency(af);
-    },
+    sortKey: (variant) => variantAF(variant),
+    render: (variant) => renderAlleleFrequency(variantAF(variant)),
   },
 ];
 
@@ -293,37 +293,22 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-ac`,
       heading: `Allele count (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
-      sortKey: (variant) => (variant.AC || [])[popIndex] || 0,
-      render: (variant) => {
-        const ac = (variant.AC || [])[popIndex] || 0;
-        return renderCount(ac);
-      },
+      sortKey: (variant) => variantAC(variant, popIndex),
+      render: (variant) => renderCount(variantAC(variant, popIndex)),
     },
     {
       key: `pop-${popId}-an`,
       heading: `Allele number (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
-      sortKey: (variant) => (variant.AN || [])[popIndex] || 0,
-      render: (variant) => {
-        const an = (variant.AN || [])[popIndex] || 0;
-        return renderCount(an);
-      },
+      sortKey: (variant) => variantAN(variant, popIndex),
+      render: (variant) => renderCount(variantAN(variant, popIndex)),
     },
     {
       key: `pop-${popId}-af`,
       heading: `Allele frequency (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
-      sortKey: (variant) => {
-        const ac = (variant.AC || [])[popIndex] || 0;
-        const an = (variant.AN || [])[popIndex] || 0;
-        return ac === 0 ? 0 : ac / an;
-      },
-      render: (variant) => {
-        const ac = (variant.AC || [])[popIndex] || 0;
-        const an = (variant.AN || [])[popIndex] || 0;
-        const af = ac === 0 ? 0 : ac / an;
-        return renderAlleleFrequency(af);
-      },
+      sortKey: (variant) => variantAF(variant, popIndex),
+      render: (variant) => renderAlleleFrequency(variantAF(variant, popIndex)),
     },
   ];
 };
