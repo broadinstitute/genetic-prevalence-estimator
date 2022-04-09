@@ -19,6 +19,7 @@ import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
 import {
   GnomadPopulationId,
+  Variant,
   VariantId,
   VariantList,
   VariantListType,
@@ -57,6 +58,239 @@ const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
   );
 };
 
+interface ColumnDef {
+  key: string;
+  heading: string;
+  isNumeric?: boolean;
+  render: (
+    variant: Variant,
+    variantList: VariantList
+  ) =>
+    | JSX.Element
+    | string
+    | (JSX.Element | string)[]
+    | null
+    | undefined
+    | false;
+}
+
+const BASE_COLUMNS: ColumnDef[] = [
+  {
+    key: "variant_id",
+    heading: "Variant ID",
+    render: (variant, variantList) => {
+      const gnomadVersion = variantList.metadata.gnomad_version;
+      const gnomadDataset = {
+        "2.1.1": "gnomad_r2_1",
+        "3.1.2": "gnomad_r3",
+      }[gnomadVersion];
+
+      return (
+        <Cell maxWidth={200}>
+          <Link
+            href={`https://gnomad.broadinstitute.org/variant/${variant.id}?dataset=${gnomadDataset}`}
+            isExternal
+            target="_blank"
+          >
+            {variant.id}
+          </Link>
+        </Cell>
+      );
+    },
+  },
+  {
+    key: "consequence",
+    heading: "VEP consequence",
+    render: (variant) => {
+      return (
+        variant.major_consequence &&
+        VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
+      );
+    },
+  },
+  {
+    key: "loftee",
+    heading: "LOFTEE",
+    render: (variant) => {
+      return variant.lof;
+    },
+  },
+  {
+    key: "hgvsc",
+    heading: "HGVSc",
+    render: (variant) => {
+      return <Cell maxWidth={150}>{variant.hgvsc}</Cell>;
+    },
+  },
+  {
+    key: "hgvsp",
+    heading: "HGVSp",
+    render: (variant) => {
+      return <Cell maxWidth={150}>{variant.hgvsp}</Cell>;
+    },
+  },
+  {
+    key: "clinical_significance",
+    heading: "Clinical significance",
+    render: (variant) => {
+      return (
+        variant.clinical_significance && (
+          <Link
+            href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
+            isExternal
+            target="_blank"
+          >
+            {variant.clinical_significance?.join(", ")}
+          </Link>
+        )
+      );
+    },
+  },
+  {
+    key: "ac",
+    heading: "Allele count",
+    isNumeric: true,
+    render: (variant) => {
+      const ac = (variant.AC || [])[0] || 0;
+      return (
+        <Flex as="span" justify="flex-end">
+          <span>{renderCount(ac)}</span>
+          {variant.flags?.includes("not_found") && (
+            <Tooltip hasArrow label="This variant is not found in gnomAD.">
+              <Badge
+                colorScheme="red"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Not found
+              </Badge>
+            </Tooltip>
+          )}
+          {variant.flags?.includes("filtered") && (
+            <Tooltip
+              hasArrow
+              label="Some samples are not included because this variant failed gnomAD quality control filters."
+            >
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Filtered
+              </Badge>
+            </Tooltip>
+          )}
+        </Flex>
+      );
+    },
+  },
+  {
+    key: "an",
+    heading: "Allele number",
+    isNumeric: true,
+    render: (variant) => {
+      return renderCount((variant.AN || [])[0] || 0);
+    },
+  },
+  {
+    key: "af",
+    heading: "Allele frequency",
+    isNumeric: true,
+    render: (variant) => {
+      const ac = (variant.AC || [])[0] || 0;
+      const an = (variant.AN || [])[0] || 0;
+      const af = ac === 0 ? 0 : ac / an;
+      return renderAlleleFrequency(af);
+    },
+  },
+];
+
+const SOURCE_COLUMN: ColumnDef = {
+  key: "source",
+  heading: "Included from",
+  render: (variant, variantList) => {
+    if (variantList.type !== VariantListType.RECOMMENDED) {
+      return null;
+    }
+
+    return getVariantSources(variant, variantList)
+      .map((source) => {
+        if (source === "ClinVar") {
+          return (
+            <Tooltip
+              key="ClinVar"
+              hasArrow
+              label={`This variant was included from ClinVar, where it has a clinical significance in one of the included categories (${variantList.metadata.included_clinvar_variants
+                ?.map((category) =>
+                  (category.charAt(0).toUpperCase() + category.slice(1))
+                    .split("_")
+                    .join(" ")
+                )
+                .join(", ")}).`}
+              maxWidth="500px"
+            >
+              ClinVar
+            </Tooltip>
+          );
+        } else {
+          return (
+            <Tooltip
+              key="gnomAD"
+              hasArrow
+              label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
+              maxWidth="500px"
+            >
+              gnomAD
+            </Tooltip>
+          );
+        }
+      })
+      .flatMap((el) => [", ", el])
+      .slice(1);
+  },
+};
+
+const populationAlleleFrequencyColumns = (
+  variantList: VariantList,
+  popId: GnomadPopulationId
+): ColumnDef[] => {
+  const popIndex = variantList.metadata.populations!.indexOf(popId) + 1;
+
+  return [
+    {
+      key: `pop-${popId}-ac`,
+      heading: `Allele count (${GNOMAD_POPULATION_NAMES[popId]})`,
+      isNumeric: true,
+      render: (variant) => {
+        const ac = (variant.AC || [])[popIndex] || 0;
+        return renderCount(ac);
+      },
+    },
+    {
+      key: `pop-${popId}-an`,
+      heading: `Allele number (${GNOMAD_POPULATION_NAMES[popId]})`,
+      isNumeric: true,
+      render: (variant) => {
+        const an = (variant.AN || [])[popIndex] || 0;
+        return renderCount(an);
+      },
+    },
+    {
+      key: `pop-${popId}-af`,
+      heading: `Allele frequency (${GNOMAD_POPULATION_NAMES[popId]})`,
+      isNumeric: true,
+      render: (variant) => {
+        const ac = (variant.AC || [])[popIndex] || 0;
+        const an = (variant.AN || [])[popIndex] || 0;
+        const af = ac === 0 ? 0 : ac / an;
+        return renderAlleleFrequency(af);
+      },
+    },
+  ];
+};
+
 interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
@@ -71,15 +305,15 @@ const VariantsTable: FC<VariantsTableProps> = ({
   onChangeSelectedVariants,
   ...tableProps
 }) => {
-  const gnomadVersion = variantList.metadata.gnomad_version;
-  const gnomadDataset = {
-    "2.1.1": "gnomad_r2_1",
-    "3.1.2": "gnomad_r3",
-  }[gnomadVersion];
-
-  const includedPopulationIndices = includePopulationFrequencies.map(
-    (popId) => variantList.metadata.populations!.indexOf(popId) + 1
-  );
+  const columns = [
+    ...BASE_COLUMNS,
+    ...includePopulationFrequencies.flatMap((popId) =>
+      populationAlleleFrequencyColumns(variantList, popId)
+    ),
+  ];
+  if (variantList.type === VariantListType.RECOMMENDED) {
+    columns.push(SOURCE_COLUMN);
+  }
 
   return (
     <Table
@@ -115,43 +349,17 @@ const VariantsTable: FC<VariantsTableProps> = ({
               <VisuallyHidden>Include variants in calculations</VisuallyHidden>
             </Checkbox>
           </Th>
-          <Th scope="col">Variant ID</Th>
-          <Th scope="col">VEP consequence</Th>
-          <Th scope="col">LOFTEE</Th>
-          <Th scope="col">HGVSc</Th>
-          <Th scope="col">HGVSp</Th>
-          <Th scope="col">Clinical significance</Th>
-          <Th scope="col" isNumeric>
-            Allele count
-          </Th>
-          <Th scope="col" isNumeric>
-            Allele number
-          </Th>
-          <Th scope="col" isNumeric>
-            Allele frequency
-          </Th>
-          {includePopulationFrequencies.flatMap((popId) => [
-            <Th key={`population-${popId}-ac`} scope="col" isNumeric>
-              Allele count ({GNOMAD_POPULATION_NAMES[popId]})
-            </Th>,
-            <Th key={`population-${popId}-an`} scope="col" isNumeric>
-              Allele number ({GNOMAD_POPULATION_NAMES[popId]})
-            </Th>,
-            <Th key={`population-${popId}-af`} scope="col" isNumeric>
-              Allele frequency ({GNOMAD_POPULATION_NAMES[popId]})
-            </Th>,
-          ])}
-          {variantList.type === VariantListType.RECOMMENDED && (
-            <Th scope="col">Included from</Th>
-          )}
+          {columns.map((column) => {
+            return (
+              <Th key={column.key} scope="col" isNumeric={column.isNumeric}>
+                {column.heading}
+              </Th>
+            );
+          })}
         </Tr>
       </Thead>
       <Tbody>
         {variantList.variants.map((variant) => {
-          const ac = (variant.AC || [])[0] || 0;
-          const an = (variant.AN || [])[0] || 0;
-          const af = ac === 0 ? 0 : ac / an;
-
           return (
             <Tr key={variant.id}>
               <Td>
@@ -178,136 +386,19 @@ const VariantsTable: FC<VariantsTableProps> = ({
                   </VisuallyHidden>
                 </Checkbox>
               </Td>
-              <Td as="th" scope="row" fontWeight="normal">
-                <Cell maxWidth={200}>
-                  <Link
-                    href={`https://gnomad.broadinstitute.org/variant/${variant.id}?dataset=${gnomadDataset}`}
-                    isExternal
-                    target="_blank"
+              {columns.map((column) => {
+                return (
+                  <Td
+                    key={column.key}
+                    as={column.key === "variant_id" ? "th" : undefined}
+                    scope={column.key === "variant_id" ? "row" : undefined}
+                    fontWeight="normal"
+                    isNumeric={column.isNumeric}
                   >
-                    {variant.id}
-                  </Link>
-                </Cell>
-              </Td>
-              <Td>
-                {variant.major_consequence
-                  ? VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
-                  : ""}
-              </Td>
-              <Td>{variant.lof}</Td>
-              <Td>
-                <Cell maxWidth={150}>{variant.hgvsc}</Cell>
-              </Td>
-              <Td>
-                <Cell maxWidth={150}>{variant.hgvsp}</Cell>
-              </Td>
-              <Td>
-                {variant.clinical_significance && (
-                  <Link
-                    href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
-                    isExternal
-                    target="_blank"
-                  >
-                    {variant.clinical_significance?.join(", ")}
-                  </Link>
-                )}
-              </Td>
-              <Td isNumeric>
-                <Flex as="span" justify="flex-end">
-                  <span>{renderCount(ac)}</span>
-                  {variant.flags?.includes("not_found") && (
-                    <Tooltip
-                      hasArrow
-                      label="This variant is not found in gnomAD."
-                    >
-                      <Badge
-                        colorScheme="red"
-                        fontSize="0.8em"
-                        mr={2}
-                        style={{ order: -1 }}
-                      >
-                        Not found
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {variant.flags?.includes("filtered") && (
-                    <Tooltip
-                      hasArrow
-                      label="Some samples are not included because this variant failed gnomAD quality control filters."
-                    >
-                      <Badge
-                        colorScheme="yellow"
-                        fontSize="0.8em"
-                        mr={2}
-                        style={{ order: -1 }}
-                      >
-                        Filtered
-                      </Badge>
-                    </Tooltip>
-                  )}
-                </Flex>
-              </Td>
-              <Td isNumeric>{renderCount(an)}</Td>
-              <Td isNumeric>{renderAlleleFrequency(af)}</Td>
-              {includedPopulationIndices.flatMap((popIndex) => {
-                const popAC = (variant.AC || [])[popIndex] || 0;
-                const popAN = (variant.AN || [])[popIndex] || 0;
-                const popAF = ac === 0 ? 0 : ac / an;
-
-                return [
-                  <Td key={`population-${popIndex}-ac`} isNumeric>
-                    {renderCount(popAC)}
-                  </Td>,
-                  <Td key={`population-${popIndex}-an`} isNumeric>
-                    {renderCount(popAN)}
-                  </Td>,
-                  <Td key={`population-${popIndex}-af`} isNumeric>
-                    {renderAlleleFrequency(popAF)}
-                  </Td>,
-                ];
+                    {column.render(variant, variantList)}
+                  </Td>
+                );
               })}
-
-              {variantList.type === VariantListType.RECOMMENDED && (
-                <Td>
-                  {getVariantSources(variant, variantList)
-                    .map((source) => {
-                      if (source === "ClinVar") {
-                        return (
-                          <Tooltip
-                            key="ClinVar"
-                            hasArrow
-                            label={`This variant was included from ClinVar, where it has a clinical significance in one of the included categories (${variantList.metadata.included_clinvar_variants
-                              ?.map((category) =>
-                                (
-                                  category.charAt(0).toUpperCase() +
-                                  category.slice(1)
-                                )
-                                  .split("_")
-                                  .join(" ")
-                              )
-                              .join(", ")}).`}
-                            maxWidth="500px"
-                          >
-                            ClinVar
-                          </Tooltip>
-                        );
-                      } else {
-                        return (
-                          <Tooltip
-                            key="gnomAD"
-                            hasArrow
-                            label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
-                            maxWidth="500px"
-                          >
-                            gnomAD
-                          </Tooltip>
-                        );
-                      }
-                    })
-                    .flatMap((el) => [", ", el])
-                    .slice(1)}
-                </Td>
-              )}
             </Tr>
           );
         })}
