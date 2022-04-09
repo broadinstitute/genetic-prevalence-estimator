@@ -4,35 +4,107 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
+  BoxProps,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Center,
-  Divider,
   Heading,
-  ListItem,
+  Link as ChakraLink,
   Spinner,
   Text,
-  UnorderedList,
+  VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { get } from "../api";
-import { VariantList } from "../types";
+import {
+  CustomVariantList,
+  RecommendedVariantList,
+  VariantList,
+  VariantListType,
+} from "../types";
+import DateTime from "./DateTime";
 import Link from "./Link";
 
-const VariantLists = ({ variantLists }: { variantLists: VariantList[] }) => {
+interface CustomVariantListMetadataProps {
+  variantList: CustomVariantList;
+}
+
+const CustomVariantListMetadata: FC<CustomVariantListMetadataProps> = ({
+  variantList,
+}) => {
   return (
-    <UnorderedList>
-      {variantLists.map((variantList) => (
-        <ListItem key={variantList.uuid}>
-          <Link to={`/variant-lists/${variantList.uuid}/`}>
+    <>
+      Custom variant list, gnomAD {variantList.metadata.gnomad_version},{" "}
+      {variantList.variants.length} variants
+    </>
+  );
+};
+
+interface RecommendedVariantListMetadataProps {
+  variantList: RecommendedVariantList;
+}
+
+const RecommendedVariantListMetadata: FC<RecommendedVariantListMetadataProps> = ({
+  variantList,
+}) => {
+  return (
+    <>
+      Recommended variant list, gnomAD {variantList.metadata.gnomad_version},{" "}
+      {variantList.metadata.gene_id} / {variantList.metadata.transcript_id}
+    </>
+  );
+};
+
+interface VariantListCardProps extends BoxProps {
+  variantList: VariantList;
+}
+
+const VariantListCard: FC<VariantListCardProps> = ({
+  variantList,
+  ...otherProps
+}) => {
+  return (
+    <Box borderWidth="1px" shadow="md" {...otherProps}>
+      <RRLink to={`/variant-lists/${variantList.uuid}/`}>
+        <Box p="0.5rem 1rem">
+          <ChakraLink as="span" fontSize="xl">
             {variantList.label}
-          </Link>
-        </ListItem>
+          </ChakraLink>
+          <Text as="div" fontSize="sm">
+            {variantList.type === VariantListType.CUSTOM && (
+              <CustomVariantListMetadata variantList={variantList} />
+            )}
+            {variantList.type === VariantListType.RECOMMENDED && (
+              <RecommendedVariantListMetadata variantList={variantList} />
+            )}
+          </Text>
+          <Text as="div" fontSize="sm">
+            Last updated <DateTime datetime={variantList.updated_at} />
+          </Text>
+        </Box>
+      </RRLink>
+    </Box>
+  );
+};
+
+interface VariantListsProps {
+  variantLists: VariantList[];
+}
+
+const VariantLists: FC<VariantListsProps> = ({ variantLists }) => {
+  return (
+    <VStack role="list" align="stretch" spacing={4}>
+      {variantLists.map((variantList) => (
+        <VariantListCard
+          key={variantList.uuid}
+          role="listitem"
+          variantList={variantList}
+        />
       ))}
-    </UnorderedList>
+    </VStack>
   );
 };
 
@@ -96,9 +168,7 @@ const VariantListsPage = () => {
 
       <VariantListsContainer />
 
-      <Divider mb={4} mt={4} />
-
-      <Text>
+      <Text mt={4}>
         <Link to="/variant-lists/new/">Create a new variant list</Link>
       </Text>
     </>
