@@ -131,15 +131,15 @@ const VariantsTable: FC<VariantsTableProps> = ({
             Allele frequency
           </Th>
           {includePopulationFrequencies.flatMap((popId) => [
-            <Td key={`population-${popId}-ac`} isNumeric>
+            <Th key={`population-${popId}-ac`} scope="col" isNumeric>
               Allele count ({GNOMAD_POPULATION_NAMES[popId]})
-            </Td>,
-            <Td key={`population-${popId}-an`} isNumeric>
+            </Th>,
+            <Th key={`population-${popId}-an`} scope="col" isNumeric>
               Allele number ({GNOMAD_POPULATION_NAMES[popId]})
-            </Td>,
-            <Td key={`population-${popId}-af`} isNumeric>
+            </Th>,
+            <Th key={`population-${popId}-af`} scope="col" isNumeric>
               Allele frequency ({GNOMAD_POPULATION_NAMES[popId]})
-            </Td>,
+            </Th>,
           ])}
           {variantList.type === VariantListType.RECOMMENDED && (
             <Th scope="col">Included from</Th>
