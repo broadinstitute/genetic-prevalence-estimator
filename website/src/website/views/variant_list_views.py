@@ -1,5 +1,6 @@
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -14,6 +15,10 @@ class VariantListsView(ListCreateAPIView):
         return VariantList.objects.filter(access_permission__user=self.request.user)
 
     permission_classes = (IsAuthenticated, ViewObjectPermissions)
+
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["label", "updated_at"]
+    ordering = ["-updated_at"]
 
     def get_serializer_class(self):
         if self.request.method == "POST":

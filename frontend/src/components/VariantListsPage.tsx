@@ -11,6 +11,7 @@ import {
   Center,
   Heading,
   Link as ChakraLink,
+  Select,
   Spinner,
   Text,
   VStack,
@@ -108,19 +109,25 @@ const VariantLists: FC<VariantListsProps> = ({ variantLists }) => {
   );
 };
 
-const VariantListsContainer = () => {
+interface VariantListsContainerProps {
+  orderBy: string | string[];
+}
+
+const VariantListsContainer: FC<VariantListsContainerProps> = ({ orderBy }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [variantLists, setVariantLists] = useState<VariantList[]>([]);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
-    get("/variant-lists/")
+    get("/variant-lists/", {
+      ordering: Array.isArray(orderBy) ? orderBy.join(",") : orderBy,
+    })
       .then((variantLists) => setVariantLists(variantLists), setError)
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [orderBy]);
 
   if (isLoading) {
     return (
@@ -148,6 +155,8 @@ const VariantListsContainer = () => {
 };
 
 const VariantListsPage = () => {
+  const [orderBy, setOrderBy] = useState("-updated_at");
+
   return (
     <>
       <Box mb={2}>
@@ -162,11 +171,31 @@ const VariantListsPage = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </Box>
-      <Heading as="h1" mb={4}>
-        Variant lists
-      </Heading>
+      <Box display="flex" flexFlow="row wrap" alignItems="flex-end">
+        <Heading as="h1" flexGrow={1} mb={4}>
+          Variant lists
+        </Heading>
 
-      <VariantListsContainer />
+        <Box display="inline-block" flexGrow={0} mb={4} whiteSpace="nowrap">
+          <Text as="label" htmlFor="variant-lists-order">
+            Order by{" "}
+            <Select
+              id="variant-lists-order"
+              value={orderBy}
+              onChange={(e) => {
+                setOrderBy(e.target.value);
+              }}
+              display="inline-block"
+              width={180}
+            >
+              <option value="label">Name</option>
+              <option value="-updated_at">Last updated</option>
+            </Select>
+          </Text>
+        </Box>
+      </Box>
+
+      <VariantListsContainer orderBy={orderBy} />
 
       <Text mt={4}>
         <Link to="/variant-lists/new/">Create a new variant list</Link>
