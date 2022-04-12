@@ -124,7 +124,7 @@ multidict==5.1.0
     #   yarl
 nest-asyncio==1.5.4
     # via hail
-numpy==1.20.2
+numpy==1.22.3
     # via
     #   bokeh
     #   hail
@@ -199,7 +199,7 @@ rsa==4.7.2
     # via google-auth
 s3transfer==0.5.1
     # via boto3
-scipy==1.6.2
+scipy==1.7.3
     # via hail
 six==1.15.0
     # via
