@@ -403,7 +403,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
           paddingLeft: "3px",
           paddingRight: "3px",
         },
-        "& td:last-child, & th:last-child": { paddingRight: 0 },
       }}
     >
       <Thead>
