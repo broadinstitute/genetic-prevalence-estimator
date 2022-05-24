@@ -23,6 +23,8 @@ export type ReferenceGenome = "GRCh37" | "GRCh38";
 
 export type VariantId = string;
 
+export type VariantSource = "gnomAD" | "ClinVar" | "Custom";
+
 export interface Variant {
   id: VariantId;
   hgvsc?: string | null;
@@ -34,6 +36,7 @@ export interface Variant {
   flags?: string[];
   clinvar_variation_id?: string | null;
   clinical_significance?: string[] | null;
+  source?: VariantSource[];
 }
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";

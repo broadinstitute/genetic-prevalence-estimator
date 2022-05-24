@@ -31,8 +31,12 @@ export const CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES: {
     "association not found",
     "confers sensitivity",
     "drug response",
+    "Established risk allele",
+    "Likely risk allele",
     "not provided",
     "other",
+    "Pathogenic/Likely risk allele",
     "protective",
+    "Uncertain risk allele",
   ]),
 };

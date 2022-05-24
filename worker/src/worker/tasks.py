@@ -40,6 +40,7 @@ VARIANT_FIELDS = [
     "clinical_significance",
     # Other
     "flags",
+    "source",
 ]
 
 
@@ -239,9 +240,10 @@ def process_new_recommended_variant_list(variant_list):
         )
     )
 
-    should_include_variant = PLOF_VEP_CONSEQUENCE_TERMS.contains(
-        ds.major_consequence
-    ) & (ds.lof == "HC")
+    include_from_gnomad = PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.major_consequence) & (
+        ds.lof == "HC"
+    )
+    ds = ds.annotate(include_from_gnomad=include_from_gnomad)
 
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
@@ -253,14 +255,41 @@ def process_new_recommended_variant_list(variant_list):
             variant_list.metadata["included_clinvar_variants"]
         )
 
-        should_include_variant = (
-            should_include_variant
-            | include_clinvar_variant_categories.contains(
+        include_from_clinvar = (
+            include_clinvar_variant_categories.contains(
+                "pathogenic_or_likely_pathogenic"
+            )
+            & (
                 clinvar[ds.locus, ds.alleles].clinical_significance_category
+                == "pathogenic_or_likely_pathogenic"
+            )
+        ) | (
+            include_clinvar_variant_categories.contains("conflicting_interpretations")
+            & (
+                clinvar[ds.locus, ds.alleles].clinical_significance_category
+                == "conflicting_interpretations"
+            )
+            & (
+                clinvar[
+                    ds.locus, ds.alleles
+                ].conflicting_clinical_significance_categories.contains(
+                    "pathogenic_or_likely_pathogenic"
+                )
             )
         )
 
-    ds = ds.filter(should_include_variant)
+        ds = ds.annotate(include_from_clinvar=include_from_clinvar)
+
+    ds = ds.filter(ds.include_from_gnomad | ds.include_from_clinvar)
+
+    ds = ds.annotate(
+        source=hl.array(
+            [
+                hl.or_missing(ds.include_from_gnomad, "gnomAD"),
+                hl.or_missing(ds.include_from_clinvar, "ClinVar"),
+            ]
+        ).filter(hl.is_defined)
+    )
 
     populations = hl.eval(ds.globals.populations)
     variant_list.metadata["populations"] = populations
@@ -296,6 +325,7 @@ def process_new_custom_variant_list(variant_list):
     ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
 
     ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
+    ds = ds.annotate(source=["Custom"])
 
     gnomad = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"

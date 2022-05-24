@@ -32,9 +32,6 @@ class RecommendedVariantListMetadataVersion1Serializer(
         [
             "pathogenic_or_likely_pathogenic",
             "conflicting_interpretations",
-            "uncertain_significance",
-            "benign_or_likely_benign",
-            "other",
         ],
         allow_null=True,
     )

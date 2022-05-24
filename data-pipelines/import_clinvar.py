@@ -40,61 +40,60 @@ def download_clinvar_vcf(output_path, reference_genome):
     )
 
 
-# These categories must stay in sync with CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES
-# in frontend/src/constants/clinvar.ts
-CLINICAL_SIGNIFICANCE_CATEGORIES = hl.literal(
-    [
-        (
-            "pathogenic_or_likely_pathogenic",
-            {
-                "association",
-                "Likely pathogenic",
-                "Pathogenic",
-                "Pathogenic/Likely pathogenic",
-                "risk factor",
-            },
-        ),
-        (
-            "conflicting_interpretations",
-            {
-                "conflicting data from submitters",
-                "Conflicting interpretations of pathogenicity",
-            },
-        ),
-        (
-            "uncertain_significance",
-            {
-                "Uncertain significance",
-            },
-        ),
-        (
-            "benign_or_likely_benign",
-            {"Benign", "Benign/Likely benign", "Likely benign"},
-        ),
-        (
+# https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/
+CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
+    {
+        "pathogenic_or_likely_pathogenic": {
+            "association",
+            "Likely pathogenic",
+            "Pathogenic",
+            "Pathogenic/Likely pathogenic",
+            "risk factor",
+        },
+        "conflicting_interpretations": {
+            "conflicting data from submitters",
+            "Conflicting interpretations of pathogenicity",
+        },
+        "uncertain_significance": {
+            "Uncertain significance",
+        },
+        "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
+        "other": {
+            "Affects",
+            "association not found",
+            "confers sensitivity",
+            "drug response",
+            "Established risk allele",
+            "Likely risk allele",
+            "low penetrance",
+            "not provided",
             "other",
-            {
-                "Affects",
-                "association not found",
-                "confers sensitivity",
-                "drug response",
-                "not provided",
-                "other",
-                "protective",
-            },
-        ),
-    ]
+            "Pathogenic/Likely risk allele",
+            "protective",
+            "Uncertain risk allele",
+        },
+    }
 )
 
 
-def get_clinical_significance_category(clinical_significance):
-    return (
-        CLINICAL_SIGNIFICANCE_CATEGORIES.filter(
-            lambda category: clinical_significance.intersection(category[1]).size() > 0
+CLINICAL_SIGNIFICANCE_CATEGORY = hl.dict(
+    CLINICAL_SIGNIFICANCE_CATEGORIES.items().flatmap(
+        lambda item: hl.array(item[1]).map(
+            lambda clinical_significance: (clinical_significance, item[0])
         )
-        .map(lambda category: category[0])
-        .first()
     )
+)
+
+
+CLINICAL_SIGNIFICANCE_CATEGORY_RANKING = hl.dict(
+    {
+        "pathogenic_or_likely_pathogenic": 0,
+        "conflicting_interpretations": 1,
+        "uncertain_significance": 2,
+        "benign_or_likely_benign": 3,
+        "other": 4,
+    }
+)
 
 
 def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
@@ -143,37 +142,67 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
         release_date=clinvar_release_date,
     )
 
-    ds = ds.select(
-        clinvar_variation_id=ds.rsid,
-        clinical_significance=hl.set(
-            ds.info.CLNSIG.map(lambda s: s.replace("^_", "").replace("_", " "))
-        ),
-    )
-
-    all_clinical_significances = ds.aggregate(
-        hl.agg.explode(hl.agg.collect_as_set, ds.clinical_significance)
-    )
-    uncategorized_clinical_significances = all_clinical_significances.difference(
-        hl.eval(
-            hl.set(
-                CLINICAL_SIGNIFICANCE_CATEGORIES.flatmap(
-                    lambda category: hl.array(category[1])
-                )
-            )
-        )
-    )
-
-    assert (
-        len(uncategorized_clinical_significances) == 0
-    ), f"Uncategorized clinical significances: {', '.join(uncategorized_clinical_significances)}"
+    ds = ds.annotate(clinvar_variation_id=ds.rsid)
 
     ds = ds.annotate(
-        clinical_significance_category=get_clinical_significance_category(
-            ds.clinical_significance
+        clinical_significance=hl.set(
+            # CLNSIG is an array, but most rows contain only one element with multiple pipe
+            # delimited values. Flatmap and split should work both with the current format and
+            # if the value is properly formatted as an array sometime in the future.
+            ds.info.CLNSIG.flatmap(lambda s: s.split(r"\|")).map(
+                lambda s: s.replace("^_", "").replace("_", " ")
+            )
+        ),
+        conflicting_clinical_significances=hl.set(
+            hl.or_else(ds.info.CLNSIGCONF, hl.empty_array(hl.tstr))
+            # CLNSIGCONF is an array, but when defined, contains only one element with multiple
+            # pipe delimited values. Flatmap and split should work both with the current format
+            # and if the value is properly formatted as an array sometime in the future.
+            .flatmap(lambda s: s.split(r"\|")).map(
+                lambda s: s.replace("^_", "").replace("_", " ").replace(r"\(\d+\)$", "")
+            )
         ),
     )
 
-    ds = ds.annotate(clinical_significance=hl.array(ds.clinical_significance))
+    # Categorize clinical significance.
+    ds = ds.annotate(
+        clinical_significance_categories=ds.clinical_significance.map(
+            lambda c: CLINICAL_SIGNIFICANCE_CATEGORY[c]
+        ),
+        conflicting_clinical_significance_categories=ds.conflicting_clinical_significances.map(
+            lambda c: CLINICAL_SIGNIFICANCE_CATEGORY[c]
+        ),
+    )
+
+    ds = ds.transmute(
+        clinical_significance_category=hl.sorted(
+            ds.clinical_significance_categories,
+            lambda category: CLINICAL_SIGNIFICANCE_CATEGORY_RANKING[category],
+        ).first()
+    )
+
+    ds = ds.annotate(
+        conflicting_clinical_significance_categories=hl.or_missing(
+            ds.clinical_significance_category == "conflicting_interpretations",
+            ds.conflicting_clinical_significance_categories,
+        ),
+    )
+
+    # Convert sets to arrays so that they can be JSON formatted in worker tasks.
+    ds = ds.annotate(
+        clinical_significance=hl.array(ds.clinical_significance),
+        conflicting_clinical_significance_categories=hl.array(
+            ds.conflicting_clinical_significance_categories
+        ),
+    )
+
+    # Store only selected fields.
+    ds = ds.select(
+        "clinvar_variation_id",
+        "clinical_significance",
+        "clinical_significance_category",
+        "conflicting_clinical_significance_categories",
+    )
 
     return ds
 
