@@ -38,6 +38,7 @@ VARIANT_FIELDS = [
     # ClinVar
     "clinvar_variation_id",
     "clinical_significance",
+    "gold_stars",
     # Other
     "flags",
     "source",
@@ -300,7 +301,7 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.annotate(
         **clinvar[ds.locus, ds.alleles].select(
-            "clinvar_variation_id", "clinical_significance"
+            "clinvar_variation_id", "clinical_significance", "gold_stars"
         )
     )
 
@@ -347,7 +348,7 @@ def process_new_custom_variant_list(variant_list):
 
     ds = ds.annotate(
         **clinvar[ds.locus, ds.alleles].select(
-            "clinvar_variation_id", "clinical_significance"
+            "clinvar_variation_id", "clinical_significance", "gold_stars"
         )
     )
 

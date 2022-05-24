@@ -96,6 +96,20 @@ CLINICAL_SIGNIFICANCE_CATEGORY_RANKING = hl.dict(
 )
 
 
+GOLD_STARS = hl.dict(
+    {
+        "no interpretation for the single variant": 0,
+        "no assertion provided": 0,
+        "no assertion criteria provided": 0,
+        "criteria provided, single submitter": 1,
+        "criteria provided, conflicting interpretations": 1,
+        "criteria provided, multiple submitters, no conflicts": 2,
+        "reviewed by expert panel": 3,
+        "practice guideline": 4,
+    }
+)
+
+
 def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
     clinvar_release_date = _get_vcf_meta_info(clinvar_vcf_path, "fileDate")
     reference_genome = _get_vcf_meta_info(clinvar_vcf_path, "reference")
@@ -162,6 +176,12 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
                 lambda s: s.replace("^_", "").replace("_", " ").replace(r"\(\d+\)$", "")
             )
         ),
+        gold_stars=GOLD_STARS[
+            hl.delimit(
+                ds.info.CLNREVSTAT.map(lambda s: s.replace("^_", "").replace("_", " ")),
+                ", ",
+            )
+        ],
     )
 
     # Categorize clinical significance.
@@ -202,6 +222,7 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
         "clinical_significance",
         "clinical_significance_category",
         "conflicting_clinical_significance_categories",
+        "gold_stars",
     )
 
     return ds

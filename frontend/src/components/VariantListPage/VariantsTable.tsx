@@ -164,13 +164,20 @@ const BASE_COLUMNS: ColumnDef[] = [
     render: (variant) => {
       return (
         variant.clinical_significance && (
-          <Link
-            href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
-            isExternal
-            target="_blank"
+          <Tooltip
+            hasArrow
+            label={`${variant.gold_stars} gold star${
+              variant.gold_stars !== 1 ? "s" : ""
+            }`}
           >
-            {variant.clinical_significance?.join(", ")}
-          </Link>
+            <Link
+              href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
+              isExternal
+              target="_blank"
+            >
+              {variant.clinical_significance?.join(", ")}
+            </Link>
+          </Tooltip>
         )
       );
     },

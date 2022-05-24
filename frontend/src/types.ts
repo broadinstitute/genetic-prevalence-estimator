@@ -36,6 +36,7 @@ export interface Variant {
   flags?: string[];
   clinvar_variation_id?: string | null;
   clinical_significance?: string[] | null;
+  gold_stars?: number | null;
   source?: VariantSource[];
 }
 
