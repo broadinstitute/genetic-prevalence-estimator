@@ -1,4 +1,8 @@
 import argparse
+import os
+import shutil
+import subprocess
+import tempfile
 
 import hail as hl
 
@@ -49,6 +53,51 @@ VEP_CONSEQUENCE_TERMS = [
 VEP_CONSEQUENCE_TERM_RANK = hl.dict(
     {term: rank for rank, term in enumerate(VEP_CONSEQUENCE_TERMS)}
 )
+
+
+GENCODE_GTF_URL = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_{version}/gencode.v{version}.annotation.gtf.gz"
+
+
+def download_gencode_gtf(version, output_path):
+    subprocess.run(
+        [
+            "curl",
+            "--silent",
+            "--output",
+            output_path,
+            GENCODE_GTF_URL.format(version=version),
+        ],
+        check=True,
+    )
+
+
+def get_gene_and_transcript_versions(gtf_path, reference_genome):
+    if reference_genome not in ("GRCh37", "GRCh38"):
+        raise ValueError("Invalid reference_genome: " + str(reference_genome))
+
+    gtf_url = "file://" + os.path.abspath(gtf_path)
+    if shutil.which("hdfs"):
+        subprocess.check_call(
+            [
+                "hdfs",
+                "dfs",
+                "-cp",
+                "-f",
+                gtf_url,
+                "/tmp/" + os.path.basename(gtf_path),
+            ]
+        )
+        gtf_url = "/tmp/" + os.path.basename(gtf_path)
+
+    ds = hl.experimental.import_gtf(
+        gtf_url, force=True, reference_genome=reference_genome
+    )
+
+    ds = ds.key_by()
+    ds = ds.filter(ds.feature == "transcript")
+    ds = ds.select("transcript_id", "gene_id")
+
+    return hl.dict([(row.transcript_id.split(".")[0], row) for row in ds.collect()])
 
 
 def _get_gnomad_populations(ds):
@@ -274,9 +323,10 @@ def main():
 
     hl.init(quiet=args.quiet)
 
+    reference_genome = "GRCh37" if args.gnomad_version == 2 else "GRCh38"
+
     intervals = None
     if args.intervals:
-        reference_genome = "GRCh37" if args.gnomad_version == 2 else "GRCh38"
         intervals = [
             hl.parse_locus_interval(interval, reference_genome=reference_genome)
             for interval in args.intervals.split(",")
@@ -285,6 +335,21 @@ def main():
     ds = prepare_gnomad_variants(
         args.gnomad_version, intervals=intervals, partitions=args.partitions
     )
+
+    gencode_version = "19" if args.gnomad_version == 2 else "35"
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        os.chdir(tmp_dir)
+        gencode_gtf_path = f"gencode.v{gencode_version}.gtf.gz"
+        download_gencode_gtf(gencode_version, gencode_gtf_path)
+        transcripts = get_gene_and_transcript_versions(
+            gencode_gtf_path, reference_genome=reference_genome
+        )
+        ds = ds.annotate(
+            transcript_consequences=ds.transcript_consequences.map(
+                lambda csq: csq.annotate(**transcripts.get(csq.transcript_id))
+            )
+        )
+
     ds.write(args.output, overwrite=True)
 
 

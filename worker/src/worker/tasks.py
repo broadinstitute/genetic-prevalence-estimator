@@ -232,14 +232,14 @@ def process_new_recommended_variant_list(variant_list):
             )
         ],
     )
-    ds = ds.filter(
-        ds.transcript_consequences.any(lambda csq: csq.transcript_id == transcript_id)
-    )
+
     ds = ds.transmute(
-        **ds.transcript_consequences.find(
-            lambda csq: csq.transcript_id == transcript_id
+        transcript_consequence=ds.transcript_consequences.find(
+            lambda csq: csq.transcript_id.split(r"\.")[0] == transcript_id
         )
     )
+    ds = ds.filter(hl.is_defined(ds.transcript_consequence))
+    ds = ds.transmute(**ds.transcript_consequence)
 
     include_from_gnomad = PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.major_consequence) & (
         ds.lof == "HC"
