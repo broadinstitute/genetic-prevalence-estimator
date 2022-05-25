@@ -31,6 +31,9 @@ export interface Variant {
   hgvsp?: string | null;
   lof?: string | null;
   major_consequence?: string | null;
+  gene_id?: string | null;
+  gene_symbol?: string | null;
+  transcript_id?: string | null;
   AC?: number[];
   AN?: number[];
   flags?: string[];

@@ -32,6 +32,9 @@ VARIANT_FIELDS = [
     "hgvsp",
     "lof",
     "major_consequence",
+    "gene_id",
+    "gene_symbol",
+    "transcript_id",
     # Frequency
     "AC",
     "AN",

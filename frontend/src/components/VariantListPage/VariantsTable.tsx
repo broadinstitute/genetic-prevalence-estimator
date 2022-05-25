@@ -239,6 +239,25 @@ const BASE_COLUMNS: ColumnDef[] = [
   },
 ];
 
+const GENE_COLUMN: ColumnDef = {
+  key: "gene",
+  heading: "Gene",
+  sortKey: (variant) => variant.gene_symbol || variant.gene_id || "",
+  render: (variant) =>
+    variant.gene_id && (
+      <Tooltip hasArrow label={variant.gene_id}>
+        {variant.gene_symbol || variant.gene_id}
+      </Tooltip>
+    ),
+};
+
+const TRANSCRIPT_COLUMN: ColumnDef = {
+  key: "transcript",
+  heading: "Transcript",
+  sortKey: (variant) => variant.transcript_id || "",
+  render: (variant) => variant.transcript_id,
+};
+
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
   heading: "Included from",
@@ -386,6 +405,14 @@ const VariantsTable: FC<VariantsTableProps> = ({
   ];
   if (variantList.type === VariantListType.RECOMMENDED) {
     columns.push(SOURCE_COLUMN);
+  }
+  if (variantList.type === VariantListType.CUSTOM) {
+    columns.splice(
+      columns.findIndex((col) => col.key === "consequence"),
+      0,
+      GENE_COLUMN,
+      TRANSCRIPT_COLUMN
+    );
   }
 
   const [sortColumn, sortOrder, setSortKey] = useSort(
