@@ -20,6 +20,14 @@ export const renderVariantsToTSV = (
       getValue: (variant: Variant) => variant.id,
     },
     {
+      label: "Gene",
+      getValue: (variant: Variant) => variant.gene_id,
+    },
+    {
+      label: "Transcript",
+      getValue: (variant: Variant) => variant.transcript_id,
+    },
+    {
       label: "VEP consequence",
       getValue: (variant: Variant) =>
         variant.major_consequence
