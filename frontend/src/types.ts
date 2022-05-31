@@ -36,6 +36,10 @@ export interface Variant {
   transcript_id?: string | null;
   AC?: number[];
   AN?: number[];
+  filters?: {
+    exome?: string[] | null;
+    genome?: string[] | null;
+  } | null;
   flags?: string[];
   clinvar_variation_id?: string | null;
   clinical_significance?: string[] | null;

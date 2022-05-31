@@ -14,7 +14,7 @@ import {
   Tooltip,
   VisuallyHidden,
 } from "@chakra-ui/react";
-import { sortBy } from "lodash";
+import { difference, intersection, sortBy } from "lodash";
 import { FC, useCallback, useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
@@ -53,6 +53,58 @@ const renderAlleleFrequency = (af: number) => {
   } else {
     return truncated.toExponential(2);
   }
+};
+
+const formatList = (list: string[]) => {
+  if (list.length === 0) {
+    return "";
+  }
+  if (list.length === 1) {
+    return list[0];
+  }
+  return `${list.slice(0, list.length - 1).join(", ")}${
+    list.length > 2 ? "," : ""
+  } and ${list[list.length - 1]}`;
+};
+
+const filteredVariantDescription = (variant: Variant) => {
+  const base =
+    "Some gnomAD samples are not included because this variant failed quality control filters";
+
+  // Older variant lists may not have filters stored.
+  if (!variant.filters) {
+    return `${base}.`;
+  }
+
+  const exomeAndGenomeFilters = intersection(
+    variant.filters.exome || [],
+    variant.filters.genome || []
+  );
+  const exomeOnlyFilters = difference(
+    variant.filters.exome || [],
+    exomeAndGenomeFilters
+  );
+  const genomeOnlyFilters = difference(
+    variant.filters.genome || [],
+    exomeAndGenomeFilters
+  );
+
+  return (
+    base +
+    ": " +
+    formatList(
+      ([
+        [exomeAndGenomeFilters, "exome and genome"],
+        [exomeOnlyFilters, "exome"],
+        [genomeOnlyFilters, "genome"],
+      ] as [string[], string][])
+        .filter(([filters, _]) => filters.length > 0)
+        .map(([filters, samples]) => {
+          return `${formatList(filters)} filters in ${samples} samples`;
+        })
+    ) +
+    "."
+  );
 };
 
 const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
@@ -205,10 +257,7 @@ const BASE_COLUMNS: ColumnDef[] = [
             </Tooltip>
           )}
           {variant.flags?.includes("filtered") && (
-            <Tooltip
-              hasArrow
-              label="Some samples are not included because this variant failed gnomAD quality control filters."
-            >
+            <Tooltip hasArrow label={filteredVariantDescription(variant)}>
               <Badge
                 colorScheme="yellow"
                 fontSize="0.8em"
