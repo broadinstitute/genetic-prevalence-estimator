@@ -43,6 +43,7 @@ VARIANT_FIELDS = [
     "clinical_significance",
     "gold_stars",
     # Other
+    "filters",
     "flags",
     "source",
 ]
@@ -300,7 +301,6 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
     ds = ds.annotate(flags=flags(ds))
-    ds = ds.drop("freq", "filters")
 
     ds = ds.annotate(
         **clinvar[ds.locus, ds.alleles].select(
@@ -310,9 +310,9 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
-    ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row_value)))
+    ds = ds.select(*VARIANT_FIELDS)
 
-    variants = [dict(variant) for variant in ds.row_value.collect()]
+    variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
     variant_list.variants = variants
     variant_list.save()
 
@@ -342,7 +342,6 @@ def process_new_custom_variant_list(variant_list):
 
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
     ds = ds.annotate(flags=flags(ds))
-    ds = ds.drop("freq", "filters")
 
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
@@ -355,9 +354,9 @@ def process_new_custom_variant_list(variant_list):
         )
     )
 
-    ds = ds.select(*(field for field in VARIANT_FIELDS if field in set(ds.row)))
+    ds = ds.select(*VARIANT_FIELDS)
 
-    variants = [dict(variant) for variant in ds.collect()]
+    variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
     variant_list.variants = variants
     variant_list.save()
 
