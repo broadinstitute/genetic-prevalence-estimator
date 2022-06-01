@@ -392,6 +392,7 @@ interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  shouldShowVariant: (variant: Variant) => boolean;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
 }
 
@@ -443,6 +444,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
   selectedVariants,
+  shouldShowVariant,
   onChangeSelectedVariants,
   ...tableProps
 }) => {
@@ -470,7 +472,10 @@ const VariantsTable: FC<VariantsTableProps> = ({
     "descending"
   );
 
-  const sortedVariants = sortBy(variantList.variants, (variant) =>
+  const visibleVariants = variantList.variants.filter((variant) =>
+    shouldShowVariant(variant)
+  );
+  const sortedVariants = sortBy(visibleVariants, (variant) =>
     sortColumn.sortKey!(variant, variantList)
   );
   if (sortOrder === "descending") {

@@ -1,4 +1,12 @@
-import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { QuestionIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Checkbox,
+  ListItem,
+  Text,
+  Tooltip,
+  UnorderedList,
+} from "@chakra-ui/react";
 import { useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
@@ -27,6 +35,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     populationsDisplayedInTable,
     setPopulationsDisplayedInTable,
   ] = useState<GnomadPopulationId[]>([]);
+  const [includeAC0Variants, setIncludeAC0Variants] = useState(false);
 
   const { variants } = variantList;
 
@@ -44,6 +53,10 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     }
     return <Text mb={4}>This variant list has no variants.</Text>;
   }
+
+  const numAC0Variants = variants.filter(
+    (variant) => (variant.AC || [])[0] === 0
+  ).length;
 
   return (
     <>
@@ -69,6 +82,29 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             />
           </Box>
 
+          {numAC0Variants > 0 && (
+            <Box mb={4}>
+              <Checkbox
+                isChecked={includeAC0Variants}
+                onChange={(e) => setIncludeAC0Variants(e.target.checked)}
+              >
+                Show {numAC0Variants} variants that do not affect calculations
+              </Checkbox>{" "}
+              <Tooltip
+                hasArrow
+                label={
+                  "If a variant failed quality control filters in the exomes or genomes " +
+                  "sample set, then those samples are not included in the variant's allele " +
+                  "count. Variants with an allele count of 0 do not affect carrier frequency " +
+                  "and prevalence."
+                }
+                placement="top"
+              >
+                <QuestionIcon />
+              </Tooltip>
+            </Box>
+          )}
+
           <Box mb={4}>
             <DownloadVariantListLink
               variantList={variantList}
@@ -83,6 +119,11 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}
+              shouldShowVariant={
+                includeAC0Variants
+                  ? () => true
+                  : (variant) => (variant.AC || [])[0] > 0
+              }
               onChangeSelectedVariants={onChangeSelectedVariants}
               mb={4}
             />
