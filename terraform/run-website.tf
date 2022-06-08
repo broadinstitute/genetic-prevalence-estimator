@@ -103,6 +103,11 @@ resource "google_cloud_run_service" "website" {
           name  = "GOOGLE_AUTH_CLIENT_ID"
           value = var.google_oauth_client_id
         }
+
+        env {
+          name  = "MAX_VARIANT_LISTS_PER_USER"
+          value = "100"
+        }
       }
     }
 
