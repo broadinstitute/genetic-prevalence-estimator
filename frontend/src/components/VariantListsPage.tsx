@@ -20,6 +20,7 @@ import { FC, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { get } from "../api";
+import { appConfigStore, useStore } from "../state";
 import {
   CustomVariantList,
   RecommendedVariantList,
@@ -114,6 +115,7 @@ interface VariantListsContainerProps {
 }
 
 const VariantListsContainer: FC<VariantListsContainerProps> = ({ orderBy }) => {
+  const appConfig = useStore(appConfigStore);
   const [isLoading, setIsLoading] = useState(true);
   const [variantLists, setVariantLists] = useState<VariantList[]>([]);
   const [error, setError] = useState<Error | null>(null);
@@ -151,7 +153,21 @@ const VariantListsContainer: FC<VariantListsContainerProps> = ({ orderBy }) => {
     return <Text>No variant lists.</Text>;
   }
 
-  return <VariantLists variantLists={variantLists} />;
+  return (
+    <>
+      <VariantLists variantLists={variantLists} />
+      <Text mt={4}>
+        {variantLists.length < appConfig!.max_variant_lists_per_user ? (
+          <Link to="/variant-lists/new/">Create a new variant list</Link>
+        ) : (
+          <p>
+            You have created the maximum number of variant lists. Delete one to
+            create another.
+          </p>
+        )}
+      </Text>
+    </>
+  );
 };
 
 const VariantListsPage = () => {
@@ -196,10 +212,6 @@ const VariantListsPage = () => {
       </Box>
 
       <VariantListsContainer orderBy={orderBy} />
-
-      <Text mt={4}>
-        <Link to="/variant-lists/new/">Create a new variant list</Link>
-      </Text>
     </>
   );
 };

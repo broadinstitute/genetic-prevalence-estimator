@@ -60,6 +60,7 @@ export const useStore = <T>(store: Store<T>) => {
 
 export interface AppConfig {
   google_auth_client_id: string;
+  max_variant_lists_per_user: number;
 }
 
 export const appConfigStore: Store<AppConfig | null> = atom(
