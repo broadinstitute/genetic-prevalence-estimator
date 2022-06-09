@@ -21,6 +21,13 @@ const request = (path: string, options: RequestInit): Promise<any> => {
   return fetch(`/api${path}`, options).then((response) => {
     const isOk = response.ok;
 
+    if (options.method === "POST" && response.status === 201) {
+      const location = response.headers.get("Location");
+      if (location) {
+        return get(location.replace(/^\/api/, ""));
+      }
+    }
+
     // Handle no content
     if (response.status === 204) {
       return;
@@ -75,38 +82,10 @@ export const post = (path: string, data: any): Promise<any> => {
     headers["X-CSRFToken"] = csrfToken;
   }
 
-  return fetch(`/api${path}`, {
+  return request(path, {
     body: JSON.stringify(data),
     headers,
     method: "POST",
-  }).then((response) => {
-    const isOk = response.ok;
-
-    // Handle no content
-    if (response.status === 204) {
-      return;
-    }
-
-    if (response.status === 201) {
-      const location = response.headers.get("Location");
-      if (location) {
-        return get(location.replace(/^\/api/, ""));
-      }
-    }
-
-    return response.json().then(
-      (data) => {
-        if (isOk) {
-          return data;
-        }
-
-        const error = new Error(data.detail || "Unknown error");
-        throw error;
-      },
-      () => {
-        throw new Error("Unable to parse response");
-      }
-    );
   });
 };
 
