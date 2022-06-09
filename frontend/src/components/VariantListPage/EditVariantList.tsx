@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 
 import { patch } from "../../api";
+import { renderErrorDescription } from "../../errors";
 import { Store, useStore } from "../../state";
 import { VariantList } from "../../types";
 
@@ -71,7 +72,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
               setIsSubmitting(false);
               toast({
                 title: "Unable to edit variant list",
-                description: error.message,
+                description: renderErrorDescription(error),
                 status: "error",
                 duration: 10000,
                 isClosable: true,

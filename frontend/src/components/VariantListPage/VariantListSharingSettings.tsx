@@ -25,6 +25,7 @@ import {
 } from "@chakra-ui/react";
 
 import { del, patch, post } from "../../api";
+import { renderErrorDescription } from "../../errors";
 import { Store, authStore, useStore } from "../../state";
 import { VariantList, VariantListAccessLevel } from "../../types";
 
@@ -77,7 +78,7 @@ export const VariantListSharingSettings = (
       (error) => {
         toast({
           title: "Unable to share variant list",
-          description: error.message,
+          description: renderErrorDescription(error),
           status: "error",
           duration: 10000,
           isClosable: true,
@@ -106,7 +107,7 @@ export const VariantListSharingSettings = (
       (error) => {
         toast({
           title: "Unable to edit access",
-          description: error.message,
+          description: renderErrorDescription(error),
           status: "error",
           duration: 10000,
           isClosable: true,
@@ -128,7 +129,7 @@ export const VariantListSharingSettings = (
       (error) => {
         toast({
           title: "Unable to remove access",
-          description: error.message,
+          description: renderErrorDescription(error),
           status: "error",
           duration: 10000,
           isClosable: true,

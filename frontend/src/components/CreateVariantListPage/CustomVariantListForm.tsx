@@ -29,6 +29,7 @@ import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { post } from "../../api";
+import { renderErrorDescription } from "../../errors";
 import {
   CustomVariantListRequest,
   CustomVariantList,
@@ -99,7 +100,7 @@ const CustomVariantListForm = () => {
                 setIsSubmitting(false);
                 toast({
                   title: "Unable to create variant list",
-                  description: error.message,
+                  description: renderErrorDescription(error),
                   status: "error",
                   duration: 10000,
                   isClosable: true,

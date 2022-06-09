@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get } from "../../api";
+import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
 
@@ -107,7 +108,7 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
                   (error) => {
                     toast({
                       title: "Unable to delete variant list",
-                      description: error.message,
+                      description: renderErrorDescription(error),
                       status: "error",
                       duration: 10000,
                       isClosable: true,

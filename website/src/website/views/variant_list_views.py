@@ -32,7 +32,7 @@ class VariantListsView(ListCreateAPIView):
             >= settings.MAX_VARIANT_LISTS_PER_USER
         ):
             raise ValidationError(
-                f"Each user is limited to {settings.MAX_VARIANT_LISTS_PER_USER} variant lists. Delete one to create another."
+                "You have created the maximum number of variant lists. Delete one to create another."
             )
 
         variant_list = serializer.save(created_by=self.request.user)

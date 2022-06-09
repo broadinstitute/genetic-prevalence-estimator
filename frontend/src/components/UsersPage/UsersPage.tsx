@@ -32,6 +32,7 @@ import { Link as RRLink } from "react-router-dom";
 
 import { get, patch, post } from "../../api";
 import { USERNAME_LABEL } from "../../constants/config";
+import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 
 import { AddUserButton } from "./AddUser";
@@ -69,7 +70,7 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
       (error) => {
         toast({
           title: "Unable to update user",
-          description: error.message,
+          description: renderErrorDescription(error),
           status: "error",
           duration: 10000,
           isClosable: true,
@@ -97,7 +98,7 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
               (error) => {
                 toast({
                   title: "Unable to create user",
-                  description: error.message,
+                  description: renderErrorDescription(error),
                   status: "error",
                   duration: 10000,
                   isClosable: true,

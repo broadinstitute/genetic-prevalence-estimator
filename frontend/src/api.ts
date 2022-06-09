@@ -1,5 +1,7 @@
 import qs from "qs";
 
+import { ApiResponseError } from "./errors";
+
 const getCookie = (name: string): string | null => {
   if (!document.cookie || document.cookie === "") {
     return null;
@@ -39,7 +41,30 @@ const request = (path: string, options: RequestInit): Promise<any> => {
           return data;
         }
 
-        const error = new Error(data.detail || "Unknown error");
+        let error;
+
+        // Get error details from serializer response.
+        if (
+          response.status === 400 &&
+          (options.method === "POST" || options.method === "PATCH")
+        ) {
+          error = new ApiResponseError("Bad request");
+          if (Array.isArray(data)) {
+            error.validationErrors = {
+              nonFieldErrors: data,
+              fieldErrors: {},
+            };
+          } else {
+            const { non_field_errors: nonFieldErrors, ...fieldErrors } = data;
+            error.validationErrors = {
+              nonFieldErrors: nonFieldErrors || [],
+              fieldErrors: fieldErrors || {},
+            };
+          }
+        } else {
+          error = new ApiResponseError(data.detail || "Unknown error");
+        }
+
         throw error;
       },
       () => {
