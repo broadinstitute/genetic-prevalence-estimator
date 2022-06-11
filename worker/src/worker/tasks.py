@@ -255,7 +255,9 @@ def process_new_recommended_variant_list(variant_list):
     )
     variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
 
-    if variant_list.metadata["included_clinvar_variants"]:
+    if not variant_list.metadata["included_clinvar_variants"]:
+        ds = ds.annotate(include_from_clinvar=False)
+    else:
         include_clinvar_variant_categories = hl.set(
             variant_list.metadata["included_clinvar_variants"]
         )
