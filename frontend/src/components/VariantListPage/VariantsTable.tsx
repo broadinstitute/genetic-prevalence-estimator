@@ -268,6 +268,21 @@ const BASE_COLUMNS: ColumnDef[] = [
               </Badge>
             </Tooltip>
           )}
+          {variant.sample_sets && !variant.sample_sets.includes("exome") && (
+            <Tooltip
+              hasArrow
+              label="This variant is found only in gnomAD genome samples."
+            >
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Genomes-only
+              </Badge>
+            </Tooltip>
+          )}
         </Flex>
       );
     },

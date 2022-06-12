@@ -45,6 +45,7 @@ VARIANT_FIELDS = [
     # Other
     "filters",
     "flags",
+    "sample_sets",
     "source",
 ]
 

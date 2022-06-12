@@ -36,6 +36,7 @@ export interface Variant {
   transcript_id?: string | null;
   AC?: number[];
   AN?: number[];
+  sample_sets?: ("exome" | "genome")[] | null;
   filters?: {
     exome?: string[] | null;
     genome?: string[] | null;

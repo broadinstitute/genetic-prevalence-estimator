@@ -242,6 +242,15 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
 
     ds = ds.transmute(freq=hl.struct(exome=ds.exome_freq, genome=ds.genome_freq))
 
+    ds = ds.annotate(
+        sample_sets=hl.array(
+            [
+                hl.or_missing(hl.is_defined(ds.freq.exome), "exome"),
+                hl.or_missing(hl.is_defined(ds.freq.genome), "genome"),
+            ]
+        ).filter(hl.is_defined)
+    )
+
     ds = ds.transmute(
         filters=hl.struct(
             exome=hl.or_missing(
