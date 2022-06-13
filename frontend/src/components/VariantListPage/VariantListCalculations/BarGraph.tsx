@@ -81,6 +81,27 @@ const BarGraph = (props: BarGraphProps) => {
     round: true,
   });
 
+  const tickFormat =
+    displayFormat === "scientific"
+      ? (d: { valueOf(): number }) => renderFrequencyScientific(d.valueOf())
+      : (d: { valueOf(): number }) => {
+          const n = d.valueOf();
+          if (n === 0) {
+            return "0";
+          }
+          const denominator = Math.round(1 / n);
+          if (denominator >= 1e9) {
+            return `1 / ${(denominator / 1e9).toPrecision(3)}B`;
+          }
+          if (denominator >= 1e6) {
+            return `1 / ${(denominator / 1e6).toPrecision(3)}M`;
+          }
+          if (denominator >= 1e3) {
+            return `1 / ${(denominator / 1e3).toPrecision(3)}K`;
+          }
+          return `1 / ${denominator}`;
+        };
+
   return (
     <figure>
       <figcaption>{label}</figcaption>
@@ -178,7 +199,7 @@ const BarGraph = (props: BarGraphProps) => {
           <AxisLeft
             scale={yScale}
             stroke="#333"
-            tickFormat={(d) => renderFrequencyScientific(d.valueOf())}
+            tickFormat={tickFormat}
             tickStroke="#333"
             tickLabelProps={() => ({
               fill: "#333",
