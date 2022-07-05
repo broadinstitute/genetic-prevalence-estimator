@@ -6,9 +6,18 @@ export type GnomadPopulationId =
   | "amr"
   | "asj"
   | "eas"
+  | "eas/jpn"
+  | "eas/kor"
+  | "eas/oea"
   | "fin"
   | "mid"
   | "nfe"
+  | "nfe/bgr"
+  | "nfe/est"
+  | "nfe/nwe"
+  | "nfe/onf"
+  | "nfe/seu"
+  | "nfe/swe"
   | "oth"
   | "sas";
 

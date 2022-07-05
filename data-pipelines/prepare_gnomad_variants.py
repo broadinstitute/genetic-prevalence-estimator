@@ -103,15 +103,40 @@ def get_gene_and_transcript_versions(gtf_path, reference_genome):
 def _get_gnomad_populations(ds):
     return hl.eval(
         hl.set(
-            ds.freq_meta.filter(lambda meta: hl.is_missing(meta.get("downsampling")))
+            hl.zip(
+                ds.globals.freq_meta,
+                ds.globals.freq_sample_count
+                if "freq_sample_count" in ds.globals
+                else hl.empty_array(hl.tint),
+                fill_missing=True,
+            )
+            .filter(
+                lambda meta_and_sample_count: hl.is_missing(meta_and_sample_count[1])
+                | (meta_and_sample_count[1] > 1000)
+            )
+            .map(lambda meta_and_sample_count: meta_and_sample_count[0])
+            .filter(lambda meta: hl.is_missing(meta.get("downsampling")))
             .filter(lambda meta: hl.is_missing(meta.get("subset")))
-            .map(lambda meta: meta.get("pop"))
-        ).remove(hl.missing(hl.tstr))
+            .map(lambda meta: (meta.get("pop"), meta.get("subpop")))
+        ).remove((hl.missing(hl.tstr), hl.missing(hl.tstr)))
     )
 
 
+def _sort_populations(populations):
+    return sorted(populations, key=lambda p: (p[0], p[1] or ""))
+
+
+def _format_populations(populations):
+    return ["/".join(filter(None, p)) for p in populations]
+
+
 def get_gnomad_v2_variants():
-    def freq(ds, subset=None, pop=None, sex=None, raw=False):
+    def freq(
+        ds, subset=None, pop=None, subpop=None, sex=None, raw=False
+    ):  # pylint: disable=too-many-arguments
+        if subpop and sex:
+            raise ValueError("Only one of subpop or sex can be specified")
+
         if subset is None:
             subset = "gnomad"
 
@@ -120,7 +145,7 @@ def get_gnomad_v2_variants():
         if sex == "XY":
             sex = "male"
 
-        parts = [s for s in [subset, pop, sex] if s is not None]
+        parts = [s for s in [subset, pop, subpop, sex] if s is not None]
 
         if raw:
             parts.append("raw")
@@ -144,14 +169,26 @@ def get_gnomad_v2_variants():
         "gs://gcp-public-data--gnomad/release/2.1.1/ht/genomes/gnomad.genomes.r2.1.1.sites.ht"
     )
 
-    populations = sorted(
+    populations = _sort_populations(
         _get_gnomad_populations(exomes).union(_get_gnomad_populations(genomes))
     )
 
     exomes = exomes.select(
         exome_freq=hl.struct(
-            AC=[freq(exomes).AC, *(freq(exomes, pop=pop).AC for pop in populations)],
-            AN=[freq(exomes).AN, *(freq(exomes, pop=pop).AN for pop in populations)],
+            AC=[
+                freq(exomes).AC,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(exomes).AN,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         exome_filters=exomes.filters,
         transcript_consequences=exomes.vep.transcript_consequences,
@@ -160,8 +197,20 @@ def get_gnomad_v2_variants():
 
     genomes = genomes.select(
         genome_freq=hl.struct(
-            AC=[freq(genomes).AC, *(freq(genomes, pop=pop).AC for pop in populations)],
-            AN=[freq(genomes).AN, *(freq(genomes, pop=pop).AN for pop in populations)],
+            AC=[
+                freq(genomes).AC,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(genomes).AN,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         genome_filters=genomes.filters,
         transcript_consequences=genomes.vep.transcript_consequences,
@@ -177,13 +226,18 @@ def get_gnomad_v2_variants():
         )
     )
 
-    ds = ds.annotate_globals(populations=populations)
+    ds = ds.select_globals(populations=_format_populations(populations))
 
     return ds
 
 
 def get_gnomad_v3_variants():
-    def freq(ds, subset=None, pop=None, sex=None, raw=False):
+    def freq(
+        ds, subset=None, pop=None, subpop=None, sex=None, raw=False
+    ):  # pylint: disable=too-many-arguments
+        if subpop:
+            raise ValueError("subpops are not available for gnomAD v3")
+
         parts = [s for s in [subset, pop, sex] if s is not None]
         parts.append("raw" if raw else "adj")
         key = "-".join(parts)
@@ -202,12 +256,18 @@ def get_gnomad_v3_variants():
         "gs://gcp-public-data--gnomad/release/3.1.2/ht/genomes/gnomad.genomes.v3.1.2.sites.ht"
     )
 
-    populations = sorted(_get_gnomad_populations(ds))
+    populations = _sort_populations(_get_gnomad_populations(ds))
 
     ds = ds.select(
         genome_freq=hl.struct(
-            AC=[freq(ds).AC, *(freq(ds, pop=pop).AC for pop in populations)],
-            AN=[freq(ds).AN, *(freq(ds, pop=pop).AN for pop in populations)],
+            AC=[
+                freq(ds).AC,
+                *(freq(ds, pop=pop, subpop=subpop).AC for pop, subpop in populations),
+            ],
+            AN=[
+                freq(ds).AN,
+                *(freq(ds, pop=pop, subpop=subpop).AN for pop, subpop in populations),
+            ],
         ),
         genome_filters=ds.filters,
         transcript_consequences=ds.vep.transcript_consequences,
@@ -219,7 +279,7 @@ def get_gnomad_v3_variants():
         exome_filters=hl.missing(ds.genome_filters.dtype),
     )
 
-    ds = ds.select_globals(populations=populations)
+    ds = ds.select_globals(populations=_format_populations(populations))
 
     return ds
 
