@@ -24,7 +24,6 @@ import {
   Variant,
   VariantId,
   VariantList,
-  VariantListType,
 } from "../../types";
 
 import { getVariantSources } from "./variantSources";
@@ -324,47 +323,42 @@ const TRANSCRIPT_COLUMN: ColumnDef = {
 
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
-  heading: "Included from",
-  sortKey: (variant, variantList) => {
-    return variantList.type === VariantListType.RECOMMENDED
-      ? getVariantSources(variant, variantList)
-      : [];
-  },
+  heading: "Source",
+  sortKey: (variant, variantList) => getVariantSources(variant, variantList),
   render: (variant, variantList) => {
-    if (variantList.type !== VariantListType.RECOMMENDED) {
-      return null;
-    }
-
     return getVariantSources(variant, variantList)
       .map((source) => {
-        if (source === "ClinVar") {
-          return (
-            <Tooltip
-              key="ClinVar"
-              hasArrow
-              label={`This variant was included from ClinVar, where it has a clinical significance in one of the included categories (${variantList.metadata.included_clinvar_variants
-                ?.map((category) =>
-                  (category.charAt(0).toUpperCase() + category.slice(1))
-                    .split("_")
-                    .join(" ")
-                )
-                .join(", ")}).`}
-              maxWidth="500px"
-            >
-              ClinVar
-            </Tooltip>
-          );
-        } else {
-          return (
-            <Tooltip
-              key="gnomAD"
-              hasArrow
-              label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
-              maxWidth="500px"
-            >
-              gnomAD
-            </Tooltip>
-          );
+        switch (source) {
+          case "ClinVar":
+            return (
+              <Tooltip
+                key="ClinVar"
+                hasArrow
+                label={`This variant was included from ClinVar, where it has a clinical significance in one of the included categories (${variantList.metadata.include_clinvar_clinical_significance
+                  ?.map((category) =>
+                    (category.charAt(0).toUpperCase() + category.slice(1))
+                      .split("_")
+                      .join(" ")
+                  )
+                  .join(", ")}).`}
+                maxWidth="500px"
+              >
+                ClinVar
+              </Tooltip>
+            );
+          case "gnomAD":
+            return (
+              <Tooltip
+                key="gnomAD"
+                hasArrow
+                label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
+                maxWidth="500px"
+              >
+                gnomAD
+              </Tooltip>
+            );
+          default:
+            return source;
         }
       })
       .flatMap((el) => [", ", el])
@@ -468,11 +462,10 @@ const VariantsTable: FC<VariantsTableProps> = ({
     ...includePopulationFrequencies.flatMap((popId) =>
       populationAlleleFrequencyColumns(variantList, popId)
     ),
+    SOURCE_COLUMN,
   ];
-  if (variantList.type === VariantListType.RECOMMENDED) {
-    columns.push(SOURCE_COLUMN);
-  }
-  if (variantList.type === VariantListType.CUSTOM) {
+
+  if (!variantList.metadata.transcript_id) {
     columns.splice(
       columns.findIndex((col) => col.key === "consequence"),
       0,

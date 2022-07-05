@@ -61,38 +61,28 @@ export enum VariantListType {
   RECOMMENDED = "r",
 }
 
-interface VariantListMetadataBase {
+export interface VariantListMetadata {
   gnomad_version: GnomadVersion;
+  reference_genome?: ReferenceGenome;
+
+  gene_id?: string;
+  transcript_id?: string;
+
+  include_gnomad_plof?: boolean;
+  include_clinvar_clinical_significance?:
+    | ClinvarClinicalSignificanceCategory[]
+    | null;
+
   clinvar_version?: string;
   populations?: GnomadPopulationId[];
 }
 
-export interface RecommendedVariantListMetadata
-  extends VariantListMetadataBase {
-  version: "1";
-  gene_id: string;
-  transcript_id: string;
-  included_clinvar_variants: ClinvarClinicalSignificanceCategory[] | null;
-}
-
-export interface CustomVariantListMetadata extends VariantListMetadataBase {
-  version: "1";
-  reference_genome: ReferenceGenome;
-}
-
-export interface RecommendedVariantListRequest {
+export interface VariantListRequest {
   label: string;
   notes: string;
-  type: VariantListType.RECOMMENDED;
-  metadata: RecommendedVariantListMetadata;
-}
-
-export interface CustomVariantListRequest {
-  label: string;
-  notes: string;
-  type: VariantListType.CUSTOM;
-  metadata: CustomVariantListMetadata;
-  variants: Variant[];
+  type: VariantListType;
+  metadata: VariantListMetadata;
+  variants?: Variant[];
 }
 
 interface VariantListAccessPermission {
@@ -101,10 +91,12 @@ interface VariantListAccessPermission {
   level: VariantListAccessLevel;
 }
 
-interface VariantListBase {
+export interface VariantList {
   uuid: string;
   label: string;
   notes: string;
+  type: VariantListType;
+  metadata: VariantListMetadata;
   created_at: string;
   updated_at: string;
   access_level?: VariantListAccessLevel;
@@ -113,19 +105,3 @@ interface VariantListBase {
   error?: string;
   variants: Variant[];
 }
-
-export interface RecommendedVariantList extends VariantListBase {
-  type: VariantListType.RECOMMENDED;
-  metadata: RecommendedVariantListMetadata;
-}
-
-export interface CustomVariantList extends VariantListBase {
-  type: VariantListType.CUSTOM;
-  metadata: CustomVariantListMetadata;
-}
-
-export type VariantListRequest =
-  | RecommendedVariantListRequest
-  | CustomVariantListRequest;
-
-export type VariantList = RecommendedVariantList | CustomVariantList;

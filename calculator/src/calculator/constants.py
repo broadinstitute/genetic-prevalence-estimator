@@ -1,0 +1,10 @@
+REFERENCE_GENOMES = ["GRCh37", "GRCh38"]
+
+
+GNOMAD_VERSIONS = ["2.1.1", "3.1.2"]
+
+
+GNOMAD_REFERENCE_GENOMES = {
+    "2.1.1": "GRCh37",
+    "3.1.2": "GRCh38",
+}

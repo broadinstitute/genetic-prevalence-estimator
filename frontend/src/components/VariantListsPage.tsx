@@ -21,41 +21,26 @@ import { Link as RRLink } from "react-router-dom";
 
 import { get } from "../api";
 import { appConfigStore, useStore } from "../state";
-import {
-  CustomVariantList,
-  RecommendedVariantList,
-  VariantList,
-  VariantListType,
-} from "../types";
+import { VariantList } from "../types";
 import DateTime from "./DateTime";
 import Link from "./Link";
+import { formatVariantListType } from "./VariantListPage/VariantListMetadata";
 
-interface CustomVariantListMetadataProps {
-  variantList: CustomVariantList;
+interface VariantListMetadataSummaryProps {
+  variantList: VariantList;
 }
 
-const CustomVariantListMetadata: FC<CustomVariantListMetadataProps> = ({
+const VariantListMetadataSummary: FC<VariantListMetadataSummaryProps> = ({
   variantList,
 }) => {
   return (
     <>
-      Custom variant list, gnomAD {variantList.metadata.gnomad_version},{" "}
-      {variantList.variants.length} variants
-    </>
-  );
-};
-
-interface RecommendedVariantListMetadataProps {
-  variantList: RecommendedVariantList;
-}
-
-const RecommendedVariantListMetadata: FC<RecommendedVariantListMetadataProps> = ({
-  variantList,
-}) => {
-  return (
-    <>
-      Recommended variant list, gnomAD {variantList.metadata.gnomad_version},{" "}
-      {variantList.metadata.gene_id} / {variantList.metadata.transcript_id}
+      {formatVariantListType(variantList)} variant list, gnomAD{" "}
+      {variantList.metadata.gnomad_version}
+      {variantList.metadata.transcript_id &&
+        `, ${variantList.metadata.gene_id} / ${variantList.metadata.transcript_id}`}
+      {variantList.variants?.length &&
+        `, ${variantList.variants.length} variants`}
     </>
   );
 };
@@ -76,12 +61,7 @@ const VariantListCard: FC<VariantListCardProps> = ({
             {variantList.label}
           </ChakraLink>
           <Text as="div" fontSize="sm">
-            {variantList.type === VariantListType.CUSTOM && (
-              <CustomVariantListMetadata variantList={variantList} />
-            )}
-            {variantList.type === VariantListType.RECOMMENDED && (
-              <RecommendedVariantListMetadata variantList={variantList} />
-            )}
+            <VariantListMetadataSummary variantList={variantList} />
           </Text>
           <Text as="div" fontSize="sm">
             Last updated <DateTime datetime={variantList.updated_at} />

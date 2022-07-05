@@ -21,8 +21,7 @@ class TestGetVariantLists:
             label="List 1",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -35,8 +34,7 @@ class TestGetVariantLists:
             label="List 2",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -80,8 +78,6 @@ class TestCreateVariantList:
                 "label": "A variant list",
                 "type": VariantList.Type.CUSTOM,
                 "metadata": {
-                    "version": "1",
-                    "reference_genome": "GRCh37",
                     "gnomad_version": "2.1.1",
                 },
                 "variants": [{"id": "1-55516888-G-GA"}],
@@ -101,8 +97,6 @@ class TestCreateVariantList:
                 "label": "A variant list",
                 "type": VariantList.Type.CUSTOM,
                 "metadata": {
-                    "version": "1",
-                    "reference_genome": "GRCh37",
                     "gnomad_version": "2.1.1",
                 },
                 "variants": [{"id": "1-55516888-G-GA"}],
@@ -137,8 +131,6 @@ class TestCreateVariantList:
                     "label": "A variant list",
                     "type": VariantList.Type.CUSTOM,
                     "metadata": {
-                        "version": "1",
-                        "reference_genome": "GRCh37",
                         "gnomad_version": "2.1.1",
                     },
                     "variants": [{"id": "1-55516888-G-GA"}],
@@ -155,8 +147,6 @@ class TestCreateVariantList:
                 "label": "A variant list",
                 "type": VariantList.Type.CUSTOM,
                 "metadata": {
-                    "version": "1",
-                    "reference_genome": "GRCh37",
                     "gnomad_version": "2.1.1",
                 },
                 "variants": [{"id": "1-55516888-G-GA"}],
@@ -181,8 +171,7 @@ class TestGetVariantList:
             label="List 1",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -193,8 +182,7 @@ class TestGetVariantList:
             label="List 2",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -205,8 +193,7 @@ class TestGetVariantList:
             label="List 3",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -300,8 +287,7 @@ class TestEditVariantList:
             notes="Initial notes",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -384,8 +370,7 @@ class TestDeleteVariantList:
             label="Test list",
             type=VariantList.Type.CUSTOM,
             metadata={
-                "version": "1",
-                "reference_genome": "GRCh37",
+                "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],

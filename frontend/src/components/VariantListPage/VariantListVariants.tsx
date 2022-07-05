@@ -10,12 +10,7 @@ import {
 import { useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
-import {
-  GnomadPopulationId,
-  VariantId,
-  VariantList,
-  VariantListType,
-} from "../../types";
+import { GnomadPopulationId, VariantId, VariantList } from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
 
@@ -41,7 +36,9 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
 
   if (variants.length === 0) {
     if (
-      variantList.type === VariantListType.RECOMMENDED &&
+      (variantList.metadata.include_gnomad_plof ||
+        (variantList.metadata.include_clinvar_clinical_significance || [])
+          .length > 0) &&
       (variantList.status === "Queued" || variantList.status === "Processing")
     ) {
       return (

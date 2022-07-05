@@ -1,13 +1,14 @@
 import { Link } from "@chakra-ui/react";
 
-import {
-  VariantList,
-  VariantListType,
-  RecommendedVariantList,
-  CustomVariantList,
-} from "../../types";
+import { VariantList, VariantListType } from "../../types";
 
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
+
+export const formatVariantListType = (variantList: VariantList) => {
+  return variantList.type === VariantListType.RECOMMENDED
+    ? "Recommended"
+    : "Custom";
+};
 
 const clinvarDateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "long",
@@ -20,33 +21,7 @@ const formatClinvarReleaseDate = (releaseDate: string) => {
   return clinvarDateFormatter.format(date);
 };
 
-const CustomVariantListMetadata = (props: {
-  variantList: CustomVariantList;
-}) => {
-  const { variantList } = props;
-
-  return (
-    <DescriptionList mb={4}>
-      <DescriptionListItem label="Type">Custom</DescriptionListItem>
-      <DescriptionListItem label="Reference genome">
-        {variantList.metadata.reference_genome}
-      </DescriptionListItem>
-      <DescriptionListItem label="gnomAD version">
-        {variantList.metadata.gnomad_version}
-      </DescriptionListItem>
-      {variantList.metadata.clinvar_version && (
-        <DescriptionListItem label="ClinVar version">
-          {formatClinvarReleaseDate(variantList.metadata.clinvar_version)}{" "}
-          release
-        </DescriptionListItem>
-      )}
-    </DescriptionList>
-  );
-};
-
-const RecommendedVariantListMetadata = (props: {
-  variantList: RecommendedVariantList;
-}) => {
+const VariantListMetadata = (props: { variantList: VariantList }) => {
   const { variantList } = props;
 
   const gnomadVersion = variantList.metadata.gnomad_version;
@@ -57,35 +32,44 @@ const RecommendedVariantListMetadata = (props: {
 
   return (
     <DescriptionList mb={4}>
-      <DescriptionListItem label="Type">gnomAD</DescriptionListItem>
+      <DescriptionListItem label="Type">
+        {formatVariantListType(variantList)}
+      </DescriptionListItem>
       <DescriptionListItem label="gnomAD version">
         {variantList.metadata.gnomad_version}
       </DescriptionListItem>
-      <DescriptionListItem label="Gene">
-        <Link
-          href={`https://gnomad.broadinstitute.org/gene/${
-            variantList.metadata.gene_id.split(".")[0]
-          }?dataset=${gnomadDataset}`}
-          isExternal
-          target="_blank"
-        >
-          {variantList.metadata.gene_id}
-        </Link>
+      <DescriptionListItem label="Reference genome">
+        {variantList.metadata.reference_genome}
       </DescriptionListItem>
-      <DescriptionListItem label="Transcript">
-        <Link
-          href={`https://gnomad.broadinstitute.org/transcript/${
-            variantList.metadata.transcript_id.split(".")[0]
-          }?dataset=${gnomadDataset}`}
-          isExternal
-          target="_blank"
-        >
-          {variantList.metadata.transcript_id}
-        </Link>
-      </DescriptionListItem>
-      {variantList.metadata.included_clinvar_variants && (
+      {variantList.metadata.gene_id && (
+        <DescriptionListItem label="Gene">
+          <Link
+            href={`https://gnomad.broadinstitute.org/gene/${
+              variantList.metadata.gene_id.split(".")[0]
+            }?dataset=${gnomadDataset}`}
+            isExternal
+            target="_blank"
+          >
+            {variantList.metadata.gene_id}
+          </Link>
+        </DescriptionListItem>
+      )}
+      {variantList.metadata.transcript_id && (
+        <DescriptionListItem label="Transcript">
+          <Link
+            href={`https://gnomad.broadinstitute.org/transcript/${
+              variantList.metadata.transcript_id.split(".")[0]
+            }?dataset=${gnomadDataset}`}
+            isExternal
+            target="_blank"
+          >
+            {variantList.metadata.transcript_id}
+          </Link>
+        </DescriptionListItem>
+      )}
+      {variantList.metadata.include_clinvar_clinical_significance && (
         <DescriptionListItem label="Included ClinVar variants">
-          {variantList.metadata.included_clinvar_variants
+          {variantList.metadata.include_clinvar_clinical_significance
             .map((category) =>
               (category.charAt(0).toUpperCase() + category.slice(1))
                 .split("_")
@@ -102,20 +86,6 @@ const RecommendedVariantListMetadata = (props: {
       )}
     </DescriptionList>
   );
-};
-
-const VariantListMetadata = (props: { variantList: VariantList }) => {
-  const { variantList } = props;
-
-  if (variantList.type === VariantListType.RECOMMENDED) {
-    return <RecommendedVariantListMetadata variantList={variantList} />;
-  }
-
-  if (variantList.type === VariantListType.CUSTOM) {
-    return <CustomVariantListMetadata variantList={variantList} />;
-  }
-
-  return null;
 };
 
 export default VariantListMetadata;

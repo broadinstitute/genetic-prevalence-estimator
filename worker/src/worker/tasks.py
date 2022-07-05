@@ -9,6 +9,7 @@ import requests
 from django.conf import settings
 
 from calculator.models import VariantList
+from calculator.serializers import VariantListSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -186,41 +187,15 @@ def fetch_transcript(transcript_id, gnomad_version):
     raise Exception("Failed to fetch transcript.")
 
 
-def process_new_recommended_variant_list(variant_list):
-    gnomad_version = variant_list.metadata["gnomad_version"]
-    assert gnomad_version in (
-        "2.1.1",
-        "3.1.2",
-    ), f"Invalid gnomAD version '{gnomad_version}'"
-
-    transcript_id, transcript_version = variant_list.metadata["transcript_id"].split(
-        "."
-    )
-    gene_id, gene_version = variant_list.metadata["gene_id"].split(".")
-
-    try:
-        transcript = fetch_transcript(transcript_id, gnomad_version)
-    except Exception as e:  # pylint: disable=broad-except
-        raise Exception("Unable to validate transcript and gene") from e
-
-    assert (
-        transcript_version == transcript["transcript_version"]
-    ), f"Requested transcript version ({transcript_version}) differs from version in gnomAD ({transcript['transcript_version']})"
-
-    assert (
-        gene_id == transcript["gene"]["gene_id"]
-    ), f"Requested gene ({gene_id}) does not match the gene associated with transcript {transcript_id} in gnomAD ({transcript['gene']['gene_id']})"
-
-    assert (
-        gene_version == transcript["gene"]["gene_version"]
-    ), f"Requested gene version ({gene_version}) differs from version in gnomAD ({transcript['gene']['gene_version']})"
+def get_recommended_variants(metadata, transcript):
+    gnomad_version = metadata["gnomad_version"]
+    reference_genome = metadata["reference_genome"]
 
     ds = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
     )
 
-    reference_genome = ds.locus.dtype.reference_genome.name
-    assert reference_genome in ("GRCh37", "GRCh38")
+    assert ds.locus.dtype.reference_genome.name == reference_genome
 
     contig = transcript["chrom"]
     if reference_genome == "GRCh38":
@@ -240,7 +215,7 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.transmute(
         transcript_consequence=ds.transcript_consequences.find(
-            lambda csq: csq.transcript_id.split(r"\.")[0] == transcript_id
+            lambda csq: csq.transcript_id == metadata["transcript_id"]
         )
     )
     ds = ds.filter(hl.is_defined(ds.transcript_consequence))
@@ -254,17 +229,16 @@ def process_new_recommended_variant_list(variant_list):
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
     )
-    variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
 
-    if not variant_list.metadata["included_clinvar_variants"]:
+    if not metadata["include_clinvar_clinical_significance"]:
         ds = ds.annotate(include_from_clinvar=False)
     else:
-        include_clinvar_variant_categories = hl.set(
-            variant_list.metadata["included_clinvar_variants"]
+        include_clinvar_clinical_significance = hl.set(
+            metadata["include_clinvar_clinical_significance"]
         )
 
         include_from_clinvar = (
-            include_clinvar_variant_categories.contains(
+            include_clinvar_clinical_significance.contains(
                 "pathogenic_or_likely_pathogenic"
             )
             & (
@@ -272,7 +246,9 @@ def process_new_recommended_variant_list(variant_list):
                 == "pathogenic_or_likely_pathogenic"
             )
         ) | (
-            include_clinvar_variant_categories.contains("conflicting_interpretations")
+            include_clinvar_clinical_significance.contains(
+                "conflicting_interpretations"
+            )
             & (
                 clinvar[ds.locus, ds.alleles].clinical_significance_category
                 == "conflicting_interpretations"
@@ -290,7 +266,7 @@ def process_new_recommended_variant_list(variant_list):
 
     ds = ds.filter(ds.include_from_gnomad | ds.include_from_clinvar)
 
-    ds = ds.annotate(
+    ds = ds.transmute(
         source=hl.array(
             [
                 hl.or_missing(ds.include_from_gnomad, "gnomAD"),
@@ -299,46 +275,88 @@ def process_new_recommended_variant_list(variant_list):
         ).filter(hl.is_defined)
     )
 
-    populations = hl.eval(ds.globals.populations)
-    variant_list.metadata["populations"] = populations
+    ds = ds.select("source")
 
-    ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
-    ds = ds.annotate(flags=flags(ds))
-
-    ds = ds.annotate(
-        **clinvar[ds.locus, ds.alleles].select(
-            "clinvar_variation_id", "clinical_significance", "gold_stars"
-        )
-    )
-
-    ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
-
-    ds = ds.select(*VARIANT_FIELDS)
-
-    variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
-    variant_list.variants = variants
-    variant_list.save()
+    return ds
 
 
-def process_new_custom_variant_list(variant_list):
-    reference_genome = variant_list.metadata["reference_genome"]
+def process_variant_list(variant_list):
+    # Serialize variant list to normalize different versions of metadata
+    serializer = VariantListSerializer(variant_list)
+    metadata = serializer.data["metadata"]
 
-    gnomad_version = variant_list.metadata["gnomad_version"]
+    gnomad_version = metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
         "3.1.2",
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
-    ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
+    if metadata.get("include_gnomad_plof") or metadata.get(
+        "include_clinvar_clinical_significance"
+    ):
+        assert metadata.get(
+            "transcript_id"
+        ), "Transcript ID is required to automatically include variants"
 
-    ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
-    ds = ds.annotate(source=["Custom"])
+    if metadata.get("transcript_id"):
+        transcript_id, transcript_version = metadata["transcript_id"].split(".")
+        gene_id, gene_version = metadata["gene_id"].split(".")
+
+        try:
+            transcript = fetch_transcript(transcript_id, gnomad_version)
+        except Exception as e:  # pylint: disable=broad-except
+            raise Exception("Unable to validate transcript and gene") from e
+
+        assert (
+            transcript_version == transcript["transcript_version"]
+        ), f"Requested transcript version ({transcript_version}) differs from version in gnomAD ({transcript['transcript_version']})"
+
+        assert (
+            gene_id == transcript["gene"]["gene_id"]
+        ), f"Requested gene ({gene_id}) does not match the gene associated with transcript {transcript_id} in gnomAD ({transcript['gene']['gene_id']})"
+
+        assert (
+            gene_version == transcript["gene"]["gene_version"]
+        ), f"Requested gene version ({gene_version}) differs from version in gnomAD ({transcript['gene']['gene_version']})"
+
+    reference_genome = metadata["reference_genome"]
+
+    # Import existing variants into a Hail Table
+    ds = None
+    if variant_list.variants:
+        ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
+        ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
+        ds = ds.key_by("locus", "alleles")
+        ds = ds.select(source=["Custom"])
+
+    # Add recommended variants
+    if metadata.get("include_gnomad_plof") or metadata.get(
+        "include_clinvar_clinical_significance"
+    ):
+        recommended_variants = get_recommended_variants(metadata, transcript)
+        if ds:
+            ds = ds.join(recommended_variants, how="outer")
+        else:
+            ds = recommended_variants
+
+    # Annotate variants
+    ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
     gnomad = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
     )
     ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
-    ds = ds.transmute(**ds.transcript_consequences.first())
+
+    if metadata.get("transcript_id"):
+        ds = ds.transmute(
+            transcript_consequence=ds.transcript_consequences.find(
+                lambda csq: csq.transcript_id == metadata["transcript_id"]
+            )
+        )
+    else:
+        ds = ds.transmute(transcript_consequence=ds.transcript_consequences.first())
+
+    ds = ds.transmute(**ds.transcript_consequence)
 
     populations = hl.eval(gnomad.globals.populations)
     variant_list.metadata["populations"] = populations
@@ -372,12 +390,7 @@ def process_new_variant_list(uid):
     variant_list.save()
 
     try:
-        if variant_list.type == VariantList.Type.RECOMMENDED:
-            process_new_recommended_variant_list(variant_list)
-
-        if variant_list.type == VariantList.Type.CUSTOM:
-            process_new_custom_variant_list(variant_list)
-
+        process_variant_list(variant_list)
     except Exception:  # pylint: disable=broad-except
         logger.exception("Error processing new variant list %s", uid)
 

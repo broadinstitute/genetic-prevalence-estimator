@@ -19,17 +19,17 @@ import { post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import {
   ClinvarClinicalSignificanceCategory,
-  RecommendedVariantListRequest,
-  RecommendedVariantList,
   GnomadVersion,
+  VariantList,
+  VariantListRequest,
   VariantListType,
 } from "../../types";
 import GeneInput from "./GeneInput";
 import TranscriptInput from "./TranscriptInput";
 
 const submitVariantList = (
-  request: RecommendedVariantListRequest
-): Promise<RecommendedVariantList> => {
+  request: VariantListRequest
+): Promise<VariantList> => {
   return post("/variant-lists/", request);
 };
 
@@ -45,9 +45,12 @@ const RecommendedVariantListForm = () => {
 
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
-  const [includedClinvarVariants, setIncludedClinvarVariants] = useState<
-    ClinvarClinicalSignificanceCategory[]
-  >(["pathogenic_or_likely_pathogenic"]);
+  const [
+    includedClinvarClinicalSignificances,
+    setIncludedClinvarClinicalSignificances,
+  ] = useState<ClinvarClinicalSignificanceCategory[]>([
+    "pathogenic_or_likely_pathogenic",
+  ]);
 
   const history = useHistory();
   const toast = useToast();
@@ -58,16 +61,16 @@ const RecommendedVariantListForm = () => {
         e.preventDefault();
 
         if (geneId && isGeneIdValid && transcriptId && isTranscriptIdValid) {
-          const variantListRequest: RecommendedVariantListRequest = {
+          const variantListRequest: VariantListRequest = {
             label,
             notes,
             type: VariantListType.RECOMMENDED,
             metadata: {
-              version: "1",
               gene_id: geneId,
               transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
-              included_clinvar_variants: includedClinvarVariants,
+              include_gnomad_plof: true,
+              include_clinvar_clinical_significance: includedClinvarClinicalSignificances,
             },
           };
 
@@ -179,9 +182,9 @@ const RecommendedVariantListForm = () => {
             Include variants based on clinical significance in ClinVar?
           </FormLabel>
           <RadioGroup
-            value={includedClinvarVariants.join("|")}
+            value={includedClinvarClinicalSignificances.join("|")}
             onChange={(value) => {
-              setIncludedClinvarVariants(
+              setIncludedClinvarClinicalSignificances(
                 value
                   .split("|")
                   .filter(Boolean) as ClinvarClinicalSignificanceCategory[]

@@ -14,24 +14,26 @@ TEST_CASES = [
         "label": "Recommended gnomAD v2 with ClinVar pathogenic or likely pathogenic",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh37",
+            "version": "2",
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174.9",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": ["pathogenic_or_likely_pathogenic"],
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [
+                "pathogenic_or_likely_pathogenic"
+            ],
         },
     },
     {
         "label": "Recommended gnomAD v2 with ClinVar pathogenic or likely pathogenic and conflicting interpretations",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh37",
+            "version": "2",
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174.9",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": [
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [
                 "pathogenic_or_likely_pathogenic",
                 "conflicting_interpretations",
             ],
@@ -41,12 +43,12 @@ TEST_CASES = [
         "label": "Recommended gnomAD v2 without ClinVar",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh37",
+            "version": "2",
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174.9",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": [],
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [],
         },
     },
     # Recommended, gnomAD v3
@@ -54,24 +56,26 @@ TEST_CASES = [
         "label": "Recommended gnomAD v3 with ClinVar pathogenic or likely pathogenic",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh38",
+            "version": "2",
             "gnomad_version": "3.1.2",
             "gene_id": "ENSG00000169174.11",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": ["pathogenic_or_likely_pathogenic"],
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [
+                "pathogenic_or_likely_pathogenic"
+            ],
         },
     },
     {
         "label": "Recommended gnomAD v3 with ClinVar pathogenic or likely pathogenic and conflicting interpretations",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh38",
+            "version": "2",
             "gnomad_version": "3.1.2",
             "gene_id": "ENSG00000169174.11",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": [
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [
                 "pathogenic_or_likely_pathogenic",
                 "conflicting_interpretations",
             ],
@@ -81,12 +85,12 @@ TEST_CASES = [
         "label": "Recommended gnomAD v3 without ClinVar",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh38",
+            "version": "2",
             "gnomad_version": "3.1.2",
             "gene_id": "ENSG00000169174.11",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": [],
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [],
         },
     },
     # Custom, gnomAD v2
@@ -94,9 +98,10 @@ TEST_CASES = [
         "label": "Custom gnomAD v2",
         "type": VariantList.Type.CUSTOM,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh37",
+            "version": "2",
             "gnomad_version": "2.1.1",
+            "include_gnomad_plof": False,
+            "include_clinvar_clinical_significance": [],
         },
         "variants": [
             {"id": "1-55512222-C-G"},
@@ -108,9 +113,10 @@ TEST_CASES = [
         "label": "Recommended gnomAD v3",
         "type": VariantList.Type.RECOMMENDED,
         "metadata": {
-            "version": "1",
-            "reference_genome": "GRCh38",
+            "version": "2",
             "gnomad_version": "3.1.2",
+            "include_gnomad_plof": False,
+            "include_clinvar_clinical_significance": [],
         },
         "variants": [
             {"id": "1-55046549-C-G"},

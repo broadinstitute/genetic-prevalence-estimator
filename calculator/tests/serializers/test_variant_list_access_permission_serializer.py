@@ -21,11 +21,11 @@ def variant_list_fixture():
         label="A variant list",
         type=VariantList.Type.RECOMMENDED,
         metadata={
-            "version": "1",
+            "version": "2",
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174.9",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": None,
+            "include_gnomad_plof": True,
         },
         variants=[{"id": "1-55516888-G-GA"}],
         status=VariantList.Status.READY,

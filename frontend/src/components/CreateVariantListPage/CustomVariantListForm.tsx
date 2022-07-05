@@ -31,16 +31,15 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 import { post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import {
-  CustomVariantListRequest,
-  CustomVariantList,
   GnomadVersion,
-  ReferenceGenome,
+  VariantList,
+  VariantListRequest,
   VariantListType,
 } from "../../types";
 
 const submitVariantList = (
-  request: CustomVariantListRequest
-): Promise<CustomVariantList> => {
+  request: VariantListRequest
+): Promise<VariantList> => {
   return post("/variant-lists/", request);
 };
 
@@ -71,18 +70,11 @@ const CustomVariantListForm = () => {
         onSubmit={(e) => {
           e.preventDefault();
 
-          const referenceGenome = {
-            "2.1.1": "GRCh37",
-            "3.1.2": "GRCh38",
-          }[gnomadVersion];
-
-          const variantListRequest: CustomVariantListRequest = {
+          const variantListRequest: VariantListRequest = {
             label,
             notes,
             type: VariantListType.CUSTOM,
             metadata: {
-              version: "1",
-              reference_genome: referenceGenome as ReferenceGenome,
               gnomad_version: gnomadVersion as GnomadVersion,
             },
             variants: variants.map(({ id }) => ({

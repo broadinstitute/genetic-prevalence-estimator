@@ -10,7 +10,7 @@ import {
 import { useMemo, useState } from "react";
 
 import theme from "../../../theme";
-import { Variant, VariantList, VariantListType } from "../../../types";
+import { Variant, VariantList } from "../../../types";
 
 import { getVariantSources } from "../variantSources";
 
@@ -40,6 +40,9 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     setCarrierFrequencyModel,
   ] = useState<CarrierFrequencyModel>("full");
 
+  const hasOptionToShowContributionsBySource =
+    (variantList.metadata.include_clinvar_clinical_significance || []).length >
+    0;
   const [showContributionsBySource, setShowContributionsBySource] = useState(
     false
   );
@@ -58,7 +61,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     carrierFrequencySimplified: clinvarOnlyCarrierFrequencySimplified,
   } = useMemo(
     () =>
-      variantList.type === VariantListType.RECOMMENDED
+      hasOptionToShowContributionsBySource
         ? calculateCarrierFrequencyAndPrevalence(
             variants.filter((variant) =>
               getVariantSources(variant, variantList).includes("ClinVar")
@@ -69,7 +72,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
             carrierFrequency: null,
             carrierFrequencySimplified: null,
           },
-    [variantList, variants]
+    [hasOptionToShowContributionsBySource, variantList, variants]
   );
 
   const {
@@ -77,7 +80,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     carrierFrequencySimplified: plofOnlyCarrierFrequencySimplified,
   } = useMemo(
     () =>
-      variantList.type === VariantListType.RECOMMENDED
+      hasOptionToShowContributionsBySource
         ? calculateCarrierFrequencyAndPrevalence(
             variants.filter(
               (variant) =>
@@ -89,7 +92,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
             carrierFrequency: null,
             carrierFrequencySimplified: null,
           },
-    [variantList, variants]
+    [hasOptionToShowContributionsBySource, variantList, variants]
   );
 
   let stackHorizontally = useBreakpointValue({ base: false, lg: true });
@@ -200,7 +203,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
             </div>
           </HStack>
 
-          {variantList.type === VariantListType.RECOMMENDED && (
+          {hasOptionToShowContributionsBySource && (
             <Checkbox
               isChecked={showContributionsBySource}
               onChange={(e) => {

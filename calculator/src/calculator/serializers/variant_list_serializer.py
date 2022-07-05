@@ -2,6 +2,7 @@ import re
 
 from rest_framework import serializers
 
+from calculator.constants import GNOMAD_VERSIONS, GNOMAD_REFERENCE_GENOMES
 from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers.serializer import ModelSerializer
 from calculator.serializers.serializer_fields import ChoiceField
@@ -22,85 +23,115 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
-class RecommendedVariantListMetadataVersion1Serializer(
+class MultipleChoiceField(serializers.MultipleChoiceField):
+    def to_internal_value(self, data):
+        return list(super().to_internal_value(data))
+
+    def to_representation(self, value):
+        return list(super().to_representation(value))
+
+
+class VariantListV2MetadataSerializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
-    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.2"])
-    gene_id = serializers.CharField(max_length=20)
-    transcript_id = serializers.CharField(max_length=20)
-    included_clinvar_variants = serializers.MultipleChoiceField(
+    version = serializers.ChoiceField(["2"], default="2")
+
+    gnomad_version = serializers.ChoiceField(GNOMAD_VERSIONS)
+    reference_genome = serializers.SerializerMethodField()
+    populations = serializers.ListField(child=serializers.CharField(), read_only=True)
+    clinvar_version = serializers.CharField(max_length=10, read_only=True)
+
+    gene_id = serializers.CharField(max_length=20, required=False)
+    transcript_id = serializers.CharField(max_length=20, required=False)
+
+    include_gnomad_plof = serializers.BooleanField(required=False)
+    include_clinvar_clinical_significance = MultipleChoiceField(
         [
             "pathogenic_or_likely_pathogenic",
             "conflicting_interpretations",
         ],
-        allow_null=True,
+        required=False,
     )
-    clinvar_version = serializers.CharField(max_length=10, read_only=True)
+
+    def get_reference_genome(self, obj):  # pylint: disable=no-self-use
+        return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
 
     def validate_gene_id(self, value):  # pylint: disable=no-self-use
-        if not is_gene_id(value):
+        if value and not is_gene_id(value):
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
+        return value
 
     def validate_transcript_id(self, value):  # pylint: disable=no-self-use
-        if not is_transcript_id(value):
+        if value and not is_transcript_id(value):
             raise serializers.ValidationError(
                 f"'{value}' is not a valid transcript ID."
             )
+        return value
 
+    def validate(self, attrs):  # pylint: disable=no-self-use
+        if attrs.get("include_gnomad_plof") or attrs.get(
+            "include_clinvar_clinical_significance"
+        ):
+            if not attrs.get("transcript_id"):
+                raise serializers.ValidationError(
+                    "Transcript ID is required to automatically include variants"
+                )
 
-class CustomVariantListMetadataVersion1Serializer(
-    serializers.Serializer
-):  # pylint: disable=abstract-method
-    reference_genome = serializers.ChoiceField(["GRCh37", "GRCh38"])
-    gnomad_version = serializers.ChoiceField(["2.1.1", "3.1.2"])
-
-    def validate(self, attrs):
-        gnomad_reference_genome = {
-            "2.1.1": "GRCh37",
-            "3.1.2": "GRCh38",
-        }[attrs["gnomad_version"]]
-
-        if attrs["reference_genome"] != gnomad_reference_genome:
+        if any((attrs.get("gene_id"), attrs.get("transcript_id"))) and not all(
+            (attrs.get("gene_id"), attrs.get("transcript_id"))
+        ):
             raise serializers.ValidationError(
-                f"Unable to use gnomAD v{attrs['gnomad_version']} with variants based on {attrs['reference_genome']}"
+                "Both gene and transcript ID are required"
             )
 
         return attrs
 
 
+class VariantListV1MetadataSerializer(
+    serializers.Serializer
+):  # pylint: disable=abstract-method
+    gnomad_version = serializers.ChoiceField(GNOMAD_VERSIONS)
+    reference_genome = serializers.SerializerMethodField()
+    populations = serializers.ListField(child=serializers.CharField(), read_only=True)
+    clinvar_version = serializers.CharField(max_length=10, read_only=True)
+
+    gene_id = serializers.CharField(max_length=20, required=False)
+    transcript_id = serializers.CharField(max_length=20, required=False)
+
+    include_gnomad_plof = serializers.SerializerMethodField()
+    include_clinvar_clinical_significance = serializers.SerializerMethodField()
+
+    def get_reference_genome(self, obj):  # pylint: disable=no-self-use
+        return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
+
+    def get_include_gnomad_plof(self, obj):  # pylint: disable=unused-argument
+        return self.context["variant_list"].type == VariantList.Type.RECOMMENDED
+
+    def get_include_clinvar_clinical_significance(
+        self, obj
+    ):  # pylint: disable=no-self-use
+        return obj.get("included_clinvar_variants", [])
+
+
 class NewVariantListSerializer(ModelSerializer):
     notes = serializers.CharField(allow_blank=True, required=False)
 
-    def validate_metadata(self, value):
+    def validate_metadata(self, value):  # pylint: disable=no-self-use
         if not value:
             raise serializers.ValidationError("This field is required.")
 
-        variant_list_type = self.initial_data.get("type")
-        version = value.pop("version")
-        if variant_list_type == VariantList.Type.CUSTOM:
-            metadata_serializer_class = {
-                "1": CustomVariantListMetadataVersion1Serializer
-            }.get(version)
-        elif variant_list_type == VariantList.Type.RECOMMENDED:
-            metadata_serializer_class = {
-                "1": RecommendedVariantListMetadataVersion1Serializer
-            }.get(version)
-        else:
-            raise serializers.ValidationError(
-                "Unknown variant list type, unable to validate metadata."
-            )
-
-        if not metadata_serializer_class:
-            raise serializers.ValidationError("Invalid version.")
-
-        metadata_serializer = metadata_serializer_class(data=value)
+        metadata_serializer = VariantListV2MetadataSerializer(data=value)
         if not metadata_serializer.is_valid():
             raise serializers.ValidationError(metadata_serializer.errors)
 
-        return value
+        return metadata_serializer.validated_data
 
     def validate_variants(self, value):
-        if self.initial_data.get("type") != VariantList.Type.CUSTOM:
+        if self.initial_data.get("metadata", {}).get(
+            "include_gnomad_plof"
+        ) or self.initial_data.get("metadata", {}).get(
+            "include_clinvar_clinical_significance"
+        ):
             if value:
                 raise serializers.ValidationError(
                     "Variants can only be specified for a custom variant list."
@@ -141,9 +172,24 @@ class VariantListSerializer(ModelSerializer):
     notes = serializers.CharField(allow_blank=True, required=False)
     status = ChoiceField(choices=VariantList.Status.choices, read_only=True)
 
+    metadata = serializers.SerializerMethodField()
+
     access_permissions = VariantListAccessPermissionSerializer(
         many=True, read_only=True
     )
+
+    def get_metadata(self, obj):  # pylint: disable=no-self-use
+        metadata_version = obj.metadata.get("version", "1")
+        metadata_serializer_class = {
+            "1": VariantListV1MetadataSerializer,
+            "2": VariantListV2MetadataSerializer,
+        }[metadata_version]
+        metadata_serializer = metadata_serializer_class(
+            obj.metadata, context={"variant_list": obj}
+        )
+        data = metadata_serializer.data
+        data.pop("version", None)
+        return data
 
     def get_current_user(self):
         try:

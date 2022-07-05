@@ -1,11 +1,6 @@
 import { CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES } from "../../constants/clinvar";
 import { PLOF_VEP_CONSEQUENCES } from "../../constants/vepConsequences";
-import {
-  Variant,
-  VariantList,
-  VariantListType,
-  VariantSource,
-} from "../../types";
+import { Variant, VariantList, VariantSource } from "../../types";
 
 export const getVariantSources = (
   variant: Variant,
@@ -18,17 +13,17 @@ export const getVariantSources = (
     return variant.source;
   }
 
-  const isIncludedFromClinvar =
-    variantList.type === VariantListType.RECOMMENDED &&
-    variantList.metadata.included_clinvar_variants?.some((category) =>
+  const isIncludedFromClinvar = variantList.metadata.include_clinvar_clinical_significance?.some(
+    (category) =>
       variant.clinical_significance?.some((clinicalSignificance) =>
         CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES[category].has(
           clinicalSignificance
         )
       )
-    );
+  );
 
   const isIncludedFromGnomad =
+    variantList.metadata.include_gnomad_plof &&
     variant.major_consequence &&
     PLOF_VEP_CONSEQUENCES.has(variant.major_consequence) &&
     variant.lof === "HC";
@@ -39,6 +34,9 @@ export const getVariantSources = (
   }
   if (isIncludedFromGnomad) {
     reasons.push("gnomAD");
+  }
+  if (!(isIncludedFromClinvar || isIncludedFromGnomad)) {
+    reasons.push("Custom");
   }
 
   return reasons;

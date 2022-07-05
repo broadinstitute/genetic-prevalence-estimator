@@ -15,31 +15,65 @@ from calculator.serializers import (
 User = get_user_model()
 
 
-def test_new_variant_list_serializer_custom_variant_list():
-    # Valid variant list
-    serializer = NewVariantListSerializer(
-        data={
+@pytest.mark.parametrize(
+    "data",
+    [
+        {
             "label": "my new variant list",
             "notes": "",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
-        }
-    )
+        },
+        {
+            "label": "my new variant list",
+            "notes": "",
+            "type": VariantList.Type.CUSTOM,
+            "metadata": {
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174.9",
+                "transcript_id": "ENST00000302118.5",
+            },
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        },
+        {
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174.9",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
+            },
+        },
+        {
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174.9",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
+                "include_clinvar_clinical_significance": [
+                    "pathogenic_or_likely_pathogenic"
+                ],
+            },
+        },
+    ],
+)
+def test_new_variant_list_serializer_valid_variant_lists(data):
+    serializer = NewVariantListSerializer(data=data)
     assert serializer.is_valid(), serializer.errors
 
-    # Reject extra fields
+
+def test_new_variant_list_serializer_rejects_extra_fields():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
@@ -48,13 +82,13 @@ def test_new_variant_list_serializer_custom_variant_list():
     )
     assert not serializer.is_valid()
 
-    # Require a label
+
+def test_new_variant_list_serializer_requires_label():
     serializer = NewVariantListSerializer(
         data={
             "label": "",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
                 "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
@@ -64,7 +98,21 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "label" in serializer.errors
 
-    # Require a metadata
+
+def test_new_variant_list_serializer_invalid_type():
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": "invalid-type",
+            "metadata": {},
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "type" in serializer.errors
+
+
+def test_new_variant_list_serializer_metadata_required():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
@@ -76,23 +124,23 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
 
-    # Require a valid metadata version
+
+def test_new_variant_list_serializer_metadata_version():
+    # Version is included in validated data
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "9000",
-                "reference_genome": "GRCh38",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
+    assert serializer.is_valid()
+    assert serializer.validated_data["metadata"]["version"] == "2"
 
-    # Require a valid reference genome
+    # Reject custom version
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
@@ -106,31 +154,16 @@ def test_new_variant_list_serializer_custom_variant_list():
     )
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
-    assert "reference_genome" in serializer.errors["metadata"]
+    assert "version" in serializer.errors["metadata"]
 
+
+def test_new_variant_list_serializer_metadata_gnomad_version():
+    # Require a valid version of gnomAD
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "foo",
-                "gnomad_version": "2.1.1",
-            },
-            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "reference_genome" in serializer.errors["metadata"]
-
-    # Require a version of gnomAD
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.CUSTOM,
-            "metadata": {
-                "version": "1",
                 "reference_genome": "GRCh37",
             },
             "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
@@ -145,7 +178,6 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
                 "reference_genome": "GRCh37",
                 "gnomad_version": "0.1",
             },
@@ -156,33 +188,163 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert "metadata" in serializer.errors
     assert "gnomad_version" in serializer.errors["metadata"]
 
-    # Require that reference genome matches gnomAD version
+
+def test_new_variant_list_serializer_metadata_gene_and_transcript():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.CUSTOM,
+            "type": VariantList.Type.RECOMMENDED,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "3.1.2",
+                "gene_id": "ENSG00000169174.11",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
             },
-            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
+        }
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    # Require transcript ID if automatically including variants
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "include_gnomad_plof": True,
+            },
         }
     )
     assert not serializer.is_valid()
     assert "metadata" in serializer.errors
 
-    # Require variants
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "include_clinvar_clinical_significance": [
+                    "pathogenic_or_likely_pathogenic"
+                ],
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+
+    # Require both gene and transcript if one is provided
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "gene_id": "ENSG00000169174.11",
+                "include_gnomad_plof": True,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+
+    # Validate gene ID
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "gene_id": "not-a-gene-id",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "gene_id" in serializer.errors["metadata"]
+
+    # Validate transcript ID
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "3.1.2",
+                "gene_id": "ENSG00000169174.11",
+                "transcript_id": "not-a-transcript-id",
+                "include_gnomad_plof": True,
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "transcript_id" in serializer.errors["metadata"]
+
+
+def test_new_variant_list_serializer_metadata_clinvar():
+    # Require valid ClinVar clinical significances
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174.9",
+                "transcript_id": "ENST00000302118.5",
+                "include_clinvar_clinical_significance": [
+                    "not-a-clinical-significance"
+                ],
+            },
+        }
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+    assert "include_clinvar_clinical_significance" in serializer.errors["metadata"]
+
+
+def test_new_variant_list_serializer_variants():
+    # Require variants if not automatically adding variants
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [],
+        }
+    )
+    assert not serializer.is_valid()
+    assert "variants" in serializer.errors
+
+    # Reject variants if automatically adding variants
+    serializer = NewVariantListSerializer(
+        data={
+            "label": "my new variant list",
+            "type": VariantList.Type.RECOMMENDED,
+            "metadata": {
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174.9",
+                "transcript_id": "ENST00000302118.5",
+                "include_gnomad_plof": True,
+            },
+            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
         }
     )
     assert not serializer.is_valid()
@@ -194,8 +356,6 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"field": "value"}],
@@ -209,8 +369,6 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"id": "not-a-variant-id"}],
@@ -225,8 +383,6 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [{"id": f"1-{pos}-C-G"} for pos in range(1, 10_000)],
@@ -241,8 +397,6 @@ def test_new_variant_list_serializer_custom_variant_list():
             "label": "my new variant list",
             "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
-                "reference_genome": "GRCh37",
                 "gnomad_version": "2.1.1",
             },
             "variants": [
@@ -256,274 +410,60 @@ def test_new_variant_list_serializer_custom_variant_list():
     assert "variants" in serializer.errors
 
 
-def test_new_variant_list_serializer_recommended_variant_list():
-    # Valid variant lists
+@pytest.mark.django_db
+def test_variant_list_serializer_persists_metadata_version():
     serializer = NewVariantListSerializer(
         data={
             "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
+            "type": VariantList.Type.CUSTOM,
             "metadata": {
-                "version": "1",
                 "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
             },
+            "variants": [
+                {"id": "1-55512222-C-G"},
+                {"id": "1-55505697-AC-A"},
+            ],
         }
     )
-    assert serializer.is_valid(), serializer.errors
+    assert serializer.is_valid()
+    serializer.save()
+    assert VariantList.objects.count() == 1
+    assert VariantList.objects.get().metadata["version"] == "2"
 
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": ["pathogenic_or_likely_pathogenic"],
-            },
-        }
+
+@pytest.mark.django_db
+def test_serialize_v2_variant_list_metadata():
+    variant_list = VariantList(
+        id=1,
+        uuid=uuid.uuid4(),
+        label="A variant list",
+        type=VariantList.Type.RECOMMENDED,
+        metadata={
+            "version": "2",
+            "gnomad_version": "2.1.1",
+            "gene_id": "ENSG00000169174.9",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [],
+        },
+        variants=[{"id": "1-55516888-G-GA"}],
+        status=VariantList.Status.READY,
     )
-    assert serializer.is_valid(), serializer.errors
 
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": [
-                    "pathogenic_or_likely_pathogenic",
-                    "conflicting_interpretations",
-                ],
-            },
-        }
-    )
-    assert serializer.is_valid(), serializer.errors
-
-    # Reject extra fields
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-            "other_field": "value",
-        }
-    )
-    assert not serializer.is_valid()
-
-    # Require label
-    serializer = NewVariantListSerializer(
-        data={
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "label" in serializer.errors
-
-    # Require metadata
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {},
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-
-    # Require a valid metadata version
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "9000",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-
-    # Require valid gnomAD version
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "gnomad_version" in serializer.errors["metadata"]
-
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "8",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "gnomad_version" in serializer.errors["metadata"]
-
-    # Require valid gene ID
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "3.1.2",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "gene_id" in serializer.errors["metadata"]
-
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "3.1.2",
-                "gene_id": "not-a-gene-id",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "gene_id" in serializer.errors["metadata"]
-
-    # Require valid transcript ID
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "3.1.2",
-                "gene_id": "ENSG00000169174.11",
-                "transcript_id": None,
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "transcript_id" in serializer.errors["metadata"]
-
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "3.1.2",
-                "gene_id": "ENSG00000169174.11",
-                "transcript_id": "not-a-tx-id",
-                "included_clinvar_variants": None,
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "transcript_id" in serializer.errors["metadata"]
-
-    # Require valid ClinVar clinical significances
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": ["not-a-clinical-significance"],
-            },
-        }
-    )
-    assert not serializer.is_valid()
-    assert "metadata" in serializer.errors
-    assert "included_clinvar_variants" in serializer.errors["metadata"]
-
-    # Do not allow variants to be uploaded
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": VariantList.Type.RECOMMENDED,
-            "metadata": {
-                "version": "1",
-                "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174.9",
-                "transcript_id": "ENST00000302118.5",
-                "included_clinvar_variants": None,
-            },
-            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
-        }
-    )
-    assert not serializer.is_valid()
-    assert "variants" in serializer.errors
+    serializer = VariantListSerializer(variant_list)
+    assert serializer.data["metadata"] == {
+        "gnomad_version": "2.1.1",
+        "reference_genome": "GRCh37",
+        "gene_id": "ENSG00000169174.9",
+        "transcript_id": "ENST00000302118.5",
+        "include_gnomad_plof": True,
+        "include_clinvar_clinical_significance": [],
+    }
 
 
-def test_new_variant_list_serializer_invalid_type():
-    serializer = NewVariantListSerializer(
-        data={
-            "label": "my new variant list",
-            "type": "invalid-type",
-            "metadata": {
-                "version": "1",
-            },
-            "variants": [{"id": "1-55516888-G-GA"}, {"id": "1-55516888-G-A"}],
-        }
-    )
-    assert not serializer.is_valid()
-    assert "type" in serializer.errors
-
-
-def variant_list_fixture():
-    return VariantList(
+@pytest.mark.django_db
+def test_serialize_v1_recommended_variant_list_metadata():
+    variant_list = VariantList(
         id=1,
         uuid=uuid.uuid4(),
         label="A variant list",
@@ -533,7 +473,60 @@ def variant_list_fixture():
             "gnomad_version": "2.1.1",
             "gene_id": "ENSG00000169174.9",
             "transcript_id": "ENST00000302118.5",
-            "included_clinvar_variants": None,
+            "included_clinvar_variants": ["pathogenic_or_likely_pathogenic"],
+        },
+        variants=[{"id": "1-55516888-G-GA"}],
+        status=VariantList.Status.READY,
+    )
+
+    serializer = VariantListSerializer(variant_list)
+    assert serializer.data["metadata"] == {
+        "gnomad_version": "2.1.1",
+        "reference_genome": "GRCh37",
+        "gene_id": "ENSG00000169174.9",
+        "transcript_id": "ENST00000302118.5",
+        "include_gnomad_plof": True,
+        "include_clinvar_clinical_significance": ["pathogenic_or_likely_pathogenic"],
+    }
+
+
+@pytest.mark.django_db
+def test_serialize_v1_custom_variant_list_metadata():
+    variant_list = VariantList(
+        id=1,
+        uuid=uuid.uuid4(),
+        label="A variant list",
+        type=VariantList.Type.CUSTOM,
+        metadata={
+            "version": "1",
+            "gnomad_version": "2.1.1",
+        },
+        variants=[{"id": "1-55516888-G-GA"}],
+        status=VariantList.Status.READY,
+    )
+
+    serializer = VariantListSerializer(variant_list)
+    assert serializer.data["metadata"] == {
+        "gnomad_version": "2.1.1",
+        "reference_genome": "GRCh37",
+        "include_gnomad_plof": False,
+        "include_clinvar_clinical_significance": [],
+    }
+
+
+def variant_list_fixture():
+    return VariantList(
+        id=1,
+        uuid=uuid.uuid4(),
+        label="A variant list",
+        type=VariantList.Type.RECOMMENDED,
+        metadata={
+            "version": "2",
+            "gnomad_version": "2.1.1",
+            "gene_id": "ENSG00000169174.9",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_clinvar_clinical_significance": [],
         },
         variants=[{"id": "1-55516888-G-GA"}],
         status=VariantList.Status.READY,
@@ -565,6 +558,13 @@ def test_update_variant_list_serializer():
     )
     assert not serializer.is_valid()
     assert "type" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list, data={"metadata": {}}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
 
     variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
