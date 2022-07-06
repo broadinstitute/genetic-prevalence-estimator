@@ -23,6 +23,7 @@ import {
   VStack,
   useDisclosure,
   useToast,
+  Checkbox,
 } from "@chakra-ui/react";
 import { isVariantId, normalizeVariantId } from "@gnomad/identifiers";
 import { useState } from "react";
@@ -36,6 +37,8 @@ import {
   VariantListRequest,
   VariantListType,
 } from "../../types";
+import GeneInput from "./GeneInput";
+import TranscriptInput from "./TranscriptInput";
 
 const submitVariantList = (
   request: VariantListRequest
@@ -57,6 +60,11 @@ const CustomVariantListForm = () => {
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
+  const [selectTranscript, setSelectTranscript] = useState(false);
+  const [geneId, setGeneId] = useState("");
+  const isGeneIdValid = /^ENSG\d{11}\.\d+$/.test(geneId);
+  const [transcriptId, setTranscriptId] = useState("");
+  const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
   const [variants, setVariants] = useState<InputVariant[]>([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -70,6 +78,14 @@ const CustomVariantListForm = () => {
         onSubmit={(e) => {
           e.preventDefault();
 
+          if (
+            (selectTranscript && !transcriptId) ||
+            (geneId && !isGeneIdValid) ||
+            (transcriptId && !isTranscriptIdValid)
+          ) {
+            return;
+          }
+
           const variantListRequest: VariantListRequest = {
             label,
             notes,
@@ -81,6 +97,11 @@ const CustomVariantListForm = () => {
               id: normalizeVariantId(id),
             })),
           };
+
+          if (selectTranscript) {
+            variantListRequest.metadata.gene_id = geneId;
+            variantListRequest.metadata.transcript_id = transcriptId;
+          }
 
           if (!isSubmitting) {
             setIsSubmitting(true);
@@ -141,6 +162,59 @@ const CustomVariantListForm = () => {
               </Link>
             </FormHelperText>
           </FormControl>
+
+          <FormControl>
+            <Checkbox
+              checked={selectTranscript}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setSelectTranscript(checked);
+                if (!checked) {
+                  setGeneId("");
+                  setTranscriptId("");
+                }
+              }}
+            >
+              Select transcript
+            </Checkbox>
+            <FormHelperText>
+              If a transcript is selected, the variant list will show variants'
+              consequences in that transcript. If no transcript is selected, the
+              variant list will show variants' most severe consequence in any
+              transcript.
+            </FormHelperText>
+          </FormControl>
+
+          {selectTranscript && (
+            <>
+              <GeneInput
+                key={`${gnomadVersion}-gene`}
+                id="custom-variant-list-gene-id"
+                label="Gene"
+                referenceGenome={
+                  gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"
+                }
+                onChange={(selectedGeneId) => {
+                  setGeneId(selectedGeneId);
+                  if (selectedGeneId !== geneId) {
+                    setTranscriptId("");
+                  }
+                }}
+              />
+
+              <TranscriptInput
+                key={`${gnomadVersion}-transcript`}
+                id="custom-variant-list-transcript-id"
+                label="Transcript"
+                geneId={geneId}
+                referenceGenome={
+                  gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"
+                }
+                value={transcriptId}
+                onChange={setTranscriptId}
+              />
+            </>
+          )}
 
           {variants.map((variant, i) => {
             const isValid = isVariantId(variant.id);
