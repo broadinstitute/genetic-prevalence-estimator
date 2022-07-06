@@ -1,7 +1,9 @@
 import { QuestionIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Checkbox,
+  HStack,
   ListItem,
   Text,
   Tooltip,
@@ -65,18 +67,43 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
       {variantList.status === "Ready" ? (
         <>
           <Box mb={4}>
-            <MultipleSelect
-              id="variant-table-included-population"
-              label="Show population frequencies"
-              options={variantList.metadata.populations!.map((popId) => ({
-                label: GNOMAD_POPULATION_NAMES[popId],
-                value: popId,
-              }))}
-              value={populationsDisplayedInTable}
-              onChange={(value) =>
-                setPopulationsDisplayedInTable(value as GnomadPopulationId[])
-              }
-            />
+            <HStack alignItems="flex-end">
+              <MultipleSelect
+                id="variant-table-included-population"
+                label="Show population frequencies"
+                options={variantList.metadata.populations!.map((popId) => ({
+                  label: GNOMAD_POPULATION_NAMES[popId],
+                  value: popId,
+                }))}
+                renderValue={(value) =>
+                  `${value.length} of ${
+                    variantList.metadata.populations!.length
+                  } populations selected`
+                }
+                style={{ width: "auto" }}
+                value={populationsDisplayedInTable}
+                onChange={(value) =>
+                  setPopulationsDisplayedInTable(value as GnomadPopulationId[])
+                }
+              />
+
+              <Button
+                onClick={() => {
+                  setPopulationsDisplayedInTable(
+                    variantList.metadata.populations!
+                  );
+                }}
+              >
+                Select all
+              </Button>
+              <Button
+                onClick={() => {
+                  setPopulationsDisplayedInTable([]);
+                }}
+              >
+                Select none
+              </Button>
+            </HStack>
           </Box>
 
           {numAC0Variants > 0 && (

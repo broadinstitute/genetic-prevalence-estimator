@@ -10,6 +10,7 @@ import {
   UseSelectState,
   UseSelectStateChangeOptions,
 } from "downshift";
+import { CSSProperties, ReactNode } from "react";
 
 const stateReducer = (
   state: UseSelectState<string>,
@@ -36,11 +37,21 @@ interface MultipleSelectProps {
   label: string;
   options: { label: string; value: string }[];
   value: string[];
+  renderValue?: (value: string[]) => ReactNode;
+  style?: CSSProperties;
   onChange: (selectedPopulationIds: string[]) => void;
 }
 
 const MultipleSelect = (props: MultipleSelectProps) => {
-  const { id, label, options, value, onChange } = props;
+  const {
+    id,
+    label,
+    options,
+    renderValue = (val) => `${val.length} selected`,
+    style,
+    value,
+    onChange,
+  } = props;
 
   const {
     isOpen,
@@ -69,9 +80,9 @@ const MultipleSelect = (props: MultipleSelectProps) => {
   });
 
   return (
-    <FormControl id={id}>
+    <FormControl id={id} style={style}>
       <FormLabel {...getLabelProps()}>{label}</FormLabel>
-      <Button {...getToggleButtonProps()}>{value.length} selected</Button>
+      <Button {...getToggleButtonProps()}>{renderValue(value)}</Button>
       <List
         {...(isOpen
           ? {
