@@ -118,6 +118,30 @@ class TestCreateVariantList:
         assert access.level == VariantListAccessPermission.Level.OWNER
 
     @pytest.mark.django_db
+    def test_process_request_is_sent_to_worker(self, send_to_worker):
+        client = APIClient()
+        testuser = User.objects.get(username="testuser")
+        client.force_authenticate(testuser)
+        response = client.post(
+            "/api/variant-lists/",
+            {
+                "label": "A variant list",
+                "type": VariantList.Type.CUSTOM,
+                "metadata": {
+                    "gnomad_version": "2.1.1",
+                },
+                "variants": [{"id": "1-55516888-G-GA"}],
+            },
+        )
+
+        response = client.get(response.headers["Location"]).json()
+        variant_list = VariantList.objects.get(uuid=response["uuid"])
+
+        send_to_worker.assert_called_once_with(
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        )
+
+    @pytest.mark.django_db
     @override_settings(MAX_VARIANT_LISTS_PER_USER=5)
     def test_user_is_allowed_a_limited_number_of_variant_lists(self):
         client = APIClient()
@@ -430,3 +454,96 @@ class TestDeleteVariantList:
             assert VariantList.objects.count() == 0
         else:
             assert VariantList.objects.count() == 1
+
+
+@pytest.mark.django_db
+class TestProcessVariantList:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        viewer = User.objects.create(username="viewer")
+        editor = User.objects.create(username="editor")
+        owner = User.objects.create(username="owner")
+        inactive_user = User.objects.create(username="inactiveuser", is_active=False)
+        User.objects.create(username="staffmember", is_staff=True)
+        User.objects.create(username="other")
+
+        variant_list = VariantList.objects.create(
+            id=1,
+            label="Test list",
+            notes="Initial notes",
+            type=VariantList.Type.CUSTOM,
+            status=VariantList.Status.READY,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+        )
+
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.VIEWER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.EDITOR,
+        )
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=inactive_user,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+
+    def test_process_variant_list_requires_authentication(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        response = client.post(
+            f"/api/variant-lists/{variant_list.uuid}/process/",
+        )
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "user,expected_response",
+        [
+            ("viewer", 403),
+            ("editor", 200),
+            ("owner", 200),
+            ("other", 404),
+            ("inactiveuser", 403),
+            ("staffmember", 403),
+        ],
+    )
+    def test_process_variant_list_requires_permission(self, user, expected_response):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=user))
+        response = client.post(f"/api/variant-lists/{variant_list.uuid}/process/")
+        assert response.status_code == expected_response
+
+    def test_process_variant_list_sends_request_to_worker(self, send_to_worker):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.post(f"/api/variant-lists/{variant_list.uuid}/process/")
+
+        send_to_worker.assert_called_once_with(
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        )
+
+    def test_process_variant_list_marks_variant_list_as_queued(self):
+        variant_list = VariantList.objects.get(id=1)
+        assert variant_list.status == VariantList.Status.READY
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.post(f"/api/variant-lists/{variant_list.uuid}/process/")
+
+        variant_list.refresh_from_db()
+        assert variant_list.status == VariantList.Status.QUEUED

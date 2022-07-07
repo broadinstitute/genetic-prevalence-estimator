@@ -7,7 +7,11 @@ from website.views.app_config import get_app_config
 from website.views.auth import signin, signout, whoami
 from website.views.system_status_views import system_status_view
 from website.views.user_views import UsersList, UserDetail
-from website.views.variant_list_views import VariantListsView, VariantListView
+from website.views.variant_list_views import (
+    VariantListsView,
+    VariantListView,
+    VariantListProcessView,
+)
 from website.views.variant_list_access_views import (
     VariantListAccessList,
     VariantListAccessDetail,
@@ -44,6 +48,11 @@ urlpatterns = [
     path("api/variant-lists/", VariantListsView.as_view(), name="variant-lists"),
     path(
         "api/variant-lists/<uuid:uuid>/", VariantListView.as_view(), name="variant-list"
+    ),
+    path(
+        "api/variant-lists/<uuid:uuid>/process/",
+        VariantListProcessView.as_view(),
+        name="variant-list-process",
     ),
     path(
         "api/variant-list-access/",

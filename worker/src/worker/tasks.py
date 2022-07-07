@@ -280,7 +280,7 @@ def get_recommended_variants(metadata, transcript):
     return ds
 
 
-def process_variant_list(variant_list):
+def _process_variant_list(variant_list):
     # Serialize variant list to normalize different versions of metadata
     serializer = VariantListSerializer(variant_list)
     metadata = serializer.data["metadata"]
@@ -382,7 +382,7 @@ def process_variant_list(variant_list):
     variant_list.save()
 
 
-def process_new_variant_list(uid):
+def process_variant_list(uid):
     logger.info("Processing new variant list %s", uid)
 
     variant_list = VariantList.objects.get(uuid=uid)
@@ -390,7 +390,7 @@ def process_new_variant_list(uid):
     variant_list.save()
 
     try:
-        process_variant_list(variant_list)
+        _process_variant_list(variant_list)
     except Exception:  # pylint: disable=broad-except
         logger.exception("Error processing new variant list %s", uid)
 
@@ -411,8 +411,8 @@ def handle_event(event):
         event_type = event["type"]
         args = event["args"]
 
-        if event_type == "new_variant_list":
-            process_new_variant_list(uuid.UUID(hex=args["uuid"]))
+        if event_type == "process_variant_list":
+            process_variant_list(uuid.UUID(hex=args["uuid"]))
 
     except KeyError:
         logger.error("Invalid event %s", event)

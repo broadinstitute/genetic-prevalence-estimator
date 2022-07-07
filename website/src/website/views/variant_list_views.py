@@ -1,8 +1,13 @@
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import (
+    GenericAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
+from rest_framework.permissions import DjangoObjectPermissions, IsAuthenticated
+from rest_framework.response import Response
 
 from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers import NewVariantListSerializer, VariantListSerializer
@@ -43,7 +48,7 @@ class VariantListsView(ListCreateAPIView):
         )
 
         publisher.send_to_worker(
-            {"type": "new_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
         )
 
     def get_success_headers(self, data):
@@ -61,3 +66,32 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
     serializer_class = VariantListSerializer
+
+
+class VariantListProcessViewObjectPermissions(DjangoObjectPermissions):
+    perms_map = {
+        "GET": ["%(app_label)s.view_%(model_name)s"],
+        "OPTIONS": ["%(app_label)s.view_%(model_name)s"],
+        "HEAD": ["%(app_label)s.view_%(model_name)s"],
+        "POST": ["%(app_label)s.change_%(model_name)s"],
+    }
+
+
+class VariantListProcessView(GenericAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated, VariantListProcessViewObjectPermissions)
+
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        variant_list = self.get_object()
+
+        publisher.send_to_worker(
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        )
+
+        variant_list.status = VariantList.Status.QUEUED
+        variant_list.save()
+
+        return Response({})

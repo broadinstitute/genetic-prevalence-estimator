@@ -131,7 +131,10 @@ class TestProcessVariantList:
     def _request_process_variant_list(self, variant_list):
         client = APIClient()
 
-        payload = {"type": "new_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        payload = {
+            "type": "process_variant_list",
+            "args": {"uuid": str(variant_list.uuid)},
+        }
 
         response = client.post(
             "/",
