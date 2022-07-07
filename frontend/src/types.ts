@@ -76,6 +76,7 @@ export interface VariantListMetadata {
 
   gene_id?: string;
   transcript_id?: string;
+  gene_symbol?: string;
 
   include_gnomad_plof?: boolean;
   include_clinvar_clinical_significance?:

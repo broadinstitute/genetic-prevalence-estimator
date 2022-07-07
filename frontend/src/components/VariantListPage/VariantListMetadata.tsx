@@ -50,7 +50,7 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
             isExternal
             target="_blank"
           >
-            {variantList.metadata.gene_id}
+            {variantList.metadata.gene_symbol || variantList.metadata.gene_id}
           </Link>
         </DescriptionListItem>
       )}

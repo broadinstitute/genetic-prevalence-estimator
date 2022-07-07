@@ -42,6 +42,7 @@ class VariantListV2MetadataSerializer(
     clinvar_version = serializers.CharField(max_length=10, read_only=True)
 
     gene_id = serializers.CharField(max_length=20, required=False)
+    gene_symbol = serializers.CharField(max_length=20, read_only=True)
     transcript_id = serializers.CharField(max_length=20, required=False)
 
     include_gnomad_plof = serializers.BooleanField(required=False)

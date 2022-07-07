@@ -148,6 +148,7 @@ def fetch_transcript(transcript_id, gnomad_version):
             gene {
                 gene_id
                 gene_version
+                symbol
             }
             chrom
             start
@@ -318,6 +319,8 @@ def _process_variant_list(variant_list):
         assert (
             gene_version == transcript["gene"]["gene_version"]
         ), f"Requested gene version ({gene_version}) differs from version in gnomAD ({transcript['gene']['gene_version']})"
+
+        variant_list.metadata["gene_symbol"] = transcript["gene"]["symbol"]
 
     reference_genome = metadata["reference_genome"]
 
