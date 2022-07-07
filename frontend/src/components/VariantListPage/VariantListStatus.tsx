@@ -3,6 +3,7 @@ import {
   AlertIcon,
   Box,
   Button,
+  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,12 +15,32 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-import { VariantList } from "../../types";
+import { post } from "../../api";
+import { VariantList, VariantListAccessLevel } from "../../types";
 
-const VariantListErrorStatus = (props: { variantList: VariantList }) => {
-  const { variantList } = props;
+const reprocessVariantList = (uuid: string): Promise<void> => {
+  return post(`/variant-lists/${uuid}/process/`, {});
+};
+
+interface VariantListErrorStatusProps {
+  variantList: VariantList;
+  refreshVariantList: () => void;
+}
+
+const VariantListErrorStatus = (props: VariantListErrorStatusProps) => {
+  const { variantList, refreshVariantList } = props;
+
+  const userCanEdit =
+    variantList.access_level === VariantListAccessLevel.EDITOR ||
+    variantList.access_level === VariantListAccessLevel.OWNER;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const retry = () => {
+    reprocessVariantList(variantList.uuid).then(() => {
+      refreshVariantList();
+    });
+  };
 
   return (
     <>
@@ -29,11 +50,24 @@ const VariantListErrorStatus = (props: { variantList: VariantList }) => {
           <Text mb={variantList.error ? 2 : undefined}>
             There was an error processing this variant list.
           </Text>
-          {variantList.error && (
-            <Button size="sm" colorScheme="red" onClick={onOpen}>
-              See details
-            </Button>
-          )}
+          <HStack>
+            {variantList.error && (
+              <Button size="sm" colorScheme="red" onClick={onOpen}>
+                See details
+              </Button>
+            )}
+            {userCanEdit && (
+              <Button
+                size="sm"
+                colorScheme="red"
+                onClick={() => {
+                  retry();
+                }}
+              >
+                Retry
+              </Button>
+            )}
+          </HStack>
         </Box>
       </Alert>
       {variantList.error && (
@@ -57,8 +91,13 @@ const VariantListErrorStatus = (props: { variantList: VariantList }) => {
   );
 };
 
-const VariantListStatus = (props: { variantList: VariantList }) => {
-  const { variantList } = props;
+interface VariantListStatusProps {
+  variantList: VariantList;
+  refreshVariantList: () => void;
+}
+
+const VariantListStatus = (props: VariantListStatusProps) => {
+  const { variantList, refreshVariantList } = props;
 
   if (variantList.status === "Queued") {
     return (
@@ -81,7 +120,12 @@ const VariantListStatus = (props: { variantList: VariantList }) => {
   }
 
   if (variantList.status === "Error") {
-    return <VariantListErrorStatus variantList={variantList} />;
+    return (
+      <VariantListErrorStatus
+        variantList={variantList}
+        refreshVariantList={refreshVariantList}
+      />
+    );
   }
 
   return null;

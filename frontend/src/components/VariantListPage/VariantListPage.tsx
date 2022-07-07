@@ -44,8 +44,13 @@ const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
 };
 
-const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
-  const { variantListStore } = props;
+interface VariantListPageProps {
+  variantListStore: Store<VariantList>;
+  refreshVariantList: () => void;
+}
+
+const VariantListPage = (props: VariantListPageProps) => {
+  const { variantListStore, refreshVariantList } = props;
   const variantList = useStore(variantListStore);
 
   const [
@@ -73,7 +78,10 @@ const VariantListPage = (props: { variantListStore: Store<VariantList> }) => {
         {variantList.label}
       </Heading>
 
-      <VariantListStatus variantList={variantList} />
+      <VariantListStatus
+        variantList={variantList}
+        refreshVariantList={refreshVariantList}
+      />
 
       {variantList.notes && <Text mb={4}>{variantList.notes}</Text>}
 
@@ -189,6 +197,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
     let refreshInterval: number | undefined = undefined;
     let refreshCanceled = false;
@@ -238,7 +247,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
       window.clearInterval(refreshInterval);
       refreshCanceled = true;
     };
-  }, [uuid]);
+  }, [uuid, refreshKey]);
 
   if (isLoading) {
     return (
@@ -300,7 +309,10 @@ const VariantListPageContainer = (props: { uuid: string }) => {
             </BreadcrumbItem>
           </Breadcrumb>
         </Box>
-        <VariantListPage variantListStore={variantListStore} />
+        <VariantListPage
+          variantListStore={variantListStore}
+          refreshVariantList={() => setRefreshKey((k) => k + 1)}
+        />
       </>
     );
   }
