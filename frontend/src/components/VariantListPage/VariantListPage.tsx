@@ -8,6 +8,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Center,
   Heading,
   HStack,
@@ -29,8 +30,10 @@ import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
+import { printOnly, screenOnly } from "../media";
 
 import { EditVariantListButton } from "./EditVariantList";
+import Methods from "./Methods";
 import VariantListCalculations from "./VariantListCalculations/VariantListCalculations";
 import {
   VariantListSharingButton,
@@ -68,12 +71,20 @@ const VariantListPage = (props: VariantListPageProps) => {
   const history = useHistory();
   const toast = useToast();
 
+  const [showMethods, setShowMethods] = useState(false);
+
   const userCanEdit =
     variantList.access_level === VariantListAccessLevel.EDITOR ||
     variantList.access_level === VariantListAccessLevel.OWNER;
 
   return (
     <>
+      <Box mb={4} sx={printOnly}>
+        These estimates were performed using the Genetic Prevalence Calculator (
+        {document.location.hostname}) created and maintained by the Translation
+        Genomics Group and Rare Genomes Project at the Broad Institute.
+      </Box>
+
       <Heading as="h1" mb={4}>
         {variantList.label}
       </Heading>
@@ -97,7 +108,7 @@ const VariantListPage = (props: VariantListPageProps) => {
       </DescriptionList>
 
       {userCanEdit && (
-        <HStack mb={4}>
+        <HStack mb={4} sx={screenOnly}>
           <EditVariantListButton size="sm" variantListStore={variantListStore}>
             Edit
           </EditVariantListButton>
@@ -132,7 +143,7 @@ const VariantListPage = (props: VariantListPageProps) => {
       )}
 
       {variantList.access_permissions && (
-        <>
+        <Box sx={screenOnly}>
           <Heading as="h2" size="md" mb={2}>
             Sharing
           </Heading>
@@ -160,7 +171,7 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
-        </>
+        </Box>
       )}
 
       {variantList.status === "Ready" && (
@@ -176,15 +187,36 @@ const VariantListPage = (props: VariantListPageProps) => {
         />
       )}
 
-      <Heading as="h2" size="md" mb={2}>
-        Variants
-      </Heading>
+      <Box sx={screenOnly}>
+        <Heading as="h2" size="md" mb={2}>
+          Variants
+        </Heading>
 
-      <VariantListVariants
-        variantList={variantList}
-        selectedVariants={selectedVariants || new Set<VariantId>()}
-        onChangeSelectedVariants={setSelectedVariants}
-      />
+        <VariantListVariants
+          variantList={variantList}
+          selectedVariants={selectedVariants || new Set<VariantId>()}
+          onChangeSelectedVariants={setSelectedVariants}
+        />
+      </Box>
+
+      <Box mb={4}>
+        <Button sx={screenOnly} onClick={() => setShowMethods((show) => !show)}>
+          {`${showMethods ? "Hide" : "View"} methods`}
+        </Button>
+        <Box
+          sx={{
+            display: showMethods ? "block" : "none",
+            "@media print": {
+              display: "block",
+            },
+          }}
+        >
+          <Heading as="h2" size="md" mt={4} mb={2}>
+            Methods
+          </Heading>
+          <Methods variantList={variantList} />
+        </Box>
+      </Box>
     </>
   );
 };
@@ -291,7 +323,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     const variantList = variantListStore.get();
     return (
       <>
-        <Box mb={2}>
+        <Box mb={2} sx={screenOnly}>
           <Breadcrumb>
             <BreadcrumbItem>
               <BreadcrumbLink as={RRLink} to="/">

@@ -28,6 +28,7 @@ import {
 
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import Link from "./components/Link";
+import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
@@ -42,7 +43,7 @@ const App = () => {
 
   return (
     <>
-      <Box boxShadow="base" mb={4}>
+      <Box boxShadow="base" mb={4} sx={screenOnly}>
         <Container maxW="1400px">
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <HStack spacing={8} alignItems={"center"}>
