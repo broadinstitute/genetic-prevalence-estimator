@@ -8,6 +8,7 @@ import {
   Link,
   Radio,
   RadioGroup,
+  Text,
   Textarea,
   VStack,
   useToast,
@@ -197,13 +198,17 @@ const RecommendedVariantListForm = () => {
               </Radio>
               <Radio value="pathogenic_or_likely_pathogenic|conflicting_interpretations">
                 Include pathogenic and likely pathogenic variants and variants
-                with conflicting interpretations of pathogenicity
+                with conflicting interpretations of pathogenicity *
               </Radio>
               <Radio value="">
                 Do not include variants based on clinical significance
               </Radio>
             </VStack>
           </RadioGroup>
+          <Text mt={2}>
+            * Where at least one of the conflicting classifications is
+            pathogenic or likely pathogenic
+          </Text>
         </FormControl>
 
         <HStack>
