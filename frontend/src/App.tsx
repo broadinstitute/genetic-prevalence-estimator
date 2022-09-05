@@ -10,6 +10,7 @@ import {
   ChakraProvider,
   Container,
   Flex,
+  Heading,
   HStack,
   Menu,
   MenuButton,
@@ -17,7 +18,7 @@ import {
   MenuList,
   Spinner,
 } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Link as RRLink,
@@ -37,6 +38,48 @@ import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
+
+const RequireSignIn: FC<{}> = ({ children }) => {
+  const { isSignedIn, user } = useStore(authStore);
+
+  if (!isSignedIn) {
+    return (
+      <>
+        <Heading as="h1" mb={4}>
+          Sign in to view this page
+        </Heading>
+
+        <Box mb={4}>
+          <SignInButton />
+        </Box>
+
+        <details>
+          <summary>Why do I need to sign in?</summary>
+          <Box borderLeftWidth="1px" borderColor="gray.400" pl={4} mt={2}>
+            In order to store your variant lists, and allow you to edit them
+            over time we need to have you signed in. By having users sign in we
+            are also able to allow sharing lists across users, enabling
+            collaboration.
+          </Box>
+        </details>
+      </>
+    );
+  }
+
+  if (!user?.is_active) {
+    return (
+      <Alert status="warning">
+        <AlertIcon />
+        <AlertTitle>Inactive account</AlertTitle>
+        <AlertDescription>
+          Contact site administrators to activate your account.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return <>{children}</>;
+};
 
 const App = () => {
   const { isSignedIn, user } = useStore(authStore);
@@ -94,56 +137,69 @@ const App = () => {
       </Box>
 
       <Container pb={4} maxW="1400px">
-        {!isSignedIn && <SignInButton />}
-        {isSignedIn && (
-          <>
-            {user?.is_active ? (
-              <Switch>
-                <Route
-                  exact
-                  path="/variant-lists/new/"
-                  component={CreateVariantListPage}
-                />
-
-                <Route
-                  exact
-                  path="/variant-lists/:uuid/"
-                  render={({ match }) => {
-                    return <VariantListPage uuid={match.params.uuid} />;
-                  }}
-                />
-
-                <Route
-                  exact
-                  path="/variant-lists/"
-                  component={VariantListsPage}
-                />
-                <Route
-                  exact
-                  path="/"
-                  render={() => {
-                    return <Redirect to="/variant-lists/" />;
-                  }}
-                />
-
-                {user?.is_staff && (
-                  <>
-                    <Route exact path="/status/" component={SystemStatusPage} />
-                    <Route exact path="/users/" component={UsersPage} />
-                  </>
-                )}
-              </Switch>
-            ) : (
-              <Alert status="warning">
-                <AlertIcon />
-                <AlertTitle>Inactive account</AlertTitle>
-                <AlertDescription>
-                  Contact site administrators to activate your account.
-                </AlertDescription>
-              </Alert>
+        <Switch>
+          <Route
+            exact
+            path="/variant-lists/new/"
+            render={() => (
+              <RequireSignIn>
+                <CreateVariantListPage />
+              </RequireSignIn>
             )}
-          </>
-        )}
+          />
+
+          <Route
+            exact
+            path="/variant-lists/:uuid/"
+            render={({ match }) => (
+              <RequireSignIn>
+                <VariantListPage uuid={match.params.uuid} />
+              </RequireSignIn>
+            )}
+          />
+
+          <Route
+            exact
+            path="/variant-lists/"
+            render={() => (
+              <RequireSignIn>
+                <VariantListsPage />
+              </RequireSignIn>
+            )}
+          />
+
+          <Route
+            exact
+            path="/"
+            render={() => {
+              return <Redirect to="/variant-lists/" />;
+            }}
+          />
+
+          {user?.is_staff && (
+            <>
+              <Route
+                exact
+                path="/status/"
+                render={() => (
+                  <RequireSignIn>
+                    <SystemStatusPage />
+                  </RequireSignIn>
+                )}
+              />
+
+              <Route
+                exact
+                path="/users/"
+                render={() => (
+                  <RequireSignIn>
+                    <UsersPage />
+                  </RequireSignIn>
+                )}
+              />
+            </>
+          )}
+        </Switch>
       </Container>
     </>
   );
