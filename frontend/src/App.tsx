@@ -27,7 +27,9 @@ import {
   Switch,
 } from "react-router-dom";
 
+import AboutPage from "./components/AboutPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
+import FAQPage from "./components/FAQPage";
 import Link from "./components/Link";
 import PageNotFoundPage from "./components/PageNotFoundPage";
 import { screenOnly } from "./components/media";
@@ -82,6 +84,28 @@ const RequireSignIn: FC<{}> = ({ children }) => {
   return <>{children}</>;
 };
 
+interface NavLinkProps {
+  to: string;
+}
+
+const NavLink: FC<NavLinkProps> = ({ to, children }) => {
+  return (
+    <Link
+      to={to}
+      pl={2}
+      pr={2}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        color: "inherit",
+        textDecoration: "none",
+      }}
+    >
+      {children}
+    </Link>
+  );
+};
+
 const App = () => {
   const { isSignedIn, user } = useStore(authStore);
 
@@ -90,15 +114,22 @@ const App = () => {
       <Box boxShadow="base" mb={4} sx={screenOnly}>
         <Container maxW="1400px">
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-            <HStack spacing={8} alignItems={"center"}>
-              <Box>
-                <Link
-                  to="/"
-                  style={{ color: "inherit", textDecoration: "none" }}
-                >
-                  Aggregate Frequency Calculator
-                </Link>
-              </Box>
+            <HStack alignItems="stretch" height="100%">
+              <Link
+                to="/"
+                mr={4}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "inherit",
+                  textDecoration: "none",
+                }}
+              >
+                Aggregate Frequency Calculator
+              </Link>
+
+              <NavLink to="/about/">About</NavLink>
+              <NavLink to="/faq/">FAQ</NavLink>
             </HStack>
 
             {isSignedIn && (
@@ -200,6 +231,10 @@ const App = () => {
               )}
             />,
           ]}
+
+          <Route exact path="/about/" render={() => <AboutPage />} />
+
+          <Route exact path="/faq/" render={() => <FAQPage />} />
 
           <Route path="*" render={() => <PageNotFoundPage />} />
         </Switch>
