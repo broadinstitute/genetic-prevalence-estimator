@@ -29,6 +29,7 @@ import {
 
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import Link from "./components/Link";
+import PageNotFoundPage from "./components/PageNotFoundPage";
 import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
@@ -176,29 +177,31 @@ const App = () => {
             }}
           />
 
-          {user?.is_staff && (
-            <>
-              <Route
-                exact
-                path="/status/"
-                render={() => (
-                  <RequireSignIn>
-                    <SystemStatusPage />
-                  </RequireSignIn>
-                )}
-              />
+          {user?.is_staff && [
+            <Route
+              key="/status/"
+              exact
+              path="/status/"
+              render={() => (
+                <RequireSignIn>
+                  <SystemStatusPage />
+                </RequireSignIn>
+              )}
+            />,
 
-              <Route
-                exact
-                path="/users/"
-                render={() => (
-                  <RequireSignIn>
-                    <UsersPage />
-                  </RequireSignIn>
-                )}
-              />
-            </>
-          )}
+            <Route
+              key="/users/"
+              exact
+              path="/users/"
+              render={() => (
+                <RequireSignIn>
+                  <UsersPage />
+                </RequireSignIn>
+              )}
+            />,
+          ]}
+
+          <Route path="*" render={() => <PageNotFoundPage />} />
         </Switch>
       </Container>
     </>
