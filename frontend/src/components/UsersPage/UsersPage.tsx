@@ -35,6 +35,8 @@ import { USERNAME_LABEL } from "../../constants/config";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 
+import DocumentTitle from "../DocumentTitle";
+
 import { AddUserButton } from "./AddUser";
 
 interface User {
@@ -209,6 +211,8 @@ const UsersContainer = () => {
 const UsersPage = () => {
   return (
     <>
+      <DocumentTitle title="Users" />
+
       <Box mb={2}>
         <Breadcrumb>
           <BreadcrumbItem>

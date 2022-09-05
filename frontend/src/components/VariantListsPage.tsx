@@ -26,6 +26,7 @@ import { get } from "../api";
 import { appConfigStore, useStore } from "../state";
 import { VariantList } from "../types";
 import DateTime from "./DateTime";
+import DocumentTitle from "./DocumentTitle";
 import Link from "./Link";
 import { formatVariantListType } from "./VariantListPage/VariantListMetadata";
 
@@ -208,6 +209,8 @@ const VariantListsContainer = () => {
 const VariantListsPage = () => {
   return (
     <>
+      <DocumentTitle title="Variant lists" />
+
       <Box mb={2}>
         <Breadcrumb>
           <BreadcrumbItem>

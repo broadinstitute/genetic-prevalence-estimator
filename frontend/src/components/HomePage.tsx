@@ -1,6 +1,7 @@
 import { Box, Heading, Link, Text } from "@chakra-ui/react";
 import { Redirect } from "react-router-dom";
 
+import DocumentTitle from "./DocumentTitle";
 import SignInButton from "./SignInButton";
 import { authStore, useStore } from "../state";
 
@@ -13,6 +14,8 @@ const HomePage = () => {
 
   return (
     <>
+      <DocumentTitle />
+
       <Heading as="h1" mb={4}>
         Genetic Prevalence Calculator
       </Heading>

@@ -30,6 +30,7 @@ import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
+import DocumentTitle from "../DocumentTitle";
 import { printOnly, screenOnly } from "../media";
 
 import { EditVariantListButton } from "./EditVariantList";
@@ -281,15 +282,20 @@ const VariantListPageContainer = (props: { uuid: string }) => {
 
   if (isLoading) {
     return (
-      <Center>
-        <Spinner size="lg" />
-      </Center>
+      <>
+        <DocumentTitle title="Variant list" />
+        <Center>
+          <Spinner size="lg" />
+        </Center>
+      </>
     );
   }
 
   if (error) {
     return (
       <>
+        <DocumentTitle title="Variant list" />
+
         <Box mb={2}>
           <Breadcrumb>
             <BreadcrumbItem>
@@ -321,6 +327,8 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     const variantList = variantListStore.get();
     return (
       <>
+        <DocumentTitle title={variantList.label} />
+
         <Box mb={2} sx={screenOnly}>
           <Breadcrumb>
             <BreadcrumbItem>

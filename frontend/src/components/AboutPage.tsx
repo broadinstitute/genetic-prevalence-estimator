@@ -9,6 +9,8 @@ import {
 } from "@chakra-ui/react";
 import { Link as RRLink } from "react-router-dom";
 
+import DocumentTitle from "./DocumentTitle";
+
 const AboutView = () => {
   return (
     <>
@@ -111,6 +113,8 @@ const AboutView = () => {
 const AboutPage = () => {
   return (
     <>
+      <DocumentTitle title="About" />
+
       <Box mb={2}>
         <Breadcrumb>
           <BreadcrumbItem>

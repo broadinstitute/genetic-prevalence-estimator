@@ -12,12 +12,16 @@ import {
 } from "@chakra-ui/react";
 import { Link as RRLink } from "react-router-dom";
 
+import DocumentTitle from "../DocumentTitle";
+
 import CustomVariantListForm from "./CustomVariantListForm";
 import RecommendedVariantListForm from "./RecommendedVariantListForm";
 
 const CreateVariantListPage = () => {
   return (
     <>
+      <DocumentTitle title="New variant list" />
+
       <Box mb={2}>
         <Breadcrumb>
           <BreadcrumbItem>

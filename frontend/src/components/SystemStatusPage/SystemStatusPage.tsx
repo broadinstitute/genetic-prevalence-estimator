@@ -21,6 +21,8 @@ import { Link as RRLink } from "react-router-dom";
 import { get } from "../../api";
 import { VariantListStatus } from "../../types";
 
+import DocumentTitle from "../DocumentTitle";
+
 interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
@@ -94,6 +96,8 @@ const SystemStatusContainer = () => {
 const SystemStatusPage = () => {
   return (
     <>
+      <DocumentTitle title="Status" />
+
       <Box mb={2}>
         <Breadcrumb>
           <BreadcrumbItem>
