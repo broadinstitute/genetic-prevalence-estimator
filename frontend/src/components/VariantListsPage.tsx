@@ -1,3 +1,4 @@
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -8,12 +9,14 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Center,
   Heading,
   Link as ChakraLink,
   Select,
   Spinner,
   Text,
+  Tooltip,
   VStack,
 } from "@chakra-ui/react";
 import { FC, useEffect, useState } from "react";
@@ -90,15 +93,12 @@ const VariantLists: FC<VariantListsProps> = ({ variantLists }) => {
   );
 };
 
-interface VariantListsContainerProps {
-  orderBy: string | string[];
-}
-
-const VariantListsContainer: FC<VariantListsContainerProps> = ({ orderBy }) => {
+const VariantListsContainer = () => {
   const appConfig = useStore(appConfigStore);
   const [isLoading, setIsLoading] = useState(true);
   const [variantLists, setVariantLists] = useState<VariantList[]>([]);
   const [error, setError] = useState<Error | null>(null);
+  const [orderBy, setOrderBy] = useState("-updated_at");
 
   useEffect(() => {
     setIsLoading(true);
@@ -111,66 +111,75 @@ const VariantListsContainer: FC<VariantListsContainerProps> = ({ orderBy }) => {
       });
   }, [orderBy]);
 
+  const canCreateVariantList =
+    !isLoading &&
+    !error &&
+    variantLists.length < appConfig!.max_variant_lists_per_user;
+
+  let content = null;
+
   if (isLoading) {
-    return (
+    content = (
       <Center>
         <Spinner size="lg" />
       </Center>
     );
-  }
-
-  if (error) {
-    return (
+  } else if (error) {
+    content = (
       <Alert status="error">
         <AlertIcon />
         <AlertTitle>Unable to load variant lists</AlertTitle>
         <AlertDescription>{error.message}</AlertDescription>
       </Alert>
     );
-  }
-
-  if (variantLists.length === 0) {
-    return <Text>No variant lists.</Text>;
-  }
-
-  return (
-    <>
-      <VariantLists variantLists={variantLists} />
-      <Text mt={4}>
-        {variantLists.length < appConfig!.max_variant_lists_per_user ? (
-          <Link to="/variant-lists/new/">Create a new variant list</Link>
-        ) : (
-          <p>
+  } else if (variantLists.length === 0) {
+    content = (
+      <Text>
+        No variant lists have been created yet.{" "}
+        <Link to="/variant-lists/new/">Create a variant list.</Link>
+      </Text>
+    );
+  } else {
+    content = (
+      <>
+        {!canCreateVariantList && (
+          <Text mb={4}>
             You have created the maximum number of variant lists. Delete one to
             create another.
-          </p>
+          </Text>
         )}
-      </Text>
-    </>
-  );
-};
 
-const VariantListsPage = () => {
-  const [orderBy, setOrderBy] = useState("-updated_at");
+        <VariantLists variantLists={variantLists} />
+      </>
+    );
+  }
 
   return (
     <>
-      <Box mb={2}>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <BreadcrumbLink as={RRLink} to="/">
-              Home
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrentPage>
-            <span>Variant Lists</span>
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </Box>
       <Box display="flex" flexFlow="row wrap" alignItems="flex-end">
-        <Heading as="h1" flexGrow={1} mb={4}>
+        <Heading as="h1" flexGrow={0} mb={4}>
           Variant lists
         </Heading>
+
+        <Box flexGrow={1} mb={4} ml={2} pb={1}>
+          {canCreateVariantList ? (
+            <Tooltip hasArrow label="Create new variant list">
+              <Button
+                as={RRLink}
+                aria-label="Create new variant list"
+                to="/variant-lists/new/"
+                colorScheme="blue"
+                size="sm"
+              >
+                <AddIcon aria-hidden />
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button aria-label="Create new variant list" disabled size="sm">
+              <AddIcon aria-hidden />
+            </Button>
+          )}
+        </Box>
 
         <Box display="inline-block" flexGrow={0} mb={4} whiteSpace="nowrap">
           <Text as="label" htmlFor="variant-lists-order">
@@ -191,7 +200,28 @@ const VariantListsPage = () => {
         </Box>
       </Box>
 
-      <VariantListsContainer orderBy={orderBy} />
+      {content}
+    </>
+  );
+};
+
+const VariantListsPage = () => {
+  return (
+    <>
+      <Box mb={2}>
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RRLink} to="/">
+              Home
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <span>Variant Lists</span>
+          </BreadcrumbItem>
+        </Breadcrumb>
+      </Box>
+
+      <VariantListsContainer />
     </>
   );
 };
