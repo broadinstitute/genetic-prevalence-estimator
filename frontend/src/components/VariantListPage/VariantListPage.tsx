@@ -199,23 +199,21 @@ const VariantListPage = (props: VariantListPageProps) => {
         />
       </Box>
 
-      <Box mb={4}>
-        <Button sx={screenOnly} onClick={() => setShowMethods((show) => !show)}>
-          {`${showMethods ? "Hide" : "View"} methods`}
-        </Button>
-        <Box
-          sx={{
-            display: showMethods ? "block" : "none",
-            "@media print": {
-              display: "block",
-            },
-          }}
-        >
-          <Heading as="h2" size="md" mt={4} mb={2}>
-            Methods
-          </Heading>
-          <Methods variantList={variantList} />
-        </Box>
+      <Button sx={screenOnly} onClick={() => setShowMethods((show) => !show)}>
+        {`${showMethods ? "Hide" : "View"} methods`}
+      </Button>
+      <Box
+        sx={{
+          display: showMethods ? "block" : "none",
+          "@media print": {
+            display: "block",
+          },
+        }}
+      >
+        <Heading as="h2" size="md" mt={4} mb={2}>
+          Methods
+        </Heading>
+        <Methods variantList={variantList} />
       </Box>
     </>
   );

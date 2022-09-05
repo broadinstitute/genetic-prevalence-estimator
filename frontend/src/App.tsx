@@ -93,7 +93,7 @@ const App = () => {
         </Container>
       </Box>
 
-      <Container maxW="1400px">
+      <Container pb={4} maxW="1400px">
         {!isSignedIn && <SignInButton />}
         {isSignedIn && (
           <>
