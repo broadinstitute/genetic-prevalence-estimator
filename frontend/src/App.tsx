@@ -26,6 +26,7 @@ import {
   Switch,
 } from "react-router-dom";
 
+import "./style.css";
 import AboutPage from "./components/AboutPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import FAQPage from "./components/FAQPage";
