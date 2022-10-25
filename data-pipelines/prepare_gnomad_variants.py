@@ -100,9 +100,9 @@ def get_gene_and_transcript_versions(gtf_path, reference_genome):
     return hl.dict([(row.transcript_id.split(".")[0], row) for row in ds.collect()])
 
 
-def _get_gnomad_populations(ds):
+def _get_gnomad_population_sample_counts(ds):
     return hl.eval(
-        hl.set(
+        hl.dict(
             hl.zip(
                 ds.globals.freq_meta,
                 ds.globals.freq_sample_count
@@ -111,14 +111,19 @@ def _get_gnomad_populations(ds):
                 fill_missing=True,
             )
             .filter(
-                lambda meta_and_sample_count: hl.is_missing(meta_and_sample_count[1])
-                | (meta_and_sample_count[1] > 1000)
+                lambda meta_and_sample_count: hl.all(
+                    hl.is_missing(meta_and_sample_count[0].get("downsampling")),
+                    hl.is_missing(meta_and_sample_count[0].get("subset")),
+                    hl.is_defined(meta_and_sample_count[0].get("pop")),
+                )
             )
-            .map(lambda meta_and_sample_count: meta_and_sample_count[0])
-            .filter(lambda meta: hl.is_missing(meta.get("downsampling")))
-            .filter(lambda meta: hl.is_missing(meta.get("subset")))
-            .map(lambda meta: (meta.get("pop"), meta.get("subpop")))
-        ).remove((hl.missing(hl.tstr), hl.missing(hl.tstr)))
+            .starmap(
+                lambda meta, sample_count: (
+                    (meta.get("pop"), meta.get("subpop")),
+                    sample_count,
+                )
+            )
+        )
     )
 
 
@@ -128,6 +133,41 @@ def _sort_populations(populations):
 
 def _format_populations(populations):
     return ["/".join(filter(None, p)) for p in populations]
+
+
+GNOMAD_V2_EXOME_SAMPLE_COUNTS = {
+    ("afr", None): 8128,
+    ("amr", None): 17296,
+    ("asj", None): 5040,
+    ("eas", None): 9197,
+    ("eas", "jpn"): 76,
+    ("eas", "kor"): 1909,
+    ("eas", "oea"): 7212,
+    ("fin", None): 10824,
+    ("nfe", None): 56885,
+    ("nfe", "bgr"): 1335,
+    ("nfe", "est"): 121,
+    ("nfe", "nwe"): 21111,
+    ("nfe", "onf"): 15499,
+    ("nfe", "seu"): 5752,
+    ("nfe", "swe"): 13067,
+    ("oth", None): 3070,
+    ("sas", None): 15308,
+}
+
+GNOMAD_V2_GENOME_SAMPLE_COUNTS = {
+    ("afr", None): 4359,
+    ("amr", None): 422,
+    ("asj", None): 145,
+    ("eas", None): 780,
+    ("fin", None): 1738,
+    ("nfe", None): 7718,
+    ("nfe", "est"): 2297,
+    ("nfe", "nwe"): 4299,
+    ("nfe", "onf"): 1069,
+    ("nfe", "seu"): 53,
+    ("oth", None): 544,
+}
 
 
 def get_gnomad_v2_variants():
@@ -169,8 +209,25 @@ def get_gnomad_v2_variants():
         "gs://gcp-public-data--gnomad/release/2.1.1/ht/genomes/gnomad.genomes.r2.1.1.sites.ht"
     )
 
+    exome_population_sample_counts = {
+        pop: GNOMAD_V2_EXOME_SAMPLE_COUNTS.get(pop, 0)
+        for pop in _get_gnomad_population_sample_counts(exomes)
+    }
+    genome_population_sample_counts = {
+        pop: GNOMAD_V2_GENOME_SAMPLE_COUNTS.get(pop, 0)
+        for pop in _get_gnomad_population_sample_counts(genomes)
+    }
+
+    all_populations = set(exome_population_sample_counts) | set(
+        genome_population_sample_counts
+    )
+
     populations = _sort_populations(
-        _get_gnomad_populations(exomes).union(_get_gnomad_populations(genomes))
+        pop
+        for pop in all_populations
+        if exome_population_sample_counts.get(pop, 0)
+        + genome_population_sample_counts.get(pop, 0)
+        > 1000
     )
 
     exomes = exomes.select(
@@ -256,7 +313,14 @@ def get_gnomad_v3_variants():
         "gs://gcp-public-data--gnomad/release/3.1.2/ht/genomes/gnomad.genomes.v3.1.2.sites.ht"
     )
 
-    populations = _sort_populations(_get_gnomad_populations(ds))
+    population_sample_counts = _get_gnomad_population_sample_counts(ds)
+    populations = _sort_populations(
+        set(
+            pop
+            for pop, sample_count in population_sample_counts.items()
+            if sample_count > 1000
+        )
+    )
 
     ds = ds.select(
         genome_freq=hl.struct(
