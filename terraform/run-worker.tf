@@ -137,5 +137,15 @@ resource "google_cloud_run_service" "worker" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [
+      // Ignore image and annotations set by `gcloud run deploy`
+      template[0].spec[0].containers[0].image,
+      template[0].metadata[0].annotations["client.knative.dev/user-image"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-name"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-version"]
+    ]
+  }
+
   autogenerate_revision_name = true
 }
