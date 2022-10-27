@@ -200,7 +200,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_v3_data_pipeline" {
         "--master-boot-disk-size=100GB",
         "--num-master-local-ssds=0",
         "--num-worker-local-ssds=0",
-        "--num-workers=16",
+        "--num-workers=32",
         "--secondary-worker-boot-disk-size=40GB",
         "--worker-boot-disk-size=40GB",
         "--worker-machine-type=n1-standard-8",
