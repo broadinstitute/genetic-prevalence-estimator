@@ -1,6 +1,9 @@
-import { Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Text } from "@chakra-ui/react";
 
-import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
+import {
+  GNOMAD_POPULATION_NAMES,
+  isSubcontinentalPopulation,
+} from "../../../constants/populations";
 import { GnomadPopulationId } from "../../../types";
 
 import { DisplayFormat, renderFrequency } from "./calculationsDisplayFormats";
@@ -40,7 +43,12 @@ const CalculationsTable = (props: CalculationsTableProps) => {
           return (
             <Tr key={populationId}>
               <Td as="th" scope="row" fontWeight="normal">
-                {GNOMAD_POPULATION_NAMES[populationId]}
+                <Text
+                  as="span"
+                  ml={isSubcontinentalPopulation(populationId) ? 4 : 0}
+                >
+                  {GNOMAD_POPULATION_NAMES[populationId]}
+                </Text>
               </Td>
               {columns.map((column) => (
                 <Td key={column.label} scope="col" isNumeric>
