@@ -4,10 +4,14 @@ import { Group } from "@visx/group";
 import { LegendOrdinal } from "@visx/legend";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { Bar, BarStack } from "@visx/shape";
+import { interpolateLab } from "d3-interpolate";
 import { useRef } from "react";
 
 import theme from "../../../theme";
-import { GNOMAD_POPULATION_NAMES } from "../../../constants/populations";
+import {
+  GNOMAD_POPULATION_NAMES,
+  isSubcontinentalPopulation,
+} from "../../../constants/populations";
 import { GnomadPopulationId } from "../../../types";
 
 import {
@@ -50,7 +54,21 @@ const BarGraph = (props: BarGraphProps) => {
 
   const data = populations.map((population, i) => ({
     population: population,
-    ...series.reduce((acc, s) => ({ ...acc, [s.label]: s.data[i] }), {}),
+    ...series.reduce(
+      (acc, s) => ({
+        ...acc,
+        ...(isSubcontinentalPopulation(population)
+          ? {
+              [s.label]: 0,
+              [`${s.label} (subcontinental)`]: s.data[i],
+            }
+          : {
+              [s.label]: s.data[i],
+              [`${s.label} (subcontinental)`]: 0,
+            }),
+      }),
+      {}
+    ),
   }));
 
   const xScale = scaleBand({
@@ -62,8 +80,11 @@ const BarGraph = (props: BarGraphProps) => {
   const xBandwidth = xScale.bandwidth();
 
   const colorScale = scaleOrdinal({
-    domain: series.map((s) => s.label),
-    range: series.map((s) => s.color || theme.colors.blue["600"]),
+    domain: series.flatMap((s) => [s.label, `${s.label} (subcontinental)`]),
+    range: series.flatMap((s) => [
+      s.color || theme.colors.blue["600"],
+      interpolateLab(s.color || theme.colors.blue["600"], "#fff")(0.5),
+    ]),
   });
 
   const yScale = scaleLinear({
@@ -117,7 +138,10 @@ const BarGraph = (props: BarGraphProps) => {
       <svg width={width} height={height}>
         <Group top={margin.top} left={margin.left}>
           <BarStack
-            keys={series.map((s) => s.label)}
+            keys={series.flatMap((s) => [
+              s.label,
+              `${s.label} (subcontinental)`,
+            ])}
             data={data}
             x={(d) => d.population}
             xScale={xScale}

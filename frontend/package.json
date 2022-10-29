@@ -23,6 +23,7 @@
     "@visx/legend": "^2.1.0",
     "@visx/scale": "^2.1.0",
     "@visx/shape": "^2.1.0",
+    "d3-interpolate": "^3.0.1",
     "downshift": "^6.1.7",
     "framer-motion": "^4.1.16",
     "lodash": "^4.17.21",
