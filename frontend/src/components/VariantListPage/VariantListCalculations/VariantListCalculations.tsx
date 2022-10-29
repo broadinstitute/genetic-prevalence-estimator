@@ -12,10 +12,11 @@ import { useMemo, useState } from "react";
 import theme from "../../../theme";
 import { Variant, VariantList } from "../../../types";
 
-import { getVariantSources } from "../variantSources";
-
 import BarGraph from "./BarGraph";
-import { calculateCarrierFrequencyAndPrevalence } from "./calculations";
+import {
+  allVariantListCalculations,
+  shouldCalculateContributionsBySource,
+} from "./calculations";
 import {
   DisplayFormat,
   DisplayFormatInput,
@@ -40,9 +41,9 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     setCarrierFrequencyModel,
   ] = useState<CarrierFrequencyModel>("full");
 
-  const hasOptionToShowContributionsBySource =
-    (variantList.metadata.include_clinvar_clinical_significance || []).length >
-    0;
+  const hasOptionToShowContributionsBySource = shouldCalculateContributionsBySource(
+    variantList
+  );
   const [showContributionsBySource, setShowContributionsBySource] = useState(
     false
   );
@@ -51,49 +52,14 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     carrierFrequency,
     carrierFrequencySimplified,
     prevalence,
-  } = useMemo(
-    () => calculateCarrierFrequencyAndPrevalence(variants, variantList),
-    [variants, variantList]
-  );
-
-  const {
-    carrierFrequency: clinvarOnlyCarrierFrequency,
-    carrierFrequencySimplified: clinvarOnlyCarrierFrequencySimplified,
-  } = useMemo(
-    () =>
-      hasOptionToShowContributionsBySource
-        ? calculateCarrierFrequencyAndPrevalence(
-            variants.filter((variant) =>
-              getVariantSources(variant, variantList).includes("ClinVar")
-            ),
-            variantList
-          )
-        : {
-            carrierFrequency: null,
-            carrierFrequencySimplified: null,
-          },
-    [hasOptionToShowContributionsBySource, variantList, variants]
-  );
-
-  const {
-    carrierFrequency: plofOnlyCarrierFrequency,
-    carrierFrequencySimplified: plofOnlyCarrierFrequencySimplified,
-  } = useMemo(
-    () =>
-      hasOptionToShowContributionsBySource
-        ? calculateCarrierFrequencyAndPrevalence(
-            variants.filter(
-              (variant) =>
-                !getVariantSources(variant, variantList).includes("ClinVar")
-            ),
-            variantList
-          )
-        : {
-            carrierFrequency: null,
-            carrierFrequencySimplified: null,
-          },
-    [hasOptionToShowContributionsBySource, variantList, variants]
-  );
+    clinvarOnlyCarrierFrequency,
+    clinvarOnlyCarrierFrequencySimplified,
+    plofOnlyCarrierFrequency,
+    plofOnlyCarrierFrequencySimplified,
+  } = useMemo(() => allVariantListCalculations(variants, variantList), [
+    variants,
+    variantList,
+  ]);
 
   let stackHorizontally = useBreakpointValue({ base: false, lg: true });
   if (stackHorizontally === undefined) {
