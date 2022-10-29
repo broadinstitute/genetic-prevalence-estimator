@@ -112,14 +112,14 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
                 isChecked={includeAC0Variants}
                 onChange={(e) => setIncludeAC0Variants(e.target.checked)}
               >
-                Show {numAC0Variants} variants that do not affect calculations
+                Show {numAC0Variants} variants that do not impact calculations
               </Checkbox>{" "}
               <Tooltip
                 hasArrow
                 label={
                   "If a variant failed quality control filters in the exomes or genomes " +
                   "sample set, then those samples are not included in the variant's allele " +
-                  "count. Variants with an allele count of 0 do not affect carrier frequency " +
+                  "count. Variants with an allele count of 0 do not impact carrier frequency " +
                   "and prevalence."
                 }
                 placement="top"
