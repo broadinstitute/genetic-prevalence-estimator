@@ -206,6 +206,7 @@ const BarGraph = (props: BarGraphProps) => {
             top={height - (margin.top + margin.bottom)}
             scale={xScale}
             stroke="#333"
+            numTicks={populations.length}
             tickFormat={(d) => GNOMAD_POPULATION_NAMES[d]}
             tickStroke="#333"
             tickLabelProps={(d) => ({
