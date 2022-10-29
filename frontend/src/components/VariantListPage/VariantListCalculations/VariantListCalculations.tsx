@@ -7,6 +7,7 @@ import {
   Stack,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
 import { isSubcontinentalPopulation } from "../../../constants/populations";
@@ -52,6 +53,12 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
   const displayedPopulations = includeSubcontinentalPopulations
     ? allPopulations
     : allPopulations.filter((popId) => !isSubcontinentalPopulation(popId));
+
+  const sortedPopulations = sortBy(displayedPopulations, (popId) => [
+    popId === "global" ? 0 : 1,
+    isSubcontinentalPopulation(popId) ? popId.split("/")[0] : popId,
+    popId,
+  ]);
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
   const [
@@ -130,14 +137,14 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                     ]
                   : []),
               ]}
-              populations={displayedPopulations}
+              populations={sortedPopulations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Carrier frequency"
-              populations={displayedPopulations}
+              populations={sortedPopulations}
               series={
                 showContributionsBySource
                   ? [
@@ -240,14 +247,14 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                   data: prevalence!,
                 },
               ]}
-              populations={displayedPopulations}
+              populations={sortedPopulations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Prevalence"
-              populations={displayedPopulations}
+              populations={sortedPopulations}
               series={[
                 {
                   label: "Prevalence",
