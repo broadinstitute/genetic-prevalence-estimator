@@ -48,19 +48,13 @@ const BarGraph = (props: BarGraphProps) => {
     displayFormat,
   } = props;
 
-  const data = [
-    {
-      population: "Global",
-      ...series.reduce((acc, s) => ({ ...acc, [s.label]: s.data[0] }), {}),
-    },
-    ...populations.map((population, i) => ({
-      population: population,
-      ...series.reduce((acc, s) => ({ ...acc, [s.label]: s.data[i + 1] }), {}),
-    })),
-  ];
+  const data = populations.map((population, i) => ({
+    population: population,
+    ...series.reduce((acc, s) => ({ ...acc, [s.label]: s.data[i] }), {}),
+  }));
 
   const xScale = scaleBand({
-    domain: ["Global", ...populations],
+    domain: populations,
     range: [0, width - (margin.left + margin.right)],
     padding: 0.2,
   });
@@ -143,9 +137,7 @@ const BarGraph = (props: BarGraphProps) => {
                           label={
                             <div style={{ padding: "0.5em" }}>
                               <strong>
-                                {GNOMAD_POPULATION_NAMES[
-                                  population as GnomadPopulationId
-                                ] || population}
+                                {GNOMAD_POPULATION_NAMES[population]}
                               </strong>
                               <dl>
                                 {series.map((s) => (
@@ -214,9 +206,7 @@ const BarGraph = (props: BarGraphProps) => {
             top={height - (margin.top + margin.bottom)}
             scale={xScale}
             stroke="#333"
-            tickFormat={(d) =>
-              GNOMAD_POPULATION_NAMES[d as GnomadPopulationId] || d
-            }
+            tickFormat={(d) => GNOMAD_POPULATION_NAMES[d]}
             tickStroke="#333"
             tickLabelProps={(d) => ({
               dx: "-0.75em",

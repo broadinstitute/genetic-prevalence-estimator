@@ -6,7 +6,10 @@ import { GnomadPopulationId } from "../../../types";
 import { DisplayFormat, renderFrequency } from "./calculationsDisplayFormats";
 
 interface CalculationsTableProps {
-  columns: { label: string; data: number[] }[];
+  columns: {
+    label: string;
+    data: Partial<Record<GnomadPopulationId, number>>;
+  }[];
   populations: GnomadPopulationId[];
   displayFormat: DisplayFormat;
 }
@@ -33,28 +36,20 @@ const CalculationsTable = (props: CalculationsTableProps) => {
         </Tr>
       </Thead>
       <Tbody>
-        <Tr>
-          <Td as="th" scope="row" fontWeight="normal">
-            Global
-          </Td>
-          {columns.map((column) => (
-            <Td key={column.label} scope="col" isNumeric>
-              {renderFrequency(column.data[0], displayFormat)}
-            </Td>
-          ))}
-        </Tr>
-        {populations.map((population, populationIndex) => {
+        {populations.map((populationId) => {
           return (
-            <Tr key={population}>
+            <Tr key={populationId}>
               <Td as="th" scope="row" fontWeight="normal">
-                {GNOMAD_POPULATION_NAMES[population]}
+                {GNOMAD_POPULATION_NAMES[populationId]}
               </Td>
               {columns.map((column) => (
                 <Td key={column.label} scope="col" isNumeric>
-                  {renderFrequency(
-                    column.data[populationIndex + 1],
-                    displayFormat
-                  )}
+                  {column.data[populationId] === undefined
+                    ? "–"
+                    : renderFrequency(
+                        column.data[populationId]!,
+                        displayFormat
+                      )}
                 </Td>
               ))}
             </Tr>

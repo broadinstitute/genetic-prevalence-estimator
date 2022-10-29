@@ -1,4 +1,5 @@
-import { Variant, VariantList } from "../../../types";
+import { mapValues } from "lodash";
+import { GnomadPopulationId, Variant, VariantList } from "../../../types";
 import { getVariantSources } from "../variantSources";
 
 export const calculateCarrierFrequencyAndPrevalence = (
@@ -35,10 +36,24 @@ export const shouldCalculateContributionsBySource = (
   );
 };
 
+type Calculation =
+  | "carrierFrequency"
+  | "carrierFrequencySimplified"
+  | "prevalence"
+  | "clinvarOnlyCarrierFrequency"
+  | "clinvarOnlyCarrierFrequencySimplified"
+  | "plofOnlyCarrierFrequency"
+  | "plofOnlyCarrierFrequencySimplified";
+
+type VariantListCalculations = Record<
+  Calculation,
+  Partial<Record<GnomadPopulationId, number>> | null
+>;
+
 export const allVariantListCalculations = (
   variants: Variant[],
   variantList: VariantList
-) => {
+): VariantListCalculations => {
   const calculateContributionsBySource = shouldCalculateContributionsBySource(
     variantList
   );
@@ -80,7 +95,7 @@ export const allVariantListCalculations = (
         carrierFrequencySimplified: null,
       };
 
-  return {
+  const allCalculations = {
     carrierFrequency,
     carrierFrequencySimplified,
     prevalence,
@@ -89,4 +104,15 @@ export const allVariantListCalculations = (
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
   };
+
+  return mapValues(allCalculations, (values) =>
+    values === null
+      ? null
+      : Object.fromEntries(
+          [
+            "global",
+            ...variantList.metadata.populations!,
+          ].map((popId, popIndex) => [popId, values[popIndex]])
+        )
+  );
 };

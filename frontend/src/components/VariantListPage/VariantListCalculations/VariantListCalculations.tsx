@@ -10,7 +10,7 @@ import {
 import { useMemo, useState } from "react";
 
 import theme from "../../../theme";
-import { Variant, VariantList } from "../../../types";
+import { GnomadPopulationId, Variant, VariantList } from "../../../types";
 
 import BarGraph from "./BarGraph";
 import {
@@ -34,6 +34,11 @@ interface VariantListCalculationsProps {
 
 const VariantListCalculations = (props: VariantListCalculationsProps) => {
   const { variantList, variants } = props;
+
+  const populations: GnomadPopulationId[] = [
+    "global",
+    ...variantList.metadata.populations!,
+  ];
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
   const [
@@ -66,6 +71,9 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     stackHorizontally = true;
   }
 
+  const toSeries = (populationData: { [popId: string]: number }) =>
+    populations.map((popId) => populationData[popId]);
+
   return (
     <>
       <Box mb={8}>
@@ -85,8 +93,8 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                   label: "Carrier frequency",
                   data:
                     carrierFrequencyModel === "simplified"
-                      ? carrierFrequencySimplified
-                      : carrierFrequency,
+                      ? carrierFrequencySimplified!
+                      : carrierFrequency!,
                 },
                 ...(showContributionsBySource
                   ? [
@@ -109,41 +117,44 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                     ]
                   : []),
               ]}
-              populations={variantList.metadata.populations!}
+              populations={populations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Carrier frequency"
-              populations={variantList.metadata.populations!}
+              populations={populations}
               series={
                 showContributionsBySource
                   ? [
                       {
                         label: "Carrier frequency (ClinVar)",
                         color: theme.colors.purple["600"],
-                        data:
+                        data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? clinvarOnlyCarrierFrequencySimplified!
-                            : clinvarOnlyCarrierFrequency!,
+                            : clinvarOnlyCarrierFrequency!
+                        ),
                       },
                       {
                         label: "Carrier frequency (pLoF only)",
                         color: theme.colors.red["600"],
-                        data:
+                        data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? plofOnlyCarrierFrequencySimplified!
-                            : plofOnlyCarrierFrequency!,
+                            : plofOnlyCarrierFrequency!
+                        ),
                       },
                     ]
                   : [
                       {
                         label: "Carrier frequency",
-                        data:
+                        data: toSeries(
                           carrierFrequencyModel === "simplified"
-                            ? carrierFrequencySimplified
-                            : carrierFrequency,
+                            ? carrierFrequencySimplified!
+                            : carrierFrequency!
+                        ),
                       },
                     ]
               }
@@ -199,21 +210,21 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
               columns={[
                 {
                   label: "Prevalence",
-                  data: prevalence,
+                  data: prevalence!,
                 },
               ]}
-              populations={variantList.metadata.populations!}
+              populations={populations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Prevalence"
-              populations={variantList.metadata.populations!}
+              populations={populations}
               series={[
                 {
                   label: "Prevalence",
-                  data: prevalence,
+                  data: toSeries(prevalence!),
                 },
               ]}
               displayFormat={displayFormat}

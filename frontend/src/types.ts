@@ -1,6 +1,7 @@
 export type GnomadVersion = "2.1.1" | "3.1.2";
 
 export type GnomadPopulationId =
+  | "global"
   | "afr"
   | "ami"
   | "amr"
