@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 
+import { isSubcontinentalPopulation } from "../../../constants/populations";
 import theme from "../../../theme";
 import { GnomadPopulationId, Variant, VariantList } from "../../../types";
 
@@ -35,10 +36,22 @@ interface VariantListCalculationsProps {
 const VariantListCalculations = (props: VariantListCalculationsProps) => {
   const { variantList, variants } = props;
 
-  const populations: GnomadPopulationId[] = [
+  const allPopulations: GnomadPopulationId[] = [
     "global",
     ...variantList.metadata.populations!,
   ];
+
+  const variantListHasSubcontinentalPopulations = variantList.metadata.populations!.some(
+    isSubcontinentalPopulation
+  );
+  const [
+    includeSubcontinentalPopulations,
+    setIncludeSubcontinentalPopulations,
+  ] = useState(variantListHasSubcontinentalPopulations);
+
+  const displayedPopulations = includeSubcontinentalPopulations
+    ? allPopulations
+    : allPopulations.filter((popId) => !isSubcontinentalPopulation(popId));
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
   const [
@@ -72,7 +85,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
   }
 
   const toSeries = (populationData: { [popId: string]: number }) =>
-    populations.map((popId) => populationData[popId]);
+    allPopulations.map((popId) => populationData[popId]);
 
   return (
     <>
@@ -117,14 +130,14 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                     ]
                   : []),
               ]}
-              populations={populations}
+              populations={displayedPopulations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Carrier frequency"
-              populations={populations}
+              populations={displayedPopulations}
               series={
                 showContributionsBySource
                   ? [
@@ -163,7 +176,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
           </Box>
         </Stack>
 
-        <Flex align="flex-end" justify="space-between" wrap="wrap">
+        <Flex align="flex-end" justify="space-between" wrap="wrap" mb={4}>
           <HStack spacing={16}>
             <div>
               <DisplayFormatInput
@@ -193,6 +206,20 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
             </Checkbox>
           )}
         </Flex>
+
+        <Box>
+          <Checkbox
+            disabled={!variantListHasSubcontinentalPopulations}
+            isChecked={includeSubcontinentalPopulations}
+            onChange={(e) => {
+              setIncludeSubcontinentalPopulations(e.target.checked);
+            }}
+          >
+            <span style={{ whiteSpace: "nowrap" }}>
+              Include subcontinental populations
+            </span>
+          </Checkbox>
+        </Box>
       </Box>
 
       <Box spacing={4} mb={8}>
@@ -213,14 +240,14 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
                   data: prevalence!,
                 },
               ]}
-              populations={populations}
+              populations={displayedPopulations}
               displayFormat={displayFormat}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
               label="Prevalence"
-              populations={populations}
+              populations={displayedPopulations}
               series={[
                 {
                   label: "Prevalence",
@@ -232,11 +259,25 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
           </Box>
         </Stack>
 
-        <Box>
+        <Box mb={4}>
           <DisplayFormatInput
             value={displayFormat}
             onChange={setDisplayFormat}
           />
+        </Box>
+
+        <Box>
+          <Checkbox
+            disabled={!variantListHasSubcontinentalPopulations}
+            isChecked={includeSubcontinentalPopulations}
+            onChange={(e) => {
+              setIncludeSubcontinentalPopulations(e.target.checked);
+            }}
+          >
+            <span style={{ whiteSpace: "nowrap" }}>
+              Include subcontinental populations
+            </span>
+          </Checkbox>
         </Box>
       </Box>
     </>

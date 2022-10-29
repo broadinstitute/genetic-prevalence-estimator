@@ -24,3 +24,7 @@ export const GNOMAD_POPULATION_NAMES: {
   oth: "Other",
   sas: "South Asian",
 };
+
+export const isSubcontinentalPopulation = (
+  populationId: GnomadPopulationId
+): boolean => populationId.includes("/");
