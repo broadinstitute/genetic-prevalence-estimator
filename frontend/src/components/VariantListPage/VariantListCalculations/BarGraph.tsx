@@ -87,6 +87,11 @@ const BarGraph = (props: BarGraphProps) => {
     ]),
   });
 
+  const legendColorScale = scaleOrdinal({
+    domain: series.map((s) => s.label),
+    range: series.map((s) => s.color || theme.colors.blue["600"]),
+  });
+
   const yScale = scaleLinear({
     domain: [
       0,
@@ -129,7 +134,7 @@ const BarGraph = (props: BarGraphProps) => {
           }}
         >
           <LegendOrdinal
-            scale={colorScale}
+            scale={legendColorScale}
             direction="row"
             labelMargin="0 15px 0 0"
           />
