@@ -48,6 +48,8 @@ VARIANT_FIELDS = [
     "flags",
     "sample_sets",
     "source",
+    # LoF curation
+    "lof_curation",
 ]
 
 
@@ -377,6 +379,19 @@ def _process_variant_list(variant_list):
             "clinvar_variation_id", "clinical_significance", "gold_stars"
         )
     )
+
+    if metadata["gene_id"] and gnomad_version == "2.1.1":
+        gene_id, gene_version = metadata["gene_id"].split(".")
+
+        lof_curation_results = hl.read_table(
+            f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht"
+        )
+
+        ds = ds.annotate(
+            lof_curation=lof_curation_results[
+                ds.locus, ds.alleles, hl.str(gene_id)
+            ].select("verdict", "flags", "project")
+        )
 
     ds = ds.select(*VARIANT_FIELDS)
 
