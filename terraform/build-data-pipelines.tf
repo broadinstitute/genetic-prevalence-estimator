@@ -104,6 +104,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_v2_data_pipeline" {
         "--service-account=${google_service_account.data_pipeline.email}",
         "--no-address",
         "--tags=dataproc",
+        "--max-idle=5m",
         "--max-age=3h",
       ]
     }
@@ -211,6 +212,7 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_v3_data_pipeline" {
         "--service-account=${google_service_account.data_pipeline.email}",
         "--no-address",
         "--tags=dataproc",
+        "--max-idle=5m",
         "--max-age=3h",
       ]
     }
@@ -427,6 +429,7 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
         "--service-account=${google_service_account.data_pipeline.email}",
         "--no-address",
         "--tags=dataproc",
+        "--max-idle=5m",
         "--max-age=1h",
       ]
     }
