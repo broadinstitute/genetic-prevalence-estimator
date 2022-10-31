@@ -8,6 +8,7 @@ print_usage() {
 
 import_gnomad=false
 import_clinvar=false
+import_lof_curation_results=false
 
 if [ $# = 0 ]; then
   import_gnomad=true
@@ -24,6 +25,12 @@ else
 
     if [ "$dataset" = "clinvar" ]; then
       import_clinvar=true
+      shift
+      continue
+    fi
+
+    if [ "$dataset" = "lof_curation" ]; then
+      import_lof_curation_results=true
       shift
       continue
     fi
@@ -68,4 +75,12 @@ if [ $import_clinvar = "true" ]; then
     --intervals=$GRCH37_INTERVALS \
     --partitions=2 \
     ./data/ClinVar_GRCh37_variants.ht
+fi
+
+if [ $import_lof_curation_results = "true" ]; then
+  python data-pipelines/import_lof_curation_results.py \
+    --gnomad-version=2 \
+    --intervals=$GRCH37_INTERVALS \
+    --partitions=1 \
+    ./data/gnomAD_v2.1.1_lof_curation_results.ht
 fi
