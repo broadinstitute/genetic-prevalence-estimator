@@ -55,6 +55,7 @@ export interface Variant {
   clinvar_variation_id?: string | null;
   clinical_significance?: string[] | null;
   gold_stars?: number | null;
+  lof_curation?: { verdict: string; flags: string[]; project: string } | null;
   source?: VariantSource[];
 }
 

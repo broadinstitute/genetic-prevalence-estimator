@@ -321,6 +321,32 @@ const TRANSCRIPT_COLUMN: ColumnDef = {
   render: (variant) => variant.transcript_id,
 };
 
+const LOF_CURATION_COLUMN: ColumnDef = {
+  key: "lof_curation",
+  heading: "LoF curation",
+  sortKey: (variant) => variant.lof_curation?.verdict || "",
+  render: (variant) => {
+    if (!variant.lof_curation) {
+      return null;
+    }
+
+    if ((variant.lof_curation.flags || []).length > 0) {
+      return (
+        <Tooltip
+          hasArrow
+          label={`Contributing factors: ${variant.lof_curation.flags.join(
+            ", "
+          )}`}
+        >
+          {variant.lof_curation.verdict}
+        </Tooltip>
+      );
+    }
+
+    return variant.lof_curation.verdict;
+  },
+};
+
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
   heading: "Source",
@@ -471,6 +497,14 @@ const VariantsTable: FC<VariantsTableProps> = ({
       0,
       GENE_COLUMN,
       TRANSCRIPT_COLUMN
+    );
+  }
+
+  if (variantList.variants.some((variant) => variant.lof_curation)) {
+    columns.splice(
+      columns.findIndex((col) => col.key === "loftee") + 1,
+      0,
+      LOF_CURATION_COLUMN
     );
   }
 
