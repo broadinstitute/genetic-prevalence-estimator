@@ -41,17 +41,11 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_v2_data_pipeline" {
   name        = "import-gnomad-v2"
   description = "Import gnomAD v2 data"
 
-  github {
-    owner = split("/", var.github_repository)[0]
-    name  = split("/", var.github_repository)[1]
-
-    push {
-      branch = "^main$"
-    }
+  source_to_build {
+    uri       = "https://github.com/${var.github_repository}"
+    ref       = "refs/head/main"
+    repo_type = "GITHUB"
   }
-
-  # Workaround to create a manual trigger
-  ignored_files = ["**/*"]
 
   service_account = google_service_account.data_pipeline_runner.id
 
@@ -149,17 +143,11 @@ resource "google_cloudbuild_trigger" "run_import_gnomad_v3_data_pipeline" {
   name        = "import-gnomad-v3"
   description = "Import gnomAD v3 data"
 
-  github {
-    owner = split("/", var.github_repository)[0]
-    name  = split("/", var.github_repository)[1]
-
-    push {
-      branch = "^main$"
-    }
+  source_to_build {
+    uri       = "https://github.com/${var.github_repository}"
+    ref       = "refs/head/main"
+    repo_type = "GITHUB"
   }
-
-  # Workaround to create a manual trigger
-  ignored_files = ["**/*"]
 
   service_account = google_service_account.data_pipeline_runner.id
 
@@ -257,17 +245,11 @@ resource "google_cloudbuild_trigger" "run_import_lof_curation_results_data_pipel
   name        = "import-lof-curation-results"
   description = "Import LoF curation results"
 
-  github {
-    owner = split("/", var.github_repository)[0]
-    name  = split("/", var.github_repository)[1]
-
-    push {
-      branch = "^main$"
-    }
+  source_to_build {
+    uri       = "https://github.com/${var.github_repository}"
+    ref       = "refs/head/main"
+    repo_type = "GITHUB"
   }
-
-  # Workaround to create a manual trigger
-  ignored_files = ["**/*"]
 
   service_account = google_service_account.data_pipeline_runner.id
 
@@ -365,17 +347,11 @@ resource "google_cloudbuild_trigger" "run_import_clinvar_data_pipeline" {
   name        = "import-clinvar"
   description = "Import ClinVar data"
 
-  github {
-    owner = split("/", var.github_repository)[0]
-    name  = split("/", var.github_repository)[1]
-
-    push {
-      branch = "^main$"
-    }
+  source_to_build {
+    uri       = "https://github.com/${var.github_repository}"
+    ref       = "refs/head/main"
+    repo_type = "GITHUB"
   }
-
-  # Workaround to create a manual trigger
-  ignored_files = ["**/*"]
 
   service_account = google_service_account.data_pipeline_runner.id
 

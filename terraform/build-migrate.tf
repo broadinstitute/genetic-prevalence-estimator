@@ -31,17 +31,11 @@ resource "google_cloudbuild_trigger" "db_migrations" {
   name        = "db-migrations"
   description = "Migrate database"
 
-  github {
-    owner = split("/", var.github_repository)[0]
-    name  = split("/", var.github_repository)[1]
-
-    push {
-      branch = "^main$"
-    }
+  source_to_build {
+    uri       = "https://github.com/${var.github_repository}"
+    ref       = "refs/head/main"
+    repo_type = "GITHUB"
   }
-
-  # Workaround to create a manual trigger
-  ignored_files = ["**/*"]
 
   service_account = google_service_account.db_migrations.id
 
