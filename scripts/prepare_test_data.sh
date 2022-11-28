@@ -13,6 +13,7 @@ import_lof_curation_results=false
 if [ $# = 0 ]; then
   import_gnomad=true
   import_clinvar=true
+  import_lof_curation_results=true
 else
   while [ $# -ne 0 ]; do
     dataset=$(echo "$1" | tr "[:upper:]" "[:lower:]")
