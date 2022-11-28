@@ -39,6 +39,15 @@ export const renderVariantsToTSV = (
       getValue: (variant: Variant) => variant.lof,
     },
     {
+      label: "LoF curation",
+      getValue: (variant: Variant) =>
+        variant.lof_curation
+          ? `${variant.lof_curation.verdict} (${variant.lof_curation.flags.join(
+              ", "
+            )})`
+          : "",
+    },
+    {
       label: "HGVSc",
       getValue: (variant: Variant) => variant.hgvsc,
     },
