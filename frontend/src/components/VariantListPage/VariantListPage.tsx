@@ -270,6 +270,17 @@ const VariantListPage = (props: VariantListPageProps) => {
           <ModalHeader>Add variants</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <Alert status="warning" alignItems="flex-start" mb={2}>
+              <AlertIcon />
+              <AlertDescription>
+                Adding variants will update the clinical significance column for
+                all variants in this variant list using the latest ClinVar data.
+                <br />
+                <br />
+                If you would like to save the current clinical significance
+                data, download the variant list before adding variants.
+              </AlertDescription>
+            </Alert>
             <VariantsInput
               id="added-variants"
               value={addedVariants}
