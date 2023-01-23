@@ -1,3 +1,4 @@
+import { AddIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -13,16 +14,24 @@ import {
   Heading,
   HStack,
   ListItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   Spinner,
   Text,
   Tooltip,
   UnorderedList,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { del, get } from "../../api";
+import { del, get, post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
@@ -32,6 +41,7 @@ import DateTime from "../DateTime";
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
 import DocumentTitle from "../DocumentTitle";
 import { printOnly, screenOnly } from "../media";
+import VariantsInput, { InputVariant } from "../VariantsInput";
 
 import { EditVariantListButton } from "./EditVariantList";
 import Methods from "./Methods";
@@ -43,6 +53,13 @@ import {
 import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
+
+const addVariantsToVariantList = (
+  uuid: string,
+  variants: string[]
+): Promise<void> => {
+  return post(`/variant-lists/${uuid}/variants/`, { variants });
+};
 
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
@@ -56,6 +73,14 @@ interface VariantListPageProps {
 const VariantListPage = (props: VariantListPageProps) => {
   const { variantListStore, refreshVariantList } = props;
   const variantList = useStore(variantListStore);
+
+  const [addedVariants, setAddedVariants] = useState<InputVariant[]>([]);
+  const [addingVariants, setAddingVariants] = useState(false);
+  const {
+    isOpen: isAddVariantsModalOpen,
+    onOpen: onOpenAddVariantsModal,
+    onClose: onCloseAddingVariantModal,
+  } = useDisclosure();
 
   const [
     selectedVariants,
@@ -189,9 +214,27 @@ const VariantListPage = (props: VariantListPageProps) => {
       )}
 
       <Box sx={screenOnly}>
-        <Heading as="h2" size="md" mb={2}>
-          Variants
-        </Heading>
+        <HStack>
+          <Heading as="h2" size="md" mb={2}>
+            Variants
+          </Heading>
+
+          {userCanEdit && (
+            <Tooltip hasArrow label="Add variants to variant list">
+              <Button
+                aria-label="Add variants to variant list"
+                colorScheme="blue"
+                size="xs"
+                onClick={() => {
+                  setAddedVariants([]);
+                  onOpenAddVariantsModal();
+                }}
+              >
+                <AddIcon aria-hidden />
+              </Button>
+            </Tooltip>
+          )}
+        </HStack>
 
         <VariantListVariants
           variantList={variantList}
@@ -216,6 +259,63 @@ const VariantListPage = (props: VariantListPageProps) => {
         </Heading>
         <Methods variantList={variantList} />
       </Box>
+
+      <Modal
+        isOpen={isAddVariantsModalOpen}
+        size="xl"
+        onClose={onCloseAddingVariantModal}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add variants</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VariantsInput
+              id="added-variants"
+              value={addedVariants}
+              onChange={setAddedVariants}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              mr={3}
+              disabled={addingVariants}
+              onClick={onCloseAddingVariantModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={addingVariants}
+              onClick={() => {
+                setAddingVariants(true);
+                addVariantsToVariantList(
+                  variantList.uuid,
+                  addedVariants.map((variant) => variant.id)
+                )
+                  .then(
+                    () => {
+                      refreshVariantList();
+                    },
+                    (error) => {
+                      toast({
+                        title: "Unable to add variants",
+                        description: renderErrorDescription(error),
+                        status: "error",
+                        duration: 10000,
+                        isClosable: true,
+                      });
+                    }
+                  )
+                  .finally(() => {
+                    setAddingVariants(false);
+                  });
+              }}
+            >
+              Add
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
