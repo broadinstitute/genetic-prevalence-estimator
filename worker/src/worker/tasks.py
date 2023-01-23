@@ -329,7 +329,10 @@ def _process_variant_list(variant_list):
     # Import existing variants into a Hail Table
     ds = None
     if variant_list.variants:
-        ds = hl.Table.parallelize(variant_list.variants, hl.tstruct(id=hl.tstr))
+        variant_ids = [variant["id"] for variant in variant_list.variants]
+        ds = hl.Table.parallelize(
+            [{"id": variant_id} for variant_id in variant_ids], hl.tstruct(id=hl.tstr)
+        )
         ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
         ds = ds.key_by("locus", "alleles")
         ds = ds.select(source=["Custom"])
@@ -380,7 +383,7 @@ def _process_variant_list(variant_list):
         )
     )
 
-    if metadata["gene_id"] and gnomad_version == "2.1.1":
+    if metadata.get("gene_id") and gnomad_version == "2.1.1":
         gene_id, gene_version = metadata["gene_id"].split(".")
 
         lof_curation_results = hl.read_table(
@@ -393,7 +396,9 @@ def _process_variant_list(variant_list):
             ].select("verdict", "flags", "project")
         )
 
-    ds = ds.select(*VARIANT_FIELDS)
+    table_fields = set(ds.row)
+    select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
+    ds = ds.select(*select_fields)
 
     variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
     variant_list.variants = variants
