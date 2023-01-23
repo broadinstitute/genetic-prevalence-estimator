@@ -243,3 +243,46 @@ class VariantListSerializer(ModelSerializer):
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "notes")]
+
+
+class AddedVariantsSerializer(
+    serializers.Serializer
+):  # pylint: disable=abstract-method
+    variants = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+    def validate_variants(self, value):
+        invalid_variant_ids = [
+            variant_id for variant_id in value if not is_variant_id(variant_id)
+        ]
+        if invalid_variant_ids:
+            raise serializers.ValidationError(
+                [
+                    f"'{variant_id}' is not a valid variant ID"
+                    for variant_id in invalid_variant_ids
+                ]
+            )
+
+        num_unique_variants = len(set(value))
+        if num_unique_variants != len(value):
+            raise serializers.ValidationError("Variants must be unique.")
+
+        existing_variant_ids = set(
+            variant["id"] for variant in self.context["variant_list"].variants
+        )
+
+        duplicate_variant_ids = set(value) & existing_variant_ids
+        if duplicate_variant_ids:
+            raise serializers.ValidationError(
+                [
+                    f"'{variant_id}' is already present in this variant list"
+                    for variant_id in duplicate_variant_ids
+                ]
+            )
+
+        max_num_variants = 5000
+        if len(set(value) | existing_variant_ids) > max_num_variants:
+            raise serializers.ValidationError(
+                f"Variant lists may not contain more than {max_num_variants} variants"
+            )
+
+        return value

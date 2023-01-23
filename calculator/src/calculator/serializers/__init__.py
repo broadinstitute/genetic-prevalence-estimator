@@ -1,4 +1,5 @@
 from calculator.serializers.variant_list_serializer import (
+    AddedVariantsSerializer,
     NewVariantListSerializer,
     VariantListSerializer,
 )

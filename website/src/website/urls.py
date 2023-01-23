@@ -11,6 +11,7 @@ from website.views.variant_list_views import (
     VariantListsView,
     VariantListView,
     VariantListProcessView,
+    VariantListVariantsView,
 )
 from website.views.variant_list_access_views import (
     VariantListAccessList,
@@ -53,6 +54,11 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/process/",
         VariantListProcessView.as_view(),
         name="variant-list-process",
+    ),
+    path(
+        "api/variant-lists/<uuid:uuid>/variants/",
+        VariantListVariantsView.as_view(),
+        name="variant-list-variants",
     ),
     path(
         "api/variant-list-access/",

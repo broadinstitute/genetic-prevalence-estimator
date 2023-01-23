@@ -10,7 +10,11 @@ from rest_framework.permissions import DjangoObjectPermissions, IsAuthenticated
 from rest_framework.response import Response
 
 from calculator.models import VariantList, VariantListAccessPermission
-from calculator.serializers import NewVariantListSerializer, VariantListSerializer
+from calculator.serializers import (
+    AddedVariantsSerializer,
+    NewVariantListSerializer,
+    VariantListSerializer,
+)
 from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
 
@@ -93,5 +97,48 @@ class VariantListProcessView(GenericAPIView):
 
         variant_list.status = VariantList.Status.QUEUED
         variant_list.save()
+
+        return Response({})
+
+
+class VariantListVariantsViewObjectPermissions(DjangoObjectPermissions):
+    perms_map = {
+        "GET": ["%(app_label)s.view_%(model_name)s"],
+        "OPTIONS": ["%(app_label)s.view_%(model_name)s"],
+        "HEAD": ["%(app_label)s.view_%(model_name)s"],
+        "POST": ["%(app_label)s.change_%(model_name)s"],
+    }
+
+
+class VariantListVariantsView(GenericAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated, VariantListVariantsViewObjectPermissions)
+
+    serializer_class = AddedVariantsSerializer
+
+    def get_serializer_context(self):
+        return {**super().get_serializer_context(), "variant_list": self.get_object()}
+
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        variant_list = self.get_object()
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        added_variants = serializer.validated_data["variants"]
+
+        variant_list.variants = [
+            *variant_list.variants,
+            *[{"id": variant_id} for variant_id in added_variants],
+        ]
+
+        variant_list.status = VariantList.Status.QUEUED
+        variant_list.save()
+
+        publisher.send_to_worker(
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        )
 
         return Response({})
