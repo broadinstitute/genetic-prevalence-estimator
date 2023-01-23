@@ -1,31 +1,19 @@
 import {
   Button,
-  CloseButton,
-  Flex,
+  Checkbox,
   FormControl,
-  FormErrorMessage,
   FormHelperText,
   FormLabel,
   HStack,
   Input,
   Link,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   Radio,
   RadioGroup,
   Textarea,
-  Tooltip,
   VStack,
-  useDisclosure,
   useToast,
-  Checkbox,
 } from "@chakra-ui/react";
-import { isVariantId, normalizeVariantId } from "@gnomad/identifiers";
+import { normalizeVariantId } from "@gnomad/identifiers";
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
@@ -37,6 +25,7 @@ import {
   VariantListRequest,
   VariantListType,
 } from "../../types";
+import VariantsInput, { InputVariant } from "../VariantsInput";
 import GeneInput from "./GeneInput";
 import TranscriptInput from "./TranscriptInput";
 
@@ -45,14 +34,6 @@ const submitVariantList = (
 ): Promise<VariantList> => {
   return post("/variant-lists/", request);
 };
-
-interface InputVariant {
-  key: string;
-  id: string;
-}
-
-let counter = 0;
-const nextKey = () => `${counter++}`;
 
 const CustomVariantListForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,8 +47,6 @@ const CustomVariantListForm = () => {
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
   const [variants, setVariants] = useState<InputVariant[]>([]);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const history = useHistory();
   const toast = useToast();
@@ -216,68 +195,11 @@ const CustomVariantListForm = () => {
             </>
           )}
 
-          {variants.map((variant, i) => {
-            const isValid = isVariantId(variant.id);
-            return (
-              <FormControl
-                key={variant.key}
-                id={`custom-variant-list-variant-${variant.key}`}
-                isInvalid={!!variant.id && !isValid}
-                isRequired
-              >
-                <FormLabel>Variant #{i + 1}</FormLabel>
-                <Flex align="center">
-                  <Input
-                    flex={1}
-                    value={variant.id}
-                    onChange={(e) => {
-                      setVariants([
-                        ...variants.slice(0, i),
-                        { ...variant, id: e.target.value },
-                        ...variants.slice(i + 1),
-                      ]);
-                    }}
-                  />
-                  <Tooltip hasArrow label="Remove variant">
-                    <CloseButton
-                      aria-label="Remove variant"
-                      ml="1ch"
-                      onClick={() => {
-                        setVariants([
-                          ...variants.slice(0, i),
-                          ...variants.slice(i + 1),
-                        ]);
-                      }}
-                    />
-                  </Tooltip>
-                </Flex>
-                <FormErrorMessage>
-                  Expected variant ID in chrom-pos-ref-alt format.
-                </FormErrorMessage>
-              </FormControl>
-            );
-          })}
-
-          <FormControl
+          <VariantsInput
             id="custom-variant-list-variants"
-            isInvalid={variants.length === 0}
-            isRequired
-          >
-            <Input type="hidden" value={variants.length} />
-            <FormErrorMessage>Add at least one variant</FormErrorMessage>
-          </FormControl>
-
-          <HStack>
-            <Button
-              onClick={() => {
-                setVariants([...variants, { key: nextKey(), id: "" }]);
-              }}
-            >
-              Add variant
-            </Button>
-
-            <Button onClick={onOpen}>Upload variants</Button>
-          </HStack>
+            value={variants}
+            onChange={setVariants}
+          />
 
           <HStack>
             <Button colorScheme="blue" isLoading={isSubmitting} type="submit">
@@ -289,66 +211,6 @@ const CustomVariantListForm = () => {
           </HStack>
         </VStack>
       </form>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Upload variants</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <p style={{ marginBottom: "1em" }}>
-                Uploaded file should contain one variant ID per line.
-              </p>
-              <Button
-                as="label"
-                htmlFor="variants-file"
-                style={{ width: "100%" }}
-              >
-                Choose file
-                <input
-                  hidden
-                  id="variants-file"
-                  type="file"
-                  onChange={(e) => {
-                    const files = e.target?.files;
-                    if (!files || files.length === 0) {
-                      return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                      const result = e.target?.result as string;
-                      if (result) {
-                        const lines = result.replace(/\r\n/g, "\n").split("\n");
-                        setVariants(
-                          lines.filter(Boolean).map((line) => ({
-                            key: nextKey(),
-                            id: line,
-                          }))
-                        );
-                      }
-                    };
-                    reader.readAsText(files[0]);
-
-                    onClose();
-                  }}
-                />
-              </Button>
-            </form>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 };
