@@ -28,10 +28,11 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
-import { del, get, post } from "../../api";
+import { del, get, patch, post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
@@ -65,6 +66,151 @@ const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
 };
 
+const usePrevious = <T,>(value: T): T | undefined => {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+};
+
+const useCurrentValue = <T,>(value: T): (() => T) => {
+  const ref = useRef<T>();
+  ref.current = value;
+
+  return useCallback(() => ref.current!, []);
+};
+
+type VariantListAnnotation = {
+  selectedVariants: Set<string>;
+  variantNotes: Record<VariantId, string>;
+};
+
+const useVariantListAnnotation = (variantList: VariantList) => {
+  const [annotation, setAnnotation] = useState<VariantListAnnotation>({
+    selectedVariants: new Set<VariantId>([]),
+    variantNotes: {},
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    get(`/variant-lists/${variantList.uuid}/annotation/`)
+      .then((annotation) => {
+        setAnnotation({
+          selectedVariants: new Set(annotation.selected_variants),
+          variantNotes: annotation.variant_notes,
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [variantList.uuid]);
+
+  const previousStatus = usePrevious(variantList.status);
+  useEffect(() => {
+    const { status } = variantList;
+    if (status !== previousStatus && status === "Ready") {
+      setAnnotation((annotation) => ({
+        ...annotation,
+        selectedVariants: new Set(
+          variantList.variants.map((variant) => variant.id)
+        ),
+      }));
+    }
+  }, [variantList, previousStatus]);
+
+  const toast = useToast();
+  const getCurrentAnnotation = useCurrentValue(annotation);
+
+  const saveSelectedVariants = useMemo(
+    () =>
+      debounce(() => {
+        const annotation = getCurrentAnnotation();
+        patch(`/variant-lists/${variantList.uuid}/annotation/`, {
+          selected_variants: Array.from(annotation.selectedVariants),
+        })
+          .then(() => {
+            toast({
+              title: "Saved selected variants",
+              status: "success",
+              duration: 1000,
+              isClosable: true,
+            });
+          })
+          .catch((error) => {
+            toast({
+              title: "Unable to save selected variants",
+              description: renderErrorDescription(error),
+              status: "error",
+              duration: 10000,
+              isClosable: true,
+            });
+          });
+      }, 2000),
+    [getCurrentAnnotation, toast, variantList.uuid]
+  );
+
+  const setSelectedVariants = useCallback(
+    (selectedVariants: VariantListAnnotation["selectedVariants"]) => {
+      setAnnotation((annotation) => ({ ...annotation, selectedVariants }));
+      saveSelectedVariants();
+    },
+    [saveSelectedVariants]
+  );
+
+  const saveVariantNotes = useCallback(
+    (variantNotes) => {
+      patch(`/variant-lists/${variantList.uuid}/annotation/`, {
+        variant_notes: variantNotes,
+      })
+        .then(() => {
+          toast({
+            title: "Saved notes",
+            status: "success",
+            duration: 1000,
+            isClosable: true,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Unable to save notes",
+            description: renderErrorDescription(error),
+            status: "error",
+            duration: 10000,
+            isClosable: true,
+          });
+        });
+    },
+    [toast, variantList.uuid]
+  );
+
+  const setVariantNote = useCallback(
+    (variantId: VariantId, note: string) => {
+      setAnnotation((annotation) => ({
+        ...annotation,
+        variantNotes: {
+          ...annotation.variantNotes,
+          [variantId]: note,
+        },
+      }));
+      saveVariantNotes({
+        ...annotation.variantNotes,
+        [variantId]: note,
+      });
+    },
+    [annotation, saveVariantNotes]
+  );
+
+  return {
+    loading,
+    selectedVariants: annotation.selectedVariants,
+    setSelectedVariants,
+    variantNotes: annotation.variantNotes,
+    setVariantNote,
+  };
+};
+
 interface VariantListPageProps {
   variantListStore: Store<VariantList>;
   refreshVariantList: () => void;
@@ -82,20 +228,17 @@ const VariantListPage = (props: VariantListPageProps) => {
     onClose: onCloseAddingVariantModal,
   } = useDisclosure();
 
-  const [
+  const toast = useToast();
+
+  const {
+    loading: loadingAnnotation,
     selectedVariants,
     setSelectedVariants,
-  ] = useState<Set<VariantId> | null>(null);
-  useEffect(() => {
-    if (variantList.status === "Ready") {
-      setSelectedVariants(
-        new Set(variantList.variants.map((variant) => variant.id))
-      );
-    }
-  }, [variantList]);
+    variantNotes,
+    setVariantNote,
+  } = useVariantListAnnotation(variantList);
 
   const history = useHistory();
-  const toast = useToast();
 
   const [showMethods, setShowMethods] = useState(false);
 
@@ -238,8 +381,11 @@ const VariantListPage = (props: VariantListPageProps) => {
 
         <VariantListVariants
           variantList={variantList}
-          selectedVariants={selectedVariants || new Set<VariantId>()}
+          selectedVariants={selectedVariants}
+          selectionDisabled={loadingAnnotation}
+          variantNotes={variantNotes}
           onChangeSelectedVariants={setSelectedVariants}
+          onEditVariantNote={setVariantNote}
         />
       </Box>
 

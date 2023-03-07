@@ -22,11 +22,21 @@ import VariantsTable from "./VariantsTable";
 interface VariantListVariantsProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  selectionDisabled: boolean;
+  variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+  onEditVariantNote: (variantId: VariantId, note: string) => void;
 }
 
 const VariantListVariants = (props: VariantListVariantsProps) => {
-  const { variantList, selectedVariants, onChangeSelectedVariants } = props;
+  const {
+    variantList,
+    selectedVariants,
+    selectionDisabled,
+    variantNotes,
+    onChangeSelectedVariants,
+    onEditVariantNote,
+  } = props;
 
   const [
     populationsDisplayedInTable,
@@ -110,6 +120,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             <Box mb={4}>
               <Checkbox
                 isChecked={includeAC0Variants}
+                isDisabled={selectionDisabled}
                 onChange={(e) => setIncludeAC0Variants(e.target.checked)}
               >
                 Show {numAC0Variants} variants that do not impact calculations
@@ -148,7 +159,9 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
                   ? () => true
                   : (variant) => (variant.AC || [])[0] > 0
               }
+              variantNotes={variantNotes}
               onChangeSelectedVariants={onChangeSelectedVariants}
+              onEditVariantNote={onEditVariantNote}
               mb={4}
             />
           </div>

@@ -27,6 +27,7 @@ import {
 } from "../../types";
 
 import { getVariantSources } from "./variantSources";
+import { VariantNote } from "./VariantNote";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -132,7 +133,9 @@ interface ColumnDef {
   ) => string | number | (string | number)[];
   render: (
     variant: Variant,
-    variantList: VariantList
+    variantList: VariantList,
+    variantNotes: Record<VariantId, string>,
+    onEditVariantNote: (variantId: VariantId, note: string) => void
   ) =>
     | JSX.Element
     | string
@@ -392,6 +395,21 @@ const SOURCE_COLUMN: ColumnDef = {
   },
 };
 
+const NOTES_COLUMN: ColumnDef = {
+  key: "note",
+  heading: "Note",
+  render: (variant, variantList, variantNotes, onEditVariantNote) => {
+    const variantId = variant.id;
+    return (
+      <VariantNote
+        variantId={variantId}
+        note={variantNotes[variantId]}
+        onEdit={(note) => onEditVariantNote(variantId, note)}
+      />
+    );
+  },
+};
+
 const populationAlleleFrequencyColumns = (
   variantList: VariantList,
   popId: GnomadPopulationId
@@ -428,7 +446,9 @@ interface VariantsTableProps extends TableProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
   shouldShowVariant: (variant: Variant) => boolean;
+  variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+  onEditVariantNote: (variantId: VariantId, note: string) => void;
 }
 
 type SortOrder = "ascending" | "descending";
@@ -480,7 +500,9 @@ const VariantsTable: FC<VariantsTableProps> = ({
   variantList,
   selectedVariants,
   shouldShowVariant,
+  variantNotes,
   onChangeSelectedVariants,
+  onEditVariantNote,
   ...tableProps
 }) => {
   const columns = [
@@ -489,6 +511,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
       populationAlleleFrequencyColumns(variantList, popId)
     ),
     SOURCE_COLUMN,
+    NOTES_COLUMN,
   ];
 
   if (!variantList.metadata.transcript_id) {
@@ -647,7 +670,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
                     fontWeight="normal"
                     isNumeric={column.isNumeric}
                   >
-                    {column.render(variant, variantList)}
+                    {column.render(
+                      variant,
+                      variantList,
+                      variantNotes,
+                      onEditVariantNote
+                    )}
                   </Td>
                 );
               })}
