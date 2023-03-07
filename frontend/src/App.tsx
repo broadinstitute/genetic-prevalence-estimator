@@ -126,7 +126,7 @@ const App = () => {
                   textDecoration: "none",
                 }}
               >
-                Aggregate Frequency Calculator
+                GeniE
               </Link>
 
               <NavLink to="/about/">About</NavLink>

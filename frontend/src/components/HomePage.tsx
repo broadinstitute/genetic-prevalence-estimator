@@ -17,13 +17,14 @@ const HomePage = () => {
       <DocumentTitle />
 
       <Heading as="h1" mb={4}>
-        Genetic Prevalence Calculator
+        GeniE, the Genetic Prevalence Estimator
       </Heading>
 
       <Text mb={8}>
-        This tool aims to estimate carrier frequency and genetic prevalence for
-        recessive conditions using allele frequencies from population data in
-        gnomAD. We provide support for creating variant lists from{" "}
+        The prevalence GeniE tool aims to estimate carrier frequency and genetic
+        prevalence for recessive conditions using allele frequencies from
+        population data in gnomAD. We provide support for creating variant lists
+        from{" "}
         <Link href="https://www.ncbi.nlm.nih.gov/clinvar/" isExternal>
           ClinVar
         </Link>{" "}

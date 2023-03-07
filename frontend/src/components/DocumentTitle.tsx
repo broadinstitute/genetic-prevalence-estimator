@@ -7,7 +7,7 @@ interface DocumentTitleProps {
 const DocumentTitle: FC<DocumentTitleProps> = ({ title }) => {
   useEffect(() => {
     document.title =
-      (title ? `${title} | ` : "") + "Aggregate Frequency Calculator";
+      (title ? `${title} | ` : "") + "Genetic Prevalence Estimator";
   }, [title]);
 
   return null;

@@ -15,9 +15,9 @@ const AboutView = () => {
   return (
     <>
       <Text mb={2}>
-        The genetic prevalence tool uses variant databases and population data
-        to estimate prevalence for recessive diseases. This tool uses data from
-        the open source databases{" "}
+        GeniE, the Genetic Prevalence Estimator, uses variant databases and
+        population data to estimate prevalence for recessive diseases. This tool
+        uses data from the open source databases{" "}
         <Link href="https://www.ncbi.nlm.nih.gov/clinvar/" isExternal>
           ClinVar
         </Link>{" "}
@@ -29,7 +29,7 @@ const AboutView = () => {
       </Text>
 
       <Text>
-        The source code necessary to reproduce the analyses, is available on{" "}
+        The source code necessary to reproduce the analyses is available on{" "}
         <Link
           href="https://github.com/broadinstitute/genetic-prevalence-estimator"
           isExternal
@@ -81,8 +81,8 @@ const AboutView = () => {
         Citation in Publications
       </Heading>
       <Text mb={2}>
-        We request that any use of data obtained from the aggregate frequency
-        calculator cite the online resource and include a link to the browser.
+        We request that any use of data obtained from GeniE cite the online
+        resource and include a link to the tool ({document.location.hostname}).
       </Text>
       <Text>
         There is no need to include us as authors on your manuscript, unless we
@@ -101,8 +101,8 @@ const AboutView = () => {
           issue tracker
         </Link>
         . You can also reach us at{" "}
-        <Link href="mailto:freq-calc@broadinstitute.org" isExternal>
-          freq-calc@broadinstitute.org
+        <Link href="mailto:prev-genie@broadinstitute.org" isExternal>
+          prev-genie@broadinstitute.org
         </Link>
         .
       </Text>
