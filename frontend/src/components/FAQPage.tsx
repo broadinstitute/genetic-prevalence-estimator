@@ -42,9 +42,20 @@ const FAQView = () => {
         Due to these definitions we believe that the calculations performed by
         this tool is most accurately defined as an{" "}
         <strong>estimated genetic prevalence</strong>, as it represents the
-        estimated proportion of a population that has either 2 compound
-        heterozygous or 1 homozygous disease-causing variants in a specific
-        gene.
+        estimated proportion of a population that has a causal genotype for a
+        genetic disorder. These results should always be interpreted in the
+        context of the disease/gene of interest. To learn more about
+        considerations for these results please see our FAQ "What factors should
+        I consider when interpreting these results?" To read more about how
+        these estimates relate to prevalence, incidence and lifetime risk please
+        read{" "}
+        <Link
+          href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
+          isExternal
+        >
+          "Using genetic data to estimate disease prevalence"
+        </Link>
+        .
       </Text>
 
       <Heading as="h2" size="md" mt={4} mb={2}>
@@ -58,7 +69,9 @@ const FAQView = () => {
         databases, so this method does not work for autosomal dominant or
         X-linked conditions. For the same reason, the depletion of symptomatic
         carriers could lower the allele frequencies of pathogenic variants
-        observed in gnomAD.
+        observed in gnomAD. We are working on creating methods and tools for
+        estimating genetic prevalence of AD and XL diseases and hope to add them
+        in future versions.
       </Text>
 
       <Heading as="h2" size="md" mt={4} mb={2}>
@@ -91,13 +104,52 @@ const FAQView = () => {
       </Text>
 
       <Heading as="h2" size="md" mt={4} mb={2}>
-        What factors should I consider if I think the estimate is too high or
-        too low?
+        What factors should I consider when interpreting these results?
       </Heading>
       <Text mb={2}>
         This tool provides an estimated carrier frequency and genetic
         prevalence. There are many factors that go into these estimates, which
-        can influence the results.
+        can influence the way you interpret the results.
+      </Text>
+
+      <Text mb={2}>
+        Disease spectrum is an important part of interpreting genetic
+        prevalence. The following factors should always be considered:
+      </Text>
+      <UnorderedList spacing={2} mb={2}>
+        <ListItem>
+          Symptomatic carriers: We use gnomAD as our source of allele
+          frequencies for GeniE. Individuals with rare disease are less likely
+          to participate in or meet recruitment criteria for research studies
+          that are included in reference population databases. Depletion of
+          symptomatic carriers could lower the allele frequencies of pathogenic
+          variants observed in gnomAD.
+        </ListItem>
+        <ListItem>
+          Impacts to life expectancy: Genetic prevalence represents the
+          estimated proportion of a population that has a causal genotype for a
+          genetic disorder, however it does not account for the possibility that
+          specific allele combinations may lead to early misscarriage or
+          neonatal loss. Some combinations could lead to loss of life early on,
+          before the individual could be identified as having the clinical
+          diagnosis.
+        </ListItem>
+        <ListItem>
+          Reduced penetrance and variable expressivity: Similarly, the full
+          phenotypic spectrum is still being discovered for many diseases. This
+          final estimate does not currently take into consideration whether
+          everyone with a casual genotype would present with the
+          phenotype/disease of interest.
+        </ListItem>
+      </UnorderedList>
+
+      <Text mb={2}>
+        While genetic prevalence is an important part of answering, “How many
+        people are there with X disease?”, additional methods of estimating
+        incidence, prevalence, and lifetime risk should also be assessed when
+        available. If these various methods are returning vastly different
+        results some additional questions should be asked about the genetic
+        prevalence estimates.
       </Text>
 
       <Text mb={2}>
@@ -113,8 +165,20 @@ const FAQView = () => {
           Representation can have a big influence on these calculations if a
           variant is more common in a population that is not well represented in
           gnomAD, the disease-causing variant(s) could appear to be absent or
-          rare in the population data. To learn more about the populations in
-          gnomAD go here.
+          rare in the population data.
+        </ListItem>
+        <ListItem>
+          <em>
+            What proportion of affected individuals have disease-causing
+            variants detectable by exome or genome sequencing?
+          </em>{" "}
+          Variants in gnomAD have been identified via exome or genome
+          sequencing. Variants not detectable by one for these two technologies
+          will not be included in these estimates. Additionally, if a
+          significant portion of patients with a clinical diagnosis are still
+          missing a molecular diagnosis, that would mean that the full variant
+          spectrum is not totally understood and would also lead to a lower
+          estimated genetic prevalence.
         </ListItem>
         <ListItem>
           <em>Is the disease-gene relationship still relatively new?</em> It can
@@ -143,6 +207,14 @@ const FAQView = () => {
           determine if they have a well established association with disease.
           You can unselect a variant to review the results without that allele
           included.
+        </ListItem>
+        <ListItem>
+          <em>Do we know the full phenotypic spectrum of the gene?</em> As
+          mentioned above, disease spectrum should always be considered in
+          interpreting these results. Impacts to life expectancy, reduced
+          penetrance and variable expressivity can all lead to estimated genetic
+          prevalence being considerably higher than estimates based on a
+          clinical diagnosis alone.
         </ListItem>
         <ListItem>
           <em>
