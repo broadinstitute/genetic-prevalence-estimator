@@ -12,6 +12,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
@@ -167,6 +168,18 @@ const App = () => {
             )}
           </Flex>
         </Container>
+      </Box>
+      <Box px={4} mb={4}>
+        <Alert status="info">
+          <AlertIcon />
+          <span>
+            GeniE is currently available in beta. We appreciate any{" "}
+            <BaseLink href="https://forms.gle/4qyfUnVouE9PA4cV9" isExternal>
+              feedback
+            </BaseLink>{" "}
+            you can provide.
+          </span>
+        </Alert>
       </Box>
 
       <Container pb={4} maxW="1400px">
