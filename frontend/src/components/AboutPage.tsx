@@ -31,7 +31,7 @@ const AboutView = () => {
       <Text>
         The source code necessary to reproduce the analyses, is available on{" "}
         <Link
-          href="https://github.com/broadinstitute/aggregate-frequency-calculator"
+          href="https://github.com/broadinstitute/genetic-prevalence-estimator"
           isExternal
         >
           GitHub
@@ -95,7 +95,7 @@ const AboutView = () => {
       <Text>
         Please report any issues using the{" "}
         <Link
-          href="https://github.com/broadinstitute/aggregate-frequency-calculator/issues"
+          href="https://github.com/broadinstitute/genetic-prevalence-estimator/issues"
           isExternal
         >
           issue tracker

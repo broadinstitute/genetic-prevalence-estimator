@@ -17,5 +17,5 @@ variable "google_oauth_client_id" {
 variable "github_repository" {
   description = "GitHub repository"
   type        = string
-  default     = "broadinstitute/aggregate-frequency-calculator"
+  default     = "broadinstitute/genetic-prevalence-estimator"
 }
