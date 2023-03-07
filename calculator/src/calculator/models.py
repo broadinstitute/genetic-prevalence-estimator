@@ -110,6 +110,28 @@ class VariantListAccessPermission(models.Model):
         ]
 
 
+class VariantListAnnotation(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="variant_list_annotations",
+        related_query_name="variant_list_annotation",
+    )
+
+    variant_list = models.ForeignKey(
+        VariantList,
+        on_delete=models.CASCADE,
+        related_name="annotations",
+        related_query_name="annotation",
+    )
+
+    selected_variants = models.JSONField(default=list)
+
+    variant_notes = models.JSONField(default=dict)
+
+
 def object_level_predicate(fn):  # pylint: disable=invalid-name
     @rules.predicate
     @wraps(fn)

@@ -4,7 +4,11 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from rest_framework.test import APIClient
 
-from calculator.models import VariantList, VariantListAccessPermission
+from calculator.models import (
+    VariantList,
+    VariantListAccessPermission,
+    VariantListAnnotation,
+)
 
 
 User = get_user_model()
@@ -687,3 +691,238 @@ class TestVariantListVariantsView:
 
         variant_list.refresh_from_db()
         assert variant_list.status == VariantList.Status.QUEUED
+
+
+@pytest.mark.django_db
+class TestGetVariantListAnnotation:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        owner = User.objects.create(username="owner")
+        editor = User.objects.create(username="editor")
+        viewer = User.objects.create(username="viewer")
+        inactive_editor = User.objects.create(
+            username="inactive_editor", is_active=False
+        )
+        User.objects.create(username="other_user")
+        User.objects.create(username="staff_member", is_staff=True)
+
+        list1 = VariantList.objects.create(
+            id=1,
+            label="List 1",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[
+                {"id": "1-55516888-G-A"},
+                {"id": "1-55516888-G-GA"},
+            ],
+        )
+
+        VariantListAnnotation.objects.create(
+            user=editor,
+            variant_list=list1,
+            selected_variants=["1-55516888-G-A"],
+            variant_notes={"1-55516888-G-A": "Test note"},
+        )
+
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.EDITOR,
+        )
+        VariantListAccessPermission.objects.create(
+            user=inactive_editor,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.VIEWER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.VIEWER,
+        )
+
+    def test_viewing_variant_list_annotation_requires_authentication(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/annotation/")
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "username,expected_response",
+        [
+            ("owner", 200),
+            ("editor", 200),
+            ("viewer", 404),
+            ("other_user", 404),
+            ("staff_member", 404),
+        ],
+    )
+    def test_viewing_variant_list_annotation_requires_permission(
+        self, username, expected_response
+    ):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/annotation/")
+        assert response.status_code == expected_response
+
+    def test_inactive_users_cannot_view_annotation(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="inactive_editor"))
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/annotation/")
+        assert response.status_code == 403
+
+    def test_empty_annotation_is_automatically_created(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        response = client.get(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/"
+        ).json()
+        assert response == {
+            "selected_variants": [],
+            "variant_notes": {},
+        }
+
+    def test_get_annotation(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="editor"))
+        response = client.get(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/"
+        ).json()
+        assert response == {
+            "selected_variants": ["1-55516888-G-A"],
+            "variant_notes": {"1-55516888-G-A": "Test note"},
+        }
+
+
+@pytest.mark.django_db
+class TestEditVariantListAnnotation:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        owner = User.objects.create(username="owner")
+        editor = User.objects.create(username="editor")
+        viewer = User.objects.create(username="viewer")
+        inactive_editor = User.objects.create(
+            username="inactive_editor", is_active=False
+        )
+        User.objects.create(username="other_user")
+        User.objects.create(username="staff_member", is_staff=True)
+
+        list1 = VariantList.objects.create(
+            id=1,
+            label="List 1",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[
+                {"id": "1-55516888-G-A"},
+                {"id": "1-55516888-G-GA"},
+            ],
+        )
+
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.EDITOR,
+        )
+        VariantListAccessPermission.objects.create(
+            user=inactive_editor,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.VIEWER,
+        )
+        VariantListAccessPermission.objects.create(
+            user=viewer,
+            variant_list=list1,
+            level=VariantListAccessPermission.Level.VIEWER,
+        )
+
+    def test_editing_variant_list_annotation_requires_authentication(self):
+        variant_list = VariantList.objects.get(id=1)
+        initial_notes = variant_list.notes
+        client = APIClient()
+        response = client.patch(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/",
+            {"selected_variants": ["1-55516888-G-GA"]},
+        )
+        assert response.status_code == 403
+        variant_list.refresh_from_db()
+        assert variant_list.notes == initial_notes
+
+    @pytest.mark.parametrize(
+        "username,expected_response",
+        [
+            ("owner", 200),
+            ("editor", 200),
+            ("viewer", 404),
+            ("other_user", 404),
+            ("staff_member", 404),
+        ],
+    )
+    def test_editing_variant_list_requires_permission(
+        self, username, expected_response
+    ):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+        response = client.patch(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/",
+            {"selected_variants": ["1-55516888-G-GA"]},
+        )
+        assert response.status_code == expected_response
+
+        if expected_response == 200:
+            annotation = variant_list.annotations.get(user__username=username)
+            assert annotation.selected_variants == ["1-55516888-G-GA"]
+        else:
+            assert variant_list.annotations.filter(user__username=username).count() == 0
+
+    def test_inactive_users_cannot_annotate(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="inactive_editor"))
+        response = client.patch(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/",
+            {"selected_variants": ["1-55516888-G-GA"]},
+        )
+        assert response.status_code == 403
+
+    def test_edit_variant_list_annotation(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="editor"))
+        response = client.patch(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/",
+            {"selected_variants": ["1-55516888-G-GA"]},
+        )
+        assert response.status_code == 200, response.json()
+        assert response.json() == {
+            "selected_variants": ["1-55516888-G-GA"],
+            "variant_notes": {},
+        }
+
+    def test_edit_variant_list_annotation_validation(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="editor"))
+        response = client.patch(
+            f"/api/variant-lists/{variant_list.uuid}/annotation/",
+            {"selected_variants": ["not-a-variant"]},
+        )
+        assert response.status_code == 400

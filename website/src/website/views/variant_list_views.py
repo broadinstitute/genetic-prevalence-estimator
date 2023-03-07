@@ -4,16 +4,22 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     GenericAPIView,
     ListCreateAPIView,
+    RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import DjangoObjectPermissions, IsAuthenticated
 from rest_framework.response import Response
 
-from calculator.models import VariantList, VariantListAccessPermission
+from calculator.models import (
+    VariantList,
+    VariantListAccessPermission,
+    VariantListAnnotation,
+)
 from calculator.serializers import (
     AddedVariantsSerializer,
     NewVariantListSerializer,
     VariantListSerializer,
+    VariantListAnnotationSerializer,
 )
 from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
@@ -142,3 +148,33 @@ class VariantListVariantsView(GenericAPIView):
         )
 
         return Response({})
+
+
+class VariantListAnnotationViewObjectPermissions(DjangoObjectPermissions):
+    perms_map = {
+        "GET": ["%(app_label)s.change_%(model_name)s"],
+        "OPTIONS": ["%(app_label)s.change_%(model_name)s"],
+        "HEAD": ["%(app_label)s.change_%(model_name)s"],
+        "POST": ["%(app_label)s.change_%(model_name)s"],
+        "PATCH": ["%(app_label)s.change_%(model_name)s"],
+    }
+
+
+class VariantListAnnotationView(RetrieveUpdateAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated, VariantListAnnotationViewObjectPermissions)
+
+    serializer_class = VariantListAnnotationSerializer
+
+    def get_object(self):
+        variant_list = super().get_object()
+
+        annotation, _ = VariantListAnnotation.objects.get_or_create(
+            user=self.request.user,
+            variant_list=variant_list,
+        )
+
+        return annotation
