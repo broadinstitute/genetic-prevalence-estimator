@@ -91,6 +91,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     selectedVariants: new Set<VariantId>([]),
     variantNotes: {},
   });
+  const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -107,21 +108,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       });
   }, [variantList.uuid]);
 
-  const previousStatus = usePrevious(variantList.status);
-  useEffect(() => {
-    const { status } = variantList;
-    if (status !== previousStatus && status === "Ready") {
-      setAnnotation((annotation) => ({
-        ...annotation,
-        selectedVariants: new Set(
-          variantList.variants.map((variant) => variant.id)
-        ),
-      }));
-    }
-  }, [variantList, previousStatus]);
-
   const toast = useToast();
-  const getCurrentAnnotation = useCurrentValue(annotation);
 
   const saveSelectedVariants = useMemo(
     () =>
@@ -201,6 +188,20 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     },
     [annotation, saveVariantNotes]
   );
+
+  const previousStatus = usePrevious(variantList.status);
+  useEffect(() => {
+    const { status } = variantList;
+    if (
+      status === "Ready" &&
+      status !== previousStatus &&
+      previousStatus !== undefined
+    ) {
+      setSelectedVariants(
+        new Set(variantList.variants.map((variant) => variant.id))
+      );
+    }
+  }, [variantList, previousStatus, setSelectedVariants]);
 
   return {
     loading,
