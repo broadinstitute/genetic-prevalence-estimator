@@ -553,7 +553,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
       size="sm"
       sx={{
         "& th:first-child, & td:first-child": {
-          paddingLeft: "3px",
           paddingRight: "3px",
         },
       }}

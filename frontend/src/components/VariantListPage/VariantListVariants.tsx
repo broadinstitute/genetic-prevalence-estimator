@@ -149,7 +149,18 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             </DownloadVariantListLink>
           </Box>
 
-          <div style={{ width: "100%", overflowX: "auto" }}>
+          <div
+            style={{
+              width: "100%",
+              overflowX: "auto",
+              borderColor: "#edf2f7",
+              borderStyle: "solid",
+              borderWidth: "1px",
+              boxShadow:
+                "inset -0.65em 0em 1em -1.25em #000, inset 0.65em 0em 1em -1.25em #000",
+              marginBottom: "1rem",
+            }}
+          >
             <VariantsTable
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
@@ -162,7 +173,6 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               variantNotes={variantNotes}
               onChangeSelectedVariants={onChangeSelectedVariants}
               onEditVariantNote={onEditVariantNote}
-              mb={4}
             />
           </div>
         </>
