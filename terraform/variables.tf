@@ -19,3 +19,9 @@ variable "github_repository" {
   type        = string
   default     = "broadinstitute/genetic-prevalence-estimator"
 }
+
+variable "domain" {
+  description = "Domain"
+  type        = string
+  default     = "genie.broadinstitute.org"
+}

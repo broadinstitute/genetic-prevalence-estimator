@@ -148,3 +148,59 @@ resource "google_cloud_run_service_iam_policy" "website_public_access" {
 
   policy_data = data.google_iam_policy.public_access.policy_data
 }
+
+resource "google_compute_region_network_endpoint_group" "website_serverless_neg" {
+  name                  = "website-serverless-neg"
+  network_endpoint_type = "SERVERLESS"
+  region                = var.gcp_region
+
+  cloud_run {
+    service = google_cloud_run_service.website.name
+  }
+}
+
+// https://cloud.google.com/load-balancing/docs/https/ext-http-lb-tf-module-examples#with_a_backend
+// https://registry.terraform.io/modules/GoogleCloudPlatform/lb-http/google/latest/submodules/serverless_negs
+module "website-external-lb" {
+  source  = "GoogleCloudPlatform/lb-http/google//modules/serverless_negs"
+  version = "7.0.0"
+
+  project = var.gcp_project
+  name    = "website-external-lb"
+
+  ssl                             = true
+  managed_ssl_certificate_domains = [var.domain]
+  https_redirect                  = true
+
+  backends = {
+    default = {
+      description = null
+
+      protocol  = null
+      port_name = null
+
+      compression_mode        = null
+      custom_request_headers  = null
+      custom_response_headers = null
+      enable_cdn              = false
+      security_policy         = null
+
+      groups = [
+        {
+          group = google_compute_region_network_endpoint_group.website_serverless_neg.id
+        }
+      ]
+
+      iap_config = {
+        enable               = false
+        oauth2_client_id     = null
+        oauth2_client_secret = null
+      }
+
+      log_config = {
+        enable      = true
+        sample_rate = 1.0
+      }
+    }
+  }
+}
