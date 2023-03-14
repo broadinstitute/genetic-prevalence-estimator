@@ -35,6 +35,8 @@ ui_views = [
     ("variant-lists/new/", "new-variant-list"),
     ("status/", "status"),
     ("users/", "users"),
+    ("about/", "about"),
+    ("faq/", "faq"),
 ]
 
 
