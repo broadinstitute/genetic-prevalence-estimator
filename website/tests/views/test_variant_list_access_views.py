@@ -149,8 +149,8 @@ class TestCreateVariantListAccessPermission:
 
         user = User.objects.get(username="newuser")
 
-        # New users should be inactive by default
-        assert not user.is_active
+        # New users should be active
+        assert user.is_active
 
     def test_granting_variants_list_access_returns_location_for_permission_detail(self):
         client = APIClient()

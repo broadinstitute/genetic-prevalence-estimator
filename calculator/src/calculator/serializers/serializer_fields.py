@@ -45,9 +45,7 @@ class UsernameField(serializers.RelatedField):
             validator(data)
 
         try:
-            user, _ = self.get_queryset().get_or_create(
-                username=data, defaults={"is_active": False}
-            )
+            user, _ = self.get_queryset().get_or_create(username=data)
             return user
         except (TypeError, ValueError):
             return self.fail("invalid")

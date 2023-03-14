@@ -29,7 +29,7 @@ class TestAuth:
             assert user == response.wsgi_request.user
 
     @pytest.mark.django_db
-    def test_new_users_are_inactive_by_default(self):
+    def test_new_users_are_active_by_default(self):
         with patch(
             "website.views.auth.get_username_from_token", return_value="newuser"
         ):
@@ -37,7 +37,7 @@ class TestAuth:
             client.post("/api/auth/signin/")
 
             user = User.objects.get(username="newuser")
-            assert not user.is_active
+            assert user.is_active
 
         User.objects.create(username="existinguser")
         with patch(

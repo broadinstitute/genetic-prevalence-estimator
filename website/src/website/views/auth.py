@@ -37,9 +37,7 @@ def get_username_from_token(request):
 def signin(request):
     username = get_username_from_token(request)
 
-    user, _ = get_user_model().objects.get_or_create(
-        username=username, defaults={"is_active": False}
-    )
+    user, _ = get_user_model().objects.get_or_create(username=username)
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     serializer = CurrentUserSerializer(user)
     return Response(serializer.data)
