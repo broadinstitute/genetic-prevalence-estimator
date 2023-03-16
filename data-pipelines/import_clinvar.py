@@ -41,13 +41,20 @@ def download_clinvar_vcf(output_path, reference_genome):
 
 
 # https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/
+# These must be kept in sync with CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES
+# in frontend/src/constants/clinvar.ts
 CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
     {
         "pathogenic_or_likely_pathogenic": {
             "association",
             "Likely pathogenic",
+            "Likely pathogenic/Likely risk allele",
+            "Likely pathogenic/Pathogenic",
             "Pathogenic",
+            "Pathogenic/Pathogenic",
             "Pathogenic/Likely pathogenic",
+            "Pathogenic/Likely pathogenic/Likely risk allele",
+            "Pathogenic/Likely pathogenic/Pathogenic",
             "risk factor",
         },
         "conflicting_interpretations": {
@@ -56,6 +63,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         },
         "uncertain_significance": {
             "Uncertain significance",
+            "Uncertain significance/Uncertain risk allele",
         },
         "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
         "other": {

@@ -8,8 +8,13 @@ export const CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES: {
   pathogenic_or_likely_pathogenic: new Set([
     "association",
     "Likely pathogenic",
+    "Likely pathogenic/Likely risk allele",
+    "Likely pathogenic/Pathogenic",
     "Pathogenic",
+    "Pathogenic/Pathogenic",
     "Pathogenic/Likely pathogenic",
+    "Pathogenic/Likely pathogenic/Likely risk allele",
+    "Pathogenic/Likely pathogenic/Pathogenic",
     "risk factor",
   ]),
 
@@ -18,7 +23,10 @@ export const CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES: {
     "Conflicting interpretations of pathogenicity",
   ]),
 
-  uncertain_significance: new Set(["Uncertain significance"]),
+  uncertain_significance: new Set([
+    "Uncertain significance",
+    "Uncertain significance/Uncertain risk allele",
+  ]),
 
   benign_or_likely_benign: new Set([
     "Benign",
