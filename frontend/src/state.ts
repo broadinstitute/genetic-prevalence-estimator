@@ -89,3 +89,16 @@ export const authStore: Store<AuthState> = atom({
   isSignedIn: false,
   user: null,
 } as AuthState);
+
+export const loadCurrentUser = (): Promise<AuthUser | null> => {
+  return get("/auth/whoami/").then(
+    (user) => {
+      authStore.set({
+        isSignedIn: true,
+        user,
+      });
+      return user;
+    },
+    () => null
+  );
+};

@@ -41,7 +41,7 @@ import UsersPage from "./components/UsersPage/UsersPage";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
-import { authStore, loadAppConfig, useStore } from "./state";
+import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
 
 const RequireSignIn: FC<{}> = ({ children }) => {
@@ -255,7 +255,7 @@ const AppContainer = () => {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    loadAppConfig().then((appConfig) => {
+    Promise.all([loadAppConfig(), loadCurrentUser()]).then(([appConfig]) => {
       initializeAuth(appConfig);
       setIsInitializing(false);
     });
