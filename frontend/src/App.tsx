@@ -256,11 +256,8 @@ const AppContainer = () => {
 
   useEffect(() => {
     loadAppConfig().then((appConfig) => {
-      const subscription = authStore.subscribe(() => {
-        setIsInitializing(false);
-        subscription.unsubscribe();
-      });
       initializeAuth(appConfig);
+      setIsInitializing(false);
     });
   }, []);
 

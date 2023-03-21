@@ -1,18 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 const SignInButton = () => {
+  const signInButtonContainerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    (window as any).gapi.signin2.render("signInButton", {
-      scope: "email",
-      width: 250,
-      height: 56,
-      longtitle: true,
-      theme: "light",
-      prompt: "select_account",
-    });
+    (window as any).google.accounts.id.renderButton(
+      signInButtonContainerRef.current!,
+      {
+        theme: "filled_blue",
+        width: 250,
+      }
+    );
   }, []);
 
-  return <div id="signInButton" />;
+  return <div ref={signInButtonContainerRef} />;
 };
 
 export default SignInButton;

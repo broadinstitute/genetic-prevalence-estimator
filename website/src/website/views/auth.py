@@ -22,6 +22,7 @@ def get_username_from_token(request):
     except KeyError as err:
         raise ValidationError("Token required") from err
     else:
+        # https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
         try:
             idinfo = id_token.verify_oauth2_token(
                 google_token, requests.Request(), settings.GOOGLE_AUTH_CLIENT_ID

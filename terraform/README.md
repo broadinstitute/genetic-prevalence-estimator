@@ -12,7 +12,7 @@
    EOF
    ```
 
-   See https://developers.google.com/identity/sign-in/web/sign-in#create_authorization_credentials
+   See https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid
    for instructions on creating a Google OAuth client ID.
 
 3. Create a bucket to store Terraform state (if one does not already exist).
