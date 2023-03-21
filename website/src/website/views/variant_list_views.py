@@ -135,6 +135,14 @@ class VariantListVariantsView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         added_variants = serializer.validated_data["variants"]
 
+        if variant_list.status not in (
+            VariantList.Status.READY,
+            VariantList.Status.ERROR,
+        ):
+            raise ValidationError(
+                f"Variants cannot be changed while variant list is {VariantList.Status(variant_list.status).label.lower()}"
+            )
+
         variant_list.variants = [
             *variant_list.variants,
             *[{"id": variant_id} for variant_id in added_variants],

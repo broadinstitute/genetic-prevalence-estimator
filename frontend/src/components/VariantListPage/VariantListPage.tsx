@@ -369,6 +369,12 @@ const VariantListPage = (props: VariantListPageProps) => {
               <Button
                 aria-label="Add variants to variant list"
                 colorScheme="blue"
+                disabled={
+                  !(
+                    variantList.status === "Ready" ||
+                    variantList.status === "Error"
+                  )
+                }
                 size="xs"
                 onClick={() => {
                   setAddedVariants([]);

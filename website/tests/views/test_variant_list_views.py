@@ -692,6 +692,53 @@ class TestVariantListVariantsView:
         variant_list.refresh_from_db()
         assert variant_list.status == VariantList.Status.QUEUED
 
+    @pytest.mark.parametrize(
+        "status,expected_to_succeed",
+        [
+            (VariantList.Status.QUEUED, False),
+            (VariantList.Status.PROCESSING, False),
+            (VariantList.Status.READY, True),
+            (VariantList.Status.ERROR, True),
+        ],
+    )
+    def test_variant_list_variants_can_only_be_changed_if_list_is_ready_or_errored(
+        self, status, expected_to_succeed
+    ):
+        editor = User.objects.get(username="editor")
+
+        variant_list = VariantList.objects.create(
+            label="Test list",
+            notes="Initial notes",
+            type=VariantList.Type.CUSTOM,
+            status=status,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+        )
+
+        VariantListAccessPermission.objects.create(
+            user=editor,
+            variant_list=variant_list,
+            level=VariantListAccessPermission.Level.EDITOR,
+        )
+
+        client = APIClient()
+        client.force_authenticate(editor)
+        response = client.post(
+            f"/api/variant-lists/{variant_list.uuid}/variants/",
+            {"variants": ["1-55505452-T-G"]},
+        )
+
+        variant_list.refresh_from_db()
+        if expected_to_succeed:
+            assert response.status_code == 200
+            assert len(variant_list.variants) == 2
+        else:
+            assert response.status_code == 400
+            assert len(variant_list.variants) == 1
+
 
 @pytest.mark.django_db
 class TestGetVariantListAnnotation:
