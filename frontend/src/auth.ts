@@ -27,8 +27,8 @@ export const initializeAuth = (appConfig: AppConfig) => {
   });
 };
 
-export const signOut = () => {
-  post("/auth/signout/", {}).then(() => {
+export const signOut = (): Promise<void> => {
+  return post("/auth/signout/", {}).then(() => {
     authStore.set({
       isSignedIn: false,
       user: null,

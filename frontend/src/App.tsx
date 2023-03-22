@@ -25,6 +25,7 @@ import {
   Link as RRLink,
   Route,
   Switch,
+  useHistory,
 } from "react-router-dom";
 
 import "./style.css";
@@ -110,6 +111,7 @@ const NavLink: FC<NavLinkProps> = ({ to, children }) => {
 
 const App = () => {
   const { isSignedIn, user } = useStore(authStore);
+  const history = useHistory();
 
   return (
     <>
@@ -150,7 +152,9 @@ const App = () => {
                   <MenuList>
                     <MenuItem
                       onClick={() => {
-                        signOut();
+                        signOut().then(() => {
+                          history.push("/");
+                        });
                       }}
                     >
                       Sign out
