@@ -61,6 +61,7 @@ services:
       - 127.0.0.1:8080:8080
     volumes:
       - ./website/src/website:/app/website/src/website
+      - website_public:/app/website/src/website/public
       - website_static:/app/website/src/website/static
       - website_frontend:/app/website/src/website/templates/frontend
       - ./calculator/src/calculator:/app/calculator/src/calculator
@@ -98,5 +99,6 @@ volumes:
   cloud_sdk_kube:
   frontend_node_modules:
   postgres_data:
+  website_public:
   website_static:
   website_frontend:

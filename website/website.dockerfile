@@ -43,6 +43,7 @@ RUN pip install -e website
 
 COPY --from=frontend /app/build/index.html ./website/src/website/templates/frontend/index.html
 COPY --from=frontend /app/build/static ./website/src/website/static
+COPY --from=frontend /app/public ./website/src/website/public
 
 # Run as app user
 RUN chown -R app .
