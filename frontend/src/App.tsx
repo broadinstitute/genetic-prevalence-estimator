@@ -130,6 +130,9 @@ const App = () => {
                 GeniE
               </Link>
 
+              {isSignedIn && (
+                <NavLink to="/variant-lists/">Variant lists</NavLink>
+              )}
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
             </HStack>
