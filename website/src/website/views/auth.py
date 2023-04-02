@@ -1,5 +1,3 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from django.views.decorators.csrf import csrf_protect
@@ -11,9 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from website.serializers import CurrentUserSerializer
-
-
-logger = logging.getLogger(__name__)
 
 
 def get_username_from_token(request):
