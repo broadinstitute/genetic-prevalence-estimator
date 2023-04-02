@@ -82,7 +82,7 @@ def worker_pylint(session):
 def data_pipelines_pylint(session):
     """Run Pylint on data-pipelines directory."""
     session.install("-r", "dev-requirements.txt")
-    session.install("hail==0.2.83")
+    session.install("hail==0.2.112")
 
     session.run("pylint", "data-pipelines")
 
