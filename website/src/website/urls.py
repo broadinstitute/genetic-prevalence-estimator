@@ -1,10 +1,8 @@
 from django.urls import path
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import TemplateView
 
 from website.views.app_config import get_app_config
 from website.views.auth import signin, signout, whoami
+from website.views.frontend import FrontendView
 from website.views.system_status_views import system_status_view
 from website.views.user_views import UsersList, UserDetail
 from website.views.variant_list_views import (
@@ -20,12 +18,7 @@ from website.views.variant_list_access_views import (
 )
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
-class UIView(TemplateView):
-    template_name = "frontend/index.html"
-
-
-html = UIView.as_view()
+html = FrontendView.as_view()
 
 
 ui_views = [
