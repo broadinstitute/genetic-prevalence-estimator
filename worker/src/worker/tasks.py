@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 import traceback
 import uuid
 
@@ -65,6 +66,19 @@ def initialize_hail():
         quiet=not settings.DEBUG,
         spark_conf=spark_conf,
     )
+
+
+def is_hail_working():
+    try:
+        hl.eval(hl.literal(1) + hl.literal(1))
+        return True
+    except Exception:  # pylint: disable=broad-except
+        return False
+
+
+def exit_if_hail_has_failed(sender, **kwargs):  # pylint: disable=unused-argument
+    if not is_hail_working():
+        sys.exit(1)
 
 
 def variant_id(locus, alleles):
