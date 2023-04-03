@@ -434,7 +434,7 @@ def process_variant_list(uid):
     except Exception:  # pylint: disable=broad-except
         logger.exception(
             "Error processing new variant list",
-            extra={"json_fields": {"variant_list": uid}},
+            extra={"json_fields": {"variant_list": str(uid)}},
         )
 
         variant_list.refresh_from_db()
