@@ -432,7 +432,10 @@ def process_variant_list(uid):
     try:
         _process_variant_list(variant_list)
     except Exception:  # pylint: disable=broad-except
-        logger.exception("Error processing new variant list %s", uid)
+        logger.exception(
+            "Error processing new variant list",
+            extra={"json_fields": {"variant_list": uid}},
+        )
 
         variant_list.refresh_from_db()
         variant_list.status = VariantList.Status.ERROR

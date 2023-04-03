@@ -24,6 +24,9 @@ RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.3
 
 COPY worker/worker-requirements.txt ./worker/worker-requirements.txt
 RUN pip install --no-cache-dir -r ./worker/worker-requirements.txt
+# Can't add google-cloud-logging to requirements.txt because Hail pins protobuf to an old version
+# and google-cloud-logging requires a newer version.
+RUN pip install --no-cache-dir google-cloud-logging
 
 COPY shared-requirements.txt ./shared-requirements.txt
 RUN pip install --no-cache-dir -r ./shared-requirements.txt
