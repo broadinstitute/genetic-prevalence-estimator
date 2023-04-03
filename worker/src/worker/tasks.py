@@ -302,6 +302,9 @@ def _process_variant_list(variant_list):
     serializer = VariantListSerializer(variant_list)
     metadata = serializer.data["metadata"]
 
+    if "error" in variant_list.label.lower():
+        raise Exception("Testing error logging")
+
     gnomad_version = metadata["gnomad_version"]
     assert gnomad_version in (
         "2.1.1",
