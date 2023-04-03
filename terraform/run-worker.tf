@@ -46,6 +46,11 @@ resource "google_cloud_run_service" "worker" {
         image = "gcr.io/${var.gcp_project}/worker"
 
         env {
+          name  = "DJANGO_SETTINGS_MODULE"
+          value = "worker.settings.production"
+        }
+
+        env {
           name  = "DB_ENGINE"
           value = "django.db.backends.postgresql"
         }
