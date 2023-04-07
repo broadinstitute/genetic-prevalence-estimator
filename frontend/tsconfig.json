@@ -17,6 +17,5 @@
     "jsx": "react-jsx",
     "downlevelIteration": true
   },
-  "include": ["src"],
-  "excluse": ["frontend/build/**/*"]
+  "include": ["src"]
 }

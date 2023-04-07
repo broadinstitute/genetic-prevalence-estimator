@@ -1,4 +1,7 @@
-name: Browser CI
+name: Frontend CI
+defaults:
+  run:
+    working-directory: frontend
 on:
   push:
     branches:
@@ -18,14 +21,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: "14.19.3"
+          node-version: "14.16.1"
       - name: Install dependencies
-        run: cd frontend && npm install --frozen-lockfile --non-interactive --no-progress
-      - name: Run ESLint
-        run: cd frontend && npm run-script lint:js
-      - name: Type check
-        run: cd frontend && npm run-script typecheck
+        run: npm ci
       - name: Verify clean build
-        run: cd frontend && npm run-script build
+        run: npm run build
       - name: Run Jest tests
-        run: cd frontend && npm run-script test:jest
+        run: npm test
