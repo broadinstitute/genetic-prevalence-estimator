@@ -1,3 +1,5 @@
+import React from "react";
+
 import { Box, Heading, Link, Text } from "@chakra-ui/react";
 import { Redirect } from "react-router-dom";
 
