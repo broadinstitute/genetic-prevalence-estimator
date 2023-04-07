@@ -11,22 +11,22 @@ Array [
     className="chakra-text css-19idom"
   >
     The prevalence GeniE tool aims to estimate carrier frequency and genetic prevalence for recessive conditions using allele frequencies from population data in gnomAD. We provide support for creating variant lists from
-
+     
     <a
       className="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       ClinVar
     </a>
-
+     
     and
-
+     
     <a
       className="chakra-link css-0"
       href="https://gnomad.broadinstitute.org/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       gnomAD

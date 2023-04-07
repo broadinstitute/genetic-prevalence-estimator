@@ -79,16 +79,16 @@ Array [
     className="chakra-text css-0"
   >
     Due to these definitions we believe that the calculations performed by this tool is most accurately defined as an
-
+     
     <strong>
       estimated genetic prevalence
     </strong>
     , as it represents the estimated proportion of a population that has a causal genotype for a genetic disorder. These results should always be interpreted in the context of the disease/gene of interest. To learn more about considerations for these results please see our FAQ "What factors should I consider when interpreting these results?" To read more about how these estimates relate to prevalence, incidence and lifetime risk please read
-
+     
     <a
       className="chakra-link css-0"
       href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       "Using genetic data to estimate disease prevalence"
@@ -117,7 +117,7 @@ Array [
     <a
       className="chakra-link css-0"
       href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       PMID: 30311383
@@ -189,7 +189,7 @@ Array [
       <em>
         Is the disease known to be more common in a population not well represented in gnomAD (e.g. Middle Eastern)?
       </em>
-
+       
       Representation can have a big influence on these calculations if a variant is more common in a population that is not well represented in gnomAD, the disease-causing variant(s) could appear to be absent or rare in the population data.
     </li>
     <li
@@ -198,7 +198,7 @@ Array [
       <em>
         What proportion of affected individuals have disease-causing variants detectable by exome or genome sequencing?
       </em>
-
+       
       Variants in gnomAD have been identified via exome or genome sequencing. Variants not detectable by one for these two technologies will not be included in these estimates. Additionally, if a significant portion of patients with a clinical diagnosis are still missing a molecular diagnosis, that would mean that the full variant spectrum is not totally understood and would also lead to a lower estimated genetic prevalence.
     </li>
     <li
@@ -225,7 +225,7 @@ Array [
       <em>
         Are there any high frequency variants in your list that have questionable or unknown significance?
       </em>
-
+       
       Even a single high frequency allele can dramatically impact the results so we recommend reviewing any high frequency variants to determine if they have a well established association with disease. You can unselect a variant to review the results without that allele included.
     </li>
     <li
@@ -242,12 +242,12 @@ Array [
       <em>
         Does the gene, or specific regions of the gene, have lower than average allele numbers?
       </em>
-
+       
       Allele frequencies are determined by allele count/allele number. Having lower allele numbers for a specific variant or region can inflate the frequencies. Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
       <a
         className="chakra-link css-0"
         href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-        rel="noopener noreferrer"
+        rel="noopener"
         target="_blank"
       >
         PMID: 30311383
@@ -264,16 +264,16 @@ Array [
     className="chakra-text css-wlea3r"
   >
     The
-
+     
     <a
       className="chakra-link css-0"
       href="https://gnomad.broadinstitute.org/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       Genome Aggregation Database (gnomAD)
     </a>
-
+     
     is a database of aggregated exome and genome sequencing data contributed by a coalition of investigators. This database does not include individuals recruited for severe pediatric disease (e.g., cystic fibrosis and autism) as well as their first-degree relatives, allowing the database to largely represent the general population, making it ideal for our estimates.
   </p>,
   <p
@@ -282,18 +282,18 @@ Array [
     <a
       className="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       ClinVar
     </a>
-
+     
     is a database of genomic variation and its relationship to human health. The variants and clinical significance listed in the database come largely from
-
+     
     <a
       className="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/docs/submitter_list/"
-      rel="noopener noreferrer"
+      rel="noopener"
       target="_blank"
     >
       clinical genetic testing laboratories
