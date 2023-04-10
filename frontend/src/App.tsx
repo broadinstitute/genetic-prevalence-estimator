@@ -35,6 +35,7 @@ import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
 import Link from "./components/Link";
 import PageNotFoundPage from "./components/PageNotFoundPage";
+import PublicListsPage from "./components/PublicListPage";
 import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
@@ -137,6 +138,7 @@ const App = () => {
               )}
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
+              <NavLink to="/public-lists/">Public lists</NavLink>
             </HStack>
 
             {isSignedIn && (
@@ -248,6 +250,12 @@ const App = () => {
           <Route exact path="/about/" render={() => <AboutPage />} />
 
           <Route exact path="/faq/" render={() => <FAQPage />} />
+
+          <Route
+            exact
+            path="/public-lists/"
+            render={() => <PublicListsPage />}
+          />
 
           <Route exact path="/" render={() => <HomePage />} />
 
