@@ -342,6 +342,41 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
+          <Box mb={4}>
+            <Heading as="h2" size="md" mb={2}>
+              Publicity
+            </Heading>
+            {/* TODO: (rgrant) this will check the status, so either "is private, is pending approval, is public" */}
+            {/*   with date timestamp? */}
+            <Text mb={2}>
+              {" "}
+              {`TODO: PRIVATE:  This variant list is private`}
+            </Text>
+            <Text mb={2}>
+              {" "}
+              {`TODO: PENDING:  This variant is private. It was submitted for publication approval on <DATETIME>`}
+            </Text>
+            <Text mb={2}>
+              {" "}
+              {`TODO: APPROVED: This variant list is public. <USER> approved it on <DATETIME>`}
+            </Text>
+            <Text mb={2}>
+              {" "}
+              {`TODO: REJECTED: This variant list is private. <USER> rejected it on <DATETIME>`}
+            </Text>
+            <ButtonWithConfirmation
+              size="sm"
+              colorScheme="blue"
+              confirmationPrompt="Publication requires staff approval"
+              confirmButtonText="Make public"
+              confirmButtonColorScheme="blue"
+              onClick={() =>
+                console.log("Make public confirmation button was clicked!")
+              }
+            >
+              Make public
+            </ButtonWithConfirmation>
+          </Box>
         </Box>
       )}
 
