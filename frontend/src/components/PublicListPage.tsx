@@ -130,7 +130,7 @@ const PublicListsView = () => {
             <Th>NUMBER</Th>
             <Th>UUID</Th>
             <Th>CREATOR</Th>
-            <Th>APPROVAL STATUS</Th>
+            {user?.is_staff && <Th>APPROVAL STATUS</Th>}
           </Tr>
         </Thead>
         <Tbody>
@@ -144,37 +144,39 @@ const PublicListsView = () => {
                   </Link>
                 </Td>
                 <Td>{mockList.creator}</Td>
-                <Td>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      size="sm"
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      {mockList.approval_status.toString()}
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          updateList(mockList, {
-                            approval_status: PublicStatus.APPROVED,
-                          });
-                        }}
+                {user?.is_staff && (
+                  <Td>
+                    <Menu>
+                      <MenuButton
+                        as={Button}
+                        size="sm"
+                        rightIcon={<ChevronDownIcon />}
                       >
-                        Approve
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          updateList(mockList, {
-                            approval_status: PublicStatus.REJECTED,
-                          });
-                        }}
-                      >
-                        Reject
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </Td>
+                        {mockList.approval_status.toString()}
+                      </MenuButton>
+                      <MenuList>
+                        <MenuItem
+                          onClick={() => {
+                            updateList(mockList, {
+                              approval_status: PublicStatus.APPROVED,
+                            });
+                          }}
+                        >
+                          Approve
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            updateList(mockList, {
+                              approval_status: PublicStatus.REJECTED,
+                            });
+                          }}
+                        >
+                          Reject
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </Td>
+                )}
               </Tr>
             );
           })}
