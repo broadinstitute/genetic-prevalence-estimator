@@ -132,6 +132,36 @@ class VariantListAnnotation(models.Model):
     variant_notes = models.JSONField(default=dict)
 
 
+class PublicVariantLists(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    variant_list = models.ForeignKey(
+        VariantList,
+        on_delete=models.CASCADE,
+        related_name="public_status",
+        related_query_name="public_status",
+    )
+
+    class PublicStatus(models.TextChoices):
+        PENDING = ("p", "Pending")
+        APPROVED = ("a", "Approved")
+        REJECTED = ("r", "Rejected")
+
+    approval_status = models.CharField(
+        max_length=1, choices=PublicStatus.choices, default=PublicStatus.pending
+    )
+
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="",
+        related_query_name="",
+    )
+
+    updated_on = models.DateTimeField(auto_now=True)
+
+
 def object_level_predicate(fn):  # pylint: disable=invalid-name
     @rules.predicate
     @wraps(fn)
