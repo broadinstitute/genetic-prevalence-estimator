@@ -1,5 +1,4 @@
 import { expect, test } from "@jest/globals";
-import React from "react";
 import renderer from "react-test-renderer";
 import { withDummyRouter } from "../../tests/__helpers__/router";
 
