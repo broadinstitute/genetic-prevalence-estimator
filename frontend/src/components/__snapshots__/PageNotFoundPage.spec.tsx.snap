@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`About Page has no unexpected changes 1`] = `
+exports[`PageNotFoundPage has no unexpected changes 1`] = `
 <DocumentFragment>
   <h1
     class="chakra-heading css-1itv5e3"

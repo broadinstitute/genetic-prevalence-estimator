@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`About Page has no unexpected changes 1`] = `
+exports[`AboutPage has no unexpected changes 1`] = `
 <DocumentFragment>
   <div
     class="css-wlea3r"
