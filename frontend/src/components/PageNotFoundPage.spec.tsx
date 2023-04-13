@@ -1,10 +1,11 @@
 import { expect, test } from "@jest/globals";
-import renderer from "react-test-renderer";
+import { render } from "@testing-library/react";
+
 import { withDummyRouter } from "../../tests/__helpers__/router";
 
 import PageNotFoundPage from "./PageNotFoundPage";
 
 test("About Page has no unexpected changes", () => {
-  const tree = renderer.create(withDummyRouter(<PageNotFoundPage />));
-  expect(tree).toMatchSnapshot();
+  const result = render(withDummyRouter(<PageNotFoundPage />));
+  expect(result.asFragment()).toMatchSnapshot();
 });

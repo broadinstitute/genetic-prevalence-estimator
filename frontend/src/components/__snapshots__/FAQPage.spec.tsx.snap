@@ -1,36 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`About Page has no unexpected changes 1`] = `
-Array [
+<DocumentFragment>
   <div
-    className="css-wlea3r"
+    class="css-wlea3r"
   >
     <nav
       aria-label="breadcrumb"
-      className="chakra-breadcrumb css-0"
+      class="chakra-breadcrumb css-0"
     >
       <ol
-        className="chakra-breadcrumb__list css-0"
+        class="chakra-breadcrumb__list css-0"
       >
         <li
-          className="chakra-breadcrumb__list-item css-18biwo"
+          class="chakra-breadcrumb__list-item css-18biwo"
         >
           <a
-            className="chakra-breadcrumb__link css-0"
+            class="chakra-breadcrumb__link css-0"
             href="/"
-            onClick={[Function]}
           >
             Home
           </a>
           <span
-            className="css-t4q1nq"
+            class="css-t4q1nq"
             role="presentation"
           >
             /
           </span>
         </li>
         <li
-          className="chakra-breadcrumb__list-item css-18biwo"
+          class="chakra-breadcrumb__list-item css-18biwo"
         >
           <span>
             FAQ
@@ -38,198 +37,193 @@ Array [
         </li>
       </ol>
     </nav>
-  </div>,
+  </div>
   <h1
-    className="chakra-heading css-1itv5e3"
+    class="chakra-heading css-1itv5e3"
   >
     Frequently asked questions
-  </h1>,
+  </h1>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Why do I need to sign in?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     In order to store your variant lists, and allow you to edit them over time we need to have you signed in. By having users sign in we are also able to allow sharing lists across users, enabling collaboration.
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Why do you call this an Estimated Genetic Prevalence?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     <strong>
       Prevalence
     </strong>
      is the proportion of a population that has a specific characteristic in a given time period, regardless of when the characteristic first appears.
-  </p>,
+  </p>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     <strong>
       Incidence
     </strong>
      is the measure of the number of new cases with a specific characteristic in a population over a specified time period; (ex. cases per 100,000 births)
-  </p>,
+  </p>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
-    Due to these definitions we believe that the calculations performed by this tool is most accurately defined as an
-     
+    Due to these definitions we believe that the calculations performed by this tool is most accurately defined as an 
     <strong>
       estimated genetic prevalence
     </strong>
-    , as it represents the estimated proportion of a population that has a causal genotype for a genetic disorder. These results should always be interpreted in the context of the disease/gene of interest. To learn more about considerations for these results please see our FAQ "What factors should I consider when interpreting these results?" To read more about how these estimates relate to prevalence, incidence and lifetime risk please read
-     
+    , as it represents the estimated proportion of a population that has a causal genotype for a genetic disorder. These results should always be interpreted in the context of the disease/gene of interest. To learn more about considerations for these results please see our FAQ "What factors should I consider when interpreting these results?" To read more about how these estimates relate to prevalence, incidence and lifetime risk please read 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       "Using genetic data to estimate disease prevalence"
     </a>
     .
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Why is this calculator not suited for autosomal dominant and x-linked conditions?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     This method is designed for autosomal recessive disease. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases, so this method does not work for autosomal dominant or X-linked conditions. For the same reason, the depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD. We are working on creating methods and tools for estimating genetic prevalence of AD and XL diseases and hope to add them in future versions.
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Why don’t I see all the populations in gnomAD in the graphs?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       PMID: 30311383
     </a>
     ). Due to this recommendation we only return results for subpopulations with more than 2,000 reference alleles.
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Why do I not see all known pathogenic variants in my list?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     Since we use gnomAD as our reference database for allele frequencies we can only include variants that have been seen in 1 or more individuals in gnomAD. If a variant is absent from gnomAD, it will not be listed in your report, but that doesn’t not mean it is not pathogenic. It means that the variant is either low frequency, it is not well covered by exome and/or genome sequencing, or is present in a population not well represented in gnomAD. The variant could be in future versions of gnomAD, which is why we recommend reassessing these frequencies after new gnomAD releases.
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     What factors should I consider when interpreting these results?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     This tool provides an estimated carrier frequency and genetic prevalence. There are many factors that go into these estimates, which can influence the way you interpret the results.
-  </p>,
+  </p>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     Disease spectrum is an important part of interpreting genetic prevalence. The following factors should always be considered:
-  </p>,
+  </p>
   <ul
-    className="css-3devdb"
+    class="css-3devdb"
     role="list"
   >
     <li
-      className="css-0"
+      class="css-0"
     >
       Symptomatic carriers: We use gnomAD as our source of allele frequencies for GeniE. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases. Depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       Impacts to life expectancy: Genetic prevalence represents the estimated proportion of a population that has a causal genotype for a genetic disorder, however it does not account for the possibility that specific allele combinations may lead to early misscarriage or neonatal loss. Some combinations could lead to loss of life early on, before the individual could be identified as having the clinical diagnosis.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       Reduced penetrance and variable expressivity: Similarly, the full phenotypic spectrum is still being discovered for many diseases. This final estimate does not currently take into consideration whether everyone with a casual genotype would present with the phenotype/disease of interest.
     </li>
-  </ul>,
+  </ul>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     While genetic prevalence is an important part of answering, “How many people are there with X disease?”, additional methods of estimating incidence, prevalence, and lifetime risk should also be assessed when available. If these various methods are returning vastly different results some additional questions should be asked about the genetic prevalence estimates.
-  </p>,
+  </p>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     If you feel the estimate is to low (either globally or a specific population):
-  </p>,
+  </p>
   <ul
-    className="css-3devdb"
+    class="css-3devdb"
     role="list"
   >
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         Is the disease known to be more common in a population not well represented in gnomAD (e.g. Middle Eastern)?
       </em>
-       
-      Representation can have a big influence on these calculations if a variant is more common in a population that is not well represented in gnomAD, the disease-causing variant(s) could appear to be absent or rare in the population data.
+       Representation can have a big influence on these calculations if a variant is more common in a population that is not well represented in gnomAD, the disease-causing variant(s) could appear to be absent or rare in the population data.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         What proportion of affected individuals have disease-causing variants detectable by exome or genome sequencing?
       </em>
-       
-      Variants in gnomAD have been identified via exome or genome sequencing. Variants not detectable by one for these two technologies will not be included in these estimates. Additionally, if a significant portion of patients with a clinical diagnosis are still missing a molecular diagnosis, that would mean that the full variant spectrum is not totally understood and would also lead to a lower estimated genetic prevalence.
+       Variants in gnomAD have been identified via exome or genome sequencing. Variants not detectable by one for these two technologies will not be included in these estimates. Additionally, if a significant portion of patients with a clinical diagnosis are still missing a molecular diagnosis, that would mean that the full variant spectrum is not totally understood and would also lead to a lower estimated genetic prevalence.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         Is the disease-gene relationship still relatively new?
       </em>
        It can take years to appreciate the full variant spectrums for a novel disease. During that time there can be fewer pathogenic variants known for a disease, which limits the number of allele frequencies included in the calculations. This can lead to lower than expected frequency information. One of the benefits of this tool is we will enable users to redo the calculations over time including more variants as they are collected.
     </li>
-  </ul>,
+  </ul>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
     If you feel the estimate is to high (either globally or a specific population):
-  </p>,
+  </p>
   <ul
-    className="css-3devdb"
+    class="css-3devdb"
     role="list"
   >
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         Are there any high frequency variants in your list that have questionable or unknown significance?
       </em>
-       
-      Even a single high frequency allele can dramatically impact the results so we recommend reviewing any high frequency variants to determine if they have a well established association with disease. You can unselect a variant to review the results without that allele included.
+       Even a single high frequency allele can dramatically impact the results so we recommend reviewing any high frequency variants to determine if they have a well established association with disease. You can unselect a variant to review the results without that allele included.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         Do we know the full phenotypic spectrum of the gene?
@@ -237,68 +231,63 @@ Array [
        As mentioned above, disease spectrum should always be considered in interpreting these results. Impacts to life expectancy, reduced penetrance and variable expressivity can all lead to estimated genetic prevalence being considerably higher than estimates based on a clinical diagnosis alone.
     </li>
     <li
-      className="css-0"
+      class="css-0"
     >
       <em>
         Does the gene, or specific regions of the gene, have lower than average allele numbers?
       </em>
-       
-      Allele frequencies are determined by allele count/allele number. Having lower allele numbers for a specific variant or region can inflate the frequencies. Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
+       Allele frequencies are determined by allele count/allele number. Having lower allele numbers for a specific variant or region can inflate the frequencies. Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
       <a
-        className="chakra-link css-0"
+        class="chakra-link css-0"
         href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-        rel="noopener"
+        rel="noopener noreferrer"
         target="_blank"
       >
         PMID: 30311383
       </a>
       ).
     </li>
-  </ul>,
+  </ul>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     What are gnomAD and ClinVar and why do you use these databases for this tool?
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
-    The
-     
+    The 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://gnomad.broadinstitute.org/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       Genome Aggregation Database (gnomAD)
     </a>
-     
-    is a database of aggregated exome and genome sequencing data contributed by a coalition of investigators. This database does not include individuals recruited for severe pediatric disease (e.g., cystic fibrosis and autism) as well as their first-degree relatives, allowing the database to largely represent the general population, making it ideal for our estimates.
-  </p>,
+     is a database of aggregated exome and genome sequencing data contributed by a coalition of investigators. This database does not include individuals recruited for severe pediatric disease (e.g., cystic fibrosis and autism) as well as their first-degree relatives, allowing the database to largely represent the general population, making it ideal for our estimates.
+  </p>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       ClinVar
     </a>
-     
-    is a database of genomic variation and its relationship to human health. The variants and clinical significance listed in the database come largely from
-     
+     is a database of genomic variation and its relationship to human health. The variants and clinical significance listed in the database come largely from 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/docs/submitter_list/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       clinical genetic testing laboratories
     </a>
     . Variant curation (the process used for determining clinical significance) guidelines have changed over time, so we do recommend reviewing the source data to determine if you feel the variant should be included in your calculations.
-  </p>,
-]
+  </p>
+</DocumentFragment>
 `;

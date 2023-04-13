@@ -1,36 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`About Page has no unexpected changes 1`] = `
-Array [
+<DocumentFragment>
   <div
-    className="css-wlea3r"
+    class="css-wlea3r"
   >
     <nav
       aria-label="breadcrumb"
-      className="chakra-breadcrumb css-0"
+      class="chakra-breadcrumb css-0"
     >
       <ol
-        className="chakra-breadcrumb__list css-0"
+        class="chakra-breadcrumb__list css-0"
       >
         <li
-          className="chakra-breadcrumb__list-item css-18biwo"
+          class="chakra-breadcrumb__list-item css-18biwo"
         >
           <a
-            className="chakra-breadcrumb__link css-0"
+            class="chakra-breadcrumb__link css-0"
             href="/"
-            onClick={[Function]}
           >
             Home
           </a>
           <span
-            className="css-t4q1nq"
+            class="css-t4q1nq"
             role="presentation"
           >
             /
           </span>
         </li>
         <li
-          className="chakra-breadcrumb__list-item css-18biwo"
+          class="chakra-breadcrumb__list-item css-18biwo"
         >
           <span>
             About
@@ -38,150 +37,138 @@ Array [
         </li>
       </ol>
     </nav>
-  </div>,
+  </div>
   <h1
-    className="chakra-heading css-1itv5e3"
+    class="chakra-heading css-1itv5e3"
   >
     About
-  </h1>,
+  </h1>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
-    GeniE, the Genetic Prevalence Estimator, uses variant databases and population data to estimate prevalence for recessive diseases. This tool uses data from the open source databases
-     
+    GeniE, the Genetic Prevalence Estimator, uses variant databases and population data to estimate prevalence for recessive diseases. This tool uses data from the open source databases 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       ClinVar
     </a>
-     
-    and
-     
+     and 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://gnomad.broadinstitute.org/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       gnomAD
     </a>
     .
-  </p>,
+  </p>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
-    The source code necessary to reproduce the analyses is available on
-     
+    The source code necessary to reproduce the analyses is available on 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://github.com/broadinstitute/genetic-prevalence-estimator"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       GitHub
     </a>
     .
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Funding
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
-    Financial support for this tool is provided by the
-     
+    Financial support for this tool is provided by the 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://the-tgg.org/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       Broad Institute
     </a>
-     
-    and the
-     
+     and the 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://chanzuckerberg.com/science/programs-resources/rare-as-one/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       Chan Zuckerberg Initiative
     </a>
     .
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Data Use
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
-    All data here are released openly and publicly for the benefit of the wider biomedical community. There are absolutely no restrictions or embargoes on the publication of results derived from this tool. The data pulled from gnomAD and this tool are available free of restrictions under the
-     
+    All data here are released openly and publicly for the benefit of the wider biomedical community. There are absolutely no restrictions or embargoes on the publication of results derived from this tool. The data pulled from gnomAD and this tool are available free of restrictions under the 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://creativecommons.org/publicdomain/zero/1.0/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       Creative Commons Zero Public Domain Dedication
     </a>
     . This means that you can use it for any purpose without legally having to give attribution. However, we request that you actively acknowledge and give attribution to the gnomAD project
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Citation in Publications
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-wlea3r"
+    class="chakra-text css-wlea3r"
   >
-    We request that any use of data obtained from GeniE cite the online resource and include a link to the tool (
-    localhost
-    ).
-  </p>,
+    We request that any use of data obtained from GeniE cite the online resource and include a link to the tool (localhost).
+  </p>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     There is no need to include us as authors on your manuscript, unless we contributed specific advice or analysis for your work.
-  </p>,
+  </p>
   <h2
-    className="chakra-heading css-1oiljpd"
+    class="chakra-heading css-1oiljpd"
   >
     Contact
-  </h2>,
+  </h2>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
-    Please report any issues using the
-     
+    Please report any issues using the 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://github.com/broadinstitute/genetic-prevalence-estimator/issues"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       issue tracker
     </a>
-    . You can also reach us at
-     
+    . You can also reach us at 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="mailto:prev-genie@broadinstitute.org"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       prev-genie@broadinstitute.org
     </a>
     .
-  </p>,
-]
+  </p>
+</DocumentFragment>
 `;
