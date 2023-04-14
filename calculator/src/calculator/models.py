@@ -143,23 +143,24 @@ class PublicVariantLists(models.Model):
     )
 
     class PublicStatus(models.TextChoices):
-        PENDING = ("p", "Pending")
+        PRIVATE = ("p", "Private")
+        PENDING = ("w", "Pending")
         APPROVED = ("a", "Approved")
         REJECTED = ("r", "Rejected")
 
     approval_status = models.CharField(
-        max_length=1, choices=PublicStatus.choices, default=PublicStatus.pending
+        max_length=1, choices=PublicStatus.choices, default=PublicStatus.PRIVATE
     )
 
-    updated_by = models.ForeignKey(
+    reviewed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         on_delete=models.SET_NULL,
-        related_name="",
-        related_query_name="",
+        related_name="reviewed_public_lists",
+        related_query_name="reviewed_public_lists",
     )
 
-    updated_on = models.DateTimeField(auto_now=True)
+    reviewed_at = models.DateTimeField(auto_now=True)
 
 
 def object_level_predicate(fn):  # pylint: disable=invalid-name
