@@ -229,7 +229,7 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
         </Box>
       </Box>
 
-      <Box spacing={4} mb={8}>
+      <Box mb={8}>
         <Heading as="h2" size="md" mb={2}>
           Prevalence
         </Heading>
