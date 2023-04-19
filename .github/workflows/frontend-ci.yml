@@ -1,0 +1,30 @@
+name: Frontend CI
+defaults:
+  run:
+    working-directory: frontend
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+  pull_request:
+    paths:
+      - "frontend/**"
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.16.1"
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify clean build
+        run: npm run build
+      - name: Run Jest tests
+        run: npm test
