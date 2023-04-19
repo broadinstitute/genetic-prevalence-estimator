@@ -1,11 +1,14 @@
-import { expect, test } from "@jest/globals";
-import React from "react";
-import renderer from "react-test-renderer";
+import { render } from "@testing-library/react";
+
 import { withDummyRouter } from "../../tests/__helpers__/router";
 
 import HomePage from "./HomePage";
 
-test("About Page has no unexpected changes", () => {
-  const tree = renderer.create(withDummyRouter(<HomePage />));
-  expect(tree).toMatchSnapshot();
+jest.mock("./SignInButton");
+
+describe("HomePage", () => {
+  it("About Page has no unexpected changes", () => {
+    const result = render(withDummyRouter(<HomePage />));
+    expect(result.asFragment()).toMatchSnapshot();
+  });
 });

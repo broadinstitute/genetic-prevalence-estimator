@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`About Page has no unexpected changes 1`] = `
-Array [
+exports[`PageNotFoundPage has no unexpected changes 1`] = `
+<DocumentFragment>
   <h1
-    className="chakra-heading css-1itv5e3"
+    class="chakra-heading css-1itv5e3"
   >
     Page not found
-  </h1>,
+  </h1>
   <p
-    className="chakra-text css-0"
+    class="chakra-text css-0"
   >
     The page you requested does not exist.
-  </p>,
-]
+  </p>
+</DocumentFragment>
 `;

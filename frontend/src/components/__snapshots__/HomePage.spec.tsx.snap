@@ -1,52 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`About Page has no unexpected changes 1`] = `
-Array [
+exports[`HomePage About Page has no unexpected changes 1`] = `
+<DocumentFragment>
   <h1
-    className="chakra-heading css-1itv5e3"
+    class="chakra-heading css-1itv5e3"
   >
     GeniE, the Genetic Prevalence Estimator
-  </h1>,
+  </h1>
   <p
-    className="chakra-text css-19idom"
+    class="chakra-text css-19idom"
   >
-    The prevalence GeniE tool aims to estimate carrier frequency and genetic prevalence for recessive conditions using allele frequencies from population data in gnomAD. We provide support for creating variant lists from
-     
+    The prevalence GeniE tool aims to estimate carrier frequency and genetic prevalence for recessive conditions using allele frequencies from population data in gnomAD. We provide support for creating variant lists from 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://www.ncbi.nlm.nih.gov/clinvar/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       ClinVar
     </a>
-     
-    and
-     
+     and 
     <a
-      className="chakra-link css-0"
+      class="chakra-link css-0"
       href="https://gnomad.broadinstitute.org/"
-      rel="noopener"
+      rel="noopener noreferrer"
       target="_blank"
     >
       gnomAD
     </a>
     , or allow users to build their own custom list using gnomAD IDs. Sign in with your Google account to get started.
-  </p>,
+  </p>
   <div
-    className="css-1itv5e3"
+    class="css-1itv5e3"
   >
     <div />
-  </div>,
+  </div>
   <details>
     <summary>
       Why do I need to sign in?
     </summary>
     <div
-      className="css-1wyzu5o"
+      class="css-1wyzu5o"
     >
       In order to store your variant lists, and allow you to edit them over time we need to have you signed in. By having users sign in we are also able to allow sharing lists across users, enabling collaboration.
     </div>
-  </details>,
-]
+  </details>
+</DocumentFragment>
 `;
