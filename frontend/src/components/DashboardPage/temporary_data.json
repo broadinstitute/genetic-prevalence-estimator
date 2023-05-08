@@ -1,0 +1,16 @@
+[
+    {gene: "PCSK9", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "BRCA2", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "ACADVL", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "AKT3", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "ATM", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "BRAF", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    },
+    {gene: "CDH1", contact: "freqcal@broadinstitute.org", notes: "nothing"
+    }
+]
