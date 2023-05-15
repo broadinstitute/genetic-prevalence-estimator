@@ -17,6 +17,7 @@ import {
   StatLabel,
   StatNumber,
   Table,
+  Text,
   Thead,
   Tbody,
   Tfoot,
@@ -26,7 +27,7 @@ import {
   TableCaption,
   TableContainer,
 } from "@chakra-ui/react";
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, AttachmentIcon } from '@chakra-ui/icons'
 import { useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
@@ -35,8 +36,9 @@ import { VariantListStatus } from "../../types";
 
 import DocumentTitle from "../DocumentTitle";
 
-const SupportingDocuments = ({document_exists}) => {
+const SupportingDocuments = ({document_exists}: any) => {
   const [document, setDocument] = useState(document_exists);
+  
   return document ? (
       <><h1> Supporting Documents</h1 >
     <Button rightIcon={<AttachmentIcon />} colorScheme='teal' variant='outline'>
@@ -52,6 +54,32 @@ const SupportingDocuments = ({document_exists}) => {
 }
 
 const DashboardPage = () => {
+
+  return (
+    <>
+      <DocumentTitle title="Prevalence lists" />
+
+      <Box mb={2}>
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RRLink} to="/">
+              Home
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <span>Prevalence Lists</span>
+          </BreadcrumbItem>
+        </Breadcrumb>
+      </Box>
+
+      <DashboardContainer/>
+    </>
+  );
+
+}
+
+
+const DashboardContainer = () => {
   const temp_data = [
     {
       gene: "PCSK9", gnomad_lof: "1/200000", genie_estimates: "1/250000", genie_link: "abcde", is_document: false, notes: "nothing", 
@@ -65,16 +93,57 @@ const DashboardPage = () => {
     }
   ]
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+
+    setIsLoading(true);
+    //@ts-ignore
     setData(temp_data);
+
+    //TO DO
+
+    // get("/variant-lists/", {
+    //   ordering: Array.isArray(orderBy) ? orderBy.join(",") : orderBy,
+    // })
+    //   .then((variantLists) => setVariantLists(variantLists), setError)
+    //   .finally(() => {
+    //     setIsLoading(false);
+    //   });
+
+    // TO DO
+    //setIsLoading(false);
+    
 
   }, [temp_data]);
 
-  return (
-    <>
-      <h1>Dashboard Page</h1>
-      <TableContainer>
+  let content = null;
+
+  if (isLoading) {
+    content = (
+      <Center>
+        <Spinner size="lg" />
+      </Center>
+    );
+  } else if (error) {
+    content = (
+      <Alert status="error">
+        <AlertIcon />
+        <AlertTitle>Unable to load variant lists</AlertTitle>
+        <AlertDescription>{error.message}</AlertDescription>
+      </Alert>
+    );
+  } else if (data.length === 0) {
+    content = (
+      <Text>
+        No prevalence lists have been created yet.{" "}
+      </Text>
+    );
+  } else {
+    content = (
+      <>
+        <TableContainer>
         <Table variant='simple'>
           <TableCaption>Imperial to metric conversion factors</TableCaption>
           <Thead>
@@ -121,6 +190,14 @@ const DashboardPage = () => {
           </Tbody>
         </Table>
       </TableContainer>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h1>Dashboard Page</h1>
+      {content}
 
 
 
@@ -128,4 +205,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default DashboardContainer;
