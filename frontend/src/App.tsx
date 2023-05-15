@@ -31,7 +31,7 @@ import {
 import "./style.css";
 import AboutPage from "./components/AboutPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
-import DashboardContainer from "./components/DashboardPage/DashboardPage";
+import DashboardPage from "./components/DashboardPage/DashboardPage";
 import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
 import Link from "./components/Link";
@@ -258,12 +258,11 @@ const App = () => {
             path="/public-lists/"
             render={() => <PublicListsPage />}
           />
+          <Route exact path="/dashboard/" render={() => <DashboardPage />} />
 
           <Route exact path="/" render={() => <HomePage />} />
 
           <Route path="*" render={() => <PageNotFoundPage />} />
-
-          <Route exact path="/dashboard/" render={() => <DashboardContainer />} />
         </Switch>
       </Container>
     </>
