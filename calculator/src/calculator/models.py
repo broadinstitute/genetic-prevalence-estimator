@@ -5,32 +5,30 @@ import rules
 from django.conf import settings
 from django.db import models
 
-class PrevalenceList (models.Model):
+
+class PrevalenceList(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
-    #this gives us gene, gnomad_lof, genie_estimates, genie_link, is_document, notes,
-    public_list = models.ForeignKey(
-        PublicList,
-        on_delete=models.CASCADE,
-        related_name="public_list_prevalences",
-        related_query_name="public_list_prevalence",
-    )
+    # TODO: (rgrant) rebase off of public list branch, then hook this up
+    # this gives us gene, gnomad_lof, genie_estimates, genie_link, is_document, notes,
+    # public_list = models.ForeignKey(
+    #     PublicList,
+    #     on_delete=models.CASCADE,
+    #     related_name="public_list_prevalences",
+    #     related_query_name="public_list_prevalence",
+    # )
 
-    prevalence_orph = models.CharField(max_length = 25)
+    prevalence_orph = models.CharField(max_length=25)
 
-    prevalence_orph_link = models.CharField(max_length = 100)
+    prevalence_orph_link = models.CharField(max_length=100)
 
-    prevalence_genereviews = models.CharField(max_length = 25)
+    prevalence_genereviews = models.CharField(max_length=25)
 
-    prevalence_genereviews_link = models.CharField(max_length = 100)
+    prevalence_genereviews_link = models.CharField(max_length=100)
 
-    prevalence_other = models.CharField(max_length = 100)
+    prevalence_other = models.CharField(max_length=100)
 
-    incidence_other = models.CharField(max_length = 100)
-
-    
-
-
+    incidence_other = models.CharField(max_length=100)
 
 
 class VariantList(models.Model):
