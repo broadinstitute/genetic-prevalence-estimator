@@ -31,7 +31,7 @@ import {
 import "./style.css";
 import AboutPage from "./components/AboutPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
-import DashboardPage from "./components/DashboardPage/DashboardPage";
+import DashboardContainer from "./components/DashboardPage/DashboardPage";
 import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
 import Link from "./components/Link";
@@ -138,6 +138,7 @@ const App = () => {
               )}
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
+              <NavLink to="/dashboard/">Dashboard</NavLink>
             </HStack>
 
             {isSignedIn && (
@@ -254,7 +255,7 @@ const App = () => {
 
           <Route path="*" render={() => <PageNotFoundPage />} />
 
-          <Route exact path="/dashboard/" render={() => <DashboardPage />} />
+          <Route exact path="/dashboard/" render={() => <DashboardContainer />} />
         </Switch>
       </Container>
     </>

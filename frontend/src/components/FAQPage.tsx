@@ -12,12 +12,12 @@ import {
 import { Link as RRLink } from "react-router-dom";
 
 import DocumentTitle from "./DocumentTitle";
-import DashboardPage from "./DashboardPage/DashboardPage";
+import DashboardContainer from "./DashboardPage/DashboardPage";
 
 const FAQView = () => {
   return (
     <>
-    <DashboardPage/>
+    <DashboardContainer/>
       <Heading as="h2" size="md" mt={4} mb={2}>
         Why do I need to sign in?
       </Heading>
