@@ -3,6 +3,7 @@ from functools import wraps
 
 import rules
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -132,7 +133,7 @@ class VariantListAnnotation(models.Model):
     variant_notes = models.JSONField(default=dict)
 
 
-class PublicVariantLists(models.Model):
+class PublicVariantList(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
     variant_list = models.ForeignKey(
@@ -142,14 +143,23 @@ class PublicVariantLists(models.Model):
         related_query_name="public_status",
     )
 
-    class PublicStatus(models.TextChoices):
-        PRIVATE = ("p", "Private")
-        PENDING = ("w", "Pending")
+    class ApprovalStatus(models.TextChoices):
+        PENDING = ("p", "Pending")
         APPROVED = ("a", "Approved")
         REJECTED = ("r", "Rejected")
 
     approval_status = models.CharField(
-        max_length=1, choices=PublicStatus.choices, default=PublicStatus.PRIVATE
+        max_length=1,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+    )
+
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="submitted_public_lists",
+        related_query_name="submitted_public_lists",
     )
 
     reviewed_by = models.ForeignKey(
@@ -160,7 +170,24 @@ class PublicVariantLists(models.Model):
         related_query_name="reviewed_public_lists",
     )
 
-    reviewed_at = models.DateTimeField(auto_now=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # ensure that if an accepted public list exists for a gene id, lists with that gene id cannot be submitted for public approval
+    def validate_unique(self, exclude=None):
+        if PublicVariantList.objects.filter(
+            variant_list__metadata__gene_id=self.variant_list.metadata["gene_id"],
+            approval_status=self.ApprovalStatus.APPROVED,
+        ).exists():
+            # TODO: find a way to pass this error to the client - also applies to unique validation in variant access list permissions
+            raise ValidationError(
+                "A public list for this gene already exists", code="invalid"
+            )
+
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+
+        super(PublicVariantList, self).save(*args, **kwargs)
 
 
 def object_level_predicate(fn):  # pylint: disable=invalid-name

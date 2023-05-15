@@ -10,3 +10,7 @@ from calculator.serializers.variant_list_access_permission_serializer import (
 from calculator.serializers.variant_list_annotation_serializer import (
     VariantListAnnotationSerializer,
 )
+from calculator.serializers.public_variant_lists_serializer import (
+    NewPublicVariantListSerializer,
+    PublicVariantListSerializer,
+)

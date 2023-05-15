@@ -1,27 +1,22 @@
-from django.conf import settings
-from rest_framework.exceptions import ValidationError
-from rest_framework.filters import OrderingFilter
-from rest_framework.generics import (
-    GenericAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
-from rest_framework.permissions import DjangoObjectPermissions, isAuthenticated
-from rest_framework.response import Response
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from website.permissions import ViewObjectPermissions
+
 
 from calculator.models import (
     VariantList,
-    PublicVariantLists,
+    PublicVariantList,
 )
 
-from website.permissions import ViewObjectPermissions
-from website.pubsub import publisher
+from calculator.serializers import (
+    NewPublicVariantListSerializer,
+    PublicVariantListSerializer,
+)
 
 
 class PublicVariantListsView(ListCreateAPIView):
     def get_queryset(self):
-        return VariantList.objects.filter(publication_status="Approved")
+        return PublicVariantList.objects.all()
 
     ordering_fields = ["updated_at"]
 
@@ -30,3 +25,16 @@ class PublicVariantListsView(ListCreateAPIView):
             return NewPublicVariantListSerializer
 
         return PublicVariantListSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(submitted_by=self.request.user)
+
+
+class PublicVariantListDetail(RetrieveUpdateDestroyAPIView):
+    queryset = PublicVariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    serializer_class = PublicVariantListSerializer
