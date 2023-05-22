@@ -116,7 +116,8 @@ const DashboardList: FC<{ dashboardList: DashboardRow[] }> = ({
                 <Td>
                   <Link
                     as={RRLink}
-                    to={`/variantlist/${dashboardRow.genie_link}`}
+                    to={dashboardRow.genie_link}
+                    // to={`/variantlist/${dashboardRow.genie_link}`}
                   >
                     {dashboardRow.genie_estimates}
                   </Link>
@@ -184,6 +185,31 @@ const createMockDataRow = (
     incidence_other: incidence_other,
   };
   return mockRow;
+};
+
+const transformResponse = (publicVariantLists: any[]) => {
+  console.log(publicVariantLists);
+
+  const newList = publicVariantLists.map((pvl) => {
+    const item = {
+      gene: pvl.variant_list.metadata.gene_symbol,
+      gnomad_lof: "1/450,000", // TODO:
+      genie_estimates: "1/250,000", // TODO:
+      genie_link: `/variant-lists/${pvl.variant_list.uuid}`,
+      has_document: true,
+      contact: pvl.submitted_by,
+      additional_resources: "PMID: #####",
+      prevalence_orph: "<1,100,000", // TODO:
+      prevalence_orph_link: "todo_0",
+      prevalence_genereviews: "<1/1,100,000>", // TODO:
+      prevalence_genereviews_link: "todo_1",
+      prevalence_other: "PMID: #####",
+      incidence_other: "PMID: #####",
+    };
+    return item;
+  });
+
+  return newList;
 };
 
 const DashboardContainer = () => {
@@ -331,8 +357,11 @@ const DashboardContainer = () => {
 
     // TODO: (rgrant) This call to variant lists does nothing, make this call
     //   the new endpoint once that is created
-    get("/variant-lists/")
-      .then(() => setData(mock_data), setError)
+    get("/public-variant-lists/")
+      .then((publicVariantLists) => {
+        const shapedData = transformResponse(publicVariantLists);
+        setData(mock_data.concat(shapedData));
+      }, setError)
       .finally(() => {
         setIsLoading(false);
       });
