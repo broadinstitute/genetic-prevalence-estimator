@@ -20,6 +20,7 @@ import {
   Th,
   Td,
   TableContainer,
+  Flex,
 } from "@chakra-ui/react";
 import { AttachmentIcon } from "@chakra-ui/icons";
 import { FC, useEffect, useState } from "react";
@@ -32,41 +33,78 @@ const SupportingDocuments = ({ document_exists }: any) => {
   const [document, setDocument] = useState(document_exists);
 
   return document ? (
-    <>
+    <Box height={"2rem"}>
       <Button
         rightIcon={<AttachmentIcon />}
         size="sm"
         colorScheme="teal"
         variant="outline"
       >
-        Supporting document
+        Document.pdf
       </Button>
-    </>
+    </Box>
   ) : (
-    <Text>No document</Text>
+    <Box height={"2rem"}>
+      <Text>No document</Text>
+    </Box>
   );
 };
 
-interface DashboardListProps {
-  dashboardList: any[];
-}
+type DashboardRow = {
+  gene: string;
+  gnomad_lof: string;
+  genie_estimates: string;
+  genie_link: string;
+  has_document: boolean;
+  additional_resources: string;
+  prevalence_orph: string;
+  prevalence_orph_link: string;
+  prevalence_genereviews: string;
+  prevalence_genereviews_link: string;
+  prevalence_other: string;
+  incidence_other: string;
+};
 
-const DashboardList: FC<DashboardListProps> = ({ dashboardList }) => {
+const MTh = ({ children, w }: any) => {
   return (
-    <TableContainer>
-      <Table variant="striped" size="sm">
+    <Th
+      color="black"
+      fontSize="0.75rem"
+      lineHeight="1.5rem"
+      h="3rem"
+      width={w}
+      overflow="hidden"
+      whiteSpace="pre-line"
+    >
+      {children}
+    </Th>
+  );
+};
+
+const DashboardList: FC<{ dashboardList: DashboardRow[] }> = ({
+  dashboardList,
+}) => {
+  return (
+    <TableContainer mb={"5rem"}>
+      <Table variant="striped" size="sm" layout="fixed">
         <Thead>
-          <Tr>
-            <Th>Gene</Th>
-            <Th>ClinVar LP/P and gnomAD LoF</Th>
-            <Th>Estimates available on GeniE</Th>
-            <Th>Supporting Documents</Th>
-            <Th>Contact</Th>
-            <Th>Notes</Th>
-            <Th>Prevalence Orphanet</Th>
-            <Th>Prevalence GeneReviews</Th>
-            <Th>Prevalence Other</Th>
-            <Th>Incidence Other</Th>
+          {/* TODO: second row that has the header-header things */}
+          {/* <Tr bg='lightgrey' h='5rem' display='flex'>
+            <MTh flex-grow='1'>Test1</MTh>
+            <MTh>Test1</MTh>
+            <MTh>Test1</MTh>
+          </Tr> */}
+          <Tr bg="lightgrey" h="5rem">
+            <MTh>Gene</MTh>
+            <MTh>ClinVar LP/P and gnomAD LoF</MTh>
+            <MTh>Estimates available on GeniE</MTh>
+            <MTh>Contact for Public Estimate</MTh>
+            <MTh>Supporting Documents</MTh>
+            <MTh>Additional Resources</MTh>
+            <MTh>Prevalence Orphanet</MTh>
+            <MTh>Prevalence GeneReviews</MTh>
+            <MTh>Prevalence Other</MTh>
+            <MTh>Incidence Other</MTh>
           </Tr>
         </Thead>
         <Tbody>
@@ -83,13 +121,14 @@ const DashboardList: FC<DashboardListProps> = ({ dashboardList }) => {
                     {dashboardRow.genie_estimates}
                   </Link>
                 </Td>
+
+                <Td>{dashboardRow.contact}</Td>
                 <Td>
                   <SupportingDocuments
-                    document_exists={dashboardRow.is_document}
+                    document_exists={dashboardRow.has_document}
                   />
                 </Td>
-                <Td>{dashboardRow.contact}</Td>
-                <Td>{dashboardRow.notes}</Td>
+                <Td>{dashboardRow.additional_resources}</Td>
                 <Td>
                   <Link
                     as={RRLink}
@@ -117,40 +156,175 @@ const DashboardList: FC<DashboardListProps> = ({ dashboardList }) => {
   );
 };
 
+const createMockDataRow = (
+  geneSymbol: string,
+  gnomad_lof: string,
+  genie_estimates: string,
+  contact: string,
+  has_document: boolean,
+  additional_resources: string,
+  prevalence_orphanet: string,
+  prevalence_gene_reviews: string,
+  prevalence_other: string,
+  incidence_other: string
+) => {
+  const mockRow = {
+    gene: geneSymbol,
+    gnomad_lof: gnomad_lof,
+    genie_estimates: genie_estimates,
+    genie_link: "abcde",
+    has_document: has_document,
+    contact: contact,
+    additional_resources: additional_resources,
+    prevalence_orph: prevalence_orphanet,
+    prevalence_orph_link: "todo_0",
+    prevalence_genereviews: prevalence_gene_reviews,
+    prevalence_genereviews_link: "todo_1",
+    prevalence_other: prevalence_other,
+    incidence_other: incidence_other,
+  };
+  return mockRow;
+};
+
 const DashboardContainer = () => {
-  const mock_data = [
-    {
-      gene: "PCSK9",
-      gnomad_lof: "1/200000",
-      genie_estimates: "1/250000",
-      genie_link: "abcde",
-      is_document: false,
-      notes: "",
-      prevalence_orph: "1/150000",
-      prevalence_orph_link: "aoisf",
-      prevalence_genereviews: "1/1000000",
-      prevalence_genereviews_link: "aosifo",
-      prevalence_other: "oaihs",
-      incidence_other: "aosihfapi",
-    },
-    {
-      gene: "BRCA2",
-      gnomad_lof: "1/300000",
-      genie_estimates: "1/100000",
-      genie_link: "sdoih",
-      is_document: true,
-      notes: "",
-      prevalence_orph: "1/140000",
-      prevalence_orph_link: "oaish",
-      prevalence_genereviews: "1/1200000",
-      prevalence_genereviews_link: "awoiehg",
-      prevalence_other: "oaihs",
-      incidence_other: "aosihfapi",
-    },
-  ];
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState<Error | null>(null);
+
+  const mock_data = [
+    createMockDataRow(
+      "ACADVL",
+      "1/450,000",
+      "1/250,000",
+      "freqcalc@broad",
+      true,
+      "PMID: #####",
+      "<1,100,000",
+      "<1/1,000,000",
+      "PMID: #####",
+      "PMID: #####"
+    ),
+    createMockDataRow(
+      "AKT3",
+      "1/2,350,000",
+      "1/200,000",
+      "freqcalc@broad",
+      true,
+      "",
+      "<1,100,000",
+      "<1/1,000,000",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "ATM",
+      "1/25,000",
+      "1/40,000",
+      "freqcalc@broad",
+      true,
+      "",
+      "<1,100,000",
+      "<1/1,000,000",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "BRAF",
+      "1/2,350,000",
+      "1/4,000,000",
+      "freqcalc@broad",
+      true,
+      "PMID: #####",
+      "<1,100,000",
+      "<1/1,000,000",
+      "PMID: #####",
+      ""
+    ),
+    createMockDataRow(
+      "CDH1",
+      "1/450,000",
+      "1/300,000",
+      "expertpanel@email",
+      false,
+      "PMID: #####",
+      "<1,100,000",
+      "<1/1,000,000",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "CDH23",
+      "1/2,350,000",
+      "1/1,000,000",
+      "expertpanel@email",
+      false,
+      "",
+      "<1,100,000",
+      "<1/1,000,000",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "CDKL5",
+      "1/25,000",
+      "",
+      "",
+      false,
+      "",
+      "1,100,000",
+      "1/1,000,000",
+      "",
+      "PMID: #####"
+    ),
+    createMockDataRow(
+      "COCH",
+      "1/2,350,000",
+      "",
+      "",
+      false,
+      "",
+      "1,100,000",
+      "",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "DICER1",
+      "1/450,000",
+      "1/1,400,000",
+      "expertpanel@email",
+      true,
+      "",
+      "<1,000,000",
+      "1/1,000,000",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "ETHE1",
+      "1/2,350,000",
+      "",
+      "",
+      false,
+      "",
+      "1/1,100,000",
+      "",
+      "",
+      ""
+    ),
+    createMockDataRow(
+      "FBN1",
+      "1/25,000",
+      "1/10,000",
+      "expertpanel@email",
+      true,
+      "",
+      "1/90,000",
+      "1/90,000",
+      "",
+      ""
+    ),
+  ];
 
   useEffect(() => {
     setIsLoading(true);
@@ -190,13 +364,18 @@ const DashboardContainer = () => {
 
   return (
     <>
-      <Text mb={4}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Amet massa vitae
-        tortor condimentum lacinia. Elementum facilisis leo vel fringilla est
-        ullamcorper eget nulla. Platea dictumst vestibulum rhoncus est
-        pellentesque elit ullamcorper.
-      </Text>
+      <Box mb={4}>
+        <Text mb={2}>
+          The dashboard gives an at a glance view of the available prevalence
+          estimates across multiple sources.
+        </Text>
+        <Text>
+          Please reach out directly to the contact for a given gene if you would
+          like more information, or would like to contribute to the public list
+          on Genie.
+        </Text>
+      </Box>
+
       {content}
     </>
   );
