@@ -206,11 +206,7 @@ const App = () => {
           <Route
             exact
             path="/variant-lists/:uuid/"
-            render={({ match }) => (
-              <RequireSignIn>
-                <VariantListPage uuid={match.params.uuid} />
-              </RequireSignIn>
-            )}
+            render={({ match }) => <VariantListPage uuid={match.params.uuid} />}
           />
 
           <Route

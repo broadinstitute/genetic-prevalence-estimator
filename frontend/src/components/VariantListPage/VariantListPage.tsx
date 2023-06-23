@@ -54,6 +54,7 @@ import {
 import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
+import VariantListPublicStatus from "./VariantListPublicStatus";
 
 const addVariantsToVariantList = (
   uuid: string,
@@ -105,6 +106,11 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       })
       .finally(() => {
         setLoading(false);
+      })
+      .catch((error) => {
+        // TODO: variant list annotations are currently per user, public variant
+        //   lists return no annotations. This will be addressed in the next PR
+        console.log("Error: ", error);
       });
   }, [variantList.uuid]);
 
@@ -342,6 +348,7 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
+          <VariantListPublicStatus variantListStore={variantListStore} />
         </Box>
       )}
 
@@ -499,7 +506,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     let refreshCanceled = false;
 
     const refreshVariantList = () => {
-      get(`/variant-lists/${uuid}/`).then(
+      get(`/variant-lists-read-only/${uuid}/`).then(
         (variantList) => {
           if (refreshCanceled) {
             return;
@@ -524,7 +531,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     };
 
     setIsLoading(true);
-    get(`/variant-lists/${uuid}/`)
+    get(`/variant-lists-read-only/${uuid}/`)
       .then((variantList) => {
         variantListStoreRef.current = atom(variantList);
 

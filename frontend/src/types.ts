@@ -61,6 +61,12 @@ export interface Variant {
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
+export enum VariantListPublicStatusCode {
+  SUBMITTED = "Submitted",
+  REJECTED = "Rejected",
+  APPROVED = "Approved",
+}
+
 export enum VariantListAccessLevel {
   OWNER = "Owner",
   EDITOR = "Editor",
@@ -103,6 +109,15 @@ interface VariantListAccessPermission {
   level: VariantListAccessLevel;
 }
 
+interface VariantListPublicStatus {
+  variant_list: number;
+  submitted_by: string;
+  submitted_at: string;
+  public_status: VariantListPublicStatusCode;
+  reviewed_by: string;
+  reviewed_at: string;
+}
+
 export interface VariantList {
   uuid: string;
   label: string;
@@ -114,6 +129,7 @@ export interface VariantList {
   access_level?: VariantListAccessLevel;
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
+  public_status?: VariantListPublicStatus;
   error?: string;
   variants: Variant[];
 }
