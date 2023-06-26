@@ -3,7 +3,7 @@ from functools import wraps
 
 import rules
 from django.conf import settings
-from django.db import models
+from django.db import models, IntegrityError
 
 
 class VariantList(models.Model):
@@ -57,6 +57,64 @@ class VariantList(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=("uuid",))]
+
+
+class PublicVariantList(models.Model):
+    variant_list = models.OneToOneField(
+        VariantList,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="public_status",
+        related_query_name="public_status",
+    )
+
+    class PublicStatus(models.TextChoices):
+        PENDING = ("P", "Pending")
+        REJECTED = ("R", "Rejected")
+        APPROVED = ("A", "Approved")
+
+    public_status = models.CharField(
+        max_length=1, choices=PublicStatus.choices, default=PublicStatus.PENDING
+    )
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    reviewed_at = models.DateTimeField(auto_now=True)
+
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    # If there already exists an approved public list for a given gene, don't allow submitting of duplicates for review
+    def validate_unique(self, exclude=None):
+        if (
+            PublicVariantList.objects.filter(
+                variant_list__metadata__gene_id=self.variant_list.metadata["gene_id"],
+                public_status=self.PublicStatus.APPROVED,
+            )
+            .exclude(variant_list_id=self.variant_list_id)
+            .exists()
+        ):
+            # TODO: this error message never makes it to the client http response
+            # this also applies to unique validation in variant access list permissions
+            raise IntegrityError(
+                "An approved public list for this gene_id already exists"
+            )
+
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+
+        super(PublicVariantList, self).save(*args, **kwargs)
 
 
 class VariantListAccessPermission(models.Model):
@@ -171,11 +229,21 @@ def is_variant_list_viewer(user, variant_list):
         return False
 
 
+@object_level_predicate
+def is_accessing_a_public_variant_list(user, variant_list):
+    try:
+        public_status = variant_list.public_status
+        return public_status.public_status == PublicVariantList.PublicStatus.APPROVED
+    except PublicVariantList.DoesNotExist:
+        return False
+
+
 rules.add_perm("calculator.add_variantlist", rules.is_active)
 
 rules.add_perm(
     "calculator.view_variantlist",
-    (
+    is_accessing_a_public_variant_list
+    | (
         rules.is_active
         & (is_variant_list_owner | is_variant_list_editor | is_variant_list_viewer)
     )

@@ -1,19 +1,25 @@
 from django.conf import settings
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     GenericAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateAPIView,
-    RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import DjangoObjectPermissions, IsAuthenticated
+from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
+from rest_framework.permissions import (
+    DjangoObjectPermissions,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
+    PublicVariantList,
 )
 from calculator.serializers import (
     AddedVariantsSerializer,
@@ -63,18 +69,50 @@ class VariantListsView(ListCreateAPIView):
 
     def get_success_headers(self, data):
         try:
-            return {"Location": f"/api/variant-lists/{data['uuid']}/"}
+            return {"Location": f"/api/variant-lists-read-only/{data['uuid']}/"}
         except KeyError:
             return {}
 
 
-class VariantListView(RetrieveUpdateDestroyAPIView):
+class VariantListView(UpdateModelMixin, DestroyModelMixin, GenericAPIView):
     queryset = VariantList.objects.all()
 
     lookup_field = "uuid"
 
     permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
+    serializer_class = VariantListSerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class VariantListReadOnlyView(RetrieveAPIView):
+    def get_queryset(self):
+        if self.request.user.is_staff and self.request.user.is_active:
+            return VariantList.objects.all()
+
+        public_lists = VariantList.objects.filter(
+            public_status__public_status=PublicVariantList.PublicStatus.APPROVED
+        )
+
+        if self.request.user.is_anonymous or not self.request.user.is_active:
+            return public_lists
+
+        collaborated_lists = VariantList.objects.filter(
+            access_permission__user=self.request.user
+        )
+        combined_lists = collaborated_lists | public_lists
+        return combined_lists.distinct()
+
+    lookup_field = "uuid"
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = VariantListSerializer
 
 

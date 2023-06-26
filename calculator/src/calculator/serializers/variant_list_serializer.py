@@ -9,6 +9,9 @@ from calculator.serializers.serializer_fields import ChoiceField
 from calculator.serializers.variant_list_access_permission_serializer import (
     VariantListAccessPermissionSerializer,
 )
+from calculator.serializers.public_variant_list_serializer import (
+    PublicVariantListSerializer,
+)
 
 
 def is_gene_id(maybe_gene_id):
@@ -179,6 +182,8 @@ class VariantListSerializer(ModelSerializer):
         many=True, read_only=True
     )
 
+    public_status = PublicVariantListSerializer(many=False, read_only=True)
+
     def get_metadata(self, obj):  # pylint: disable=no-self-use
         metadata_version = obj.metadata.get("version", "1")
         metadata_serializer_class = {
@@ -205,7 +210,7 @@ class VariantListSerializer(ModelSerializer):
         # Access level should be visible if there is a current user.
         # All access permissions should only be visible if the current user is an owner of the variant list.
         current_user = self.get_current_user()
-        if current_user:
+        if current_user and not current_user.is_anonymous:
             try:
                 access = instance.access_permissions.get(user=current_user)
                 data["access_level"] = access.get_level_display()
@@ -234,12 +239,13 @@ class VariantListSerializer(ModelSerializer):
             "notes",
             "type",
             "metadata",
-            "variants",
             "created_at",
             "updated_at",
             "status",
             "error",
             "access_permissions",
+            "public_status",
+            "variants",
         ]
 
         read_only_fields = [f for f in fields if f not in ("label", "notes")]

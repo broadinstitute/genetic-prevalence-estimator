@@ -8,6 +8,7 @@ from website.views.user_views import UsersList, UserDetail
 from website.views.variant_list_views import (
     VariantListsView,
     VariantListView,
+    VariantListReadOnlyView,
     VariantListAnnotationView,
     VariantListProcessView,
     VariantListVariantsView,
@@ -15,6 +16,10 @@ from website.views.variant_list_views import (
 from website.views.variant_list_access_views import (
     VariantListAccessList,
     VariantListAccessDetail,
+)
+from website.views.public_variant_list_views import (
+    PublicVariantListsView,
+    PublicVariantListDetail,
 )
 
 
@@ -47,6 +52,11 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/", VariantListView.as_view(), name="variant-list"
     ),
     path(
+        "api/variant-lists-read-only/<uuid:uuid>/",
+        VariantListReadOnlyView.as_view(),
+        name="variant-list",
+    ),
+    path(
         "api/variant-lists/<uuid:uuid>/annotation/",
         VariantListAnnotationView.as_view(),
         name="variant-list-annotation",
@@ -70,6 +80,16 @@ urlpatterns = [
         "api/variant-list-access/<uuid:uuid>/",
         VariantListAccessDetail.as_view(),
         name="variant-list-access-detail",
+    ),
+    path(
+        "api/public-variant-lists/",
+        PublicVariantListsView.as_view(),
+        name="public-variant-lists",
+    ),
+    path(
+        "api/public-variant-list/<int:variant_list>/",
+        PublicVariantListDetail.as_view(),
+        name="public-variant-list-detail",
     ),
 ]
 
