@@ -8,6 +8,7 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
+    PublicVariantList,
 )
 
 
@@ -189,7 +190,7 @@ class TestCreateVariantList:
 class TestGetVariantList:
     @pytest.fixture(autouse=True)
     def db_setup(self):
-        User.objects.create(username="staffmember", is_staff=True)
+        staffuser = User.objects.create(username="staffmember", is_staff=True)
         testuser = User.objects.create(username="testuser")
         inactive_user = User.objects.create(username="inactiveuser", is_active=False)
         User.objects.create(username="inactivestaff", is_active=False, is_staff=True)
@@ -201,6 +202,8 @@ class TestGetVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174",
+                "gene_symbol": "PCSK9",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -212,17 +215,47 @@ class TestGetVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
+                "gene_id": "testid2",
+                "gene_symbol": "testsymbol2",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        VariantList.objects.create(
+        list3 = VariantList.objects.create(
             id=3,
             label="List 3",
             type=VariantList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
+                "gene_id": "testid3",
+                "gene_symbol": "testsymbol3",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+        )
+
+        VariantList.objects.create(
+            id=4,
+            label="List 4",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "testid4",
+                "gene_symbol": "testsymbol4",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+        )
+
+        list5 = VariantList.objects.create(
+            id=5,
+            label="List 5",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "testid5",
+                "gene_symbol": "testsymbol5",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -243,59 +276,146 @@ class TestGetVariantList:
             level=VariantListAccessPermission.Level.OWNER,
         )
 
-    def test_viewing_variant_list_requires_authentication(self):
+        VariantListAccessPermission.objects.create(
+            user=inactive_user,
+            variant_list=list3,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+
+        PublicVariantList.objects.create(
+            variant_list=list1,
+            public_status=PublicVariantList.PublicStatus.APPROVED,
+            submitted_by=testuser,
+            reviewed_by=staffuser,
+        )
+
+        PublicVariantList.objects.create(
+            variant_list=list2,
+            public_status=PublicVariantList.PublicStatus.PENDING,
+            submitted_by=testuser,
+            reviewed_by=staffuser,
+        )
+
+        PublicVariantList.objects.create(
+            variant_list=list3,
+            public_status=PublicVariantList.PublicStatus.REJECTED,
+            submitted_by=testuser,
+            reviewed_by=staffuser,
+        )
+
+        PublicVariantList.objects.create(
+            variant_list=list5,
+            public_status=PublicVariantList.PublicStatus.APPROVED,
+            submitted_by=testuser,
+            reviewed_by=staffuser,
+        )
+
+    def test_variant_list_edit_delete_endpoint_disallows_get(self):
         variant_list = VariantList.objects.get(id=1)
-        client = APIClient()
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == 403
-
-    @pytest.mark.parametrize(
-        "list_id,expected_response", [(1, 200), (2, 200), (3, 404)]
-    )
-    def test_viewing_variant_list_requires_permission(self, list_id, expected_response):
-        variant_list = VariantList.objects.get(id=list_id)
-        client = APIClient()
-        client.force_authenticate(User.objects.get(username="testuser"))
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == expected_response
-
-    def test_inactive_users_cannot_view_variant_lists(self):
-        variant_list = VariantList.objects.get(id=1)
-        client = APIClient()
-        client.force_authenticate(User.objects.get(username="inactiveuser"))
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == 403
-
-    @pytest.mark.parametrize(
-        "list_id,expected_access_level",
-        [("1", "Editor"), ("2", "Viewer")],
-    )
-    def test_viewing_variant_list_includes_access_level(
-        self, list_id, expected_access_level
-    ):
-        variant_list = VariantList.objects.get(id=list_id)
-        client = APIClient()
-        client.force_authenticate(User.objects.get(username="testuser"))
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        variant_list = response.json()
-        assert variant_list["access_level"] == expected_access_level
-
-    @pytest.mark.parametrize("list_id", [1, 2, 3])
-    def test_staff_users_can_view_all_lists(self, list_id):
-        variant_list = VariantList.objects.get(id=list_id)
         client = APIClient()
         client.force_authenticate(User.objects.get(username="staffmember"))
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
+        assert response.status_code == 405
+
+    def test_viewing_variant_list_does_not_require_authentication(self):
+        variant_list = VariantList.objects.get(id=1)
+        client = APIClient()
+        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        assert response.status_code == 200
+
+    @pytest.mark.parametrize(
+        "username,list_id,expected_response",
+        [
+            ("anon", 1, 200),
+            ("anon", 2, 404),
+            ("anon", 3, 404),
+            ("anon", 4, 404),
+            ("anon", 5, 200),
+            ("testuser", 1, 200),
+            ("testuser", 2, 200),
+            ("testuser", 3, 404),
+            ("testuser", 4, 404),
+            ("testuser", 5, 200),
+        ],
+    )
+    def test_viewing_variant_list_requires_permission_unless_variant_list_is_public(
+        self, username, list_id, expected_response
+    ):
+        variant_list = VariantList.objects.get(id=list_id)
+        client = APIClient()
+
+        if username != "anon":
+            client.force_authenticate(User.objects.get(username=username))
+
+        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        assert response.status_code == expected_response
+
+    def test_inactive_users_cannot_view_non_public_variant_lists(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="inactiveuser"))
+
+        public_variant_list = VariantList.objects.get(id=1)
+        response = client.get(
+            f"/api/variant-lists-read-only/{public_variant_list.uuid}/"
+        )
+        assert response.status_code == 200
+
+        private_variant_list = VariantList.objects.get(id=3)
+        response = client.get(
+            f"/api/variant-lists-read-only/{private_variant_list.uuid}/"
+        )
+        assert response.status_code == 404
+
+    @pytest.mark.parametrize(
+        "username,list_id,access_level_expected_in_response, expected_access_level",
+        [
+            ("testuser", "1", True, "Editor"),
+            ("testuser", "2", True, "Viewer"),
+            ("testuser", "5", False, "n/a"),
+            ("anon", "1", False, "n/a"),
+        ],
+    )
+    def test_viewing_variant_list_includes_access_level_unless_viewing_public_list_when_not_a_collaborator(
+        self,
+        username,
+        list_id,
+        access_level_expected_in_response,
+        expected_access_level,
+    ):
+        client = APIClient()
+
+        if username != "anon":
+            client.force_authenticate(User.objects.get(username="testuser"))
+
+        variant_list = VariantList.objects.get(id=list_id)
+        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = response.json()
+
+        if access_level_expected_in_response:
+            assert "access_level" in response
+            assert response["access_level"] == expected_access_level
+        else:
+            assert "access_level" not in response
+
+    @pytest.mark.parametrize(
+        "list_id, expected_response", [(1, 200), (2, 404), (3, 404)]
+    )
+    def test_staff_users_can_view_all_lists(self, list_id, expected_response):
+        variant_list = VariantList.objects.get(id=list_id)
+        client = APIClient()
+
+        # Staff members who are active can view any list
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
         assert response.status_code == 200
         response = response.json()
         assert "access_level" not in response
         assert "access_permissions" in response
 
-        # Staff member must be active
-        client = APIClient()
+        # Staff members whoare inactive can only view public lists
         client.force_authenticate(User.objects.get(username="inactivestaff"))
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == 403
+        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        assert response.status_code == expected_response
 
 
 @pytest.mark.django_db
