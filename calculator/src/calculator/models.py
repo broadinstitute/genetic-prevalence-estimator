@@ -152,6 +152,21 @@ class VariantListAnnotation(models.Model):
     variant_notes = models.JSONField(default=dict)
 
 
+class VariantListSharedAnnotation(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    variant_list = models.ForeignKey(
+        VariantList,
+        on_delete=models.CASCADE,
+        related_name="shared_annotations",
+        related_query_name="shared_annotations",
+    )
+
+    selected_variants = models.JSONField(default=list)
+
+    variant_notes = models.JSONField(default=dict)
+
+
 def object_level_predicate(fn):  # pylint: disable=invalid-name
     @rules.predicate
     @wraps(fn)

@@ -9,6 +9,7 @@ from website.views.variant_list_views import (
     VariantListsView,
     VariantListView,
     VariantListAnnotationView,
+    VariantListSharedAnnotationView,
     VariantListProcessView,
     VariantListVariantsView,
     PublicVariantListsView,
@@ -51,6 +52,11 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/annotation/",
         VariantListAnnotationView.as_view(),
         name="variant-list-annotation",
+    ),
+    path(
+        "api/variant-lists/<uuid:uuid>/shared-annotation/",
+        VariantListSharedAnnotationView.as_view(),
+        name="variant-list-shared-annotation",
     ),
     path(
         "api/variant-lists/<uuid:uuid>/process/",

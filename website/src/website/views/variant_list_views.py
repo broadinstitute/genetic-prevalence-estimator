@@ -20,6 +20,7 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
+    VariantListSharedAnnotation,
 )
 from calculator.serializers import (
     AddedVariantsSerializer,
@@ -27,6 +28,7 @@ from calculator.serializers import (
     VariantListSerializer,
     VariantListAnnotationSerializer,
     VariantListDashboardSerializer,
+    VariantListSharedAnnotationSerializer,
 )
 from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
@@ -308,3 +310,30 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             public_status_updated_by=self.request.user,
             public_status=request_public_status,
         )
+class VariantListSharedAnnotationView(RetrieveUpdateAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    serializer_class = VariantListSharedAnnotationSerializer
+
+    def get_object(self):
+        variant_list = super().get_object()
+
+        annotation, _ = VariantListSharedAnnotation.objects.get_or_create(
+            variant_list=variant_list,
+        )
+
+        return annotation
+
+    def perform_update(self, serializer):
+        variant_list = super().get_object()
+
+        if not self.request.user.has_perm(
+            "calculator.change_variantlist", variant_list
+        ):
+            raise PermissionDenied
+
+        serializer.save()
