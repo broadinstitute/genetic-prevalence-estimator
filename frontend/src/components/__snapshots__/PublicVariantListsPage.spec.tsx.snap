@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageNotFoundPage has no unexpected changes 1`] = `
+<DocumentFragment>
+  <div
+    class="css-wlea3r"
+  >
+    <nav
+      aria-label="breadcrumb"
+      class="chakra-breadcrumb css-0"
+    >
+      <ol
+        class="chakra-breadcrumb__list css-0"
+      >
+        <li
+          class="chakra-breadcrumb__list-item css-18biwo"
+        >
+          <a
+            class="chakra-breadcrumb__link css-0"
+            href="/"
+          >
+            Home
+          </a>
+          <span
+            class="css-t4q1nq"
+            role="presentation"
+          >
+            /
+          </span>
+        </li>
+        <li
+          class="chakra-breadcrumb__list-item css-18biwo"
+        >
+          <span>
+            Public Variant Lists
+          </span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+  <h1
+    class="chakra-heading css-1itv5e3"
+  >
+    Public Variant Lists
+  </h1>
+  <div
+    class="css-gmuwbf"
+  >
+    <div
+      class="chakra-spinner css-1y7joxr"
+    >
+      <span
+        class="css-f8n5zr"
+      >
+        Loading...
+      </span>
+    </div>
+  </div>
+</DocumentFragment>
+`;
