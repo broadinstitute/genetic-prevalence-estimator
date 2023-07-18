@@ -1,4 +1,4 @@
-import { AddIcon, EditIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Button,
   ButtonProps,
@@ -64,52 +64,79 @@ type VariantNoteProps = Omit<ButtonProps, "onClick"> & {
   variantId: VariantId;
   note: string | undefined;
   onEdit: (note: string) => void;
+  userCanEdit: boolean;
 };
 
 export const VariantNote = (props: VariantNoteProps) => {
-  const { variantId, note, onEdit } = props;
+  const { variantId, note, onEdit, userCanEdit } = props;
   const hasNote = !!note;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <>
-      <Tooltip
-        hasArrow
-        label={
-          hasNote ? (
+      {!userCanEdit && (
+        <>
+          {hasNote && (
             <>
-              Edit note<p>{note}</p>
+              <Tooltip
+                hasArrow
+                label={
+                  <>
+                    Note: <p>{note}</p>
+                  </>
+                }
+              >
+                <IconButton
+                  aria-label={"View note"}
+                  icon={<ViewIcon />}
+                  size="sm"
+                />
+              </Tooltip>
             </>
-          ) : (
-            "Add note"
-          )
-        }
-      >
-        <IconButton
-          aria-label={hasNote ? "Edit note" : "Add note"}
-          icon={hasNote ? <EditIcon /> : <AddIcon />}
-          size="sm"
-          onClick={onOpen}
-        />
-      </Tooltip>
-      <Modal isOpen={isOpen} size="xl" onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{variantId}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VariantNoteForm
-              initialNote={note || ""}
-              onCancel={onClose}
-              onSubmit={(value) => {
-                onClose();
-                onEdit(value);
-              }}
+          )}
+        </>
+      )}
+      {userCanEdit && (
+        <>
+          <Tooltip
+            hasArrow
+            label={
+              hasNote ? (
+                <>
+                  Edit note<p>{note}</p>
+                </>
+              ) : (
+                "Add note"
+              )
+            }
+          >
+            <IconButton
+              aria-label={hasNote ? "Edit note" : "Add note"}
+              icon={hasNote ? <EditIcon /> : <AddIcon />}
+              size="sm"
+              onClick={onOpen}
             />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </Tooltip>
+          <Modal isOpen={isOpen} size="xl" onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>{variantId}</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VariantNoteForm
+                  initialNote={note || ""}
+                  onCancel={onClose}
+                  onSubmit={(value) => {
+                    onClose();
+                    onEdit(value);
+                  }}
+                />
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </>
+      )}
     </>
   );
 };

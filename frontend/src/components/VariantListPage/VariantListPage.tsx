@@ -44,6 +44,7 @@ import DocumentTitle from "../DocumentTitle";
 import { printOnly, screenOnly } from "../media";
 import VariantsInput, { InputVariant } from "../VariantsInput";
 
+import { AnnotationOption } from "./AnnotationTypeSelector";
 import { EditVariantListButton } from "./EditVariantList";
 import Methods from "./Methods";
 import VariantListCalculations from "./VariantListCalculations/VariantListCalculations";
@@ -87,7 +88,10 @@ type VariantListAnnotation = {
   variantNotes: Record<VariantId, string>;
 };
 
-const useVariantListAnnotation = (variantList: VariantList) => {
+const useVariantListAnnotation = (
+  variantList: VariantList,
+  annotationType: AnnotationOption
+) => {
   const [annotation, setAnnotation] = useState<VariantListAnnotation>({
     selectedVariants: new Set<VariantId>([]),
     variantNotes: {},
@@ -95,9 +99,16 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
 
+  const annotationEndpoints = {
+    shared: "shared-annotation",
+    personal: "annotation",
+  };
+
   useEffect(() => {
     setLoading(true);
-    get(`/variant-lists/${variantList.uuid}/annotation/`)
+    get(
+      `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`
+    )
       .then((annotation) => {
         setAnnotation({
           selectedVariants: new Set(annotation.selected_variants),
@@ -108,29 +119,16 @@ const useVariantListAnnotation = (variantList: VariantList) => {
         setLoading(false);
       })
       .catch((error) => {
-        if (error.message === "Authentication credentials were not provided.") {
-          // Currently, to view annotations users need to be Authenticated, this will
-          //   change in the next PR that will be deployed at the same time as this one
-          console.log("Error: ", error);
-          console.log(
-            "An anonymous user tried to access a public variant list"
-          );
-        } else if (error.message === "Not found.") {
-          // Currently, annotations are per user and variant list, thus a public list
-          //   where a user has no permissions will return no annotations. This will be
-          //   changed in the PR immediately following this, that is to be deployed
-          //   at the same time as this one.
-          console.log("Error: ", error);
-          console.log(
-            "A non collaborator user tried to access a public variant list"
-          );
-        } else {
-          // if any error not addressed in the two comments above occurs, throw it
-          console.log("Error: ", error);
-          throw error;
-        }
+        toast({
+          title: "Unable to retrieve variant list annotations",
+          description: renderErrorDescription(error),
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
       });
-  }, [variantList.uuid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variantList.uuid, annotationType]);
 
   const toast = useToast();
 
@@ -138,9 +136,12 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     () =>
       debounce(() => {
         const annotation = getCurrentAnnotation();
-        patch(`/variant-lists/${variantList.uuid}/annotation/`, {
-          selected_variants: Array.from(annotation.selectedVariants),
-        })
+        patch(
+          `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
+          {
+            selected_variants: Array.from(annotation.selectedVariants),
+          }
+        )
           .then(() => {
             toast({
               title: "Saved selected variants",
@@ -159,7 +160,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             });
           });
       }, 2000),
-    [getCurrentAnnotation, toast, variantList.uuid]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList.uuid, annotationType]
   );
 
   const setSelectedVariants = useCallback(
@@ -167,14 +169,18 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       setAnnotation((annotation) => ({ ...annotation, selectedVariants }));
       saveSelectedVariants();
     },
-    [saveSelectedVariants]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   const saveVariantNotes = useCallback(
     (variantNotes) => {
-      patch(`/variant-lists/${variantList.uuid}/annotation/`, {
-        variant_notes: variantNotes,
-      })
+      patch(
+        `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
+        {
+          variant_notes: variantNotes,
+        }
+      )
         .then(() => {
           toast({
             title: "Saved notes",
@@ -193,7 +199,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           });
         });
     },
-    [toast, variantList.uuid]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList.uuid, annotationType]
   );
 
   const setVariantNote = useCallback(
@@ -244,6 +251,9 @@ interface VariantListPageProps {
 const VariantListPage = (props: VariantListPageProps) => {
   const { variantListStore, refreshVariantList } = props;
   const variantList = useStore(variantListStore);
+  const [annotationType, setAnnotationType] = useState<AnnotationOption>(
+    "shared"
+  );
 
   const [addedVariants, setAddedVariants] = useState<InputVariant[]>([]);
   const [addingVariants, setAddingVariants] = useState(false);
@@ -261,7 +271,7 @@ const VariantListPage = (props: VariantListPageProps) => {
     setSelectedVariants,
     variantNotes,
     setVariantNote,
-  } = useVariantListAnnotation(variantList);
+  } = useVariantListAnnotation(variantList, annotationType);
 
   const history = useHistory();
 
@@ -413,10 +423,13 @@ const VariantListPage = (props: VariantListPageProps) => {
         </HStack>
 
         <VariantListVariants
-          variantList={variantList}
+          annotationType={annotationType}
           selectedVariants={selectedVariants}
           selectionDisabled={loadingAnnotation}
+          variantList={variantList}
           variantNotes={variantNotes}
+          userCanEdit={userCanEdit}
+          onChangeAnnotationType={setAnnotationType}
           onChangeSelectedVariants={setSelectedVariants}
           onEditVariantNote={setVariantNote}
         />
