@@ -1,0 +1,31 @@
+name: Backend CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "calculator/**"
+      - "website/**"
+  pull_request:
+    paths:
+      - "calculator/**"
+      - "website/**"
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.17
+      - name: Install Nox
+        run: pip install nox
+      - name: Format with Black
+        run: nox -s format
+      - name: Run Pylint
+        run: nox -s pylint:website
+      - name: Run website tests
+        run: nox -s tests:website
