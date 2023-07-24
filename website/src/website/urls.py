@@ -8,7 +8,6 @@ from website.views.user_views import UsersList, UserDetail
 from website.views.variant_list_views import (
     VariantListsView,
     VariantListView,
-    VariantListReadOnlyView,
     VariantListAnnotationView,
     VariantListProcessView,
     VariantListVariantsView,
@@ -50,11 +49,6 @@ urlpatterns = [
     path("api/variant-lists/", VariantListsView.as_view(), name="variant-lists"),
     path(
         "api/variant-lists/<uuid:uuid>/", VariantListView.as_view(), name="variant-list"
-    ),
-    path(
-        "api/variant-lists-read-only/<uuid:uuid>/",
-        VariantListReadOnlyView.as_view(),
-        name="variant-list",
     ),
     path(
         "api/variant-lists/<uuid:uuid>/annotation/",

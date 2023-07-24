@@ -506,7 +506,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     let refreshCanceled = false;
 
     const refreshVariantList = () => {
-      get(`/variant-lists-read-only/${uuid}/`).then(
+      get(`/variant-lists/${uuid}/`).then(
         (variantList) => {
           if (refreshCanceled) {
             return;
@@ -531,7 +531,7 @@ const VariantListPageContainer = (props: { uuid: string }) => {
     };
 
     setIsLoading(true);
-    get(`/variant-lists-read-only/${uuid}/`)
+    get(`/variant-lists/${uuid}/`)
       .then((variantList) => {
         variantListStoreRef.current = atom(variantList);
 

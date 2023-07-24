@@ -310,17 +310,10 @@ class TestGetVariantList:
             reviewed_by=staffuser,
         )
 
-    def test_variant_list_edit_delete_endpoint_disallows_get(self):
-        variant_list = VariantList.objects.get(id=1)
-        client = APIClient()
-        client.force_authenticate(User.objects.get(username="staffmember"))
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == 405
-
     def test_viewing_variant_list_does_not_require_authentication(self):
         variant_list = VariantList.objects.get(id=1)
         client = APIClient()
-        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == 200
 
     @pytest.mark.parametrize(
@@ -347,7 +340,7 @@ class TestGetVariantList:
         if username != "anon":
             client.force_authenticate(User.objects.get(username=username))
 
-        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == expected_response
 
     def test_inactive_users_cannot_view_non_public_variant_lists(self):
@@ -355,15 +348,11 @@ class TestGetVariantList:
         client.force_authenticate(User.objects.get(username="inactiveuser"))
 
         public_variant_list = VariantList.objects.get(id=1)
-        response = client.get(
-            f"/api/variant-lists-read-only/{public_variant_list.uuid}/"
-        )
+        response = client.get(f"/api/variant-lists/{public_variant_list.uuid}/")
         assert response.status_code == 200
 
         private_variant_list = VariantList.objects.get(id=3)
-        response = client.get(
-            f"/api/variant-lists-read-only/{private_variant_list.uuid}/"
-        )
+        response = client.get(f"/api/variant-lists/{private_variant_list.uuid}/")
         assert response.status_code == 404
 
     @pytest.mark.parametrize(
@@ -388,7 +377,7 @@ class TestGetVariantList:
             client.force_authenticate(User.objects.get(username="testuser"))
 
         variant_list = VariantList.objects.get(id=list_id)
-        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         response = response.json()
 
         if access_level_expected_in_response:
@@ -406,7 +395,7 @@ class TestGetVariantList:
 
         # Staff members who are active can view any list
         client.force_authenticate(User.objects.get(username="staffmember"))
-        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == 200
         response = response.json()
         assert "access_level" not in response
@@ -414,7 +403,7 @@ class TestGetVariantList:
 
         # Staff members whoare inactive can only view public lists
         client.force_authenticate(User.objects.get(username="inactivestaff"))
-        response = client.get(f"/api/variant-lists-read-only/{variant_list.uuid}/")
+        response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == expected_response
 
 
@@ -480,7 +469,7 @@ class TestEditVariantList:
             ("viewer", 403),
             ("editor", 200),
             ("owner", 200),
-            ("other", 404),
+            ("other", 403),
             ("inactiveuser", 403),
             ("staffmember", 403),
         ],
@@ -562,7 +551,7 @@ class TestDeleteVariantList:
             ("viewer", 403),
             ("editor", 403),
             ("owner", 204),
-            ("other", 404),
+            ("other", 403),
             ("inactiveuser", 403),
             ("staffmember", 403),
         ],
