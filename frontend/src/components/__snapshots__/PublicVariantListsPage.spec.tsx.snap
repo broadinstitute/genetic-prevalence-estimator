@@ -32,7 +32,7 @@ exports[`PageNotFoundPage has no unexpected changes 1`] = `
           class="chakra-breadcrumb__list-item css-18biwo"
         >
           <span>
-            Public Variant Lists
+            Public variant lists
           </span>
         </li>
       </ol>
@@ -41,7 +41,7 @@ exports[`PageNotFoundPage has no unexpected changes 1`] = `
   <h1
     class="chakra-heading css-1itv5e3"
   >
-    Public Variant Lists
+    Public variant lists
   </h1>
   <div
     class="css-gmuwbf"
