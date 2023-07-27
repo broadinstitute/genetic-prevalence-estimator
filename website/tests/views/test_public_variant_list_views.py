@@ -224,13 +224,13 @@ class TestGetPublicVariantList:
 
     def test_viewing_public_variant_list_detail_requires_authentication(self):
         client = APIClient()
-        response = client.get(f"/api/public-variant-lists/2/")
+        response = client.get("/api/public-variant-lists/2/")
         assert response.status_code == 403
 
     def test_viewing_public_variant_list_detail_requires_permissions(self):
         client = APIClient()
         client.force_authenticate(User.objects.get(username="submitter"))
-        response = client.get(f"/api/public-variant-lists/2/")
+        response = client.get("/api/public-variant-lists/2/")
         assert response.status_code == 200
 
 
@@ -408,7 +408,7 @@ class TestDeletePublicVariantList:
     def test_deleting_public_variant_list_requires_authentication(self):
         client = APIClient()
         assert PublicVariantList.objects.count() == 2
-        response = client.delete(f"/api/public-variant-lists/2/")
+        response = client.delete("/api/public-variant-lists/2/")
         assert response.status_code == 403
         assert PublicVariantList.objects.count() == 2
 
@@ -418,18 +418,18 @@ class TestDeletePublicVariantList:
 
         # a user that is not an owner of the list cannot delete its public entry
         client.force_authenticate(User.objects.get(username="other"))
-        response = client.delete(f"/api/public-variant-lists/2/")
+        response = client.delete("/api/public-variant-lists/2/")
         assert response.status_code == 403
         assert PublicVariantList.objects.count() == 2
 
         # An owner of the list can delete the public entry
         client.force_authenticate(User.objects.get(username="submitter"))
-        response = client.delete(f"/api/public-variant-lists/2/")
+        response = client.delete("/api/public-variant-lists/2/")
         assert response.status_code == 204
         assert PublicVariantList.objects.count() == 1
 
         # a staff user can delete a public entry even if they are not an owner
         client.force_authenticate(User.objects.get(username="reviewer"))
-        response = client.delete(f"/api/public-variant-lists/1/")
+        response = client.delete("/api/public-variant-lists/1/")
         assert response.status_code == 204
         assert PublicVariantList.objects.count() == 0

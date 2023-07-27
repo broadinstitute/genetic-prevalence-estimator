@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use
+# pylint: disable=no-self-use, disable=too-many-lines
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import override_settings

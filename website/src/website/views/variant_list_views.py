@@ -4,11 +4,9 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     GenericAPIView,
     ListCreateAPIView,
-    RetrieveAPIView,
     RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.permissions import (
     DjangoObjectPermissions,
     IsAuthenticated,

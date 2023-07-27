@@ -106,7 +106,7 @@ class PublicVariantList(models.Model):
             .exclude(variant_list_id=self.variant_list_id)
             .exists()
         ):
-            # TODO: this error message never makes it to the client http response
+            # this error message never makes it to the client http response
             # this also applies to unique validation in variant access list permissions
             raise ValidationError(
                 "An approved public list for this gene already exists"
@@ -114,7 +114,7 @@ class PublicVariantList(models.Model):
 
     def save(self, *args, **kwargs):
         self.validate_unique()
-
+        # pylint: disable=super-with-arguments
         super(PublicVariantList, self).save(*args, **kwargs)
 
 
@@ -231,12 +231,16 @@ def is_variant_list_viewer(user, variant_list):
 
 
 @object_level_predicate
+# pylint: disable=unused-argument
 def is_accessing_a_public_variant_list(user, variant_list):
     try:
         public_status = variant_list.public_status
         return public_status.review_status == PublicVariantList.ReviewStatus.APPROVED
     except PublicVariantList.DoesNotExist:
         return False
+
+
+# pylint: enable=unused-argument
 
 
 rules.add_perm("calculator.add_variantlist", rules.is_active)

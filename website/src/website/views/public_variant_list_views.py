@@ -27,10 +27,9 @@ class PublicVariantListsView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.user.is_staff:
             return PublicVariantList.objects.all()
-        else:
-            return PublicVariantList.objects.filter(
-                review_status=PublicVariantList.ReviewStatus.APPROVED
-            )
+        return PublicVariantList.objects.filter(
+            review_status=PublicVariantList.ReviewStatus.APPROVED
+        )
 
     def get_serializer_class(self):
         if self.request.method == "POST":

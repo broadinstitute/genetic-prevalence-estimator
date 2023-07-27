@@ -209,6 +209,7 @@ def test_reduced_public_variant_list_serializer_does_not_return_reviewer():
     serializer = PublicVariantListReducedSerializer(public_list)
 
     with pytest.raises(KeyError):
+        # pylint: disable=pointless-statement
         serializer.data["reviewed_by"] == "reviewer"
 
 
@@ -227,4 +228,5 @@ def test_reduced_public_variant_list_serializer_does_not_return_review_status():
     serializer = PublicVariantListReducedSerializer(public_list)
 
     with pytest.raises(KeyError):
+        # pylint: disable=pointless-statement
         serializer.data["review_status"] == "Approved"
