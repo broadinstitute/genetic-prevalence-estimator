@@ -131,12 +131,12 @@ const PublicVariantLists = (props: {
       <Table variant="striped">
         <Thead>
           <Tr>
-            <Th>GENE</Th>
-            <Th>LABEL</Th>
-            <Th>SUBMITTER</Th>
-            {user?.is_staff && <Th>REVIEWER</Th>}
-            {user?.is_staff && <Th>APPROVAL STATUS</Th>}
-            {user?.is_staff && <Th>REMOVE LIST</Th>}
+            <Th>Gene</Th>
+            <Th>Label</Th>
+            <Th>Submitter</Th>
+            {user?.is_staff && <Th>Reviewer</Th>}
+            {user?.is_staff && <Th>Approval Status</Th>}
+            {user?.is_staff && <Th>Remove List</Th>}
           </Tr>
         </Thead>
         <Tbody>
@@ -273,12 +273,12 @@ const PublicListsPage = () => {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <span>Public Variant Lists</span>
+            <span>Public variant lists</span>
           </BreadcrumbItem>
         </Breadcrumb>
       </Box>
       <Heading as="h1" mb={4}>
-        Public Variant Lists
+        Public variant lists
       </Heading>
 
       <PublicVariantListsContainer />
