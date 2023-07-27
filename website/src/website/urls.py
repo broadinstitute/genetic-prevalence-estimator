@@ -81,7 +81,7 @@ urlpatterns = [
         name="public-variant-lists",
     ),
     path(
-        "api/public-variant-list/<int:variant_list>/",
+        "api/public-variant-lists/<int:variant_list>/",
         PublicVariantListDetail.as_view(),
         name="public-variant-list-detail",
     ),

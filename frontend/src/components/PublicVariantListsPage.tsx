@@ -61,7 +61,7 @@ const PublicVariantLists = (props: {
     update: { public_status: VariantListPublicStatusCode; reviewed_by: String }
   ): Promise<PublicVariantList> => {
     return patch(
-      `/public-variant-list/${publicVariantListToUpdate.variant_list}/`,
+      `/public-variant-lists/${publicVariantListToUpdate.variant_list}/`,
       update
     ).then(
       (updatedPublicVariantList) => {
@@ -97,7 +97,7 @@ const PublicVariantLists = (props: {
     publicVariantListToDelete: PublicVariantList
   ): Promise<void> => {
     return del(
-      `/public-variant-list/${publicVariantListToDelete.variant_list}/`
+      `/public-variant-lists/${publicVariantListToDelete.variant_list}/`
     ).then(
       () => {
         props.publicVariantListsStore.set(

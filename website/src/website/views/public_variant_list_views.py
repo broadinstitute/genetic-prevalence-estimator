@@ -53,7 +53,7 @@ class PublicVariantListsView(ListCreateAPIView):
         )
         try:
             return {
-                "Location": f"/api/public-variant-list/{created_public_list.variant_list.id}/"
+                "Location": f"/api/public-variant-lists/{created_public_list.variant_list.id}/"
             }
         except KeyError:
             return {}

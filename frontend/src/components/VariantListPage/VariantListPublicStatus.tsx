@@ -78,7 +78,7 @@ const VariantListPublicStatus = ({
           onClick={() => {
             del(
               // @ts-ignore -- the conditional check above guarantees variantList has a public_status
-              `/public-variant-list/${variantList.public_status.variant_list}`
+              `/public-variant-lists/${variantList.public_status.variant_list}`
             )
               .then(() => {
                 toast({
