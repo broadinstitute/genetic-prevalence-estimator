@@ -181,7 +181,7 @@ class TestPublicVariantList:
             variant_list=variant_list,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.REJECTED,
+            review_status=PublicVariantList.ReviewStatus.REJECTED,
         )
 
         assert PublicVariantList.objects.count() == 1
@@ -212,7 +212,7 @@ class TestPublicVariantList:
             variant_list=list1,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.REJECTED,
+            review_status=PublicVariantList.ReviewStatus.REJECTED,
         )
 
         list2 = VariantList.objects.create(
@@ -234,7 +234,7 @@ class TestPublicVariantList:
             variant_list=list2,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
         )
 
         list3 = VariantList.objects.create(
@@ -257,5 +257,5 @@ class TestPublicVariantList:
                 variant_list=list3,
                 submitted_by=submitter,
                 reviewed_by=reviewer,
-                public_status=PublicVariantList.PublicStatus.PENDING,
+                review_status=PublicVariantList.ReviewStatus.PENDING,
             )

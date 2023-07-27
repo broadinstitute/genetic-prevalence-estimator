@@ -284,28 +284,28 @@ class TestGetVariantList:
 
         PublicVariantList.objects.create(
             variant_list=list1,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
             submitted_by=testuser,
             reviewed_by=staffuser,
         )
 
         PublicVariantList.objects.create(
             variant_list=list2,
-            public_status=PublicVariantList.PublicStatus.PENDING,
+            review_status=PublicVariantList.ReviewStatus.PENDING,
             submitted_by=testuser,
             reviewed_by=staffuser,
         )
 
         PublicVariantList.objects.create(
             variant_list=list3,
-            public_status=PublicVariantList.PublicStatus.REJECTED,
+            review_status=PublicVariantList.ReviewStatus.REJECTED,
             submitted_by=testuser,
             reviewed_by=staffuser,
         )
 
         PublicVariantList.objects.create(
             variant_list=list5,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
             submitted_by=testuser,
             reviewed_by=staffuser,
         )

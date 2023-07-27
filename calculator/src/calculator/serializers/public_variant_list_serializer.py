@@ -13,7 +13,7 @@ class NewPublicVariantListSerializer(ModelSerializer):
     )
 
     approval_status = ChoiceField(
-        choices=PublicVariantList.PublicStatus.choices, read_only=True
+        choices=PublicVariantList.ReviewStatus.choices, read_only=True
     )
 
     class Meta:
@@ -39,7 +39,7 @@ class PublicVariantListSerializer(ModelSerializer):
         source="variant_list.metadata.gene_symbol"
     )
     variant_list_label = serializers.CharField(source="variant_list.label")
-    public_status = ChoiceField(choices=PublicVariantList.PublicStatus.choices)
+    review_status = ChoiceField(choices=PublicVariantList.ReviewStatus.choices)
     submitted_by = UsernameField()
     reviewed_by = UsernameField()
 
@@ -52,7 +52,7 @@ class PublicVariantListSerializer(ModelSerializer):
             "variant_list_label",
             "submitted_by",
             "submitted_at",
-            "public_status",
+            "review_status",
             "reviewed_by",
             "reviewed_at",
         ]

@@ -54,7 +54,7 @@ import {
 import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
-import VariantListPublicStatus from "./VariantListPublicStatus";
+import VariantListReviewStatus from "./VariantListReviewStatus";
 
 const addVariantsToVariantList = (
   uuid: string,
@@ -348,7 +348,7 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
-          <VariantListPublicStatus variantListStore={variantListStore} />
+          <VariantListReviewStatus variantListStore={variantListStore} />
         </Box>
       )}
 

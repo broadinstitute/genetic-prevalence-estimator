@@ -69,7 +69,7 @@ class TestNewPublicVariantListSerializer:
             data={
                 "variant_list": VariantList.objects.get(id=1).uuid,
                 "submitted_by": "testuser",
-                "public_status": PublicVariantList.PublicStatus.APPROVED,
+                "review_status": PublicVariantList.ReviewStatus.APPROVED,
             }
         )
         assert not serializer.is_valid()
@@ -97,7 +97,7 @@ def test_public_variant_list_serializer_serializes_usernames():
     assert serializer.data["reviewed_by"] == "testuser2"
 
 
-def test_public_variant_list_serializer_serializes_public_status():
+def test_public_variant_list_serializer_serializes_review_status():
     user = User(username="testuser")
     reviewer = User(username="testreviewer")
     variant_list = variant_list_fixture()
@@ -105,14 +105,14 @@ def test_public_variant_list_serializer_serializes_public_status():
         variant_list=variant_list,
         submitted_by=user,
         reviewed_by=reviewer,
-        public_status=PublicVariantList.PublicStatus.APPROVED,
+        review_status=PublicVariantList.ReviewStatus.APPROVED,
     )
 
     serializer = PublicVariantListSerializer(public_list)
-    assert serializer.data["public_status"] == "Approved"
+    assert serializer.data["review_status"] == "Approved"
 
 
-def test_public_variant_list_serializer_allows_editing_public_status():
+def test_public_variant_list_serializer_allows_editing_review_status():
     user = User(username="testuser")
     variant_list = variant_list_fixture()
     public_list = PublicVariantList(
@@ -123,7 +123,7 @@ def test_public_variant_list_serializer_allows_editing_public_status():
     serializer = PublicVariantListSerializer(
         public_list,
         data={
-            "public_status": PublicVariantList.PublicStatus.APPROVED,
+            "review_status": PublicVariantList.ReviewStatus.APPROVED,
         },
         partial=True,
     )
@@ -133,7 +133,7 @@ def test_public_variant_list_serializer_allows_editing_public_status():
     serializer = PublicVariantListSerializer(
         public_list,
         data={
-            "public_status": PublicVariantList.PublicStatus.REJECTED,
+            "review_status": PublicVariantList.ReviewStatus.REJECTED,
         },
         partial=True,
     )
@@ -187,7 +187,7 @@ def test_reduced_public_variant_list_serializer_serializes_username():
     public_list = PublicVariantList(
         variant_list=variant_list,
         submitted_by=user,
-        public_status=PublicVariantList.PublicStatus.APPROVED,
+        review_status=PublicVariantList.ReviewStatus.APPROVED,
     )
 
     serializer = PublicVariantListReducedSerializer(public_list)
@@ -203,7 +203,7 @@ def test_reduced_public_variant_list_serializer_does_not_return_reviewer():
         variant_list=variant_list,
         submitted_by=user,
         reviewed_by=reviewer,
-        public_status=PublicVariantList.PublicStatus.APPROVED,
+        review_status=PublicVariantList.ReviewStatus.APPROVED,
     )
 
     serializer = PublicVariantListReducedSerializer(public_list)
@@ -212,7 +212,7 @@ def test_reduced_public_variant_list_serializer_does_not_return_reviewer():
         serializer.data["reviewed_by"] == "reviewer"
 
 
-def test_reduced_public_variant_list_serializer_does_not_return_public_status():
+def test_reduced_public_variant_list_serializer_does_not_return_review_status():
     user = User(username="testuser")
     reviewer = User(username="reviewer")
 
@@ -221,10 +221,10 @@ def test_reduced_public_variant_list_serializer_does_not_return_public_status():
         variant_list=variant_list,
         submitted_by=user,
         reviewed_by=reviewer,
-        public_status=PublicVariantList.PublicStatus.APPROVED,
+        review_status=PublicVariantList.ReviewStatus.APPROVED,
     )
 
     serializer = PublicVariantListReducedSerializer(public_list)
 
     with pytest.raises(KeyError):
-        serializer.data["public_status"] == "Approved"
+        serializer.data["review_status"] == "Approved"

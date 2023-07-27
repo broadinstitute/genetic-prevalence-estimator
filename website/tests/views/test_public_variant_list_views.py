@@ -86,7 +86,7 @@ class TestCreatePublicVariantList:
             },
         )
         public_list = PublicVariantList.objects.get(
-            variant_list=1, public_status=PublicVariantList.PublicStatus.PENDING
+            variant_list=1, review_status=PublicVariantList.ReviewStatus.PENDING
         )
         assert public_list.submitted_by.username == "submitter"
 
@@ -183,19 +183,19 @@ class TestGetPublicVariantList:
             variant_list=list2,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
         )
 
         PublicVariantList.objects.create(
             variant_list=list3,
             submitted_by=submitter,
-            public_status=PublicVariantList.PublicStatus.PENDING,
+            review_status=PublicVariantList.ReviewStatus.PENDING,
         )
 
         PublicVariantList.objects.create(
             variant_list=list4,
             submitted_by=submitter,
-            public_status=PublicVariantList.PublicStatus.REJECTED,
+            review_status=PublicVariantList.ReviewStatus.REJECTED,
         )
 
     def test_viewing_public_variant_lists_does_not_require_authentication(self):
@@ -211,7 +211,7 @@ class TestGetPublicVariantList:
         response = client.get("/api/public-variant-lists/")
         assert response.status_code == 200
         assert len(response.data) == 1
-        assert not any("public_status" in od for od in response.data)
+        assert not any("review_status" in od for od in response.data)
 
         # staff user can see public lists of any status
         client.force_authenticate(User.objects.get(username="reviewer"))
@@ -278,14 +278,14 @@ class TestEditPublicVariantList:
         PublicVariantList.objects.create(
             variant_list=list1,
             submitted_by=submitter,
-            public_status=PublicVariantList.PublicStatus.PENDING,
+            review_status=PublicVariantList.ReviewStatus.PENDING,
         )
 
         PublicVariantList.objects.create(
             variant_list=list2,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
         )
 
     def test_editing_public_variant_list_requires_authentication(self):
@@ -294,7 +294,7 @@ class TestEditPublicVariantList:
         response = client.patch(
             "/api/public-variant-lists/2/",
             {
-                "public_status": PublicVariantList.PublicStatus.APPROVED,
+                "review_status": PublicVariantList.ReviewStatus.APPROVED,
                 "reviewed_by": "reviewer",
             },
         )
@@ -306,7 +306,7 @@ class TestEditPublicVariantList:
         response = client.patch(
             "/api/public-variant-lists/1/",
             {
-                "public_status": PublicVariantList.PublicStatus.APPROVED,
+                "review_status": PublicVariantList.ReviewStatus.APPROVED,
                 "reviewed_by": "submitter",
             },
         )
@@ -316,7 +316,7 @@ class TestEditPublicVariantList:
         response = client.patch(
             "/api/public-variant-lists/1/",
             {
-                "public_status": PublicVariantList.PublicStatus.APPROVED,
+                "review_status": PublicVariantList.ReviewStatus.APPROVED,
                 "reviewed_by": "reviewer",
             },
         )
@@ -328,7 +328,7 @@ class TestEditPublicVariantList:
         response = client.patch(
             "/api/public-variant-lists/2/",
             {
-                "public_status": PublicVariantList.PublicStatus.REJECTED,
+                "review_status": PublicVariantList.ReviewStatus.REJECTED,
                 "reviewed_by": "submitter",
             },
         )
@@ -337,7 +337,7 @@ class TestEditPublicVariantList:
         response = client.patch(
             "/api/public-variant-lists/2/",
             {
-                "public_status": PublicVariantList.PublicStatus.APPROVED,
+                "review_status": PublicVariantList.ReviewStatus.APPROVED,
                 "reviewed_by": "submitter",
             },
         )
@@ -395,14 +395,14 @@ class TestDeletePublicVariantList:
         PublicVariantList.objects.create(
             variant_list=list1,
             submitted_by=submitter,
-            public_status=PublicVariantList.PublicStatus.PENDING,
+            review_status=PublicVariantList.ReviewStatus.PENDING,
         )
 
         PublicVariantList.objects.create(
             variant_list=list2,
             submitted_by=submitter,
             reviewed_by=reviewer,
-            public_status=PublicVariantList.PublicStatus.APPROVED,
+            review_status=PublicVariantList.ReviewStatus.APPROVED,
         )
 
     def test_deleting_public_variant_list_requires_authentication(self):

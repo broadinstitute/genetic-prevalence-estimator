@@ -32,7 +32,7 @@ import { Link as RRLink } from "react-router-dom";
 import { del, get, patch } from "../api";
 import { renderErrorDescription } from "../errors";
 import { Store, atom, authStore, useStore } from "../state";
-import { VariantListPublicStatusCode } from "../types";
+import { VariantListReviewStatusCode } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
 import DocumentTitle from "./DocumentTitle";
@@ -44,7 +44,7 @@ interface PublicVariantList {
   variant_list_gene_symbol: string;
   submitted_by: string;
   submitted_at: string;
-  public_status: VariantListPublicStatusCode;
+  review_status: VariantListReviewStatusCode;
   reviewed_by: string;
   reviewed_at: string;
 }
@@ -58,7 +58,7 @@ const PublicVariantLists = (props: {
 
   const updatePublicVariantList = (
     publicVariantListToUpdate: PublicVariantList,
-    update: { public_status: VariantListPublicStatusCode; reviewed_by: String }
+    update: { review_status: VariantListReviewStatusCode; reviewed_by: String }
   ): Promise<PublicVariantList> => {
     return patch(
       `/public-variant-lists/${publicVariantListToUpdate.variant_list}/`,
@@ -162,14 +162,14 @@ const PublicVariantLists = (props: {
                         size="sm"
                         rightIcon={<ChevronDownIcon />}
                       >
-                        {publicList.public_status.toString()}
+                        {publicList.review_status.toString()}
                       </MenuButton>
                       <MenuList>
                         <MenuItem
                           onClick={() => {
                             updatePublicVariantList(publicList, {
-                              public_status:
-                                VariantListPublicStatusCode.APPROVED,
+                              review_status:
+                                VariantListReviewStatusCode.APPROVED,
                               reviewed_by: user?.username,
                             });
                           }}
@@ -179,8 +179,8 @@ const PublicVariantLists = (props: {
                         <MenuItem
                           onClick={() => {
                             updatePublicVariantList(publicList, {
-                              public_status:
-                                VariantListPublicStatusCode.REJECTED,
+                              review_status:
+                                VariantListReviewStatusCode.REJECTED,
                               reviewed_by: user?.username,
                             });
                           }}

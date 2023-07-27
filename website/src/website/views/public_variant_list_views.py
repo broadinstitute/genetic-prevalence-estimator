@@ -29,7 +29,7 @@ class PublicVariantListsView(ListCreateAPIView):
             return PublicVariantList.objects.all()
         else:
             return PublicVariantList.objects.filter(
-                public_status=PublicVariantList.PublicStatus.APPROVED
+                review_status=PublicVariantList.ReviewStatus.APPROVED
             )
 
     def get_serializer_class(self):

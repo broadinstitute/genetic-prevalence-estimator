@@ -68,13 +68,13 @@ class PublicVariantList(models.Model):
         related_query_name="public_status",
     )
 
-    class PublicStatus(models.TextChoices):
+    class ReviewStatus(models.TextChoices):
         PENDING = ("P", "Pending")
         REJECTED = ("R", "Rejected")
         APPROVED = ("A", "Approved")
 
-    public_status = models.CharField(
-        max_length=1, choices=PublicStatus.choices, default=PublicStatus.PENDING
+    review_status = models.CharField(
+        max_length=1, choices=ReviewStatus.choices, default=ReviewStatus.PENDING
     )
 
     submitted_at = models.DateTimeField(auto_now_add=True)
@@ -100,7 +100,7 @@ class PublicVariantList(models.Model):
         if (
             PublicVariantList.objects.filter(
                 variant_list__metadata__gene_id=self.variant_list.metadata["gene_id"],
-                public_status=self.PublicStatus.APPROVED,
+                review_status=self.ReviewStatus.APPROVED,
             )
             .exclude(variant_list_id=self.variant_list_id)
             .exists()
@@ -233,7 +233,7 @@ def is_variant_list_viewer(user, variant_list):
 def is_accessing_a_public_variant_list(user, variant_list):
     try:
         public_status = variant_list.public_status
-        return public_status.public_status == PublicVariantList.PublicStatus.APPROVED
+        return public_status.review_status == PublicVariantList.ReviewStatus.APPROVED
     except PublicVariantList.DoesNotExist:
         return False
 

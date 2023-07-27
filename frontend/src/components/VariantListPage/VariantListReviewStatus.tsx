@@ -5,9 +5,9 @@ import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import { del, post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { authStore, Store, useStore } from "../../state";
-import { VariantList, VariantListPublicStatusCode } from "../../types";
+import { VariantList, VariantListReviewStatusCode } from "../../types";
 
-const VariantListPublicStatus = ({
+const VariantListReviewStatus = ({
   variantListStore,
 }: {
   variantListStore: Store<VariantList>;
@@ -23,7 +23,7 @@ const VariantListPublicStatus = ({
       </Heading>
       <Text mb={2}>{`This variant list is ${
         variantList.public_status
-          ? variantList.public_status.public_status.toLowerCase()
+          ? variantList.public_status.review_status.toLowerCase()
           : "private"
       }`}</Text>
       {!variantList.public_status && (
@@ -49,7 +49,7 @@ const VariantListPublicStatus = ({
                   ...variantList,
                   public_status: {
                     ...response,
-                    public_status: VariantListPublicStatusCode.SUBMITTED,
+                    review_status: VariantListReviewStatusCode.SUBMITTED,
                   },
                 });
               })
@@ -110,4 +110,4 @@ const VariantListPublicStatus = ({
   );
 };
 
-export default VariantListPublicStatus;
+export default VariantListReviewStatus;

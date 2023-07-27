@@ -91,7 +91,7 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
             # anonymous users or inactive users can view all approved public lists
             public_lists = VariantList.objects.filter(
-                public_status__public_status=PublicVariantList.PublicStatus.APPROVED
+                public_status__review_status=PublicVariantList.ReviewStatus.APPROVED
             )
             if self.request.user.is_anonymous or not self.request.user.is_active:
                 return public_lists
