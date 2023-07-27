@@ -4,6 +4,7 @@ import uuid
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 
 
 from calculator.models import (
@@ -189,7 +190,7 @@ class TestPublicVariantList:
         assert PublicVariantList.objects.count() == 0
 
     @pytest.mark.django_db
-    def test_duplicate_genes_lists_cannot_be_submitted(self):
+    def test_duplicate_gene_lists_cannot_be_submitted(self):
         submitter = User.objects.create(username="submitter", is_staff=False)
         reviewer = User.objects.create(username="reviewer", is_staff=True)
 
@@ -251,7 +252,7 @@ class TestPublicVariantList:
             variants=["1-55516888-G-GA"],
         )
 
-        with pytest.raises(IntegrityError):
+        with pytest.raises(ValidationError):
             # A public list cannot be created if there's an existing approved list with the same gene_id
             PublicVariantList.objects.create(
                 variant_list=list3,

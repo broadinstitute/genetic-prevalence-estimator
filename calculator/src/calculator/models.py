@@ -3,7 +3,8 @@ from functools import wraps
 
 import rules
 from django.conf import settings
-from django.db import models, IntegrityError
+from django.db import models
+from rest_framework.exceptions import ValidationError
 
 
 class VariantList(models.Model):
@@ -107,8 +108,8 @@ class PublicVariantList(models.Model):
         ):
             # TODO: this error message never makes it to the client http response
             # this also applies to unique validation in variant access list permissions
-            raise IntegrityError(
-                "An approved public list for this gene_id already exists"
+            raise ValidationError(
+                "An approved public list for this gene already exists"
             )
 
     def save(self, *args, **kwargs):
