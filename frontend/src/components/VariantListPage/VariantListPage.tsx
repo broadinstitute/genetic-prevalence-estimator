@@ -108,9 +108,27 @@ const useVariantListAnnotation = (variantList: VariantList) => {
         setLoading(false);
       })
       .catch((error) => {
-        // TODO: variant list annotations are currently per user, public variant
-        //   lists return no annotations. This will be addressed in the next PR
-        console.log("Error: ", error);
+        if (error.message === "Authentication credentials were not provided.") {
+          // Currently, to view annotations users need to be Authenticated, this will
+          //   change in the next PR that will be deployed at the same time as this one
+          console.log("Error: ", error);
+          console.log(
+            "An anonymous user tried to access a public variant list"
+          );
+        } else if (error.message === "Not found.") {
+          // Currently, annotations are per user and variant list, thus a public list
+          //   where a user has no permissions will return no annotations. This will be
+          //   changed in the PR immediately following this, that is to be deployed
+          //   at the same time as this one.
+          console.log("Error: ", error);
+          console.log(
+            "A non collaborator user tried to access a public variant list"
+          );
+        } else {
+          // if any error not addressed in the two comments above occurs, throw it
+          console.log("Error: ", error);
+          throw error;
+        }
       });
   }, [variantList.uuid]);
 

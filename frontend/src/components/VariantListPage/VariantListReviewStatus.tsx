@@ -16,6 +16,63 @@ const VariantListReviewStatus = ({
   const { user } = useStore(authStore);
   const toast = useToast();
 
+  const postPublicVariantList = () => {
+    const request = {
+      variant_list: variantList.uuid,
+      submitted_by: user?.username,
+    };
+    post("/public-variant-lists/", request)
+      .then((response) => {
+        toast({
+          title: "Public status updated",
+          status: "success",
+          duration: 30_000,
+          isClosable: true,
+        });
+        variantListStore.set({
+          ...variantList,
+          public_status: {
+            ...response,
+            review_status: VariantListReviewStatusCode.SUBMITTED,
+          },
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Unable to update public status",
+          description: `An approved public variant list for this gene may already exist.`,
+          status: "error",
+          duration: 10_000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const deletePublicVariantList = () => {
+    del(`/public-variant-lists/${variantList.public_status!.variant_list}`)
+      .then(() => {
+        toast({
+          title: "Variant is now private",
+          status: "success",
+          duration: 30_000,
+          isClosable: true,
+        });
+        variantListStore.set({
+          ...variantList,
+          public_status: undefined,
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Unable to make the list private",
+          description: renderErrorDescription(error),
+          status: "error",
+          duration: 10_000,
+          isClosable: true,
+        });
+      });
+  };
+
   return (
     <Box mb={4}>
       <Heading as="h2" size="md" mb={2}>
@@ -32,37 +89,7 @@ const VariantListReviewStatus = ({
           confirmationPrompt="Publication requires staff approval"
           confirmButtonText="Make public"
           confirmButtonColorScheme="blue"
-          onClick={() => {
-            const request = {
-              variant_list: variantList.uuid,
-              submitted_by: user?.username,
-            };
-            post("/public-variant-lists/", request)
-              .then((response) => {
-                toast({
-                  title: "Public status updated",
-                  status: "success",
-                  duration: 30_000,
-                  isClosable: true,
-                });
-                variantListStore.set({
-                  ...variantList,
-                  public_status: {
-                    ...response,
-                    review_status: VariantListReviewStatusCode.SUBMITTED,
-                  },
-                });
-              })
-              .catch((error) => {
-                toast({
-                  title: "Unable to update public status",
-                  description: `An approved public variant list for this gene may already exist.`,
-                  status: "error",
-                  duration: 10_000,
-                  isClosable: true,
-                });
-              });
-          }}
+          onClick={() => postPublicVariantList()}
         >
           Make public
         </ButtonWithConfirmation>
@@ -75,33 +102,7 @@ const VariantListReviewStatus = ({
           confirmationPrompt="To make this list public again, it will have to be reapproved."
           confirmButtonText="Make private"
           confirmButtonColorScheme="red"
-          onClick={() => {
-            del(
-              // @ts-ignore -- the conditional check above guarantees variantList has a public_status
-              `/public-variant-lists/${variantList.public_status.variant_list}`
-            )
-              .then(() => {
-                toast({
-                  title: "Variant is now private",
-                  status: "success",
-                  duration: 30_000,
-                  isClosable: true,
-                });
-                variantListStore.set({
-                  ...variantList,
-                  public_status: undefined,
-                });
-              })
-              .catch((error) => {
-                toast({
-                  title: "Unable to make the list private",
-                  description: renderErrorDescription(error),
-                  status: "error",
-                  duration: 10_000,
-                  isClosable: true,
-                });
-              });
-          }}
+          onClick={() => deletePublicVariantList()}
         >
           Make private
         </ButtonWithConfirmation>
