@@ -56,66 +56,28 @@ class VariantList(models.Model):
 
     error = models.TextField(null=True, default=None)
 
-    class Meta:
-        indexes = [models.Index(fields=("uuid",))]
-
-
-class PublicVariantList(models.Model):
-    variant_list = models.OneToOneField(
-        VariantList,
-        on_delete=models.CASCADE,
-        primary_key=True,
-        related_name="public_status",
-        related_query_name="public_status",
-    )
-
-    class ReviewStatus(models.TextChoices):
+    class PublicStatus(models.TextChoices):
+        PRIVATE = ("", "Private")
         PENDING = ("P", "Pending")
         REJECTED = ("R", "Rejected")
         APPROVED = ("A", "Approved")
 
-    review_status = models.CharField(
-        max_length=1, choices=ReviewStatus.choices, default=ReviewStatus.PENDING
+    public_status = models.CharField(
+        max_length=1, choices=PublicStatus.choices, default=""
     )
 
-    submitted_at = models.DateTimeField(auto_now_add=True)
-
-    submitted_by = models.ForeignKey(
+    public_status_updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         on_delete=models.SET_NULL,
         related_name="+",
     )
 
-    reviewed_at = models.DateTimeField(auto_now=True)
-
-    reviewed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
-
-    # If there already exists an approved public list for a given gene, don't allow submitting of duplicates for review
-    def validate_unique(self, exclude=None):
-        if (
-            PublicVariantList.objects.filter(
-                variant_list__metadata__gene_id=self.variant_list.metadata["gene_id"],
-                review_status=self.ReviewStatus.APPROVED,
-            )
-            .exclude(variant_list_id=self.variant_list_id)
-            .exists()
-        ):
-            # this error message never makes it to the client http response
-            # this also applies to unique validation in variant access list permissions
-            raise ValidationError(
-                "An approved public list for this gene already exists"
-            )
-
-    def save(self, *args, **kwargs):
-        self.validate_unique()
-        # pylint: disable=super-with-arguments
-        super(PublicVariantList, self).save(*args, **kwargs)
+    class Meta:
+        indexes = [
+            models.Index(fields=("uuid",)),
+            models.Index(fields=("public_status",)),
+        ]
 
 
 class VariantListAccessPermission(models.Model):
@@ -233,11 +195,8 @@ def is_variant_list_viewer(user, variant_list):
 @object_level_predicate
 # pylint: disable=unused-argument
 def is_accessing_a_public_variant_list(user, variant_list):
-    try:
-        public_status = variant_list.public_status
-        return public_status.review_status == PublicVariantList.ReviewStatus.APPROVED
-    except PublicVariantList.DoesNotExist:
-        return False
+    public_status = variant_list.public_status
+    return public_status == VariantList.PublicStatus.APPROVED
 
 
 # pylint: enable=unused-argument

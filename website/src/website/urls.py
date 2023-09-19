@@ -11,16 +11,13 @@ from website.views.variant_list_views import (
     VariantListAnnotationView,
     VariantListProcessView,
     VariantListVariantsView,
+    PublicVariantListsView,
+    PublicVariantListView,
 )
 from website.views.variant_list_access_views import (
     VariantListAccessList,
     VariantListAccessDetail,
 )
-from website.views.public_variant_list_views import (
-    PublicVariantListsView,
-    PublicVariantListDetail,
-)
-
 
 html = FrontendView.as_view()
 
@@ -81,8 +78,8 @@ urlpatterns = [
         name="public-variant-lists",
     ),
     path(
-        "api/public-variant-lists/<int:variant_list>/",
-        PublicVariantListDetail.as_view(),
+        "api/public-variant-lists/<uuid:uuid>/",
+        PublicVariantListView.as_view(),
         name="public-variant-list-detail",
     ),
 ]

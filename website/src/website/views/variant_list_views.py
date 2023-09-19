@@ -1,8 +1,11 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     GenericAPIView,
+    ListAPIView,
     ListCreateAPIView,
     RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -18,13 +21,13 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
-    PublicVariantList,
 )
 from calculator.serializers import (
     AddedVariantsSerializer,
     NewVariantListSerializer,
     VariantListSerializer,
     VariantListAnnotationSerializer,
+    VariantListDashboardSerializer,
 )
 from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
@@ -89,7 +92,7 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
             # anonymous users or inactive users can view all approved public lists
             public_lists = VariantList.objects.filter(
-                public_status__review_status=PublicVariantList.ReviewStatus.APPROVED
+                public_status=VariantList.PublicStatus.APPROVED
             )
             if self.request.user.is_anonymous or not self.request.user.is_active:
                 return public_lists
@@ -236,3 +239,68 @@ class VariantListAnnotationView(RetrieveUpdateAPIView):
         )
 
         return annotation
+
+
+class PublicVariantListsView(ListAPIView):
+    order_fields = ["updated_at"]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return VariantList.objects.exclude(public_status="")
+        return VariantList.objects.filter(
+            public_status=VariantList.PublicStatus.APPROVED
+        )
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            return VariantListSerializer
+        return VariantListDashboardSerializer
+
+
+class PublicVariantListView(RetrieveUpdateAPIView):
+    queryset = VariantList.objects.all()
+
+    serializer_class = VariantListSerializer
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated,)
+
+    def perform_update(self, serializer):
+        request_public_status = serializer.validated_data["public_status"]
+
+        # don't allow submitting as public if an approved list for the gene exists
+        if (
+            VariantList.objects.exclude(uuid=serializer.instance.uuid)
+            .filter(
+                metadata__gene_id=serializer.instance.metadata["gene_id"],
+                public_status=VariantList.PublicStatus.APPROVED,
+            )
+            .count()
+            > 0
+        ):
+            raise PermissionDenied
+
+        # if the user is a staff member, they can update a list to any public status
+        if self.request.user.is_staff:
+            serializer.save(
+                public_status_updated_by=self.request.user,
+                public_status=request_public_status,
+            )
+            return
+
+        if not self.request.user.has_perm(
+            "calculator.share_variantlist", serializer.instance
+        ):
+            raise PermissionDenied
+
+        # if a user has edit permissions on the list, they are only allowed to submit the
+        #   list as pending or make it private
+        if request_public_status not in ["", "P"]:
+            raise PermissionDenied
+
+        serializer.save(
+            public_status_updated_by=self.request.user,
+            public_status=request_public_status,
+        )
