@@ -29,7 +29,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
-import { del, get, patch } from "../api";
+import { get, patch } from "../api";
 import { renderErrorDescription } from "../errors";
 import { Store, atom, authStore, useStore } from "../state";
 import { VariantListReviewStatusCode } from "../types";
@@ -38,15 +38,15 @@ import ButtonWithConfirmation from "./ButtonWithConfirmation";
 import DocumentTitle from "./DocumentTitle";
 
 interface PublicVariantList {
-  variant_list: number;
-  variant_list_uuid: string;
-  variant_list_label: string;
-  variant_list_gene_symbol: string;
-  submitted_by: string;
-  submitted_at: string;
-  review_status: VariantListReviewStatusCode;
-  reviewed_by: string;
-  reviewed_at: string;
+  uuid: string;
+  label: string;
+  metadata: {
+    gene_symbol: string;
+    gnomad_version: string;
+  };
+  updated_at: string;
+  public_status_updated_by: string;
+  public_status: VariantListReviewStatusCode | "";
 }
 
 const PublicVariantLists = (props: {
@@ -58,17 +58,16 @@ const PublicVariantLists = (props: {
 
   const updatePublicVariantList = (
     publicVariantListToUpdate: PublicVariantList,
-    update: { review_status: VariantListReviewStatusCode; reviewed_by: String }
+    update: { public_status: VariantListReviewStatusCode | "" }
   ): Promise<PublicVariantList> => {
     return patch(
-      `/public-variant-lists/${publicVariantListToUpdate.variant_list}/`,
+      `/public-variant-lists/${publicVariantListToUpdate.uuid}/`,
       update
     ).then(
       (updatedPublicVariantList) => {
         props.publicVariantListsStore.set(
           publicVariantLists.map((otherPublicVariantList) => {
-            return otherPublicVariantList.variant_list ===
-              updatedPublicVariantList.variant_list
+            return otherPublicVariantList.uuid === updatedPublicVariantList.uuid
               ? updatedPublicVariantList
               : otherPublicVariantList;
           })
@@ -96,15 +95,14 @@ const PublicVariantLists = (props: {
   const deletePublicVariantList = (
     publicVariantListToDelete: PublicVariantList
   ): Promise<void> => {
-    return del(
-      `/public-variant-lists/${publicVariantListToDelete.variant_list}/`
-    ).then(
+    return patch(`/public-variant-lists/${publicVariantListToDelete.uuid}/`, {
+      public_status: "",
+    }).then(
       () => {
         props.publicVariantListsStore.set(
           publicVariantLists.filter(
             (otherPublicVariantList) =>
-              otherPublicVariantList.variant_list !==
-              publicVariantListToDelete.variant_list
+              otherPublicVariantList.uuid !== publicVariantListToDelete.uuid
           )
         );
         toast({
@@ -133,27 +131,28 @@ const PublicVariantLists = (props: {
           <Tr>
             <Th>Gene</Th>
             <Th>Label</Th>
-            <Th>Submitter</Th>
-            {user?.is_staff && <Th>Reviewer</Th>}
-            {user?.is_staff && <Th>Approval Status</Th>}
-            {user?.is_staff && <Th>Remove List</Th>}
+            {!user?.is_staff && <Th>gnomAD version</Th>}
+            {user?.is_staff && <Th>Updated by</Th>}
+            {user?.is_staff && <Th>Approval status</Th>}
+            {user?.is_staff && <Th>Remove list</Th>}
           </Tr>
         </Thead>
         <Tbody>
           {publicVariantLists.map((publicList: PublicVariantList) => {
             return (
-              <Tr key={publicList.variant_list_uuid}>
-                <Td>{publicList.variant_list_gene_symbol}</Td>
+              <Tr key={publicList.uuid}>
+                <Td>{publicList.metadata.gene_symbol}</Td>
                 <Td>
-                  <Link
-                    as={RRLink}
-                    to={`/variant-lists/${publicList.variant_list_uuid}`}
-                  >
-                    {publicList.variant_list_label}
+                  <Link as={RRLink} to={`/variant-lists/${publicList.uuid}`}>
+                    {publicList.label}
                   </Link>
                 </Td>
-                <Td>{publicList.submitted_by}</Td>
-                {user?.is_staff && <Td>{publicList.reviewed_by}</Td>}
+                {!user?.is_staff && (
+                  <Td>{publicList.metadata.gnomad_version}</Td>
+                )}
+                {user?.is_staff && (
+                  <Td>{publicList.public_status_updated_by}</Td>
+                )}
                 {user?.is_staff && (
                   <Td>
                     <Menu>
@@ -162,15 +161,14 @@ const PublicVariantLists = (props: {
                         size="sm"
                         rightIcon={<ChevronDownIcon />}
                       >
-                        {publicList.review_status.toString()}
+                        {publicList.public_status.toString()}
                       </MenuButton>
                       <MenuList>
                         <MenuItem
                           onClick={() => {
                             updatePublicVariantList(publicList, {
-                              review_status:
+                              public_status:
                                 VariantListReviewStatusCode.APPROVED,
-                              reviewed_by: user?.username,
                             });
                           }}
                         >
@@ -179,9 +177,8 @@ const PublicVariantLists = (props: {
                         <MenuItem
                           onClick={() => {
                             updatePublicVariantList(publicList, {
-                              review_status:
+                              public_status:
                                 VariantListReviewStatusCode.REJECTED,
-                              reviewed_by: user?.username,
                             });
                           }}
                         >

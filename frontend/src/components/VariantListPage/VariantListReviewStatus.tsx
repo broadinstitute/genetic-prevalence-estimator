@@ -2,9 +2,9 @@ import { Box, Heading, Text, useToast } from "@chakra-ui/react";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 
-import { del, post } from "../../api";
+import { patch } from "../../api";
 import { renderErrorDescription } from "../../errors";
-import { authStore, Store, useStore } from "../../state";
+import { Store, useStore } from "../../state";
 import { VariantList, VariantListReviewStatusCode } from "../../types";
 
 const VariantListReviewStatus = ({
@@ -13,15 +13,10 @@ const VariantListReviewStatus = ({
   variantListStore: Store<VariantList>;
 }) => {
   const variantList: VariantList = useStore(variantListStore);
-  const { user } = useStore(authStore);
   const toast = useToast();
 
-  const postPublicVariantList = () => {
-    const request = {
-      variant_list: variantList.uuid,
-      submitted_by: user?.username,
-    };
-    post("/public-variant-lists/", request)
+  const makeVariantListPublic = () => {
+    patch(`/public-variant-lists/${variantList.uuid}/`, { public_status: "P" })
       .then((response) => {
         toast({
           title: "Public status updated",
@@ -31,13 +26,10 @@ const VariantListReviewStatus = ({
         });
         variantListStore.set({
           ...variantList,
-          public_status: {
-            ...response,
-            review_status: VariantListReviewStatusCode.SUBMITTED,
-          },
+          public_status: VariantListReviewStatusCode.PENDING,
         });
       })
-      .catch((error) => {
+      .catch(() => {
         toast({
           title: "Unable to update public status",
           description: `An approved public variant list for this gene may already exist.`,
@@ -48,18 +40,18 @@ const VariantListReviewStatus = ({
       });
   };
 
-  const deletePublicVariantList = () => {
-    del(`/public-variant-lists/${variantList.public_status!.variant_list}`)
+  const makeVariantListPrivate = () => {
+    patch(`/public-variant-lists/${variantList.uuid}/`, { public_status: "" })
       .then(() => {
         toast({
-          title: "Variant is now private",
+          title: "The variant list is now private",
           status: "success",
           duration: 30_000,
           isClosable: true,
         });
         variantListStore.set({
           ...variantList,
-          public_status: undefined,
+          public_status: "",
         });
       })
       .catch((error) => {
@@ -80,29 +72,29 @@ const VariantListReviewStatus = ({
       </Heading>
       <Text mb={2}>{`This variant list is ${
         variantList.public_status
-          ? variantList.public_status.review_status.toLowerCase()
+          ? variantList.public_status.toLowerCase()
           : "private"
       }`}</Text>
-      {!variantList.public_status && (
+      {variantList.public_status === "" && (
         <ButtonWithConfirmation
           size="sm"
           confirmationPrompt="Publication requires staff approval"
           confirmButtonText="Make public"
           confirmButtonColorScheme="blue"
-          onClick={() => postPublicVariantList()}
+          onClick={() => makeVariantListPublic()}
         >
           Make public
         </ButtonWithConfirmation>
       )}
 
-      {variantList.public_status && (
+      {variantList.public_status !== "" && (
         <ButtonWithConfirmation
           size="sm"
           colorScheme="red"
           confirmationPrompt="To make this list public again, it will have to be reapproved."
           confirmButtonText="Make private"
           confirmButtonColorScheme="red"
-          onClick={() => deletePublicVariantList()}
+          onClick={() => makeVariantListPrivate()}
         >
           Make private
         </ButtonWithConfirmation>
