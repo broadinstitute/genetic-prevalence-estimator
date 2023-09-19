@@ -320,7 +320,7 @@ class TestGetVariantList:
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        list5 = VariantList.objects.create(
+        VariantList.objects.create(
             id=5,
             label="List 5",
             type=VariantList.Type.CUSTOM,

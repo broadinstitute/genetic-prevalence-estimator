@@ -4,7 +4,6 @@ import uuid
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from rest_framework.exceptions import ValidationError
 
 
 from calculator.models import (
