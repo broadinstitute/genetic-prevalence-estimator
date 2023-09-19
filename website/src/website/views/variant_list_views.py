@@ -120,7 +120,10 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not self.request.user.has_perm("calculator.change_variantlist", instance):
+        if (
+            not self.request.user.has_perm("calculator.change_variantlist", instance)
+            or "public_status" in request.data
+        ):
             raise PermissionDenied
         return self.partial_update(request, *args, **kwargs)
 
@@ -270,20 +273,8 @@ class PublicVariantListView(RetrieveUpdateAPIView):
     def perform_update(self, serializer):
         request_public_status = serializer.validated_data["public_status"]
 
-        # don't allow submitting as public if an approved list for the gene exists
-        if (
-            VariantList.objects.exclude(uuid=serializer.instance.uuid)
-            .filter(
-                metadata__gene_id=serializer.instance.metadata["gene_id"],
-                public_status=VariantList.PublicStatus.APPROVED,
-            )
-            .count()
-            > 0
-        ):
-            raise PermissionDenied
-
         # if the user is a staff member, they can update a list to any public status
-        if self.request.user.is_staff:
+        if self.request.user.is_staff and self.request.user.is_active:
             serializer.save(
                 public_status_updated_by=self.request.user,
                 public_status=request_public_status,
@@ -299,6 +290,18 @@ class PublicVariantListView(RetrieveUpdateAPIView):
         #   list as pending or make it private
         if request_public_status not in ["", "P"]:
             raise PermissionDenied
+
+        # don't allow submitting as public if an approved list for the gene exists
+        if (
+            VariantList.objects.exclude(uuid=serializer.instance.uuid)
+            .filter(
+                metadata__gene_id=serializer.instance.metadata["gene_id"],
+                public_status=VariantList.PublicStatus.APPROVED,
+            )
+            .count()
+            > 0
+        ):
+            raise ValidationError("Hello world")
 
         serializer.save(
             public_status_updated_by=self.request.user,

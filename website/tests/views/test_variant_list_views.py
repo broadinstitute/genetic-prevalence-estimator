@@ -8,7 +8,6 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
-    PublicVariantList,
 )
 
 
@@ -21,6 +20,7 @@ class TestGetVariantLists:
     def db_setup(self):
         user1 = User.objects.create(username="User 1")
         user2 = User.objects.create(username="User 2")
+        User.objects.create(username="staffuser", is_staff=True)
 
         list1 = VariantList.objects.create(
             label="List 1",
@@ -30,6 +30,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
+            public_status="",
         )
 
         VariantListAccessPermission.objects.create(variant_list=list1, user=user1)
@@ -43,6 +44,51 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
+            public_status="",
+        )
+
+        VariantList.objects.create(
+            label="List 3",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="",
+        )
+
+        VariantList.objects.create(
+            label="List 4",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="A",
+        )
+
+        VariantList.objects.create(
+            label="List 5",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="R",
+        )
+
+        VariantList.objects.create(
+            label="List 6",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="P",
         )
 
         VariantListAccessPermission.objects.create(variant_list=list2, user=user1)
@@ -64,6 +110,33 @@ class TestGetVariantLists:
         assert len(variant_lists) == len(expected_lists)
         assert (
             set(variant_list["label"] for variant_list in variant_lists)
+            == expected_lists
+        )
+
+    def test_listing_public_variant_lists_does_not_require_authentication(self):
+        client = APIClient()
+        response = client.get("/api/public-variant-lists/")
+        assert response.status_code == 200
+
+    @pytest.mark.parametrize(
+        "username,expected_lists",
+        [
+            ("Anonymous", {"List 4"}),
+            ("User 1", {"List 4"}),
+            ("staffuser", {"List 4", "List 5", "List 6"}),
+        ],
+    )
+    def test_listing_public_variant_lists_returns_based_on_permissions(
+        self, username, expected_lists
+    ):
+        client = APIClient()
+        if username != "Anonymous":
+            client.force_authenticate(User.objects.get(username=username))
+
+        public_variant_lists = client.get("/api/public-variant-lists/").json()
+        assert len(public_variant_lists) == len(expected_lists)
+        assert (
+            set(variant_list["label"] for variant_list in public_variant_lists)
             == expected_lists
         )
 
@@ -282,36 +355,68 @@ class TestGetVariantList:
             level=VariantListAccessPermission.Level.OWNER,
         )
 
-        PublicVariantList.objects.create(
-            variant_list=list1,
-            review_status=PublicVariantList.ReviewStatus.APPROVED,
-            submitted_by=testuser,
-            reviewed_by=staffuser,
+        VariantList.objects.create(
+            id=11,
+            label="Public List 1",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174",
+                "gene_symbol": "PCSK9",
+            },
+            public_status=VariantList.PublicStatus.APPROVED,
+            public_status_updated_by=staffuser,
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        PublicVariantList.objects.create(
-            variant_list=list2,
-            review_status=PublicVariantList.ReviewStatus.PENDING,
-            submitted_by=testuser,
-            reviewed_by=staffuser,
+        VariantList.objects.create(
+            id=12,
+            label="Public List 2",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "testid2",
+                "gene_symbol": "testsymbol2",
+            },
+            public_status=VariantList.PublicStatus.PENDING,
+            public_status_updated_by=testuser,
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        PublicVariantList.objects.create(
-            variant_list=list3,
-            review_status=PublicVariantList.ReviewStatus.REJECTED,
-            submitted_by=testuser,
-            reviewed_by=staffuser,
+        VariantList.objects.create(
+            id=13,
+            label="Public List 3",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "testid3",
+                "gene_symbol": "testsymbol3",
+            },
+            public_status=VariantList.PublicStatus.REJECTED,
+            public_status_updated_by=staffuser,
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        PublicVariantList.objects.create(
-            variant_list=list5,
-            review_status=PublicVariantList.ReviewStatus.APPROVED,
-            submitted_by=testuser,
-            reviewed_by=staffuser,
+        VariantList.objects.create(
+            id=14,
+            label="Public List 4",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "testid4",
+                "gene_symbol": "testsymbol4",
+            },
+            public_status=VariantList.PublicStatus.APPROVED,
+            public_status_updated_by=staffuser,
+            variants=[{"id": "1-55516888-G-GA"}],
         )
 
     def test_viewing_variant_list_does_not_require_authentication(self):
-        variant_list = VariantList.objects.get(id=1)
+        variant_list = VariantList.objects.get(id=11)
         client = APIClient()
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
         assert response.status_code == 200
@@ -319,16 +424,24 @@ class TestGetVariantList:
     @pytest.mark.parametrize(
         "username,list_id,expected_response",
         [
-            ("anon", 1, 200),
+            ("anon", 1, 404),
             ("anon", 2, 404),
             ("anon", 3, 404),
             ("anon", 4, 404),
-            ("anon", 5, 200),
+            ("anon", 5, 404),
+            ("anon", 11, 200),
+            ("anon", 12, 404),
+            ("anon", 13, 404),
+            ("anon", 14, 200),
             ("testuser", 1, 200),
             ("testuser", 2, 200),
             ("testuser", 3, 404),
             ("testuser", 4, 404),
-            ("testuser", 5, 200),
+            ("testuser", 5, 404),
+            ("testuser", 11, 200),
+            ("testuser", 12, 404),
+            ("testuser", 13, 404),
+            ("testuser", 14, 200),
         ],
     )
     def test_viewing_variant_list_requires_permission_unless_variant_list_is_public(
@@ -347,11 +460,15 @@ class TestGetVariantList:
         client = APIClient()
         client.force_authenticate(User.objects.get(username="inactiveuser"))
 
-        public_variant_list = VariantList.objects.get(id=1)
+        public_variant_list = VariantList.objects.get(id=11)
         response = client.get(f"/api/variant-lists/{public_variant_list.uuid}/")
         assert response.status_code == 200
 
-        private_variant_list = VariantList.objects.get(id=3)
+        pending_variant_list = VariantList.objects.get(id=12)
+        response = client.get(f"/api/variant-lists/{pending_variant_list.uuid}/")
+        assert response.status_code == 404
+
+        private_variant_list = VariantList.objects.get(id=13)
         response = client.get(f"/api/variant-lists/{private_variant_list.uuid}/")
         assert response.status_code == 404
 
@@ -387,7 +504,7 @@ class TestGetVariantList:
             assert "access_level" not in response
 
     @pytest.mark.parametrize(
-        "list_id, expected_response", [(1, 200), (2, 404), (3, 404)]
+        "list_id, expected_response", [(11, 200), (12, 404), (13, 404)]
     )
     def test_staff_users_can_view_all_lists(self, list_id, expected_response):
         variant_list = VariantList.objects.get(id=list_id)
@@ -415,7 +532,10 @@ class TestEditVariantList:
         editor = User.objects.create(username="editor")
         owner = User.objects.create(username="owner")
         inactive_user = User.objects.create(username="inactiveuser", is_active=False)
-        User.objects.create(username="staffmember", is_staff=True)
+        staffmember = User.objects.create(username="staffmember", is_staff=True)
+        User.objects.create(
+            username="inactivestaffmember", is_staff=True, is_active=False
+        )
         User.objects.create(username="other")
 
         variant_list = VariantList.objects.create(
@@ -426,8 +546,42 @@ class TestEditVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000169174",
+                "gene_symbol": "PCSK9",
             },
             variants=[{"id": "1-55516888-G-GA"}],
+            public_status="",
+        )
+
+        VariantList.objects.create(
+            id=2,
+            label="Test list 2",
+            notes="Initial notes",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000115257",
+                "gene_symbol": "PCSK4",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="A",
+            public_status_updated_by=staffmember,
+        )
+
+        variant_list_2 = VariantList.objects.create(
+            id=3,
+            label="Test list 3",
+            notes="Initial notes",
+            type=VariantList.Type.CUSTOM,
+            metadata={
+                "version": "2",
+                "gnomad_version": "2.1.1",
+                "gene_id": "ENSG00000115257",
+                "gene_symbol": "PCSK4",
+            },
+            variants=[{"id": "1-55516888-G-GA"}],
+            public_status="",
         )
 
         VariantListAccessPermission.objects.create(
@@ -448,6 +602,12 @@ class TestEditVariantList:
         VariantListAccessPermission.objects.create(
             user=inactive_user,
             variant_list=variant_list,
+            level=VariantListAccessPermission.Level.OWNER,
+        )
+
+        VariantListAccessPermission.objects.create(
+            user=owner,
+            variant_list=variant_list_2,
             level=VariantListAccessPermission.Level.OWNER,
         )
 
@@ -489,6 +649,77 @@ class TestEditVariantList:
             assert variant_list.notes == f"Notes by {user}"
         else:
             assert variant_list.notes == initial_notes
+
+    def test_editing_variant_list_public_status_request_authentication(self):
+        variant_list = VariantList.objects.get(id=1)
+        initial_public_status = variant_list.public_status
+        client = APIClient()
+        response = client.patch(
+            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+        )
+        assert response.status_code == 403
+        variant_list.refresh_from_db()
+        assert variant_list.public_status == initial_public_status
+
+    @pytest.mark.parametrize(
+        "user,new_public_status,expected_response",
+        [
+            # viewers and editors cannot edit public status
+            ("viewer", "P", 403),
+            ("editor", "P", 403),
+            # owners can only update the list to be pending or private
+            ("owner", "", 200),
+            ("owner", "P", 200),
+            ("owner", "A", 403),
+            ("owner", "R", 403),
+            # staff can update the list to anything
+            ("staffmember", "", 200),
+            ("staffmember", "P", 200),
+            ("staffmember", "A", 200),
+            ("staffmember", "R", 200),
+            # non-affiliated and inactive users cannot update the list
+            ("other", "P", 403),
+            ("inactiveuser", "P", 403),
+            ("inactivestaffmember", "P", 403),
+        ],
+    )
+    # editing public status implements more specialized permissions
+    def test_editing_variant_list_public_status_requires_permission(
+        self, user, new_public_status, expected_response
+    ):
+        variant_list = VariantList.objects.get(id=1)
+        initial_public_status = variant_list.public_status
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=user))
+
+        response = client.patch(
+            f"/api/public-variant-lists/{variant_list.uuid}/",
+            {"public_status": new_public_status},
+        )
+        assert response.status_code == expected_response
+        variant_list.refresh_from_db()
+
+        if expected_response == 200:
+            assert variant_list.public_status == new_public_status
+        else:
+            assert variant_list.public_status == initial_public_status
+
+    def test_editing_variant_list_public_status_cannot_make_duplicates(self):
+        variant_list = VariantList.objects.get(id=3)
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+
+        response = client.patch(
+            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+        )
+        assert response.status_code == 400
+
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        response = client.patch(
+            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+        )
+        assert response.status_code == 200
 
 
 class TestDeleteVariantList:
