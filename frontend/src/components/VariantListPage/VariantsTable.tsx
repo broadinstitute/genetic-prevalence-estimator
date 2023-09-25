@@ -516,12 +516,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
   ...tableProps
 }) => {
   const columns = [
+    NOTES_COLUMN,
     ...BASE_COLUMNS,
     ...includePopulationFrequencies.flatMap((popId) =>
       populationAlleleFrequencyColumns(variantList, popId)
     ),
     SOURCE_COLUMN,
-    NOTES_COLUMN,
   ];
 
   if (!variantList.metadata.transcript_id) {
