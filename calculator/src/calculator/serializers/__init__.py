@@ -11,6 +11,3 @@ from calculator.serializers.variant_list_access_permission_serializer import (
 from calculator.serializers.variant_list_annotation_serializer import (
     VariantListAnnotationSerializer,
 )
-from calculator.serializers.variant_list_shared_annotation_serializer import (
-    VariantListSharedAnnotationSerializer,
-)

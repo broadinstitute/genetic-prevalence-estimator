@@ -135,6 +135,7 @@ class VariantListAnnotation(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        null=True,
         on_delete=models.CASCADE,
         related_name="variant_list_annotations",
         related_query_name="variant_list_annotation",
@@ -145,21 +146,6 @@ class VariantListAnnotation(models.Model):
         on_delete=models.CASCADE,
         related_name="annotations",
         related_query_name="annotation",
-    )
-
-    selected_variants = models.JSONField(default=list)
-
-    variant_notes = models.JSONField(default=dict)
-
-
-class VariantListSharedAnnotation(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
-
-    variant_list = models.ForeignKey(
-        VariantList,
-        on_delete=models.CASCADE,
-        related_name="shared_annotations",
-        related_query_name="shared_annotations",
     )
 
     selected_variants = models.JSONField(default=list)
