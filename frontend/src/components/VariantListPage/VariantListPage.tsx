@@ -34,7 +34,7 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 
 import { del, get, patch, post } from "../../api";
 import { renderErrorDescription } from "../../errors";
-import { Store, atom, useStore } from "../../state";
+import { Store, atom, authStore, useStore } from "../../state";
 import { VariantId, VariantList, VariantListAccessLevel } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
@@ -249,6 +249,8 @@ interface VariantListPageProps {
 }
 
 const VariantListPage = (props: VariantListPageProps) => {
+  const { user } = useStore(authStore);
+
   const { variantListStore, refreshVariantList } = props;
   const variantList = useStore(variantListStore);
   const [annotationType, setAnnotationType] = useState<AnnotationOption>(
@@ -280,6 +282,8 @@ const VariantListPage = (props: VariantListPageProps) => {
   const userCanEdit =
     variantList.access_level === VariantListAccessLevel.EDITOR ||
     variantList.access_level === VariantListAccessLevel.OWNER;
+
+  const userIsStaff = user?.is_staff ? true : false;
 
   return (
     <>
@@ -429,6 +433,7 @@ const VariantListPage = (props: VariantListPageProps) => {
           variantList={variantList}
           variantNotes={variantNotes}
           userCanEdit={userCanEdit}
+          userIsStaff={userIsStaff}
           onChangeAnnotationType={setAnnotationType}
           onChangeSelectedVariants={setSelectedVariants}
           onEditVariantNote={setVariantNote}

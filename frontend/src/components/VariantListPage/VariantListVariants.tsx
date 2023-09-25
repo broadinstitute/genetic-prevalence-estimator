@@ -29,6 +29,7 @@ interface VariantListVariantsProps {
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
   userCanEdit: boolean;
+  userIsStaff: boolean;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   annotationType: AnnotationOption;
@@ -43,6 +44,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     variantList,
     variantNotes,
     userCanEdit,
+    userIsStaff,
     onChangeAnnotationType,
     onChangeSelectedVariants,
     onEditVariantNote,
@@ -184,7 +186,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             }}
           >
             <VariantsTable
-              userCanEdit={userCanEdit}
+              userCanEdit={userCanEdit || userIsStaff}
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}
