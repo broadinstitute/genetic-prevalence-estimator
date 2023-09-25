@@ -5,7 +5,11 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
-from calculator.models import VariantList, VariantListAccessPermission
+
+from calculator.models import (
+    VariantList,
+    VariantListAccessPermission,
+)
 
 
 User = get_user_model()

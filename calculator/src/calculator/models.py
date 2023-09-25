@@ -55,8 +55,28 @@ class VariantList(models.Model):
 
     error = models.TextField(null=True, default=None)
 
+    class PublicStatus(models.TextChoices):
+        PRIVATE = ("", "Private")
+        PENDING = ("P", "Pending")
+        REJECTED = ("R", "Rejected")
+        APPROVED = ("A", "Approved")
+
+    public_status = models.CharField(
+        max_length=1, choices=PublicStatus.choices, default=""
+    )
+
+    public_status_updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
     class Meta:
-        indexes = [models.Index(fields=("uuid",))]
+        indexes = [
+            models.Index(fields=("uuid",)),
+            models.Index(fields=("public_status",)),
+        ]
 
 
 class VariantListAccessPermission(models.Model):
@@ -171,11 +191,22 @@ def is_variant_list_viewer(user, variant_list):
         return False
 
 
+@object_level_predicate
+# pylint: disable=unused-argument
+def is_accessing_a_public_variant_list(user, variant_list):
+    public_status = variant_list.public_status
+    return public_status == VariantList.PublicStatus.APPROVED
+
+
+# pylint: enable=unused-argument
+
+
 rules.add_perm("calculator.add_variantlist", rules.is_active)
 
 rules.add_perm(
     "calculator.view_variantlist",
-    (
+    is_accessing_a_public_variant_list
+    | (
         rules.is_active
         & (is_variant_list_owner | is_variant_list_editor | is_variant_list_viewer)
     )

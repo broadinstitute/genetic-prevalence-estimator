@@ -61,6 +61,12 @@ export interface Variant {
 
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
+export enum VariantListReviewStatusCode {
+  PENDING = "Pending",
+  REJECTED = "Rejected",
+  APPROVED = "Approved",
+}
+
 export enum VariantListAccessLevel {
   OWNER = "Owner",
   EDITOR = "Editor",
@@ -114,6 +120,7 @@ export interface VariantList {
   access_level?: VariantListAccessLevel;
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
+  public_status?: VariantListReviewStatusCode | "";
   error?: string;
   variants: Variant[];
 }

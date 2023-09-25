@@ -5,7 +5,7 @@ from rest_framework import serializers
 from calculator.constants import GNOMAD_VERSIONS, GNOMAD_REFERENCE_GENOMES
 from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers.serializer import ModelSerializer
-from calculator.serializers.serializer_fields import ChoiceField
+from calculator.serializers.serializer_fields import ChoiceField, UsernameField
 from calculator.serializers.variant_list_access_permission_serializer import (
     VariantListAccessPermissionSerializer,
 )
@@ -179,6 +179,9 @@ class VariantListSerializer(ModelSerializer):
         many=True, read_only=True
     )
 
+    public_status = ChoiceField(choices=VariantList.PublicStatus.choices)
+    public_status_updated_by = UsernameField()
+
     def get_metadata(self, obj):  # pylint: disable=no-self-use
         metadata_version = obj.metadata.get("version", "1")
         metadata_serializer_class = {
@@ -205,7 +208,7 @@ class VariantListSerializer(ModelSerializer):
         # Access level should be visible if there is a current user.
         # All access permissions should only be visible if the current user is an owner of the variant list.
         current_user = self.get_current_user()
-        if current_user:
+        if current_user and not current_user.is_anonymous:
             try:
                 access = instance.access_permissions.get(user=current_user)
                 data["access_level"] = access.get_level_display()
@@ -234,15 +237,27 @@ class VariantListSerializer(ModelSerializer):
             "notes",
             "type",
             "metadata",
-            "variants",
             "created_at",
             "updated_at",
             "status",
             "error",
             "access_permissions",
+            "public_status",
+            "public_status_updated_by",
+            "variants",
         ]
 
-        read_only_fields = [f for f in fields if f not in ("label", "notes")]
+        read_only_fields = [
+            f
+            for f in fields
+            if f
+            not in (
+                "label",
+                "notes",
+                "public_status",
+                "public_status_updated_by",
+            )
+        ]
 
 
 class AddedVariantsSerializer(
@@ -286,3 +301,23 @@ class AddedVariantsSerializer(
             )
 
         return value
+
+
+class VariantListDashboardSerializer(ModelSerializer):
+    gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
+    created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    public_status_updated_by = serializers.SlugRelatedField(
+        slug_field="username", read_only=True
+    )
+
+    class Meta:
+        model = VariantList
+        fields = [
+            "uuid",
+            "created_by",
+            "gene_symbol",
+            "label",
+            "public_status_updated_by",
+            "metadata",
+        ]
+        read_only_fields = list(fields)

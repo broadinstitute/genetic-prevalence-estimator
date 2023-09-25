@@ -35,6 +35,7 @@ import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
 import Link from "./components/Link";
 import PageNotFoundPage from "./components/PageNotFoundPage";
+import PublicListsPage from "./components/PublicVariantListsPage";
 import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
@@ -135,6 +136,7 @@ const App = () => {
               {isSignedIn && (
                 <NavLink to="/variant-lists/">Variant lists</NavLink>
               )}
+              <NavLink to="/public-lists/">Public Lists</NavLink>
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
             </HStack>
@@ -204,11 +206,7 @@ const App = () => {
           <Route
             exact
             path="/variant-lists/:uuid/"
-            render={({ match }) => (
-              <RequireSignIn>
-                <VariantListPage uuid={match.params.uuid} />
-              </RequireSignIn>
-            )}
+            render={({ match }) => <VariantListPage uuid={match.params.uuid} />}
           />
 
           <Route
@@ -219,6 +217,12 @@ const App = () => {
                 <VariantListsPage />
               </RequireSignIn>
             )}
+          />
+
+          <Route
+            exact
+            path="/public-lists"
+            render={() => <PublicListsPage />}
           />
 
           {user?.is_staff && [

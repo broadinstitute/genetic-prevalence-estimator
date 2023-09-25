@@ -54,6 +54,7 @@ import {
 import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
+import VariantListReviewStatus from "./VariantListReviewStatus";
 
 const addVariantsToVariantList = (
   uuid: string,
@@ -105,6 +106,29 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       })
       .finally(() => {
         setLoading(false);
+      })
+      .catch((error) => {
+        if (error.message === "Authentication credentials were not provided.") {
+          // Currently, to view annotations users need to be Authenticated, this will
+          //   change in the next PR that will be deployed at the same time as this one
+          console.log("Error: ", error);
+          console.log(
+            "An anonymous user tried to access a public variant list"
+          );
+        } else if (error.message === "Not found.") {
+          // Currently, annotations are per user and variant list, thus a public list
+          //   where a user has no permissions will return no annotations. This will be
+          //   changed in the PR immediately following this, that is to be deployed
+          //   at the same time as this one.
+          console.log("Error: ", error);
+          console.log(
+            "A non collaborator user tried to access a public variant list"
+          );
+        } else {
+          // if any error not addressed in the two comments above occurs, throw it
+          console.log("Error: ", error);
+          throw error;
+        }
       });
   }, [variantList.uuid]);
 
@@ -342,6 +366,7 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
+          <VariantListReviewStatus variantListStore={variantListStore} />
         </Box>
       )}
 

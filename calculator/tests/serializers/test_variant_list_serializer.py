@@ -9,6 +9,7 @@ from calculator.models import VariantList, VariantListAccessPermission
 from calculator.serializers import (
     NewVariantListSerializer,
     VariantListSerializer,
+    VariantListDashboardSerializer,
 )
 
 
@@ -530,11 +531,13 @@ def variant_list_fixture():
         },
         variants=[{"id": "1-55516888-G-GA"}],
         status=VariantList.Status.READY,
+        public_status="",
     )
 
 
+@pytest.mark.django_db
 def test_update_variant_list_serializer():
-    # Changes to label and notes are allowed
+    # Changes to label, notes, public_status, and public_status_updated_by are allowed
     variant_list = variant_list_fixture()
     serializer = VariantListSerializer(
         variant_list, data={"label": "A new label"}, partial=True
@@ -549,6 +552,26 @@ def test_update_variant_list_serializer():
 
     variant_list = variant_list_fixture()
     serializer = VariantListSerializer(variant_list, data={"notes": ""}, partial=True)
+    assert serializer.is_valid(), serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list, data={"public_status": "P"}, partial=True
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list, data={"public_status": ""}, partial=True
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    User.objects.create(username="owner")
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list, data={"public_status_updated_by": "owner"}, partial=True
+    )
     assert serializer.is_valid(), serializer.errors
 
     # Other fields cannot be updated
@@ -594,6 +617,17 @@ def test_variant_list_serializer_serializes_status_for_display():
     variant_list = variant_list_fixture()
     serializer = VariantListSerializer(variant_list)
     assert serializer.data["status"] == "Ready"
+
+
+@pytest.mark.django_db
+def test_variant_list_serializer_serializes_public_status_for_display():
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list, data={"public_status": "P"}, partial=True
+    )
+    assert serializer.is_valid(), serializer.errors
+    serializer.save()
+    assert serializer.data["public_status"] == "Pending"
 
 
 @pytest.mark.django_db
@@ -732,3 +766,93 @@ def test_variant_list_serializer_includes_error_for_staff_users():
         serializer = VariantListSerializer(variant_list)
         assert "error" in serializer.data
         assert serializer.data["error"] == "Something went wrong"
+
+
+@pytest.mark.django_db
+def test_variant_list_dashboard_serializer_disallows_editing_fields():
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list, data={"uuid": "new_uuid"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "uuid" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list, data={"created_by": "new_created_by"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "created_by" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list, data={"gene_symbol": "new_gene_symbol"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "gene_symbol" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list, data={"label": "new_label"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "label" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list,
+        data={"public_status_updated_by": "new_public_status_updated_by"},
+        partial=True,
+    )
+    assert not serializer.is_valid()
+    assert "public_status_updated_by" in serializer.errors
+
+    variant_list = variant_list_fixture()
+    serializer = VariantListDashboardSerializer(
+        variant_list, data={"metadata": "new_metadata"}, partial=True
+    )
+    assert not serializer.is_valid()
+    assert "metadata" in serializer.errors
+
+
+@pytest.mark.django_db
+def test_variant_list_dashboard_serializer_serializes_username():
+    User(username="testuser")
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list,
+        data={"public_status_updated_by": "testuser"},
+        partial=True,
+    )
+    assert serializer.is_valid()
+    serializer.save()
+
+    serializer = VariantListDashboardSerializer(variant_list)
+    assert serializer.data["public_status_updated_by"] == "testuser"
+
+
+@pytest.mark.django_db
+def test_variant_list_dashboard_serializer_returns_reduced_fields():
+    User(username="testuser")
+    variant_list = variant_list_fixture()
+    serializer = VariantListSerializer(
+        variant_list,
+        data={"public_status_updated_by": "testuser"},
+        partial=True,
+    )
+    assert serializer.is_valid()
+    serializer.save()
+
+    serializer = VariantListDashboardSerializer(variant_list)
+
+    with pytest.raises(KeyError):
+        # pylint: disable=pointless-statement
+        serializer.data["public_status"] == "does_not_get_returned"
+
+    with pytest.raises(KeyError):
+        # pylint: disable=pointless-statement
+        serializer.data["variants"] == "does_not_get_returned"
+
+    with pytest.raises(KeyError):
+        # pylint: disable=pointless-statement
+        serializer.data["notes"] == "does_not_get_returned"

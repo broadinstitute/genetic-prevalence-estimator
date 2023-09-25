@@ -16,6 +16,7 @@ import {
 export interface ButtonWithConfirmationProps extends ButtonProps {
   confirmationPrompt: string;
   confirmButtonText?: string;
+  confirmButtonColorScheme?: string;
   onClick: () => void;
 }
 
@@ -23,6 +24,7 @@ const ButtonWithConfirmation = (props: ButtonWithConfirmationProps) => {
   const {
     confirmationPrompt,
     confirmButtonText = "Confirm",
+    confirmButtonColorScheme = "red",
     onClick,
     ...rest
   } = props;
@@ -46,7 +48,7 @@ const ButtonWithConfirmation = (props: ButtonWithConfirmationProps) => {
             <HStack>
               <Button onClick={onClose}>Cancel</Button>
               <Button
-                colorScheme="red"
+                colorScheme={confirmButtonColorScheme}
                 onClick={() => {
                   onClose();
                   onClick && onClick();
