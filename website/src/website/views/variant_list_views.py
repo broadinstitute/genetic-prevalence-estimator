@@ -300,7 +300,9 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             .count()
             > 0
         ):
-            raise ValidationError("Hello world")
+            raise ValidationError(
+                "An approved public list for this gene already exists!"
+            )
 
         serializer.save(
             public_status_updated_by=self.request.user,
