@@ -8,7 +8,6 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
-    VariantListSharedAnnotation,
 )
 
 
@@ -1360,7 +1359,7 @@ class TestGetVariantListSharedAnnotation:
             ],
         )
 
-        VariantListSharedAnnotation.objects.create(
+        VariantListAnnotation.objects.create(
             variant_list=list1,
             selected_variants=["1-55516888-G-A"],
             variant_notes={"1-55516888-G-A": "Test note"},
@@ -1478,7 +1477,7 @@ class TestEditVariantListSharedAnnotation:
             ],
         )
 
-        VariantListSharedAnnotation.objects.create(
+        VariantListAnnotation.objects.create(
             variant_list=list1,
             selected_variants=["1-55516888-G-A"],
             variant_notes={"1-55516888-G-A": "Test note"},
@@ -1507,8 +1506,7 @@ class TestEditVariantListSharedAnnotation:
 
     def test_editing_shared_variant_list_annotation_requires_authentication(self):
         variant_list = VariantList.objects.get(id=1)
-        initial_shared_annotation = variant_list.shared_annotations
-        print(initial_shared_annotation)
+        initial_shared_annotation = variant_list.annotations
         client = APIClient()
         response = client.patch(
             f"/api/variant-lists/{variant_list.uuid}/shared-annotation/",
@@ -1516,7 +1514,7 @@ class TestEditVariantListSharedAnnotation:
         )
         assert response.status_code == 403
         variant_list.refresh_from_db()
-        assert variant_list.shared_annotations == initial_shared_annotation
+        assert variant_list.annotations == initial_shared_annotation
 
     @pytest.mark.parametrize(
         "username, expected_response",
@@ -1527,7 +1525,7 @@ class TestEditVariantListSharedAnnotation:
             ("inactive_editor", 403),
             ("viewer", 403),
             ("other_user", 403),
-            ("staff_member", 403),
+            ("staff_member", 200),
             ("inactive_staff_member", 403),
         ],
     )
