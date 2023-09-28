@@ -46,6 +46,9 @@ class VariantListV2MetadataSerializer(
     transcript_id = serializers.CharField(max_length=20, required=False)
 
     include_gnomad_plof = serializers.BooleanField(required=False)
+    include_gnomad_missense_with_high_revel_score = serializers.BooleanField(
+        required=False
+    )
     include_clinvar_clinical_significance = MultipleChoiceField(
         [
             "pathogenic_or_likely_pathogenic",
@@ -70,8 +73,10 @@ class VariantListV2MetadataSerializer(
         return value
 
     def validate(self, attrs):  # pylint: disable=no-self-use
-        if attrs.get("include_gnomad_plof") or attrs.get(
-            "include_clinvar_clinical_significance"
+        if (
+            attrs.get("include_gnomad_plof")
+            or attrs.get("include_gnomad_missense_with_high_revel_score")
+            or attrs.get("include_clinvar_clinical_significance")
         ):
             if not attrs.get("transcript_id"):
                 raise serializers.ValidationError(
@@ -128,10 +133,14 @@ class NewVariantListSerializer(ModelSerializer):
         return metadata_serializer.validated_data
 
     def validate_variants(self, value):
-        if self.initial_data.get("metadata", {}).get(
-            "include_gnomad_plof"
-        ) or self.initial_data.get("metadata", {}).get(
-            "include_clinvar_clinical_significance"
+        if (
+            self.initial_data.get("metadata", {}).get("include_gnomad_plof")
+            or self.initial_data.get("metadata", {}).get(
+                "include_gnomad_missense_with_high_revel"
+            )
+            or self.initial_data.get("metadata", {}).get(
+                "include_clinvar_clinical_significance"
+            )
         ):
             if value:
                 raise serializers.ValidationError(
