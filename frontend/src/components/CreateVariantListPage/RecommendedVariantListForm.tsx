@@ -47,6 +47,11 @@ const RecommendedVariantListForm = () => {
   const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
 
   const [
+    includeGnomadMissenseWithHighRevelScore,
+    setIncludeGnomadMissenseWithHighRevelScore,
+  ] = useState<boolean>(false);
+
+  const [
     includedClinvarClinicalSignificances,
     setIncludedClinvarClinicalSignificances,
   ] = useState<ClinvarClinicalSignificanceCategory[]>([
@@ -71,6 +76,7 @@ const RecommendedVariantListForm = () => {
               transcript_id: transcriptId,
               gnomad_version: gnomadVersion as GnomadVersion,
               include_gnomad_plof: true,
+              include_gnomad_missense_with_high_revel_score: includeGnomadMissenseWithHighRevelScore,
               include_clinvar_clinical_significance: includedClinvarClinicalSignificances,
             },
           };
@@ -210,6 +216,37 @@ const RecommendedVariantListForm = () => {
             pathogenic or likely pathogenic
           </Text>
         </FormControl>
+
+        {gnomadVersion === "3.1.2" && (
+          <FormControl
+            id="recommended-variant-list-included-gnomad-missense-variants-with-high-revel-score"
+            isRequired
+          >
+            <FormLabel>
+              Include gnomAD varaints based on variant type?
+            </FormLabel>
+            <RadioGroup
+              value={
+                includeGnomadMissenseWithHighRevelScore
+                  ? "include_missense_with_high_revel_score"
+                  : ""
+              }
+              onChange={(value) => {
+                setIncludeGnomadMissenseWithHighRevelScore(
+                  value === "" ? false : true
+                );
+              }}
+            >
+              <VStack align="flex-start">
+                <Radio value={""}>High Confidence Loss of Function only</Radio>
+                <Radio value={"include_missense_with_high_revel_score"}>
+                  High Confidence Loss of Function and Missense Variants with
+                  strong REVEL score (&gt;.932)
+                </Radio>
+              </VStack>
+            </RadioGroup>
+          </FormControl>
+        )}
 
         <HStack>
           <Button colorScheme="blue" isLoading={isSubmitting} type="submit">

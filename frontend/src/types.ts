@@ -41,6 +41,7 @@ export interface Variant {
   hgvsp?: string | null;
   lof?: string | null;
   major_consequence?: string | null;
+  revel_score?: string | null;
   gene_id?: string | null;
   gene_symbol?: string | null;
   transcript_id?: string | null;
@@ -87,6 +88,7 @@ export interface VariantListMetadata {
   gene_symbol?: string;
 
   include_gnomad_plof?: boolean;
+  include_gnomad_missense_with_high_revel_score?: boolean;
   include_clinvar_clinical_significance?:
     | ClinvarClinicalSignificanceCategory[]
     | null;
