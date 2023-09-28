@@ -238,9 +238,16 @@ def get_recommended_variants(metadata, transcript):
     ds = ds.filter(hl.is_defined(ds.transcript_consequence))
     ds = ds.transmute(**ds.transcript_consequence)
 
-    include_from_gnomad = PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.major_consequence) & (
-        ds.lof == "HC"
-    )
+    # TODO: add a test for this
+    if not metadata["include_gnomad_missense_with_high_revel_score"]:
+        include_from_gnomad = PLOF_VEP_CONSEQUENCE_TERMS.contains(
+            ds.major_consequence
+        ) & (ds.lof == "HC")
+    else:
+        include_from_gnomad = (
+            PLOF_VEP_CONSEQUENCE_TERMS.contains(ds.major_consequence) & (ds.lof == "HC")
+        ) | ((ds.major_consequence == "missense_variant") & (ds.revel_score >= 9.32e-1))
+
     ds = ds.annotate(include_from_gnomad=include_from_gnomad)
 
     clinvar = hl.read_table(
