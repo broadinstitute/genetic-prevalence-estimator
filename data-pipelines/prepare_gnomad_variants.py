@@ -271,6 +271,7 @@ def get_gnomad_v2_variants():
         ),
         genome_filters=genomes.filters,
         transcript_consequences=genomes.vep.transcript_consequences,
+        revel_score=hl.missing(hl.tfloat32),
     )
     genomes = genomes.filter(genomes.genome_freq.AC[0] > 0)
 
@@ -335,6 +336,7 @@ def get_gnomad_v3_variants():
         ),
         genome_filters=ds.filters,
         transcript_consequences=ds.vep.transcript_consequences,
+        revel_score=ds.revel.revel_score,
     )
     ds = ds.filter(ds.genome_freq.AC[0] > 0)
 
