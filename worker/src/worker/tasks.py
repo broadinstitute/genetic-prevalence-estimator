@@ -138,7 +138,7 @@ def combined_freq(ds, n_populations, include_filtered=False):
     )
 
 
-def flags(ds):
+def annotate_variants_with_flags(ds, clinvar_max_af_plp):
     return hl.array(
         [
             hl.or_missing(hl.is_missing(ds.freq), "not_found"),
@@ -150,6 +150,11 @@ def flags(ds):
                 )
                 > 0,
                 "filtered",
+            ),
+            hl.or_missing(
+                (ds.AC[0] / ds.AN[0] > clinvar_max_af_plp)
+                & (hl.is_missing(ds.clinvar_variation_id)),
+                "high_AF",
             ),
         ]
     ).filter(hl.is_defined)
@@ -384,7 +389,6 @@ def _process_variant_list(variant_list):
     variant_list.metadata["populations"] = populations
 
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
-    ds = ds.annotate(flags=flags(ds))
 
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
@@ -393,9 +397,21 @@ def _process_variant_list(variant_list):
 
     ds = ds.annotate(
         **clinvar[ds.locus, ds.alleles].select(
-            "clinvar_variation_id", "clinical_significance", "gold_stars"
+            "clinvar_variation_id",
+            "clinical_significance",
+            "clinical_significance_category",
+            "gold_stars",
         )
     )
+
+    clinvar_max_af_plp = ds.aggregate(
+        hl.agg.filter(
+            ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
+            hl.agg.max(ds.AC[0] / ds.AN[0]),
+        )
+    )
+
+    ds = ds.annotate(flags=annotate_variants_with_flags(ds, clinvar_max_af_plp))
 
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
         gene_id, gene_version = metadata["gene_id"].split(".")
