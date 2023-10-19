@@ -9,11 +9,11 @@ import {
 
 export type AnnotationOption = "shared" | "personal";
 
-interface AnnotationTypeSelectorProps {
+type AnnotationTypeSelectorProps = {
   userCanEdit: boolean;
   value: AnnotationOption;
   onChange: (value: AnnotationOption) => void;
-}
+};
 
 const AnnotationTypeSelector = (props: AnnotationTypeSelectorProps) => {
   const { userCanEdit, value, onChange } = props;
@@ -26,8 +26,8 @@ const AnnotationTypeSelector = (props: AnnotationTypeSelectorProps) => {
           <FormLabel as="legend">Annotation type</FormLabel>
           <RadioGroup
             value={value}
-            onChange={(value) => {
-              onChange(value as AnnotationOption);
+            onChange={(value: AnnotationOption) => {
+              onChange(value);
             }}
           >
             <HStack spacing="24px">
