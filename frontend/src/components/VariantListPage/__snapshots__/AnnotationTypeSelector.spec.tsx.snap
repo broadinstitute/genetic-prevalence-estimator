@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AnnotationTypeSelector is a component that allows selection between shared and personal annotations if the user has edit permissions 1`] = `
+<DocumentFragment>
+  <fieldset
+    class="chakra-form-control css-1kxonj9"
+    role="group"
+  >
+    <legend
+      class="chakra-form__label css-uvho5g"
+      for="annotation-type-selector"
+      id="annotation-type-selector-label"
+    >
+      Annotation type
+    </legend>
+    <div
+      class="chakra-radio-group css-0"
+      role="radiogroup"
+    >
+      <div
+        class="chakra-stack css-1y5q8ss"
+      >
+        <label
+          class="chakra-radio css-78joka"
+        >
+          <input
+            checked=""
+            class="chakra-radio__input"
+            id="annotation-type-selector"
+            name="radio-1"
+            style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+            type="radio"
+            value="shared"
+          />
+          <span
+            aria-hidden="true"
+            class="chakra-radio__control css-ssalds"
+            data-checked=""
+          />
+          <span
+            class="chakra-radio__label css-1y8kf23"
+            data-checked=""
+          >
+            Shared
+          </span>
+        </label>
+        <label
+          class="chakra-radio css-78joka"
+        >
+          <input
+            class="chakra-radio__input"
+            id="annotation-type-selector"
+            name="radio-1"
+            style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+            type="radio"
+            value="personal"
+          />
+          <span
+            aria-hidden="true"
+            class="chakra-radio__control css-ssalds"
+          />
+          <span
+            class="chakra-radio__label css-1y8kf23"
+          >
+            Personal
+          </span>
+        </label>
+      </div>
+    </div>
+  </fieldset>
+</DocumentFragment>
+`;
+
+exports[`AnnotationTypeSelector is a single line of text about viewing shared annotations if the user does not have edit permissions 1`] = `
+<DocumentFragment>
+  <p
+    class="chakra-text css-0"
+  >
+    Viewing shared annotations
+  </p>
+</DocumentFragment>
+`;

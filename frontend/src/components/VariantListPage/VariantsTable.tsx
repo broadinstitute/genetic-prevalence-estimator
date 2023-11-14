@@ -135,7 +135,8 @@ interface ColumnDef {
     variant: Variant,
     variantList: VariantList,
     variantNotes: Record<VariantId, string>,
-    onEditVariantNote: (variantId: VariantId, note: string) => void
+    onEditVariantNote: (variantId: VariantId, note: string) => void,
+    userCanEdit: boolean
   ) =>
     | JSX.Element
     | string
@@ -398,13 +399,20 @@ const SOURCE_COLUMN: ColumnDef = {
 const NOTES_COLUMN: ColumnDef = {
   key: "note",
   heading: "Note",
-  render: (variant, variantList, variantNotes, onEditVariantNote) => {
+  render: (
+    variant,
+    variantList,
+    variantNotes,
+    onEditVariantNote,
+    userCanEdit
+  ) => {
     const variantId = variant.id;
     return (
       <VariantNote
         variantId={variantId}
         note={variantNotes[variantId]}
         onEdit={(note) => onEditVariantNote(variantId, note)}
+        userCanEdit={userCanEdit}
       />
     );
   },
@@ -442,6 +450,7 @@ const populationAlleleFrequencyColumns = (
 };
 
 interface VariantsTableProps extends TableProps {
+  userCanEdit: boolean;
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
@@ -496,6 +505,7 @@ const useSort = (
 };
 
 const VariantsTable: FC<VariantsTableProps> = ({
+  userCanEdit,
   includePopulationFrequencies,
   variantList,
   selectedVariants,
@@ -673,7 +683,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
                       variant,
                       variantList,
                       variantNotes,
-                      onEditVariantNote
+                      onEditVariantNote,
+                      userCanEdit
                     )}
                   </Td>
                 );

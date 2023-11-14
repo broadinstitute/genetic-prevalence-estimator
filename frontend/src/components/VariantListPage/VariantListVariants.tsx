@@ -5,6 +5,7 @@ import {
   Checkbox,
   HStack,
   ListItem,
+  Spacer,
   Text,
   Tooltip,
   UnorderedList,
@@ -16,6 +17,9 @@ import { GnomadPopulationId, VariantId, VariantList } from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
 
+import AnnotationTypeSelector, {
+  AnnotationOption,
+} from "./AnnotationTypeSelector";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
@@ -24,16 +28,24 @@ interface VariantListVariantsProps {
   selectedVariants: Set<VariantId>;
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
+  userCanEdit: boolean;
+  userIsStaff: boolean;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
+  annotationType: AnnotationOption;
+  onChangeAnnotationType: (type: AnnotationOption) => void;
 }
 
 const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
-    variantList,
+    annotationType,
     selectedVariants,
     selectionDisabled,
+    variantList,
     variantNotes,
+    userCanEdit,
+    userIsStaff,
+    onChangeAnnotationType,
     onChangeSelectedVariants,
     onEditVariantNote,
   } = props;
@@ -140,13 +152,25 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             </Box>
           )}
 
-          <Box mb={4}>
-            <DownloadVariantListLink
-              variantList={variantList}
-              includePopulationFrequencies={populationsDisplayedInTable}
-            >
-              Download variants
-            </DownloadVariantListLink>
+          <Box display="flex" mb={4}>
+            <Box>
+              <DownloadVariantListLink
+                variantList={variantList}
+                includePopulationFrequencies={populationsDisplayedInTable}
+              >
+                Download variants
+              </DownloadVariantListLink>
+            </Box>
+            <Spacer />
+            <Box>
+              <AnnotationTypeSelector
+                userCanEdit={userCanEdit}
+                value={annotationType}
+                onChange={(e) => {
+                  onChangeAnnotationType(e);
+                }}
+              />
+            </Box>
           </Box>
 
           <div
@@ -162,6 +186,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             }}
           >
             <VariantsTable
+              userCanEdit={userCanEdit || userIsStaff}
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}

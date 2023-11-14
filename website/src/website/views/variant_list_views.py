@@ -243,6 +243,38 @@ class VariantListAnnotationView(RetrieveUpdateAPIView):
         return annotation
 
 
+class VariantListSharedAnnotationView(RetrieveUpdateAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    serializer_class = VariantListAnnotationSerializer
+
+    def get_object(self):
+        variant_list = super().get_object()
+
+        annotation, _ = VariantListAnnotation.objects.get_or_create(
+            user=None,
+            variant_list=variant_list,
+        )
+
+        return annotation
+
+    def perform_update(self, serializer):
+        variant_list = super().get_object()
+
+        if not (
+            self.request.user.is_staff and self.request.user.is_active
+        ) and not self.request.user.has_perm(
+            "calculator.change_variantlist", variant_list
+        ):
+            raise PermissionDenied
+
+        serializer.save()
+
+
 class PublicVariantListsView(ListAPIView):
     order_fields = ["updated_at"]
     permission_classes = (IsAuthenticatedOrReadOnly,)

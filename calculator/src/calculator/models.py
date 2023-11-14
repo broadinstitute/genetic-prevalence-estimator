@@ -135,6 +135,7 @@ class VariantListAnnotation(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        null=True,
         on_delete=models.CASCADE,
         related_name="variant_list_annotations",
         related_query_name="variant_list_annotation",
