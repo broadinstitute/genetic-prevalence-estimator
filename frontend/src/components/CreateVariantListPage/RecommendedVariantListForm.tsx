@@ -44,7 +44,7 @@ const RecommendedVariantListForm = () => {
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
 
-  const [gnomadVersion, setGnomadVersion] = useState("2.1.1");
+  const [gnomadVersion, setGnomadVersion] = useState("4.0.0");
 
   const [
     includedClinvarClinicalSignificances,
@@ -135,8 +135,9 @@ const RecommendedVariantListForm = () => {
             }}
           >
             <VStack align="flex-start">
+              <Radio value="4.0.0">4.0.0 (GRCh38)</Radio>
+              <Radio value="4.0.0_non-ukb">4.0.0 - Non-UKB (GRCh38)</Radio>
               <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
-              <Radio value="3.1.2">3.1.2 (GRCh38)</Radio>
             </VStack>
           </RadioGroup>
 
