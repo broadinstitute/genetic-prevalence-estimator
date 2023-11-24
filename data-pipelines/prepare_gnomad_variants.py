@@ -15,13 +15,18 @@ VEP_CONSEQUENCE_TERMS = [
     "frameshift_variant",
     "stop_lost",
     "start_lost",  # new in v81
+    "feature_elongation",
+    "feature_truncation",
     "initiator_codon_variant",  # deprecated
     "transcript_amplification",
     "inframe_insertion",
     "inframe_deletion",
     "missense_variant",
     "protein_altering_variant",  # new in v79
+    "splice_donor_5th_base_variant",
     "splice_region_variant",
+    "splice_donor_region_variant",
+    "splice_polypyrimidine_tract_variant",
     "incomplete_terminal_codon_variant",
     "start_retained_variant",
     "stop_retained_variant",
@@ -125,6 +130,16 @@ def _get_gnomad_population_sample_counts(ds):
             )
         )
     )
+
+
+def _get_gnomad_population_sample_counts_v4(ds, genetic_ancestry_groups):
+    sample_counts = {}
+    for group in genetic_ancestry_groups:
+        sample_counts[(group, None)] = hl.eval(
+            ds.freq_meta_sample_count[ds.freq_index_dict[f"{group}_adj"]]
+        )
+
+    return sample_counts
 
 
 def _sort_populations(populations):
@@ -348,7 +363,160 @@ def get_gnomad_v3_variants():
     return ds
 
 
+GNOMAD_V4_GENETIC_ANCESTRY_GROUPS = [
+    "afr",
+    "amr",
+    "asj",
+    "eas",
+    "fin",
+    "mid",
+    "nfe",
+    "remaining",
+    "sas",
+]
+
+
+def get_gnomad_v4_variants():
+    def freq(ds, subset=None, pop=None, subpop=None, sex=None, raw=False):
+        if subpop:
+            raise ValueError("subpops are not available for gnomAD v4")
+
+        parts = [s for s in [subset, pop, sex] if s is not None]
+        parts.append("raw" if raw else "adj")
+        key = "_".join(parts)
+
+        return hl.rbind(
+            hl.or_missing(
+                ds.freq_index_dict.contains(key), ds.freq[ds.freq_index_dict[key]]
+            ),
+            lambda f: hl.struct(
+                AC=hl.or_else(f.AC, 0),
+                AN=hl.or_else(f.AN, 0),
+            ),
+        )
+
+    exomes = hl.read_table(
+        "gs://gcp-public-data--gnomad/release/4.0/ht/exomes/gnomad.exomes.v4.0.sites.ht"
+    )
+    genomes = hl.read_table(
+        "gs://gcp-public-data--gnomad/release/4.0/ht/genomes/gnomad.genomes.v4.0.sites.ht/"
+    )
+
+    exome_population_sample_counts = _get_gnomad_population_sample_counts_v4(
+        exomes, GNOMAD_V4_GENETIC_ANCESTRY_GROUPS
+    )
+    genome_population_sample_counts = _get_gnomad_population_sample_counts_v4(
+        genomes, GNOMAD_V4_GENETIC_ANCESTRY_GROUPS
+    )
+
+    all_populations = set(exome_population_sample_counts) | set(
+        genome_population_sample_counts
+    )
+
+    populations = _sort_populations(
+        pop
+        for pop in all_populations
+        if exome_population_sample_counts.get(pop, 0)
+        + genome_population_sample_counts.get(pop, 0)
+        > 1000
+    )
+
+    exomes = exomes.select(
+        exome_freq=hl.struct(
+            AC=[
+                freq(exomes).AC,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(exomes).AN,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
+        ),
+        exome_freq_non_ukb=hl.struct(
+            AC=[
+                freq(exomes, subset="non_ukb").AC,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop, subset="non_ukb").AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(exomes, subset="non_ukb").AN,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+        ),
+        exome_filters=exomes.filters,
+        transcript_consequences=exomes.vep.transcript_consequences,
+        revel_score=exomes.in_silico_predictors.revel_max,
+    )
+    exomes = exomes.filter(exomes.exome_freq.AC[0] > 0)
+
+    genomes = genomes.select(
+        genome_freq=hl.struct(
+            AC=[
+                freq(genomes).AC,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(genomes).AN,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
+        ),
+        genome_freq_non_ukb=hl.struct(
+            AC=[
+                freq(genomes, subset="non_ukb").AC,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop, subset="non_ukb").AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                freq(genomes, subset="non_ukb").AN,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+        ),
+        genome_filters=genomes.filters,
+        transcript_consequences=genomes.vep.transcript_consequences,
+        revel_score=genomes.in_silico_predictors.revel_max,
+    )
+    genomes = genomes.filter(genomes.genome_freq.AC[0] > 0)
+
+    exomes = exomes.select_globals()
+    genomes = genomes.select_globals()
+    ds = exomes.join(genomes, how="outer")
+    ds = ds.transmute(
+        transcript_consequences=hl.or_else(
+            ds.transcript_consequences, ds.transcript_consequences_1
+        )
+    )
+
+    ds = ds.select_globals(populations=_format_populations(populations))
+
+    return ds
+
+
 def get_gnomad_variants(version):
+    if version == 4:
+        return get_gnomad_v4_variants()
+
     if version == 3:
         return get_gnomad_v3_variants()
 
@@ -364,7 +532,18 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
     if intervals:
         ds = hl.filter_intervals(ds, intervals)
 
-    ds = ds.transmute(freq=hl.struct(exome=ds.exome_freq, genome=ds.genome_freq))
+    # structure subset data for easy access in v4
+    if gnomad_version == 4:
+        ds = ds.transmute(
+            freq=hl.struct(
+                exome=ds.exome_freq,
+                exome_non_ukb=ds.exome_freq_non_ukb,
+                genome=ds.genome_freq,
+                genome_non_ukb=ds.genome_freq_non_ukb,
+            )
+        )
+    else:
+        ds = ds.transmute(freq=hl.struct(exome=ds.exome_freq, genome=ds.genome_freq))
 
     ds = ds.annotate(
         sample_sets=hl.array(
@@ -462,7 +641,7 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gnomad-version", choices=(2, 3), default=2, type=int)
+    parser.add_argument("--gnomad-version", choices=(2, 3, 4), default=4, type=int)
     parser.add_argument("--intervals")
     parser.add_argument("--partitions", default=2000, type=int)
     parser.add_argument("--quiet", action="store_true")
@@ -484,7 +663,9 @@ def main():
         args.gnomad_version, intervals=intervals, partitions=args.partitions
     )
 
-    gencode_version = "19" if args.gnomad_version == 2 else "35"
+    gencode_version = (
+        "19" if args.gnomad_version == 2 else "35" if args.gnomad_version == 3 else "39"
+    )
     with tempfile.TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
         gencode_gtf_path = f"gencode.v{gencode_version}.gtf.gz"
