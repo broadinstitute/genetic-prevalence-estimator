@@ -208,6 +208,9 @@ def get_recommended_variants(metadata, transcript):
     gnomad_version = metadata["gnomad_version"]
     reference_genome = metadata["reference_genome"]
 
+    subset = "_non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
+    gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
+
     ds = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
     )
@@ -228,6 +231,13 @@ def get_recommended_variants(metadata, transcript):
                 includes_end=True,
             )
         ],
+    )
+
+    ds.transmute(
+        freq=hl.struct(
+            exome=ds.freq[f"exome{subset}"],
+            genome=ds.freq[f"genome{subset}"],
+        )
     )
 
     ds = ds.transmute(
@@ -306,7 +316,12 @@ def _process_variant_list(variant_list):
     assert gnomad_version in (
         "2.1.1",
         "3.1.2",
+        "4.0.0",
+        "4.0.0_non-ukb",
     ), f"Invalid gnomAD version '{gnomad_version}'"
+
+    subset = "non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
+    gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
 
     if metadata.get("include_gnomad_plof") or metadata.get(
         "include_clinvar_clinical_significance"
