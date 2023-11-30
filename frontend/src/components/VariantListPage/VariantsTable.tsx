@@ -159,6 +159,7 @@ const BASE_COLUMNS: ColumnDef[] = [
       const gnomadDataset = {
         "2.1.1": "gnomad_r2_1",
         "3.1.2": "gnomad_r3",
+        "4.0.0": "gnomad_r4",
       }[gnomadVersion];
 
       return (
