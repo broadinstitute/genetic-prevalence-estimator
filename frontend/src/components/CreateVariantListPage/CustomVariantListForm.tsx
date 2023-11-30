@@ -128,14 +128,13 @@ const CustomVariantListForm = () => {
             <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
               <VStack align="flex-start">
                 <Radio value="4.0.0">4.0.0 (GRCh38)</Radio>
-                <Radio value="4.0.0_non-ukb">4.0.0 - Non-UKB (GRCh38)</Radio>
                 <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
               </VStack>
             </RadioGroup>
 
             <FormHelperText>
               <Link
-                href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-gnomad-v2-and-v3"
+                href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad"
                 isExternal
               >
                 What's the difference between gnomAD v2 and v3?
