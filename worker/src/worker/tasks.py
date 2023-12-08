@@ -358,7 +358,10 @@ def _process_variant_list(variant_list):
     # Import existing variants into a Hail Table
     ds = None
     if variant_list.variants:
-        variant_ids = [variant["id"] for variant in variant_list.variants]
+        chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
+        variant_ids = [
+            f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
+        ]
         ds = hl.Table.parallelize(
             [{"id": variant_id} for variant_id in variant_ids], hl.tstruct(id=hl.tstr)
         )
