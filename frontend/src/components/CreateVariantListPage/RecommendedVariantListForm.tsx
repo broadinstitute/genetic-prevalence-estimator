@@ -217,7 +217,7 @@ const RecommendedVariantListForm = () => {
           </Text>
         </FormControl>
 
-        {gnomadVersion === "3.1.2" && (
+        {gnomadVersion === "4.0.0" && (
           <FormControl
             id="recommended-variant-list-included-gnomad-missense-variants-with-high-revel-score"
             isRequired
