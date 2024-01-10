@@ -67,13 +67,14 @@ const FAQView = () => {
             Due to these definitions we believe that the calculations performed
             by this tool is most accurately defined as an{" "}
             <strong>estimated genetic prevalence</strong>, as it represents the
-            estimated proportion of a population that has a causal genotype for
-            a genetic disorder. These results should always be interpreted in
-            the context of the disease/gene of interest. To learn more about
-            considerations for these results please see our FAQ "What factors
-            should I consider when interpreting these results?" To read more
-            about how these estimates relate to prevalence, incidence and
-            lifetime risk please read{" "}
+            estimated proportion of a population that will have a genotype for a
+            genetic disorder, irrespective of penetrance, age of onset, and
+            other factors affecting the disease prevalence. These results should
+            always be interpreted in the context of the disease/gene of
+            interest. To learn more about considerations for these results
+            please see our FAQ "What factors should I consider when interpreting
+            these results?" To read more about how these estimates relate to
+            prevalence, incidence and lifetime risk please read{" "}
             <Link
               href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
               isExternal
