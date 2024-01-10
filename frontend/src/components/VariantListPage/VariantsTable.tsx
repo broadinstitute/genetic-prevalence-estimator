@@ -382,7 +382,11 @@ const SOURCE_COLUMN: ColumnDef = {
               <Tooltip
                 key="gnomAD"
                 hasArrow
-                label="This variant was included from gnomAD, where it is predicted loss of function with high confidence."
+                label={`${
+                  variant.major_consequence === "missense_variant"
+                    ? "This variant was included from gnomAD, where it is a missense variant with a REVEL score greater than 0.932"
+                    : "This variant was included from gnomAD, where it is predicted loss of function with high confidence"
+                }`}
                 maxWidth="500px"
               >
                 gnomAD

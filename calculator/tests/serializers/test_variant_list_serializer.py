@@ -47,6 +47,7 @@ User = get_user_model()
                 "gene_id": "ENSG00000169174.9",
                 "transcript_id": "ENST00000302118.5",
                 "include_gnomad_plof": True,
+                "include_gnomad_missense_with_high_revel_score": False,
             },
         },
         {
@@ -57,6 +58,7 @@ User = get_user_model()
                 "gene_id": "ENSG00000169174.9",
                 "transcript_id": "ENST00000302118.5",
                 "include_gnomad_plof": True,
+                "include_gnomad_missense_with_high_revel_score": True,
                 "include_clinvar_clinical_significance": [
                     "pathogenic_or_likely_pathogenic"
                 ],
