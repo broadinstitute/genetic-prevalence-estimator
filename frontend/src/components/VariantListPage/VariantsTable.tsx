@@ -260,6 +260,21 @@ const BASE_COLUMNS: ColumnDef[] = [
               </Badge>
             </Tooltip>
           )}
+          {variant.flags?.includes("high_AF") && (
+            <Tooltip
+              hasArrow
+              label="This variant has a higher allele frequency than the most common ClinVar pathogenic/likely pathogenic variant. It is important to establish whether this variant is disease-causing. Please use caution when including this variant in genetic prevalence estimates."
+            >
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                High AF
+              </Badge>
+            </Tooltip>
+          )}
           {variant.flags?.includes("filtered") && (
             <Tooltip hasArrow label={filteredVariantDescription(variant)}>
               <Badge
