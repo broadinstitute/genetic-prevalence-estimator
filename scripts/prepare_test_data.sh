@@ -52,10 +52,10 @@ GRCH37_INTERVALS="1:55505221-55530525"
 
 if [ $import_gnomad = "true" ]; then
   python data-pipelines/prepare_gnomad_variants.py \
-    --gnomad-version=3 \
+    --gnomad-version=4 \
     --intervals=$GRCH38_INTERVALS \
     --partitions=2 \
-    ./data/gnomAD_v3.1.2_variants.ht
+    ./data/gnomAD_v4.0.0_variants.ht
 
   python data-pipelines/prepare_gnomad_variants.py \
     --gnomad-version=2 \
