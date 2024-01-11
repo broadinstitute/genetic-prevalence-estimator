@@ -129,6 +129,66 @@ TEST_CASES = [
             "include_clinvar_clinical_significance": [],
         },
     },
+    # Recommended, gnomAD v4
+    {
+        "label": "Recommended gnomAD v4 with ClinVar pathogenic or likely pathogenic, and gnomAD missense with REVEL score >= 0.932",
+        "type": VariantList.Type.RECOMMENDED,
+        "metadata": {
+            "version": "2",
+            "gnomad_version": "4.0.0",
+            "gene_id": "ENSG00000169174.11",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_gnomad_missense_with_high_revel_score": True,
+            "include_clinvar_clinical_significance": [
+                "pathogenic_or_likely_pathogenic"
+            ],
+        },
+    },
+    {
+        "label": "Recommended gnomAD v4 with ClinVar pathogenic or likely pathogenic",
+        "type": VariantList.Type.RECOMMENDED,
+        "metadata": {
+            "version": "2",
+            "gnomad_version": "4.0.0",
+            "gene_id": "ENSG00000169174.11",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_gnomad_missense_with_high_revel_score": False,
+            "include_clinvar_clinical_significance": [
+                "pathogenic_or_likely_pathogenic"
+            ],
+        },
+    },
+    {
+        "label": "Recommended gnomAD v4 with ClinVar pathogenic or likely pathogenic and conflicting interpretations",
+        "type": VariantList.Type.RECOMMENDED,
+        "metadata": {
+            "version": "2",
+            "gnomad_version": "4.0.0",
+            "gene_id": "ENSG00000169174.11",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_gnomad_missense_with_high_revel_score": False,
+            "include_clinvar_clinical_significance": [
+                "pathogenic_or_likely_pathogenic",
+                "conflicting_interpretations",
+            ],
+        },
+    },
+    {
+        "label": "Recommended gnomAD v4 without ClinVar",
+        "type": VariantList.Type.RECOMMENDED,
+        "metadata": {
+            "version": "2",
+            "gnomad_version": "4.0.0",
+            "gene_id": "ENSG00000169174.11",
+            "transcript_id": "ENST00000302118.5",
+            "include_gnomad_plof": True,
+            "include_gnomad_missense_with_high_revel_score": False,
+            "include_clinvar_clinical_significance": [],
+        },
+    },
     # Custom, gnomAD v2
     {
         "label": "Custom gnomAD v2",
@@ -146,11 +206,26 @@ TEST_CASES = [
     },
     # Custom, gnomAD v3
     {
-        "label": "Recommended gnomAD v3",
-        "type": VariantList.Type.RECOMMENDED,
+        "label": "Custom gnomAD v3",
+        "type": VariantList.Type.CUSTOM,
         "metadata": {
             "version": "2",
             "gnomad_version": "3.1.2",
+            "include_gnomad_plof": False,
+            "include_clinvar_clinical_significance": [],
+        },
+        "variants": [
+            {"id": "1-55046549-C-G"},
+            {"id": "1-55046549-C-A"},
+        ],
+    },
+    # Custom, gnomAD v4
+    {
+        "label": "Custom gnomAD v4",
+        "type": VariantList.Type.CUSTOM,
+        "metadata": {
+            "version": "2",
+            "gnomad_version": "4.0.0",
             "include_gnomad_plof": False,
             "include_clinvar_clinical_significance": [],
         },
