@@ -28,6 +28,7 @@ ui_views = [
     ("variant-lists/", "variant-lists"),
     ("variant-lists/<uuid:variant_list_id>/", "variant-list"),
     ("variant-lists/new/", "new-variant-list"),
+    ("public-lists/", "public-lists"),
     ("status/", "status"),
     ("users/", "users"),
     ("about/", "about"),
