@@ -151,7 +151,7 @@ const RecommendedVariantListForm = () => {
               href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad"
               isExternal
             >
-              What's the difference between gnomAD v2 and v3?
+              What's the difference between gnomAD v2 and v4?
             </Link>
           </FormHelperText>
         </FormControl>
