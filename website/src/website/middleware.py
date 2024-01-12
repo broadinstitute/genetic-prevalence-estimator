@@ -4,5 +4,5 @@ class RobotsMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        response["X-Robots-Tag"] = "index, nofollow"
+        response["X-Robots-Tag"] = "all"
         return response
