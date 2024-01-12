@@ -162,7 +162,7 @@ const RecommendedVariantListForm = () => {
           label="Gene"
           isRequired
           referenceGenome={gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"}
-          onChange={(selectedGeneId) => {
+          onChange={(selectedGeneSymbol, selectedGeneId) => {
             setGeneId(selectedGeneId);
             if (selectedGeneId !== geneId) {
               setTranscriptId("");

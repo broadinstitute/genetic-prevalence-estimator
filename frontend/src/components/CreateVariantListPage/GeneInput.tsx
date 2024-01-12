@@ -8,7 +8,7 @@ interface GeneInputProps {
   label: string;
   isRequired?: boolean;
   referenceGenome: ReferenceGenome;
-  onChange: (geneId: string) => void;
+  onChange: (geneSymbol: string, geneId: string) => void;
 }
 
 type GeneSearchResult = {
@@ -63,7 +63,10 @@ const GeneInput = (props: GeneInputProps) => {
         `${result.symbol} (${result.ensembl_id}.${result.ensembl_version})`
       }
       onSelectItem={(result) =>
-        onChange(`${result.ensembl_id}.${result.ensembl_version}`)
+        onChange(
+          `${result.symbol}`,
+          `${result.ensembl_id}.${result.ensembl_version}`
+        )
       }
     />
   );

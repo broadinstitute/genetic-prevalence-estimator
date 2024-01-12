@@ -43,6 +43,7 @@ const CustomVariantListForm = () => {
   const [gnomadVersion, setGnomadVersion] = useState("4.0.0");
   const [selectTranscript, setSelectTranscript] = useState(false);
   const [geneId, setGeneId] = useState("");
+  const [geneSymbol, setGeneSymbol] = useState("");
   const isGeneIdValid = /^ENSG\d{11}\.\d+$/.test(geneId);
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
@@ -79,8 +80,11 @@ const CustomVariantListForm = () => {
 
           if (selectTranscript) {
             variantListRequest.metadata.gene_id = geneId;
+            variantListRequest.metadata.gene_symbol = geneSymbol;
             variantListRequest.metadata.transcript_id = transcriptId;
           }
+
+          console.log(variantListRequest);
 
           if (!isSubmitting) {
             setIsSubmitting(true);
@@ -150,6 +154,7 @@ const CustomVariantListForm = () => {
                 setSelectTranscript(checked);
                 if (!checked) {
                   setGeneId("");
+                  setGeneSymbol("");
                   setTranscriptId("");
                 }
               }}
@@ -173,7 +178,8 @@ const CustomVariantListForm = () => {
                 referenceGenome={
                   gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"
                 }
-                onChange={(selectedGeneId) => {
+                onChange={(selectedGeneSymbol, selectedGeneId) => {
+                  setGeneSymbol(selectedGeneSymbol);
                   setGeneId(selectedGeneId);
                   if (selectedGeneId !== geneId) {
                     setTranscriptId("");
