@@ -138,7 +138,7 @@ def combined_freq(ds, n_populations, include_filtered=False):
     )
 
 
-def annotate_variants_with_flags(ds, clinvar_max_af_plp):
+def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_variants):
     return hl.array(
         [
             hl.or_missing(hl.is_missing(ds.freq), "not_found"),
@@ -152,7 +152,7 @@ def annotate_variants_with_flags(ds, clinvar_max_af_plp):
                 "filtered",
             ),
             hl.or_missing(
-                (ds.AC[0] / ds.AN[0] > clinvar_max_af_plp)
+                (ds.AC[0] / ds.AN[0] > max_af_of_clinvar_path_or_likely_path_variants)
                 & (hl.is_missing(ds.clinvar_variation_id)),
                 "high_AF",
             ),
@@ -432,14 +432,25 @@ def _process_variant_list(variant_list):
         )
     )
 
-    clinvar_max_af_plp = ds.aggregate(
+    max_af_of_clinvar_path_or_likely_path_variants = ds.aggregate(
         hl.agg.filter(
             ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
             hl.agg.max(ds.AC[0] / ds.AN[0]),
         )
     )
+    # if there are no clinvar path or likely path variants, the aggregation returns None
+    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
+    max_af_of_clinvar_path_or_likely_path_variants = (
+        max_af_of_clinvar_path_or_likely_path_variants
+        if max_af_of_clinvar_path_or_likely_path_variants is not None
+        else hl.int(1.1)
+    )
 
-    ds = ds.annotate(flags=annotate_variants_with_flags(ds, clinvar_max_af_plp))
+    ds = ds.annotate(
+        flags=annotate_variants_with_flags(
+            ds, max_af_of_clinvar_path_or_likely_path_variants
+        )
+    )
 
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
         gene_id, gene_version = metadata["gene_id"].split(".")
