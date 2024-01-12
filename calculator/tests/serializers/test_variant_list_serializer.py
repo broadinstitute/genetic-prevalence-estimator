@@ -1,4 +1,3 @@
-# pylint: disable=no-self-use
 import uuid
 from unittest.mock import patch
 

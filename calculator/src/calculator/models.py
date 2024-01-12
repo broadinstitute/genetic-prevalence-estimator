@@ -204,6 +204,8 @@ def is_accessing_a_public_variant_list(user, variant_list):
 
 rules.add_perm("calculator.add_variantlist", rules.is_active)
 
+# pylint: disable=unsupported-binary-operation
+
 rules.add_perm(
     "calculator.view_variantlist",
     is_accessing_a_public_variant_list
@@ -228,6 +230,8 @@ rules.add_perm(
     "calculator.change_variantlist",
     rules.is_active & (is_variant_list_owner | is_variant_list_editor),
 )
+
+# pylint: disable=enable-binary-operation
 
 rules.add_perm("calculator.delete_variantlist", rules.is_active & is_variant_list_owner)
 

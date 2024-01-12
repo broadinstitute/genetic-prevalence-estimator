@@ -57,22 +57,22 @@ class VariantListV2MetadataSerializer(
         required=False,
     )
 
-    def get_reference_genome(self, obj):  # pylint: disable=no-self-use
+    def get_reference_genome(self, obj):
         return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
 
-    def validate_gene_id(self, value):  # pylint: disable=no-self-use
+    def validate_gene_id(self, value):
         if value and not is_gene_id(value):
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
         return value
 
-    def validate_transcript_id(self, value):  # pylint: disable=no-self-use
+    def validate_transcript_id(self, value):
         if value and not is_transcript_id(value):
             raise serializers.ValidationError(
                 f"'{value}' is not a valid transcript ID."
             )
         return value
 
-    def validate(self, attrs):  # pylint: disable=no-self-use
+    def validate(self, attrs):
         if (
             attrs.get("include_gnomad_plof")
             or attrs.get("include_gnomad_missense_with_high_revel_score")
@@ -107,22 +107,20 @@ class VariantListV1MetadataSerializer(
     include_gnomad_plof = serializers.SerializerMethodField()
     include_clinvar_clinical_significance = serializers.SerializerMethodField()
 
-    def get_reference_genome(self, obj):  # pylint: disable=no-self-use
+    def get_reference_genome(self, obj):
         return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
 
     def get_include_gnomad_plof(self, obj):  # pylint: disable=unused-argument
         return self.context["variant_list"].type == VariantList.Type.RECOMMENDED
 
-    def get_include_clinvar_clinical_significance(
-        self, obj
-    ):  # pylint: disable=no-self-use
+    def get_include_clinvar_clinical_significance(self, obj):
         return obj.get("included_clinvar_variants", [])
 
 
 class NewVariantListSerializer(ModelSerializer):
     notes = serializers.CharField(allow_blank=True, required=False)
 
-    def validate_metadata(self, value):  # pylint: disable=no-self-use
+    def validate_metadata(self, value):
         if not value:
             raise serializers.ValidationError("This field is required.")
 
@@ -191,7 +189,7 @@ class VariantListSerializer(ModelSerializer):
     public_status = ChoiceField(choices=VariantList.PublicStatus.choices)
     public_status_updated_by = UsernameField()
 
-    def get_metadata(self, obj):  # pylint: disable=no-self-use
+    def get_metadata(self, obj):
         metadata_version = obj.metadata.get("version", "1")
         metadata_serializer_class = {
             "1": VariantListV1MetadataSerializer,
