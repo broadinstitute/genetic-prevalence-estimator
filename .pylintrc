@@ -1,6 +1,8 @@
+[MAIN]
+ignore=calculator/migrations
+
 [MESSAGES_CONTROL]
 disable=
-  bad-continuation,  # conflicts with Black formatting
   line-too-long,     # conflicts with Black formatting
   duplicate-code,
   missing-docstring,
