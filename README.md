@@ -4,7 +4,6 @@
 
 ![Frontend CI status badge](https://github.com/broadinstitute/genetic-prevalence-estimator/actions/workflows/frontend-ci.yml/badge.svg)
 ![Backend CI status badge](https://github.com/broadinstitute/genetic-prevalence-estimator/actions/workflows/website-ci.yml/badge.svg)
-![Worker CI status badge](https://github.com/broadinstitute/genetic-prevalence-estimator/actions/workflows/worker-ci.yml/badge.svg)
 
 </div>
 
