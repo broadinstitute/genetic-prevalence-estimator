@@ -6,12 +6,14 @@ from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import (
     DjangoObjectPermissions,
     IsAuthenticated,
+    IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
@@ -67,6 +69,29 @@ class VariantListsView(ListCreateAPIView):
         publisher.send_to_worker(
             {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
         )
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": f"/api/variant-lists/{data['uuid']}/"}
+        except KeyError:
+            return {}
+
+
+class VariantListUpdateView(RetrieveAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    serializer_class = VariantListSerializer
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        publisher.send_to_worker(
+            {"type": "process_variant_list", "args": {"uuid": str(instance.uuid)}}
+        )
+        return self.retrieve(request, *args, **kwargs)
 
     def get_success_headers(self, data):
         try:

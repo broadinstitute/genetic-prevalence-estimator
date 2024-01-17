@@ -64,6 +64,10 @@ const addVariantsToVariantList = (
   return post(`/variant-lists/${uuid}/variants/`, { variants });
 };
 
+const reprocessVariantList = (uuid: string): Promise<void> => {
+  return get(`/variant-lists/${uuid}/variants/update`, {});
+};
+
 const deleteVariantList = (uuid: string): Promise<void> => {
   return del(`/variant-lists/${uuid}/`);
 };
@@ -316,11 +320,38 @@ const VariantListPage = (props: VariantListPageProps) => {
         </DescriptionListItem>
       </DescriptionList>
 
-      {userCanEdit && (
+      {(userCanEdit || userIsStaff) && (
         <HStack mb={4} sx={screenOnly}>
           <EditVariantListButton size="sm" variantListStore={variantListStore}>
             Edit
           </EditVariantListButton>
+
+          {userIsStaff && (
+            <ButtonWithConfirmation
+              size="sm"
+              colorScheme="blue"
+              confirmationPrompt="This cannot be undone."
+              confirmButtonText="Re-process"
+              onClick={() => {
+                reprocessVariantList(variantList.uuid).then(
+                  () => {
+                    refreshVariantList();
+                  },
+                  (error) => {
+                    toast({
+                      title: "Unable to re-process-variant list",
+                      description: renderErrorDescription(error),
+                      status: "error",
+                      duration: 10000,
+                      isClosable: true,
+                    });
+                  }
+                );
+              }}
+            >
+              Re-process
+            </ButtonWithConfirmation>
+          )}
 
           {variantList.access_level === VariantListAccessLevel.OWNER && (
             <ButtonWithConfirmation
