@@ -33,6 +33,8 @@ ui_views = [
     ("users/", "users"),
     ("about/", "about"),
     ("faq/", "faq"),
+    ("robots.txt", "robots.txt"),
+    ("googleb8fbeda804a3d854.html", "google-auth"),
 ]
 
 
