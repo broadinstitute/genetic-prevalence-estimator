@@ -20,6 +20,8 @@ export type GnomadPopulationId =
   | "nfe/seu"
   | "nfe/swe"
   | "oth"
+  | "remaining"
+  | "rmi"
   | "sas";
 
 export type ClinvarClinicalSignificanceCategory =

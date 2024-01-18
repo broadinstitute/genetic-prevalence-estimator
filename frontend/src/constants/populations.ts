@@ -22,6 +22,8 @@ export const GNOMAD_POPULATION_NAMES: {
   "nfe/seu": "Southern European",
   "nfe/swe": "Swedish",
   oth: "Other",
+  remaining: "Remaining",
+  rmi: "Remaining",
   sas: "South Asian",
 };
 
