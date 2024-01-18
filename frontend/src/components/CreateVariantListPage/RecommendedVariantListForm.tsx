@@ -241,7 +241,7 @@ const RecommendedVariantListForm = () => {
                 <Radio value={""}>High Confidence Loss of Function only</Radio>
                 <Radio value={"include_missense_with_high_revel_score"}>
                   High Confidence Loss of Function and Missense Variants with
-                  strong REVEL score (&gt;.932)
+                  strong REVEL score (&ge;.932)
                 </Radio>
               </VStack>
             </RadioGroup>

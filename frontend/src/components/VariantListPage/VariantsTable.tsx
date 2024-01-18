@@ -399,7 +399,7 @@ const SOURCE_COLUMN: ColumnDef = {
                 hasArrow
                 label={`${
                   variant.major_consequence === "missense_variant"
-                    ? "This variant was included from gnomAD, where it is a missense variant with a REVEL score greater than 0.932"
+                    ? "This variant was included from gnomAD, where it is a missense variant with a REVEL score greater than or equal to 0.932"
                     : "This variant was included from gnomAD, where it is predicted loss of function with high confidence"
                 }`}
                 maxWidth="500px"
