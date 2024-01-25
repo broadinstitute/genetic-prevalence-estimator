@@ -30,16 +30,19 @@ import {
 
 import "./style.css";
 import AboutPage from "./components/AboutPage";
+import CreateDashboardListPage from "./components/CreateDashboardListPage/CreateDashboardListPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
 import Link from "./components/Link";
 import PageNotFoundPage from "./components/PageNotFoundPage";
 import PublicListsPage from "./components/PublicVariantListsPage";
+import DashboardListsPage from "./components/DashboardListPage/DashboardListsPage";
 import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
+import DashboardListPage from "./components/DashboardListPage/DashboardListPage";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
@@ -169,6 +172,12 @@ const App = () => {
                         <MenuItem as={RRLink} to="/status/">
                           System status
                         </MenuItem>
+                        <MenuItem as={RRLink} to="/dashboard-lists/">
+                          Dashboard
+                        </MenuItem>
+                        <MenuItem as={RRLink} to="/dashboard-lists/new/">
+                          Create dashboard list
+                        </MenuItem>
                       </>
                     )}
                   </MenuList>
@@ -245,6 +254,44 @@ const App = () => {
                 <RequireSignIn>
                   <UsersPage />
                 </RequireSignIn>
+              )}
+            />,
+
+            <Route
+              exact
+              path="/dashboard-lists/new/"
+              render={() => (
+                <RequireSignIn>
+                  <CreateDashboardListPage />
+                </RequireSignIn>
+              )}
+            />,
+
+            <Route
+              exact
+              path="/dashboard-lists/:uuid/"
+              render={({ match }) => (
+                <RequireSignIn>
+                  <DashboardListPage uuid={match.params.uuid} />
+                </RequireSignIn>
+              )}
+            />,
+
+            <Route
+              exact
+              path="/dashboard-lists/"
+              render={() => (
+                <RequireSignIn>
+                  <DashboardListsPage />
+                </RequireSignIn>
+              )}
+            />,
+
+            <Route
+              exact
+              path="/variant-lists/:uuid/"
+              render={({ match }) => (
+                <VariantListPage uuid={match.params.uuid} />
               )}
             />,
           ]}
