@@ -10,9 +10,6 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# pass more memory to pyspark via setting environment variables
-ENV PYSPARK_SUBMIT_ARGS="--driver-memory 1g --executor-memory 3g"
-
 # Install dependencies
 RUN apt-get -qq update && \
   apt-get -qq install gnupg software-properties-common wget && \
