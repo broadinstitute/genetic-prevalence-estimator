@@ -2,10 +2,16 @@
 
 ## Setting up a development environment
 
+- Confirm you're using the tool versions specified in `.tool_versions` file, for convenience consider using a tool such as `asdf` or `mise` to manage this
+
+- Create a virtual python environment
+
 - Install development tools.
 
   ```
-  python3 -m pip install -r dev-requirements.txt
+  pip install -r dev-requirements.txt
+  pip install -r website/website-requirements.txt
+  pip install -r worker/worker-requirements.txt
   ```
 
 - Install and configure [git-secrets](https://github.com/awslabs/git-secrets).
@@ -20,7 +26,7 @@
 - Install pre-commit hooks.
 
   ```
-  python3 -m pre_commit install
+  python -m pre_commit install
   ```
 
 ## Preparing data
@@ -65,7 +71,7 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   To generate a random secret key, use:
 
   ```
-  python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key());'
+  python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key());'
   ```
 
 - On first run, start database and apply migrations.
