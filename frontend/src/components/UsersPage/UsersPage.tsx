@@ -120,6 +120,7 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
           <Tr>
             <Th scope="col">{USERNAME_LABEL}</Th>
             <Th scope="col">Active</Th>
+            <Th scope="col">Staff</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -153,10 +154,37 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
                       </MenuItem>
                       <MenuItem
                         onClick={() => {
-                          updateUser(user, { is_active: true });
+                          updateUser(user, { is_active: false });
                         }}
                       >
                         Inactive
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                </Td>
+                <Td>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      {user.is_staff ? "Staff" : "Not staff"}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        onClick={() => {
+                          updateUser(user, { is_staff: true });
+                        }}
+                      >
+                        Staff
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          updateUser(user, { is_staff: false });
+                        }}
+                      >
+                        Not staff
                       </MenuItem>
                     </MenuList>
                   </Menu>
