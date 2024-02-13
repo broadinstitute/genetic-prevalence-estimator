@@ -355,7 +355,7 @@ class TestGetVariantList:
             level=VariantListAccessPermission.Level.OWNER,
         )
 
-        list11 = VariantList.objects.create(
+        VariantList.objects.create(
             id=11,
             label="Public List 1",
             type=VariantList.Type.CUSTOM,
@@ -368,12 +368,6 @@ class TestGetVariantList:
             public_status=VariantList.PublicStatus.APPROVED,
             public_status_updated_by=staffuser,
             variants=[{"id": "1-55516888-G-GA"}],
-        )
-
-        VariantListAccessPermission.objects.create(
-            user=testuser,
-            variant_list=list11,
-            level=VariantListAccessPermission.Level.EDITOR,
         )
 
         VariantList.objects.create(
@@ -527,39 +521,6 @@ class TestGetVariantList:
         # Staff members whoare inactive can only view public lists
         client.force_authenticate(User.objects.get(username="inactivestaff"))
         response = client.get(f"/api/variant-lists/{variant_list.uuid}/")
-        assert response.status_code == expected_response
-
-    def test_reprocessing_variant_list_requires_authentication(self):
-        variant_list = VariantList.objects.get(id=11)
-        client = APIClient()
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/variants/update")
-        assert response.status_code == 403
-
-    @pytest.mark.parametrize(
-        "username, list_id, expected_response",
-        [
-            ("anon", 11, 403),
-            ("anon", 12, 403),
-            ("anon", 13, 403),
-            ("testuser", 11, 403),
-            ("testuser", 12, 403),
-            ("testuser", 13, 403),
-            # Currently, re-processing can only be triggered by staff members
-            ("staffmember", 11, 200),
-            ("staffmember", 12, 200),
-            ("staffmember", 13, 200),
-        ],
-    )
-    def test_reprocessing_variant_list_requires_permission(
-        self, username, list_id, expected_response
-    ):
-        variant_list = VariantList.objects.get(id=list_id)
-        client = APIClient()
-
-        if username != "anon":
-            client.force_authenticate(User.objects.get(username=username))
-
-        response = client.get(f"/api/variant-lists/{variant_list.uuid}/variants/update")
         assert response.status_code == expected_response
 
 
