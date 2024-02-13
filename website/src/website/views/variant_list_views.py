@@ -144,7 +144,7 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        if (
+        if not self.request.user.is_staff and (
             not self.request.user.has_perm("calculator.change_variantlist", instance)
             or "public_status" in request.data
         ):
