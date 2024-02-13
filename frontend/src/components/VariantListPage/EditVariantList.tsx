@@ -27,6 +27,8 @@ import { VariantList } from "../../types";
 interface VariantListPatch {
   label: string;
   notes: string;
+  gene_id: string;
+  transcript_id: string;
 }
 
 const submitVariantList = (
@@ -50,6 +52,8 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
 
   const [label, setLabel] = useState(variantList.label);
   const [notes, setNotes] = useState(variantList.notes);
+  const [transcript, setTranscript] = useState("");
+  const [gene, setGene] = useState("");
 
   const toast = useToast();
 
@@ -63,6 +67,8 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
           submitVariantList(variantList.uuid, {
             label,
             notes,
+            transcript_id: transcript,
+            gene_id: gene,
           }).then(
             (updatedVariantList) => {
               variantListStore.set(updatedVariantList);
@@ -104,6 +110,26 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
             value={notes}
             onChange={(e) => {
               setNotes(e.target.value);
+            }}
+          />
+        </FormControl>
+
+        <FormControl id="edit-variant-list-transcript">
+          <FormLabel>Gene ID</FormLabel>
+          <Textarea
+            value={gene}
+            onChange={(e) => {
+              setGene(e.target.value);
+            }}
+          />
+        </FormControl>
+
+        <FormControl id="edit-variant-list-transcript">
+          <FormLabel>Transcript ID</FormLabel>
+          <Textarea
+            value={transcript}
+            onChange={(e) => {
+              setTranscript(e.target.value);
             }}
           />
         </FormControl>
