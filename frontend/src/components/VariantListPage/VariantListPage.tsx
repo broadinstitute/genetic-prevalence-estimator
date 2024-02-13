@@ -65,7 +65,7 @@ const addVariantsToVariantList = (
 };
 
 const reprocessVariantList = (uuid: string): Promise<void> => {
-  return get(`/variant-lists/${uuid}/variants/update`, {});
+  return post(`/variant-lists/${uuid}/process/`, {});
 };
 
 const deleteVariantList = (uuid: string): Promise<void> => {
