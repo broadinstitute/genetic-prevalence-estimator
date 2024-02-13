@@ -898,9 +898,9 @@ class TestProcessVariantList:
             ("viewer", 403),
             ("editor", 200),
             ("owner", 200),
-            ("other", 404),
+            ("other", 403),
             ("inactiveuser", 403),
-            ("staffmember", 403),
+            ("staffmember", 200),
         ],
     )
     def test_process_variant_list_requires_permission(self, user, expected_response):

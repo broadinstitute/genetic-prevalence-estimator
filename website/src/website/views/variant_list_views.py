@@ -183,9 +183,15 @@ class VariantListProcessView(GenericAPIView):
 
     lookup_field = "uuid"
 
-    permission_classes = (IsAuthenticated, VariantListProcessViewObjectPermissions)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        instance = self.get_object()
+        if not self.request.user.is_staff and not self.request.user.has_perm(
+            "calculator.change_variantlist", instance
+        ):
+            raise PermissionDenied
+
         variant_list = self.get_object()
 
         publisher.send_to_worker(
