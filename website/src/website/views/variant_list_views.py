@@ -150,16 +150,6 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
         ):
             raise PermissionDenied
 
-        if "transcript_id" in request.data:
-            instance.metadata["transcript_id"] = request.data["transcript_id"]
-            del request.data["transcript_id"]
-
-        if "gene_id" in request.data:
-            instance.metadata["gene_id"] = request.data["gene_id"]
-            del request.data["gene_id"]
-
-        instance.save()
-
         return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
