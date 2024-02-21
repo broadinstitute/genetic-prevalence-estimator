@@ -12,9 +12,6 @@ from django.conf import settings
 from calculator.models import VariantList
 from calculator.serializers import VariantListSerializer
 
-with open("path_to_clinvar_table.txt", "r") as f:
-    clinvar_table_path = f.read().strip() 
-
 
 logger = logging.getLogger(__name__)
 
@@ -216,11 +213,12 @@ def get_recommended_variants(metadata, transcript):
     gnomad_version = metadata["gnomad_version"]
     reference_genome = metadata["reference_genome"]
 
-    full_path = os.path.join(clinvar_table_path, f"ClinVar_{reference_genome}_variants.ht")
+    with open(f"{settings.CLINVAR_DATA_PATH}/ClinVar_most_recent_table_hash.txt") as f:
+        most_recent_hash = f.read().strip()
 
-    if not os.path.exists(full_path):
-        raise FileNotFoundError(f"ClinVar table not found at path: {full_path}")
-
+        clinvar = hl.read_table(
+                f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants_{most_recent_hash}.ht"
+            )
 
     subset = "_non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
     gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
@@ -276,10 +274,6 @@ def get_recommended_variants(metadata, transcript):
         ) & (ds.lof == "HC")
 
     ds = ds.annotate(include_from_gnomad=include_from_gnomad)
-
-    # clinvar = hl.read_table(
-    #     f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
-    # )
 
     clinvar = hl.read_table(full_path)
 
