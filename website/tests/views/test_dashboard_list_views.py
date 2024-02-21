@@ -21,68 +21,56 @@ class TestGetDashboardLists:
 
         list1 = DashboardList.objects.create(
             label="List 1",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
         )
 
         list2 = DashboardList.objects.create(
             label="List 2",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
         )
 
         DashboardList.objects.create(
             label="List 3",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
         )
 
         DashboardList.objects.create(
             label="List 4",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="A",
         )
 
         DashboardList.objects.create(
             label="List 5",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="R",
         )
 
         DashboardList.objects.create(
             label="List 6",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="P",
         )
 
 class TestCreateDashboardList:
@@ -102,7 +90,6 @@ class TestCreateDashboardList:
             "/api/variant-lists/",
             {
                 "label": "A variant list",
-                "type": DashboardList.Type.CUSTOM,
                 "metadata": {
                     "gnomad_version": "2.1.1",
                 },
@@ -129,7 +116,6 @@ class TestGetDashboardList:
         list1 = DashboardList.objects.create(
             id=1,
             label="List 1",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -142,7 +128,6 @@ class TestGetDashboardList:
         list2 = DashboardList.objects.create(
             id=2,
             label="List 2",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -155,7 +140,6 @@ class TestGetDashboardList:
         list3 = DashboardList.objects.create(
             id=3,
             label="List 3",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -168,7 +152,6 @@ class TestGetDashboardList:
         DashboardList.objects.create(
             id=4,
             label="List 4",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -181,7 +164,6 @@ class TestGetDashboardList:
         DashboardList.objects.create(
             id=5,
             label="List 5",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -209,7 +191,6 @@ class TestEditDashboardList:
             id=1,
             label="Test list",
             notes="Initial notes",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -217,14 +198,12 @@ class TestEditDashboardList:
                 "gene_symbol": "PCSK9",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
         )
 
         DashboardList.objects.create(
             id=2,
             label="Test list 2",
             notes="Initial notes",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -232,15 +211,12 @@ class TestEditDashboardList:
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="A",
-            public_status_updated_by=staffmember,
         )
 
         variant_list_2 = DashboardList.objects.create(
             id=3,
             label="Test list 3",
             notes="Initial notes",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -248,7 +224,6 @@ class TestEditDashboardList:
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
         )
 
 
@@ -266,7 +241,6 @@ class TestDeleteDashboardList:
         variant_list = DashboardList.objects.create(
             id=1,
             label="Test list",
-            type=DashboardList.Type.CUSTOM,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
@@ -288,8 +262,6 @@ class TestProcessDashboardList:
             id=1,
             label="Test list",
             notes="Initial notes",
-            type=DashboardList.Type.CUSTOM,
-            status=DashboardList.Status.READY,
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
