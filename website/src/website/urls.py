@@ -15,6 +15,10 @@ from website.views.variant_list_views import (
     PublicVariantListsView,
     PublicVariantListView,
 )
+from website.views.dashboard_list_views import (
+    DashboardListsView,
+    DashboardListView,
+)
 from website.views.variant_list_access_views import (
     VariantListAccessList,
     VariantListAccessDetail,
@@ -28,6 +32,9 @@ ui_views = [
     ("variant-lists/", "variant-lists"),
     ("variant-lists/<uuid:variant_list_id>/", "variant-list"),
     ("variant-lists/new/", "new-variant-list"),
+    ("dashboard-lists/", "dashboard-lists"),
+    ("dashboard-lists/<uuid:dashboard_list_id>/", "dashboard-list"),
+    ("dashboard-lists/new/", "new-dashboard-list"),
     ("public-lists/", "public-lists"),
     ("status/", "status"),
     ("users/", "users"),
@@ -53,6 +60,16 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/annotation/",
         VariantListAnnotationView.as_view(),
         name="variant-list-annotation",
+    ),
+    path(
+        "api/dashboard-lists/",
+        DashboardListsView.as_view(),
+        name="dashboard-lists",
+    ),
+    path(
+        "api/dashboard-lists/<uuid:uuid>/",
+        DashboardListView.as_view(),
+        name="dashboard-list-detail;",
     ),
     path(
         "api/variant-lists/<uuid:uuid>/shared-annotation/",
