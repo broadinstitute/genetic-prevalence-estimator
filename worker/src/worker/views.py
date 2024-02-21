@@ -4,9 +4,11 @@ import json
 import logging
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 
 from .tasks import handle_event
 
