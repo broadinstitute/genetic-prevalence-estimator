@@ -1,0 +1,10 @@
+steps:
+- name: write_to_file
+  entrypoint: ["bash", "-c"]
+  args: ["echo 'CONTENT_HERE' > /tmp/output.txt"]
+  # Use gsutil to upload the temporary file to GCS bucket, overwriting if exists
+  args: ["gsutil -m cp /tmp/output.txt gs://BUCKET_NAME/path_to_clinvar_table.txt"]
+
+substitutions:
+  CONTENT_HERE: "<<text-content>>"
+  BUCKET_NAME: "<<bucket-name>>"
