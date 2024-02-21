@@ -12,6 +12,9 @@ from django.conf import settings
 from calculator.models import VariantList
 from calculator.serializers import VariantListSerializer
 
+with open("path_to_clinvar_table.txt", "r") as f:
+    clinvar_table_path = f.read().strip() 
+
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +216,12 @@ def get_recommended_variants(metadata, transcript):
     gnomad_version = metadata["gnomad_version"]
     reference_genome = metadata["reference_genome"]
 
+    full_path = os.path.join(clinvar_table_path, f"ClinVar_{reference_genome}_variants.ht")
+
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"ClinVar table not found at path: {full_path}")
+
+
     subset = "_non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
     gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
 
@@ -268,9 +277,12 @@ def get_recommended_variants(metadata, transcript):
 
     ds = ds.annotate(include_from_gnomad=include_from_gnomad)
 
-    clinvar = hl.read_table(
-        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
-    )
+    # clinvar = hl.read_table(
+    #     f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    # )
+
+    clinvar = hl.read_table(full_path)
+
 
     if not metadata["include_clinvar_clinical_significance"]:
         ds = ds.annotate(include_from_clinvar=False)
@@ -370,6 +382,12 @@ def _process_variant_list(variant_list):
 
     reference_genome = metadata["reference_genome"]
 
+    full_path = os.path.join(clinvar_table_path, f"ClinVar_{reference_genome}_variants.ht")
+
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"ClinVar table not found at path: {full_path}")
+
+
     # Import existing variants into a Hail Table
     ds = None
     if variant_list.variants:
@@ -418,9 +436,12 @@ def _process_variant_list(variant_list):
 
     ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
 
-    clinvar = hl.read_table(
-        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
-    )
+    # clinvar = hl.read_table(
+    #     f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    # )
+
+    clinvar = hl.read_table(full_path)
+
     variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
 
     ds = ds.annotate(
