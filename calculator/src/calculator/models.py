@@ -79,6 +79,48 @@ class VariantList(models.Model):
         ]
 
 
+class DashboardList(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    label = models.CharField(max_length=1000)
+
+    notes = models.TextField(default="")
+
+    metadata = models.JSONField()
+
+    variants = models.JSONField(default=list)
+    top_ten_variants = models.JSONField(default=list)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Status(models.TextChoices):
+        QUEUED = (
+            "Q",
+            "Queued",
+        )
+        PROCESSING = (
+            "P",
+            "Processing",
+        )
+        READY = (
+            "R",
+            "Ready",
+        )
+        ERROR = "E", "Error"
+
+    status = models.CharField(
+        max_length=1, choices=Status.choices, default=Status.QUEUED
+    )
+
+    error = models.TextField(null=True, default=None)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=("uuid",)),
+        ]
+
+
 class VariantListAccessPermission(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
