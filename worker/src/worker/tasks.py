@@ -9,8 +9,8 @@ import hail as hl
 import requests
 from django.conf import settings
 
-from calculator.models import VariantList
-from calculator.serializers import VariantListSerializer
+from calculator.models import VariantList, DashboardList
+from calculator.serializers import VariantListSerializer, DashboardListSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -501,6 +501,162 @@ def process_variant_list(uid):
         variant_list.save()
 
 
+def get_highest_frequency_variants(ds, num_to_keep):
+    ds = ds.filter(ds.AN[0] == 0, keep=False)
+    ds = ds.order_by(hl.desc(ds.AC[0] / ds.AN[0]))
+    ds = ds.head(num_to_keep)
+
+    return ds
+
+
+def _process_dashboard_list(dashboard_list):
+    metadata = dashboard_list.metadata
+
+    gnomad_version = metadata["gnomad_version"]
+    assert gnomad_version in ("4.0.0",), f"Invalid gnomAD version '{gnomad_version}'"
+
+    if metadata.get("transcript_id"):
+        transcript_id, transcript_version = metadata["transcript_id"].split(".")
+        gene_id, gene_version = metadata["gene_id"].split(".")
+
+        try:
+            transcript = fetch_transcript(transcript_id, gnomad_version)
+        except Exception as e:  # pylint: disable=broad-except
+            raise Exception("Unable to validate transcript and gene") from e
+
+        assert (
+            transcript_version == transcript["transcript_version"]
+        ), f"Requested transcript version ({transcript_version}) differs from version in gnomAD ({transcript['transcript_version']})"
+
+        assert (
+            gene_id == transcript["gene"]["gene_id"]
+        ), f"Requested gene ({gene_id}) does not match the gene associated with transcript {transcript_id} in gnomAD ({transcript['gene']['gene_id']})"
+
+        assert (
+            gene_version == transcript["gene"]["gene_version"]
+        ), f"Requested gene version ({gene_version}) differs from version in gnomAD ({transcript['gene']['gene_version']})"
+
+        dashboard_list.metadata["gene_symbol"] = transcript["gene"]["symbol"]
+
+    metadata["reference_genome"] = "GRCh38"
+    reference_genome = metadata["reference_genome"]
+
+    # get recommended variants
+    ds = get_recommended_variants(metadata, transcript)
+
+    ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
+
+    gnomad = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
+    )
+    ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
+
+    if metadata.get("transcript_id"):
+        ds = ds.transmute(
+            transcript_consequence=ds.transcript_consequences.find(
+                lambda csq: csq.transcript_id == metadata["transcript_id"]
+            )
+        )
+    else:
+        ds = ds.transmute(transcript_consequence=ds.transcript_consequences.first())
+
+    ds = ds.transmute(**ds.transcript_consequence)
+
+    populations = hl.eval(gnomad.globals.populations)
+    dashboard_list.metadata["populations"] = populations
+
+    ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
+
+    clinvar = hl.read_table(
+        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    )
+    dashboard_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
+
+    ds = ds.annotate(
+        **clinvar[ds.locus, ds.alleles].select(
+            "clinvar_variation_id",
+            "clinical_significance",
+            "clinical_significance_category",
+            "gold_stars",
+        )
+    )
+
+    max_af_of_clinvar_path_or_likely_path_variants = ds.aggregate(
+        hl.agg.filter(
+            ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
+            hl.agg.max(ds.AC[0] / ds.AN[0]),
+        )
+    )
+    # if there are no clinvar path or likely path variants, the aggregation returns None
+    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
+    max_af_of_clinvar_path_or_likely_path_variants = (
+        max_af_of_clinvar_path_or_likely_path_variants
+        if max_af_of_clinvar_path_or_likely_path_variants is not None
+        else hl.int(1.1)
+    )
+
+    ds = ds.annotate(
+        flags=annotate_variants_with_flags(
+            ds, max_af_of_clinvar_path_or_likely_path_variants
+        )
+    )
+
+    if metadata.get("gene_id") and gnomad_version == "2.1.1":
+        gene_id, gene_version = metadata["gene_id"].split(".")
+
+        lof_curation_results = hl.read_table(
+            f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht"
+        )
+
+        ds = ds.annotate(
+            lof_curation=lof_curation_results[
+                ds.locus, ds.alleles, hl.str(gene_id)
+            ].select("verdict", "flags", "project")
+        )
+
+    table_fields = set(ds.row)
+    select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
+    ds = ds.select(*select_fields)
+
+    variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
+    dashboard_list.variants = variants
+
+    top_10_variants = get_highest_frequency_variants(ds, 10)
+    top_10_variants = [
+        json.loads(variant) for variant in hl.json(top_10_variants.row_value).collect()
+    ]
+    dashboard_list.top_ten_variants = top_10_variants
+
+    dashboard_list.save()
+
+
+def process_dashboard_list(uid):
+    logger.info("Processing new dashboard list %s", uid)
+
+    dashboard_list = DashboardList.objects.get(uuid=uid)
+    dashboard_list.status = DashboardList.Status.PROCESSING
+    dashboard_list.save()
+
+    try:
+        _process_dashboard_list(dashboard_list)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception(
+            "Error processing new dashboard list",
+            extra={"json_fields": {"dashboard_list": str(uid)}},
+        )
+
+        dashboard_list.refresh_from_db()
+        dashboard_list.status = DashboardList.Status.ERROR
+        dashboard_list.error = traceback.format_exc()
+        dashboard_list.save()
+
+    else:
+        logger.info("Done processing new dashboard list %s", uid)
+
+        dashboard_list.status = DashboardList.Status.READY
+        dashboard_list.save()
+
+
 def handle_event(event):
     try:
         event_type = event["type"]
@@ -508,6 +664,8 @@ def handle_event(event):
 
         if event_type == "process_variant_list":
             process_variant_list(uuid.UUID(hex=args["uuid"]))
+        elif event_type == "process_dashboard_list":
+            process_dashboard_list(uuid.UUID(hex=args["uuid"]))
 
     except KeyError:
         logger.error("Invalid event %s", event)
