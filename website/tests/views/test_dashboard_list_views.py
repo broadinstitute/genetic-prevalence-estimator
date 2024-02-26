@@ -25,7 +25,7 @@ class TestGetDashboardLists:
                 "version": "2",
                 "gnomad_version": "2.1.1",
             },
-            variants=[{"id": "1-55516888-G-GA"}],
+            s=[{"id": "1-55516888-G-GA"}],
         )
 
         list2 = DashboardList.objects.create(
@@ -87,9 +87,9 @@ class TestCreateDashboardList:
         testuser = User.objects.get(username="testuser")
         client.force_authenticate(testuser)
         response = client.post(
-            "/api/variant-lists/",
+            "/dashboard-lists/",
             {
-                "label": "A variant list",
+                "label": "A dashboard list",
                 "metadata": {
                     "gnomad_version": "2.1.1",
                 },
@@ -98,10 +98,10 @@ class TestCreateDashboardList:
         )
 
         response = client.get(response.headers["Location"]).json()
-        variant_list = DashboardList.objects.get(uuid=response["uuid"])
+        dashboard_list = DashboardList.objects.get(uuid=response["uuid"])
 
         send_to_worker.assert_called_once_with(
-            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+            {"type": "dashboard-lists/<uuid:dashboard_list_id>/", "args": {"uuid": str(dashboard_list_id.uuid)}}
         )
 
 @pytest.mark.django_db
@@ -187,7 +187,7 @@ class TestEditDashboardList:
         )
         User.objects.create(username="other")
 
-        variant_list = DashboardList.objects.create(
+        dashboard_list = DashboardList.objects.create(
             id=1,
             label="Test list",
             notes="Initial notes",
@@ -213,7 +213,7 @@ class TestEditDashboardList:
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
-        variant_list_2 = DashboardList.objects.create(
+        dashboard_list_2 = DashboardList.objects.create(
             id=3,
             label="Test list 3",
             notes="Initial notes",
@@ -238,7 +238,7 @@ class TestDeleteDashboardList:
         User.objects.create(username="staffmember", is_staff=True)
         User.objects.create(username="other")
 
-        variant_list = DashboardList.objects.create(
+        dashboard_list = DashboardList.objects.create(
             id=1,
             label="Test list",
             metadata={
@@ -258,7 +258,7 @@ class TestProcessDashboardList:
         User.objects.create(username="staffmember", is_staff=True)
         User.objects.create(username="other")
 
-        variant_list = DashboardList.objects.create(
+        dashboard_list = DashboardList.objects.create(
             id=1,
             label="Test list",
             notes="Initial notes",
