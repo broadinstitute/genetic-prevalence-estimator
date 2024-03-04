@@ -6,7 +6,10 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
-from calculator.models import DashboardList
+from calculator.models import (
+    DashboardList,
+    VariantList,
+)
 from calculator.serializers import (
     NewDashboardListSerializer,
     DashboardListSerializer,
@@ -35,7 +38,17 @@ class DashboardListsView(ListCreateAPIView):
         if not self.request.user.is_staff:
             raise PermissionDenied
 
-        dashboard_list = serializer.save()
+        # If an approved public variant list already exists when this dashboard list is created
+        #   assign that list as the dashboard entries associated public list
+        public_variant_list = None
+        public_variant_list_with_same_gene_id = VariantList.objects.filter(
+            metadata__gene_id=self.request.data["metadata"]["gene_id"],
+            public_status=VariantList.PublicStatus.APPROVED,
+        )
+        if public_variant_list_with_same_gene_id.count() > 0:
+            public_variant_list = public_variant_list_with_same_gene_id[0]
+
+        dashboard_list = serializer.save(public_variant_list=public_variant_list)
 
         publisher.send_to_worker(
             {
