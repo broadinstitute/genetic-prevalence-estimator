@@ -5,6 +5,7 @@ from rest_framework import serializers
 from calculator.constants import GNOMAD_VERSIONS, GNOMAD_REFERENCE_GENOMES
 from calculator.models import DashboardList
 from calculator.serializers.serializer import ModelSerializer
+from calculator.serializers.variant_list_serializer import VariantListSerializer
 from calculator.serializers.serializer_fields import ChoiceField
 
 
@@ -91,8 +92,21 @@ class NewDashboardListSerializer(ModelSerializer):
 
     class Meta:
         model = DashboardList
-        fields = ["uuid", "label", "notes", "metadata", "variants"]
-        read_only_fields = ["uuid"]
+        fields = [
+            "gene_id",
+            "label",
+            "notes",
+            "created_at",
+            "metadata",
+            "total_allele_frequency",
+            "carrier_frequency",
+            "genetic_prevalence",
+            "top_ten_variants",
+            "genetic_prevalence_orphanet",
+            "genetic_prevalence_genereviews",
+            "genetic_prevalence_other",
+            "genetic_incidence_other",
+        ]
 
 
 class DashboardListTopTenVariantSerializer(
@@ -105,10 +119,34 @@ class DashboardListTopTenVariantSerializer(
     genetic_ancestry_groups = serializers.JSONField(default=list)
 
 
+class DashboardListDashboardSerializer(ModelSerializer):
+    gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
+    # TODO: use a reduced serializer here?
+    public_variant_list = VariantListSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = DashboardList
+        fields = [
+            "gene_id",
+            "gene_symbol",
+            "label",
+            "metadata",
+            "public_variant_list",
+            "genetic_prevalence",
+            "genetic_prevalence_orphanet",
+            "genetic_prevalence_genereviews",
+            "genetic_prevalence_other",
+            "genetic_incidence_other",
+        ]
+        read_only_fields = list(fields)
+
+
 class DashboardListSerializer(ModelSerializer):
     notes = serializers.CharField(allow_blank=True, required=False)
     status = ChoiceField(choices=DashboardList.Status.choices, read_only=True)
     metadata = serializers.SerializerMethodField()
+
+    public_variant_list = VariantListSerializer(many=False, read_only=True)
 
     def get_metadata(self, obj):
         metadata_serializer = DashboardListMetadataSerializer(
@@ -124,13 +162,19 @@ class DashboardListSerializer(ModelSerializer):
             "uuid",
             "label",
             "notes",
-            "metadata",
             "created_at",
-            "updated_at",
+            "metadata",
+            "total_allele_frequency",
+            "carrier_frequency",
+            "genetic_prevalence",
+            "genetic_prevalence_orphanet",
+            "genetic_prevalence_genereviews",
+            "genetic_prevalence_other",
+            "genetic_incidence_other",
+            "top_ten_variants",
+            "public_variant_list",
             "status",
             "error",
-            "variants",
-            "top_ten_variants",
         ]
 
         read_only_fields = [
@@ -140,5 +184,7 @@ class DashboardListSerializer(ModelSerializer):
             not in (
                 "label",
                 "notes",
+                "metadata",
+                "top_ten_variants",
             )
         ]
