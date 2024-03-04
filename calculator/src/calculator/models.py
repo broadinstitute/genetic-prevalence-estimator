@@ -80,19 +80,32 @@ class VariantList(models.Model):
 
 
 class DashboardList(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
-
+    gene_id = models.CharField(max_length=100, unique=True)
     label = models.CharField(max_length=1000)
-
     notes = models.TextField(default="")
+
+    created_at = models.DateTimeField()
 
     metadata = models.JSONField()
 
-    variants = models.JSONField(default=list)
+    total_allele_frequency = models.JSONField(default=list)
+    carrier_frequency = models.JSONField(default=list)
+    genetic_prevalence = models.JSONField(default=list)
+
+    genetic_prevalence_orphanet = models.CharField(max_length=100, blank=True)
+    genetic_prevalence_genereviews = models.CharField(max_length=100, blank=True)
+    genetic_prevalence_other = models.CharField(max_length=100, blank=True)
+    genetic_incidence_other = models.CharField(max_length=100, blank=True)
+
     top_ten_variants = models.JSONField(default=list)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    public_variant_list = models.ForeignKey(
+        VariantList,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="public_variant_list",
+        related_query_name="public_variant_list",
+    )
 
     class Status(models.TextChoices):
         QUEUED = (
@@ -117,7 +130,7 @@ class DashboardList(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=("uuid",)),
+            models.Index(fields=("gene_id",)),
         ]
 
 
