@@ -20,6 +20,7 @@ from calculator.models import (
     VariantList,
     VariantListAccessPermission,
     VariantListAnnotation,
+    DashboardList,
 )
 from calculator.serializers import (
     AddedVariantsSerializer,
@@ -317,6 +318,23 @@ class PublicVariantListView(RetrieveUpdateAPIView):
                 public_status_updated_by=self.request.user,
                 public_status=request_public_status,
             )
+
+            # when a staff member approves the list, if there is a dashboard list for
+            #   this gene_id, set the foreign key of that dashboard list to this variant
+            #   list, as this is now the representative variant list
+            if request_public_status == VariantList.PublicStatus.APPROVED:
+                dashboard_lists_with_same_gene_id = DashboardList.objects.filter(
+                    metadata__gene_id=serializer.data["metadata"]["gene_id"]
+                )
+                if dashboard_lists_with_same_gene_id.count() > 0:
+                    # manually set this approved list as the dashboard lists foreign key
+                    dashboard_list = dashboard_lists_with_same_gene_id[0]
+                    dashboard_list.public_variant_list = serializer.instance
+                    dashboard_list.save()
+
+            # pylint: disable=fixme
+            # TODO: if its anything but that, you should remove it as the list
+
             return
 
         if not self.request.user.has_perm(
