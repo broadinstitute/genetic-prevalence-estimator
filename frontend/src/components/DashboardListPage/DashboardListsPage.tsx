@@ -26,11 +26,21 @@ import { Link as RRLink } from "react-router-dom";
 import { del, get } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, authStore, useStore } from "../../state";
+import { VariantList } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
-type DashboardList = any;
+type DashboardList = {
+  uuid: string;
+  label: string;
+  metadata: {
+    gnomad_version: string;
+    reference_genome: string;
+    gene_symbol: string;
+  };
+  public_variant_list?: VariantList;
+};
 
 const DashboardLists = (props: {
   dashboardListsStore: Store<DashboardList[]>;
@@ -75,7 +85,9 @@ const DashboardLists = (props: {
         <Thead>
           <Tr>
             <Th>Gene</Th>
-            <Th>Label</Th>
+            <Th>Label (dashboard)</Th>
+            <Th>Label (public)</Th>
+            <Th>Contact</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -91,6 +103,23 @@ const DashboardLists = (props: {
                     {dashboardList.label}
                   </Link>
                 </Td>
+                {dashboardList.public_variant_list && (
+                  <>
+                    <Td>
+                      <Link
+                        as={RRLink}
+                        to={`/variant-lists/${dashboardList.public_variant_list.uuid}`}
+                      >
+                        {dashboardList.public_variant_list.label}
+                      </Link>
+                    </Td>
+                    <Td>
+                      {dashboardList.public_variant_list.access_permissions
+                        ?.filter((ap) => ap.level === "Owner")
+                        .map((ap) => ap.user)}
+                    </Td>
+                  </>
+                )}
                 {user?.is_staff && (
                   <Td>
                     <ButtonWithConfirmation
