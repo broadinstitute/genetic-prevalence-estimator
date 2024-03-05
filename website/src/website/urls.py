@@ -18,6 +18,7 @@ from website.views.variant_list_views import (
 from website.views.dashboard_list_views import (
     DashboardListsView,
     DashboardListView,
+    DashboardListsLoadView,
 )
 from website.views.variant_list_access_views import (
     VariantListAccessList,
@@ -60,6 +61,11 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/annotation/",
         VariantListAnnotationView.as_view(),
         name="variant-list-annotation",
+    ),
+    path(
+        "api/dashboard-lists/load",
+        DashboardListsLoadView.as_view(),
+        name="load-dashboard-lists",
     ),
     path(
         "api/dashboard-lists/",
