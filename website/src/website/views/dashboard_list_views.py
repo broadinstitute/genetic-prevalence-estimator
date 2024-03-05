@@ -1,10 +1,24 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
+    IsAdminUser,
 )
+import csv
+
+from rest_framework import status
+from rest_framework.response import Response
+
+from google.cloud import storage
+
+# TODO: remove me!
+import logging
 
 from calculator.models import (
     DashboardList,
@@ -17,9 +31,62 @@ from calculator.serializers import (
 from website.pubsub import publisher
 
 
+logger = logging.getLogger(__name__)
+
+
+class DashboardListsLoadView(CreateAPIView):
+
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def post(self, request):
+        logger.info("Got post request")
+
+        bucket_name = "aggregate-frequency-calculator-data"
+
+        blob_name = "dashboard-lists.csv"
+
+        client = storage.Client()
+
+        logger.info("trying to read bucket...")
+        try:
+            bucket = client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            csv_data = blob.download_as_string().decode("utf-8").splitlines()
+
+            logger.info("trying to read csv...")
+            csv_reader = csv.DictReader(csv_data)
+
+            for row in csv_reader:
+                logger.info("reading another row:")
+                logger.info(row)
+                gene_id = row.get("gene_id")
+
+                if DashboardList.objects.filter(gene_id=gene_id).count() > 0:
+                    instance = DashboardList.objects.filter(gene_id=gene_id).first()
+                    serializer = DashboardListSerializer(instance, data=row)
+                else:
+                    serializer = NewDashboardListSerializer(data=row)
+
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response(
+                        serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            return Response(
+                {"message": "Objects created/updated successfully"},
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class DashboardListsView(ListCreateAPIView):
     def get_queryset(self):
-        # return DashboardList.objects.filter(access_permission__user=self.request.user)
         return DashboardList.objects.all()
 
     permission_classes = (IsAuthenticated,)
