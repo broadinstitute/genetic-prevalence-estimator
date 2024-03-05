@@ -60,6 +60,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         "conflicting_interpretations": {
             "conflicting data from submitters",
             "Conflicting interpretations of pathogenicity",
+            "Conflicting classifications of pathogenicity",
         },
         "uncertain_significance": {
             "Uncertain significance",
@@ -79,6 +80,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "Pathogenic/Likely risk allele",
             "protective",
             "Uncertain risk allele",
+            "no classification for the single variant",
         },
     }
 )
@@ -108,9 +110,12 @@ GOLD_STARS = hl.dict(
     {
         "no interpretation for the single variant": 0,
         "no assertion provided": 0,
+        "no classification provided": 0,
+        "no classification for the single variant": 0,
         "no assertion criteria provided": 0,
         "criteria provided, single submitter": 1,
         "criteria provided, conflicting interpretations": 1,
+        "criteria provided, conflicting classifications": 1,
         "criteria provided, multiple submitters, no conflicts": 2,
         "reviewed by expert panel": 3,
         "practice guideline": 4,
