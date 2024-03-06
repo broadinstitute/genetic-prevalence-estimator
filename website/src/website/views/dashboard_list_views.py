@@ -1,3 +1,8 @@
+import csv
+import json
+from datetime import datetime
+
+from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
@@ -10,15 +15,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAdminUser,
 )
-import csv
-
-from rest_framework import status
 from rest_framework.response import Response
-
-from google.cloud import storage
-
-# TODO: remove me!
-import logging
 
 from calculator.models import (
     DashboardList,
@@ -27,58 +24,104 @@ from calculator.models import (
 from calculator.serializers import (
     NewDashboardListSerializer,
     DashboardListSerializer,
+    DashboardListDashboardSerializer,
 )
 from website.pubsub import publisher
 
 
-logger = logging.getLogger(__name__)
+# set csv field size limit to half of a megabyte
+csv.field_size_limit(512 * 1024)  # 512 KB in bytes
 
 
 class DashboardListsLoadView(CreateAPIView):
 
     permission_classes = (IsAuthenticated, IsAdminUser)
 
-    def post(self, request):
-        logger.info("Got post request")
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
 
-        bucket_name = "aggregate-frequency-calculator-data"
+        csv_file = request.FILES.get("csv_file")
 
-        blob_name = "dashboard-lists.csv"
+        if not csv_file:
+            return Response(
+                {"error": "No CSV File provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        client = storage.Client()
-
-        logger.info("trying to read bucket...")
         try:
-            bucket = client.bucket(bucket_name)
-            blob = bucket.blob(blob_name)
-            csv_data = blob.download_as_string().decode("utf-8").splitlines()
+            decoded_file = csv_file.read().decode("utf-8").splitlines()
+            reader = csv.reader(decoded_file)
+            next(reader)  # ignore the header row
 
-            logger.info("trying to read csv...")
-            csv_reader = csv.DictReader(csv_data)
+            for row in reader:
 
-            for row in csv_reader:
-                logger.info("reading another row:")
-                logger.info(row)
-                gene_id = row.get("gene_id")
+                gene_id = row[0]
+
+                metadata = json.loads(row[4])
+
+                row_dict = {
+                    "gene_id": row[0],
+                    "label": row[1],
+                    "notes": row[2],
+                    "created_at": datetime.strptime(row[3], "%Y-%m-%dT%H:%M:%S.%f"),
+                    "metadata": metadata,
+                    "total_allele_frequency": json.loads(row[5]),
+                    "carrier_frequency": json.loads(row[6]),
+                    "genetic_prevalence": json.loads(row[7]),
+                    "top_ten_variants": json.loads(row[8]),
+                    "genetic_prevalence_orphanet": row[9],
+                    "genetic_prevalence_genereviews": row[10],
+                    "genetic_prevalence_other": row[11],
+                    "genetic_incidence_other": row[12],
+                }
 
                 if DashboardList.objects.filter(gene_id=gene_id).count() > 0:
                     instance = DashboardList.objects.filter(gene_id=gene_id).first()
-                    serializer = DashboardListSerializer(instance, data=row)
+                    row_dict.pop("gene_id")
+
+                    # pylint: disable=fixme
+                    # TODO: cannot update metadata, due to serializer method
+                    #  fields, popping it for now but find a workaround?
+                    row_dict.pop("metadata")
+                    serializer = DashboardListSerializer(instance, data=row_dict)
                 else:
-                    serializer = NewDashboardListSerializer(data=row)
+                    serializer = NewDashboardListSerializer(data=row_dict)
 
                 if serializer.is_valid():
                     serializer.save()
+
+                    dashboard_list = DashboardList.objects.get(gene_id=gene_id)
+
+                    # check if there is an approved representative variant list for
+                    #   this gene, if so set the foreign key relationship here
+                    representative_variant_list = None
+                    representative_variant_list_with_same_gene_id = (
+                        VariantList.objects.filter(
+                            metadata__gene_id=metadata["gene_id"],
+                            public_status=VariantList.PublicStatus.APPROVED,
+                        )
+                    )
+                    if representative_variant_list_with_same_gene_id.count() > 0:
+                        representative_variant_list = (
+                            representative_variant_list_with_same_gene_id[0]
+                        )
+
+                    dashboard_list = serializer.save(
+                        public_variant_list=representative_variant_list
+                    )
+
+                    # pylint: disable=fixme
+                    # TODO: this is kind of jank
+                    # manually set status to ready, as it does not need to process
+                    dashboard_list.status = VariantList.Status.READY
+                    dashboard_list.save()
+
                 else:
                     return Response(
                         serializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
 
-            return Response(
-                {"message": "Objects created/updated successfully"},
-                status=status.HTTP_201_CREATED,
-            )
+            return Response({"message": "CSV file processed succesfully"})
 
+        # pylint: disable=broad-exception-caught
         except Exception as e:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -92,14 +135,14 @@ class DashboardListsView(ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     filter_backends = [OrderingFilter]
-    ordering_fields = ["label", "updated_at"]
-    ordering = ["-updated_at"]
+    ordering_fields = ["label", "created_at"]
+    ordering = ["-created_at"]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return NewDashboardListSerializer
-
-        return DashboardListSerializer
+        # if self.request.method == "POST":
+        #     return NewDashboardListSerializer
+        # return DashboardListSerializer
+        return DashboardListDashboardSerializer
 
     def perform_create(self, serializer):
         if not self.request.user.is_staff:
@@ -132,7 +175,7 @@ class DashboardListsView(ListCreateAPIView):
 
 
 class DashboardListView(RetrieveUpdateDestroyAPIView):
-    lookup_field = "uuid"
+    lookup_field = "gene_id"
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
