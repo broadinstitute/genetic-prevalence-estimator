@@ -35,14 +35,17 @@ class DashboardListMetadataSerializer(
     gnomad_version = serializers.ChoiceField(GNOMAD_VERSIONS)
     reference_genome = serializers.SerializerMethodField()
 
-    populations = serializers.ListField(child=serializers.CharField(), read_only=True)
-    clinvar_version = serializers.CharField(max_length=10, read_only=True)
+    populations = serializers.ListField(child=serializers.CharField())
+    clinvar_version = serializers.CharField(max_length=10)
 
     gene_id = serializers.CharField(max_length=20, required=False)
-    gene_symbol = serializers.CharField(max_length=20, read_only=True)
+    gene_symbol = serializers.CharField(max_length=20)
     transcript_id = serializers.CharField(max_length=20, required=False)
 
     include_gnomad_plof = serializers.BooleanField(required=False)
+    include_gnomad_missense_with_high_revel_score = serializers.BooleanField(
+        required=False,
+    )
     include_clinvar_clinical_significance = MultipleChoiceField(
         [
             "pathogenic_or_likely_pathogenic",
@@ -121,6 +124,8 @@ class DashboardListTopTenVariantSerializer(
 
 class DashboardListDashboardSerializer(ModelSerializer):
     gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
+
+    # pylint: disable=fixme
     # TODO: use a reduced serializer here?
     public_variant_list = VariantListSerializer(many=False, read_only=True)
 
@@ -159,7 +164,7 @@ class DashboardListSerializer(ModelSerializer):
         model = DashboardList
 
         fields = [
-            "uuid",
+            "gene_id",
             "label",
             "notes",
             "created_at",

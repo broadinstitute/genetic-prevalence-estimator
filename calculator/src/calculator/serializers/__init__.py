@@ -14,4 +14,5 @@ from calculator.serializers.variant_list_annotation_serializer import (
 from calculator.serializers.dashboard_list_serializer import (
     NewDashboardListSerializer,
     DashboardListSerializer,
+    DashboardListDashboardSerializer,
 )
