@@ -73,7 +73,7 @@ urlpatterns = [
         name="dashboard-lists",
     ),
     path(
-        "api/dashboard-lists/<uuid:uuid>/",
+        "api/dashboard-lists/<str:gene_id>/",
         DashboardListView.as_view(),
         name="dashboard-list-detail;",
     ),
