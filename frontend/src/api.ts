@@ -114,6 +114,20 @@ export const post = (path: string, data: any): Promise<any> => {
   });
 };
 
+export const postFile = (path: string, formData: FormData): Promise<any> => {
+  const headers: { [key: string]: string } = {};
+  const csrfToken = getCookie("csrftoken");
+  if (csrfToken) {
+    headers["X-CSRFToken"] = csrfToken;
+  }
+
+  return request(path, {
+    body: formData,
+    headers,
+    method: "POST",
+  });
+};
+
 export const del = (path: string): Promise<any> => {
   const headers: { [key: string]: string } = {};
   const csrfToken = getCookie("csrftoken");
