@@ -9,6 +9,7 @@ import {
   BreadcrumbLink,
   Center,
   Heading,
+  Input,
   Link,
   Table,
   Thead,
@@ -23,7 +24,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
-import { del, get } from "../../api";
+import { del, get, postFile } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, authStore, useStore } from "../../state";
 import { VariantList } from "../../types";
@@ -32,7 +33,7 @@ import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
 type DashboardList = {
-  uuid: string;
+  gene_id: string;
   label: string;
   metadata: {
     gnomad_version: string;
@@ -49,15 +50,58 @@ const DashboardLists = (props: {
   const toast = useToast();
   const { user } = useStore(authStore);
 
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: any) => {
+    setFile(event.target.files[0]);
+  };
+
+  const loadDashboardLists = (): Promise<void> => {
+    if (!file) {
+      toast({
+        title: "You need to add a file",
+        status: "error",
+        duration: 10_000,
+        isClosable: true,
+      });
+      return new Promise<void>((resolve, reject) => resolve());
+    }
+
+    const formData = new FormData();
+    const blob = new Blob([file!], { type: file!.type });
+    formData.append("csv_file", blob, file!.name);
+
+    return postFile(`/dashboard-lists/load`, formData).then(
+      () => {
+        toast({
+          title: "Dashboard lists loaded!",
+          status: "success",
+          duration: 30_000,
+          isClosable: true,
+        });
+        setFile(null);
+      },
+      (error) => {
+        toast({
+          title: "Unable to load dashboard lists",
+          description: renderErrorDescription(error),
+          status: "error",
+          duration: 10_000,
+          isClosable: true,
+        });
+      }
+    );
+  };
+
   const deleteDashboardList = (
     dashboardListToDelete: DashboardList
   ): Promise<void> => {
-    return del(`/dashboard-lists/${dashboardListToDelete.uuid}/`).then(
+    return del(`/dashboard-lists/${dashboardListToDelete.gene_id}/`).then(
       () => {
         props.dashboardListsStore.set(
           dashboardLists.filter(
             (otherDashboardList) =>
-              otherDashboardList.uuid !== dashboardListToDelete.uuid
+              otherDashboardList.gene_id !== dashboardListToDelete.gene_id
           )
         );
         toast({
@@ -81,24 +125,39 @@ const DashboardLists = (props: {
 
   return (
     <>
+      <Input
+        type="file"
+        onChange={handleFileChange}
+        placeholder="Add a file populate lists"
+        size="md"
+      />
+
+      <ButtonWithConfirmation
+        size="sm"
+        colorScheme="red"
+        confirmationPrompt="This cannot be undone."
+        confirmButtonText="Re-load"
+        onClick={() => {
+          loadDashboardLists();
+        }}
+      >
+        Load
+      </ButtonWithConfirmation>
       <Table variant="striped">
         <Thead>
           <Tr>
-            <Th>Gene</Th>
-            <Th>Label (dashboard)</Th>
-            <Th>Label (public)</Th>
-            <Th>Contact</Th>
+            <Th>ID</Th>
           </Tr>
         </Thead>
         <Tbody>
           {dashboardLists.map((dashboardList: DashboardList) => {
             return (
-              <Tr key={dashboardList.uuid}>
-                <Td>{dashboardList.metadata.gene_symbol}</Td>
+              <Tr key={dashboardList.gene_id}>
+                <Td>{dashboardList.gene_id}</Td>
                 <Td>
                   <Link
                     as={RRLink}
-                    to={`/dashboard-lists/${dashboardList.uuid}`}
+                    to={`/dashboard-lists/${dashboardList.gene_id}`}
                   >
                     {dashboardList.label}
                   </Link>
@@ -161,6 +220,7 @@ const DashboardListContainer = () => {
       .finally(() => {
         setIsLoading(false);
       });
+    // dashboardListStoreRef.current.set([]);
   }, []);
 
   if (isLoading) {
