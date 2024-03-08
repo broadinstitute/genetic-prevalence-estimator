@@ -478,6 +478,8 @@ interface VariantsTableProps extends TableProps {
   variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
+  includeCheckboxColumn?: boolean;
+  includeNotesColumn?: boolean;
 }
 
 type SortOrder = "ascending" | "descending";
@@ -533,10 +535,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
   variantNotes,
   onChangeSelectedVariants,
   onEditVariantNote,
+  includeCheckboxColumn = true,
+  includeNotesColumn = true,
   ...tableProps
 }) => {
   const columns = [
-    NOTES_COLUMN,
+    ...(includeNotesColumn ? [NOTES_COLUMN] : []),
     ...BASE_COLUMNS,
     ...includePopulationFrequencies.flatMap((popId) =>
       populationAlleleFrequencyColumns(variantList, popId)
@@ -589,26 +593,32 @@ const VariantsTable: FC<VariantsTableProps> = ({
     >
       <Thead>
         <Tr>
-          <Th scope="col">
-            <Checkbox
-              isChecked={selectedVariants.size === variantList.variants.length}
-              isIndeterminate={
-                selectedVariants.size > 0 &&
-                selectedVariants.size < variantList.variants.length
-              }
-              onChange={(e) => {
-                if (e.target.checked) {
-                  onChangeSelectedVariants(
-                    new Set(variantList.variants.map((variant) => variant.id))
-                  );
-                } else {
-                  onChangeSelectedVariants(new Set());
+          {includeCheckboxColumn && (
+            <Th scope="col">
+              <Checkbox
+                isChecked={
+                  selectedVariants.size === variantList.variants.length
                 }
-              }}
-            >
-              <VisuallyHidden>Include variants in calculations</VisuallyHidden>
-            </Checkbox>
-          </Th>
+                isIndeterminate={
+                  selectedVariants.size > 0 &&
+                  selectedVariants.size < variantList.variants.length
+                }
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChangeSelectedVariants(
+                      new Set(variantList.variants.map((variant) => variant.id))
+                    );
+                  } else {
+                    onChangeSelectedVariants(new Set());
+                  }
+                }}
+              >
+                <VisuallyHidden>
+                  Include variants in calculations
+                </VisuallyHidden>
+              </Checkbox>
+            </Th>
+          )}
           {columns.map((column) => {
             return (
               <Th
@@ -666,30 +676,32 @@ const VariantsTable: FC<VariantsTableProps> = ({
         {sortedVariants.map((variant) => {
           return (
             <Tr key={variant.id}>
-              <Td>
-                <Checkbox
-                  isChecked={selectedVariants.has(variant.id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      onChangeSelectedVariants(
-                        new Set([...selectedVariants, variant.id])
-                      );
-                    } else {
-                      onChangeSelectedVariants(
-                        new Set(
-                          [...selectedVariants].filter(
-                            (variantId) => variantId !== variant.id
+              {includeCheckboxColumn && (
+                <Td>
+                  <Checkbox
+                    isChecked={selectedVariants.has(variant.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        onChangeSelectedVariants(
+                          new Set([...selectedVariants, variant.id])
+                        );
+                      } else {
+                        onChangeSelectedVariants(
+                          new Set(
+                            [...selectedVariants].filter(
+                              (variantId) => variantId !== variant.id
+                            )
                           )
-                        )
-                      );
-                    }
-                  }}
-                >
-                  <VisuallyHidden>
-                    Include this variant in calculations
-                  </VisuallyHidden>
-                </Checkbox>
-              </Td>
+                        );
+                      }
+                    }}
+                  >
+                    <VisuallyHidden>
+                      Include this variant in calculations
+                    </VisuallyHidden>
+                  </Checkbox>
+                </Td>
+              )}
               {columns.map((column) => {
                 return (
                   <Td
