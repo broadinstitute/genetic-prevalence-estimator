@@ -189,7 +189,15 @@ class DashboardListSerializer(ModelSerializer):
             not in (
                 "label",
                 "notes",
+                "created_at",
                 "metadata",
                 "top_ten_variants",
+                "total_allele_frequency",
+                "carrier_frequency",
+                "genetic_prevalence",
+                "genetic_prevalence_orphanet",
+                "genetic_prevalence_genereviews",
+                "genetic_prevalence_other",
+                "genetic_incidence_other",
             )
         ]
