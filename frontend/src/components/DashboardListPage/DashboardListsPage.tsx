@@ -32,14 +32,22 @@ import { VariantList } from "../../types";
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
+import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
+
 type DashboardList = {
   gene_id: string;
+  gene_symbol: string;
   label: string;
   metadata: {
     gnomad_version: string;
     reference_genome: string;
     gene_symbol: string;
   };
+  genetic_prevalence: number[];
+  genetic_prevalence_orphanet: string;
+  genetic_prevalence_genereviews: string;
+  genetic_prevalence_other: string;
+  genetic_incidence_orphanet: string;
   public_variant_list?: VariantList;
 };
 
@@ -130,6 +138,16 @@ const DashboardLists = (props: {
         onChange={handleFileChange}
         placeholder="Add a file populate lists"
         size="md"
+        sx={{
+          "::file-selector-button": {
+            height: 10,
+            padding: 0,
+            mr: 4,
+            background: "none",
+            border: "none",
+            fontWeight: "bold",
+          },
+        }}
       />
 
       <ButtonWithConfirmation
@@ -146,22 +164,34 @@ const DashboardLists = (props: {
       <Table variant="striped">
         <Thead>
           <Tr>
-            <Th>ID</Th>
+            <Th>Gene</Th>
+            <Th>ClinVar LP/P and gnomAD LoF</Th>
+            <Th>Estimates available on GeniE</Th>
+            <Th>Contact for public estimate</Th>
+            <Th>Supporting documents</Th>
+            <Th>Additional resources</Th>
+            <Th>Prevalence orphanet</Th>
+            <Th>Prevalence GeneReviews</Th>
+            <Th>Prevalence other</Th>
+            <Th>Incidence other</Th>
           </Tr>
         </Thead>
         <Tbody>
           {dashboardLists.map((dashboardList: DashboardList) => {
             return (
-              <Tr key={dashboardList.gene_id}>
-                <Td>{dashboardList.gene_id}</Td>
+              <Tr key={dashboardList.gene_symbol}>
+                <Td>{dashboardList.gene_symbol}</Td>
                 <Td>
                   <Link
                     as={RRLink}
                     to={`/dashboard-lists/${dashboardList.gene_id}`}
                   >
-                    {dashboardList.label}
+                    {renderFrequencyFraction(
+                      dashboardList.genetic_prevalence[0]
+                    )}
                   </Link>
                 </Td>
+
                 {dashboardList.public_variant_list && (
                   <>
                     <Td>
@@ -177,8 +207,23 @@ const DashboardLists = (props: {
                         ?.filter((ap) => ap.level === "Owner")
                         .map((ap) => ap.user)}
                     </Td>
+                    <Td>todo-replist</Td>
+                    <Td>todo-replist</Td>
                   </>
                 )}
+
+                {!dashboardList.public_variant_list && (
+                  <>
+                    <Td></Td>
+                    <Td></Td>
+                    <Td></Td>
+                    <Td></Td>
+                  </>
+                )}
+                <Td>{dashboardList.genetic_prevalence_orphanet}</Td>
+                <Td>{dashboardList.genetic_prevalence_genereviews}</Td>
+                <Td>{dashboardList.genetic_prevalence_other}</Td>
+                <Td>{dashboardList.genetic_incidence_orphanet}</Td>
                 {user?.is_staff && (
                   <Td>
                     <ButtonWithConfirmation
@@ -220,7 +265,6 @@ const DashboardListContainer = () => {
       .finally(() => {
         setIsLoading(false);
       });
-    // dashboardListStoreRef.current.set([]);
   }, []);
 
   if (isLoading) {
