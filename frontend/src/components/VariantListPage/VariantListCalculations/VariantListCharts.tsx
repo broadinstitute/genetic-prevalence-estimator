@@ -8,17 +8,13 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { isSubcontinentalPopulation } from "../../../constants/populations";
 import theme from "../../../theme";
-import { GnomadPopulationId, Variant, VariantList } from "../../../types";
+import { GnomadPopulationId } from "../../../types";
 
 import BarGraph from "./BarGraph";
-import {
-  allVariantListCalculations,
-  shouldCalculateContributionsBySource,
-} from "./calculations";
 import {
   DisplayFormat,
   DisplayFormatInput,
@@ -29,22 +25,45 @@ import {
 } from "./carrierFrequencyModels";
 import CalculationsTable from "./CalculationsTable";
 
-interface VariantListCalculationsProps {
-  variantList: VariantList;
-  variants: Variant[];
+interface VariantListChartsProps {
+  genetic_ancestry_groups: GnomadPopulationId[];
+  hasOptionToShowContributionsBySource: boolean;
+
+  carrierFrequency: Partial<Record<GnomadPopulationId, number>>;
+  carrierFrequencySimplified: Partial<Record<GnomadPopulationId, number>>;
+  prevalence: Partial<Record<GnomadPopulationId, number>>;
+  clinvarOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
+  clinvarOnlyCarrierFrequencySimplified: Partial<
+    Record<GnomadPopulationId, number>
+  >;
+  plofOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
+  plofOnlyCarrierFrequencySimplified: Partial<
+    Record<GnomadPopulationId, number>
+  >;
 }
 
-const VariantListCalculations = (props: VariantListCalculationsProps) => {
-  const { variantList, variants } = props;
+const VariantListCharts = (props: VariantListChartsProps) => {
+  const {
+    genetic_ancestry_groups,
+    hasOptionToShowContributionsBySource,
+    carrierFrequency,
+    carrierFrequencySimplified,
+    prevalence,
+    clinvarOnlyCarrierFrequency,
+    clinvarOnlyCarrierFrequencySimplified,
+    plofOnlyCarrierFrequency,
+    plofOnlyCarrierFrequencySimplified,
+  } = props;
 
   const allPopulations: GnomadPopulationId[] = [
     "global",
-    ...variantList.metadata.populations!,
+    ...genetic_ancestry_groups,
   ];
 
-  const variantListHasSubcontinentalPopulations = variantList.metadata.populations!.some(
+  const variantListHasSubcontinentalPopulations = genetic_ancestry_groups.some(
     isSubcontinentalPopulation
   );
+
   const [
     includeSubcontinentalPopulations,
     setIncludeSubcontinentalPopulations,
@@ -66,31 +85,16 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
     setCarrierFrequencyModel,
   ] = useState<CarrierFrequencyModel>("full");
 
-  const hasOptionToShowContributionsBySource = shouldCalculateContributionsBySource(
-    variantList
-  );
   const [showContributionsBySource, setShowContributionsBySource] = useState(
     false
   );
-
-  const {
-    carrierFrequency,
-    carrierFrequencySimplified,
-    prevalence,
-    clinvarOnlyCarrierFrequency,
-    clinvarOnlyCarrierFrequencySimplified,
-    plofOnlyCarrierFrequency,
-    plofOnlyCarrierFrequencySimplified,
-  } = useMemo(() => allVariantListCalculations(variants, variantList), [
-    variants,
-    variantList,
-  ]);
 
   let stackHorizontally = useBreakpointValue({ base: false, lg: true });
   if (stackHorizontally === undefined) {
     stackHorizontally = true;
   }
 
+  // TODO: move toSeries into the wrapper
   const toSeries = (populationData: { [popId: string]: number }) =>
     allPopulations.map((popId) => populationData[popId]);
 
@@ -291,4 +295,4 @@ const VariantListCalculations = (props: VariantListCalculationsProps) => {
   );
 };
 
-export default VariantListCalculations;
+export default VariantListCharts;

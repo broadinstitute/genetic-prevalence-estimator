@@ -47,7 +47,7 @@ import VariantsInput, { InputVariant } from "../VariantsInput";
 import { AnnotationOption } from "./AnnotationTypeSelector";
 import { EditVariantListButton } from "./EditVariantList";
 import Methods from "./Methods";
-import VariantListCalculations from "./VariantListCalculations/VariantListCalculations";
+import VariantListChartsWithCalculations from "./VariantListCalculations/VariantListChartsWithCalculations";
 import {
   VariantListSharingButton,
   accessLevelDescriptions,
@@ -416,7 +416,7 @@ const VariantListPage = (props: VariantListPageProps) => {
       )}
 
       {variantList.status === "Ready" && (
-        <VariantListCalculations
+        <VariantListChartsWithCalculations
           variantList={variantList}
           variants={
             selectedVariants
