@@ -57,6 +57,7 @@ const DashboardLists = (props: {
   const dashboardLists = useStore(props.dashboardListsStore);
   const toast = useToast();
   const { user } = useStore(authStore);
+  const userIsStaff = user?.is_staff ? true : false;
 
   const [file, setFile] = useState<File | null>(null);
 
@@ -133,34 +134,38 @@ const DashboardLists = (props: {
 
   return (
     <>
-      <Input
-        type="file"
-        onChange={handleFileChange}
-        placeholder="Add a file populate lists"
-        size="md"
-        sx={{
-          "::file-selector-button": {
-            height: 10,
-            padding: 0,
-            mr: 4,
-            background: "none",
-            border: "none",
-            fontWeight: "bold",
-          },
-        }}
-      />
+      {userIsStaff && (
+        <>
+          <Input
+            type="file"
+            onChange={handleFileChange}
+            placeholder="Add a file populate lists"
+            size="md"
+            sx={{
+              "::file-selector-button": {
+                height: 10,
+                padding: 0,
+                mr: 4,
+                background: "none",
+                border: "none",
+                fontWeight: "bold",
+              },
+            }}
+          />
 
-      <ButtonWithConfirmation
-        size="sm"
-        colorScheme="red"
-        confirmationPrompt="This cannot be undone."
-        confirmButtonText="Re-load"
-        onClick={() => {
-          loadDashboardLists();
-        }}
-      >
-        Load
-      </ButtonWithConfirmation>
+          <ButtonWithConfirmation
+            size="sm"
+            colorScheme="red"
+            confirmationPrompt="This cannot be undone."
+            confirmButtonText="Re-load"
+            onClick={() => {
+              loadDashboardLists();
+            }}
+          >
+            Load
+          </ButtonWithConfirmation>
+        </>
+      )}
       <Table variant="striped">
         <Thead>
           <Tr>
