@@ -21,6 +21,7 @@ import { Link as RRLink, useHistory } from "react-router-dom";
 import { del, get } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, authStore, useStore } from "../../state";
+import { GnomadPopulationId } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DateTime from "../DateTime";
@@ -29,9 +30,11 @@ import DocumentTitle from "../DocumentTitle";
 import { printOnly, screenOnly } from "../media";
 
 import Methods from "../VariantListPage/Methods";
-import VariantListCalculations from "../VariantListPage/VariantListCalculations/VariantListCalculations";
+import VariantListCharts from "../VariantListPage/VariantListCalculations/VariantListCharts";
 import VariantListMetadata from "../VariantListPage/VariantListMetadata";
 import VariantListStatus from "../VariantListPage/VariantListStatus";
+
+import VariantsTable from "../VariantListPage/VariantsTable";
 
 const deleteDashboardList = (uuid: string): Promise<void> => {
   return del(`/dashboard-lists/${uuid}/`);
@@ -42,6 +45,21 @@ type DashboardList = any;
 type DashboardListPageProps = {
   dashboardListStore: Store<DashboardList>;
   refreshDashboardList: () => void;
+};
+
+const toRecord = (
+  seriesData: number[],
+  genetic_ancestry_groups: GnomadPopulationId[]
+) => {
+  const all_genetic_ancestry_groups = ["global", ...genetic_ancestry_groups];
+
+  const recordData: { [key: string]: number } = {};
+
+  for (let i = 0; i < all_genetic_ancestry_groups.length; i++) {
+    recordData[all_genetic_ancestry_groups[i]] = seriesData[i];
+  }
+
+  return recordData;
 };
 
 const DashboardListPage = (props: DashboardListPageProps) => {
@@ -55,6 +73,8 @@ const DashboardListPage = (props: DashboardListPageProps) => {
 
   const [showMethods, setShowMethods] = useState(false);
   const userIsStaff = user?.is_staff ? true : false;
+
+  const blankSet: Set<string> = new Set<string>();
 
   return (
     <>
@@ -81,9 +101,6 @@ const DashboardListPage = (props: DashboardListPageProps) => {
       <DescriptionList mb={4}>
         <DescriptionListItem label="Created">
           <DateTime datetime={dashboardList.created_at} />
-        </DescriptionListItem>
-        <DescriptionListItem label="Last updated">
-          <DateTime datetime={dashboardList.updated_at} />
         </DescriptionListItem>
       </DescriptionList>
 
@@ -116,32 +133,49 @@ const DashboardListPage = (props: DashboardListPageProps) => {
         </HStack>
       )}
 
-      {dashboardList.status === "Ready" && (
-        <VariantListCalculations
-          variantList={dashboardList}
-          variants={dashboardList.variants}
-        />
-      )}
+      <VariantListCharts
+        genetic_ancestry_groups={dashboardList.metadata.populations}
+        hasOptionToShowContributionsBySource={true}
+        carrierFrequency={toRecord(
+          dashboardList.carrier_frequency,
+          dashboardList.metadata.populations
+        )}
+        carrierFrequencySimplified={{}}
+        prevalence={toRecord(
+          dashboardList.genetic_prevalence,
+          dashboardList.metadata.populations
+        )}
+        clinvarOnlyCarrierFrequency={{}}
+        clinvarOnlyCarrierFrequencySimplified={{}}
+        plofOnlyCarrierFrequency={{}}
+        plofOnlyCarrierFrequencySimplified={{}}
+      />
 
-      <Box sx={screenOnly}>
+      <Box sx={screenOnly} mb={6}>
         <HStack>
           <Heading as="h2" size="md" mb={2}>
-            Variants
+            Top 10 Variants
           </Heading>
         </HStack>
 
-        {/* <VariantListVariants
-          annotationType={annotationType}
-          selectedVariants={selectedVariants}
-          selectionDisabled={loadingAnnotation}
-          variantList={dashboardList}
-          variantNotes={variantNotes}
-          userCanEdit={userCanEdit}
-          userIsStaff={userIsStaff}
-          onChangeAnnotationType={setAnnotationType}
-          onChangeSelectedVariants={setSelectedVariants}
-          onEditVariantNote={setVariantNote}
-        /> */}
+        {/* TODO: add proper abstraction here instead of passing tons of blanks */}
+        <VariantsTable
+          userCanEdit={false}
+          includePopulationFrequencies={[]}
+          variantList={{
+            ...dashboardList,
+            variants: dashboardList.top_ten_variants,
+          }}
+          selectedVariants={blankSet}
+          shouldShowVariant={() => {
+            return true;
+          }}
+          variantNotes={{}}
+          onChangeSelectedVariants={() => {}}
+          onEditVariantNote={() => {}}
+          includeNotesColumn={false}
+          includeCheckboxColumn={false}
+        />
       </Box>
 
       <Button sx={screenOnly} onClick={() => setShowMethods((show) => !show)}>
@@ -160,74 +194,6 @@ const DashboardListPage = (props: DashboardListPageProps) => {
         </Heading>
         <Methods variantList={dashboardList} />
       </Box>
-
-      {/* <Modal
-        isOpen={isAddVariantsModalOpen}
-        size="xl"
-        onClose={onCloseAddingVariantModal}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Add variants</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Alert status="warning" alignItems="flex-start" mb={2}>
-              <AlertIcon />
-              <AlertDescription>
-                Adding variants will update the clinical significance column for
-                all variants in this variant list using the latest ClinVar data.
-                <br />
-                <br />
-                If you would like to save the current clinical significance
-                data, download the variant list before adding variants.
-              </AlertDescription>
-            </Alert>
-            <VariantsInput
-              id="added-variants"
-              value={addedVariants}
-              onChange={setAddedVariants}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              mr={3}
-              disabled={addingVariants}
-              onClick={onCloseAddingVariantModal}
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={addingVariants}
-              onClick={() => {
-                setAddingVariants(true);
-                addVariantsToVariantList(
-                  dashboardList.uuid,
-                  addedVariants.map((variant) => variant.id)
-                )
-                  .then(
-                    () => {
-                      refreshVariantList();
-                    },
-                    (error) => {
-                      toast({
-                        title: "Unable to add variants",
-                        description: renderErrorDescription(error),
-                        status: "error",
-                        duration: 10000,
-                        isClosable: true,
-                      });
-                    }
-                  )
-                  .finally(() => {
-                    setAddingVariants(false);
-                  });
-              }}
-            >
-              Add
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal> */}
     </>
   );
 };
