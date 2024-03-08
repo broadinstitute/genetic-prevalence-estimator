@@ -30,7 +30,6 @@ import {
 
 import "./style.css";
 import AboutPage from "./components/AboutPage";
-import CreateDashboardListPage from "./components/CreateDashboardListPage/CreateDashboardListPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
 import FAQPage from "./components/FAQPage";
 import HomePage from "./components/HomePage";
@@ -175,9 +174,6 @@ const App = () => {
                         <MenuItem as={RRLink} to="/dashboard-lists/">
                           Dashboard
                         </MenuItem>
-                        <MenuItem as={RRLink} to="/dashboard-lists/new/">
-                          Create dashboard list
-                        </MenuItem>
                       </>
                     )}
                   </MenuList>
@@ -253,16 +249,6 @@ const App = () => {
               render={() => (
                 <RequireSignIn>
                   <UsersPage />
-                </RequireSignIn>
-              )}
-            />,
-
-            <Route
-              exact
-              path="/dashboard-lists/new/"
-              render={() => (
-                <RequireSignIn>
-                  <CreateDashboardListPage />
                 </RequireSignIn>
               )}
             />,
