@@ -546,7 +546,7 @@ class TestEditVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000169174",
+                "gene_id": "ENSG00000169174.9",
                 "gene_symbol": "PCSK9",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -561,7 +561,7 @@ class TestEditVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000115257",
+                "gene_id": "ENSG00000115257.11",
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],
@@ -577,7 +577,7 @@ class TestEditVariantList:
             metadata={
                 "version": "2",
                 "gnomad_version": "2.1.1",
-                "gene_id": "ENSG00000115257",
+                "gene_id": "ENSG00000115257.11",
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],

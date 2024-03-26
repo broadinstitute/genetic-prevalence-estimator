@@ -90,12 +90,17 @@ class DashboardListsLoadView(CreateAPIView):
 
                     dashboard_list = DashboardList.objects.get(gene_id=gene_id)
 
-                    # check if there is an approved representative variant list for
-                    #   this gene, if so set the foreign key relationship here
+                    # check if there is an approved representative variant list for this
+                    #   gene, if so set the foreign key relationship here. Check if only
+                    #   ENSG and decimal is the same to match on different versions of
+                    #   the gene (i.e. ENSG0001.1 == ENSG0001.3, but not ENSG000123.1)
+                    gene_id = metadata["gene_id"].split(".")[0]
+                    gene_id_with_decimal = f"{gene_id}."
+
                     representative_variant_list = None
                     representative_variant_list_with_same_gene_id = (
                         VariantList.objects.filter(
-                            metadata__gene_id=metadata["gene_id"],
+                            metadata__gene_id__startswith=gene_id_with_decimal,
                             public_status=VariantList.PublicStatus.APPROVED,
                         )
                     )
