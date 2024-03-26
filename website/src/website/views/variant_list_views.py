@@ -316,6 +316,10 @@ class PublicVariantListView(RetrieveUpdateAPIView):
     def perform_update(self, serializer):
         request_public_status = serializer.validated_data["public_status"]
 
+        variant_list_gene_id = (
+            f"{serializer.instance.metadata['gene_id'].split('.')[0]}."
+        )
+
         # if the user is a staff member, they can update a list to any public status
         if self.request.user.is_staff and self.request.user.is_active:
             serializer.save(
@@ -328,10 +332,9 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             #   list, as this is now the representative variant list
             if request_public_status == VariantList.PublicStatus.APPROVED:
                 dashboard_lists_with_same_gene_id = DashboardList.objects.filter(
-                    metadata__gene_id=serializer.data["metadata"]["gene_id"]
+                    metadata__gene_id__startswith=variant_list_gene_id
                 )
                 if dashboard_lists_with_same_gene_id.count() > 0:
-                    # manually set this approved list as the dashboard lists foreign key
                     dashboard_list = dashboard_lists_with_same_gene_id[0]
                     dashboard_list.public_variant_list = serializer.instance
                     dashboard_list.save()
@@ -351,11 +354,11 @@ class PublicVariantListView(RetrieveUpdateAPIView):
         if request_public_status not in ["", "P"]:
             raise PermissionDenied
 
-        # don't allow submitting as public if an approved list for the gene exists
+        # If a user with correct permissions submits
         if (
             VariantList.objects.exclude(uuid=serializer.instance.uuid)
             .filter(
-                metadata__gene_id=serializer.instance.metadata["gene_id"],
+                metadata__gene_id__startswith=variant_list_gene_id,
                 public_status=VariantList.PublicStatus.APPROVED,
             )
             .count()
