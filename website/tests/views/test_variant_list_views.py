@@ -704,7 +704,9 @@ class TestEditVariantList:
         else:
             assert variant_list.public_status == initial_public_status
 
-    def test_editing_variant_list_public_status_cannot_make_duplicates(self):
+    def test_editing_variant_list_public_status_cannot_make_duplicates_unless_staff(
+        self,
+    ):
         variant_list = VariantList.objects.get(id=3)
 
         client = APIClient()
@@ -715,6 +717,7 @@ class TestEditVariantList:
         )
         assert response.status_code == 400
 
+        # staff can always update the public status
         client.force_authenticate(User.objects.get(username="staffmember"))
         response = client.patch(
             f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
