@@ -6,12 +6,18 @@ import {
 } from "../../../constants/populations";
 import { GnomadPopulationId } from "../../../types";
 
-import { DisplayFormat, renderFrequency } from "./calculationsDisplayFormats";
+import {
+  DisplayFormat,
+  RawCarrierFrequencyData,
+  renderFrequency,
+} from "./calculationsDisplayFormats";
 
 interface CalculationsTableProps {
   columns: {
     label: string;
-    data: Partial<Record<GnomadPopulationId, number>>;
+    data:
+      | Partial<Record<GnomadPopulationId, number>>
+      | Partial<Record<GnomadPopulationId, RawCarrierFrequencyData>>;
   }[];
   populations: GnomadPopulationId[];
   displayFormat: DisplayFormat;

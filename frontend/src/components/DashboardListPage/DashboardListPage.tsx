@@ -141,14 +141,17 @@ const DashboardListPage = (props: DashboardListPageProps) => {
           dashboardList.metadata.populations
         )}
         carrierFrequencySimplified={{}}
+        carrierFrequencyRawNumbers={{}}
         prevalence={toRecord(
           dashboardList.genetic_prevalence,
           dashboardList.metadata.populations
         )}
         clinvarOnlyCarrierFrequency={{}}
         clinvarOnlyCarrierFrequencySimplified={{}}
+        clinvarOnlyCarrierFrequencyRawNumbers={{}}
         plofOnlyCarrierFrequency={{}}
         plofOnlyCarrierFrequencySimplified={{}}
+        plofOnlyCarrierFrequencyRawNumbers={{}}
       />
 
       <Box sx={screenOnly} mb={6}>

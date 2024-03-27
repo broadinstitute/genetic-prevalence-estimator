@@ -31,14 +31,23 @@ interface VariantListChartsProps {
 
   carrierFrequency: Partial<Record<GnomadPopulationId, number>>;
   carrierFrequencySimplified: Partial<Record<GnomadPopulationId, number>>;
+  carrierFrequencyRawNumbers: Partial<
+    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
+  >;
   prevalence: Partial<Record<GnomadPopulationId, number>>;
   clinvarOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
   clinvarOnlyCarrierFrequencySimplified: Partial<
     Record<GnomadPopulationId, number>
   >;
+  clinvarOnlyCarrierFrequencyRawNumbers: Partial<
+    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
+  >;
   plofOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
   plofOnlyCarrierFrequencySimplified: Partial<
     Record<GnomadPopulationId, number>
+  >;
+  plofOnlyCarrierFrequencyRawNumbers: Partial<
+    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
   >;
 }
 
@@ -48,11 +57,14 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     hasOptionToShowContributionsBySource,
     carrierFrequency,
     carrierFrequencySimplified,
+    carrierFrequencyRawNumbers,
     prevalence,
     clinvarOnlyCarrierFrequency,
     clinvarOnlyCarrierFrequencySimplified,
+    clinvarOnlyCarrierFrequencyRawNumbers,
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
+    plofOnlyCarrierFrequencyRawNumbers,
   } = props;
 
   const allPopulations: GnomadPopulationId[] = [
@@ -126,6 +138,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                   data:
                     carrierFrequencyModel === "simplified"
                       ? carrierFrequencySimplified!
+                      : carrierFrequencyModel === "raw_numbers"
+                      ? carrierFrequencyRawNumbers
                       : carrierFrequency!,
                 },
                 ...(showContributionsBySource
@@ -136,6 +150,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         data:
                           carrierFrequencyModel === "simplified"
                             ? clinvarOnlyCarrierFrequencySimplified!
+                            : carrierFrequencyModel === "raw_numbers"
+                            ? clinvarOnlyCarrierFrequencyRawNumbers
                             : clinvarOnlyCarrierFrequency!,
                       },
                       {
@@ -144,6 +160,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         data:
                           carrierFrequencyModel === "simplified"
                             ? plofOnlyCarrierFrequencySimplified!
+                            : carrierFrequencyModel === "raw_numbers"
+                            ? plofOnlyCarrierFrequencyRawNumbers
                             : plofOnlyCarrierFrequency!,
                       },
                     ]
@@ -190,7 +208,14 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                       },
                     ]
               }
-              displayFormat={displayFormatCarrierFrequency}
+              // raw numbers displays as total AC / average an for the calculations table
+              //   but this has no meaning when plotting, revert to plotting based
+              //   on fraction in this case
+              displayFormat={
+                displayFormatCarrierFrequency !== "raw_numbers"
+                  ? displayFormatCarrierFrequency
+                  : "fraction"
+              }
             />
           </Box>
         </Stack>
@@ -198,19 +223,24 @@ const VariantListCharts = (props: VariantListChartsProps) => {
         <Flex align="flex-end" justify="space-between" wrap="wrap" mb={4}>
           <HStack spacing={16}>
             <div>
-              <DisplayFormatInput
-                value={displayFormatCarrierFrequency}
-                onChange={setDisplayFormatCarrierFrequency}
-                includeRawNumber
-              />
-            </div>
-
-            <div>
               <CarrierFrequencyModelInput
                 value={carrierFrequencyModel}
-                onChange={setCarrierFrequencyModel}
+                onChange={(e) => {
+                  setDisplayFormatCarrierFrequency(
+                    e === "raw_numbers" ? "raw_numbers" : "fraction"
+                  );
+                  setCarrierFrequencyModel(e);
+                }}
               />
             </div>
+            {carrierFrequencyModel !== "raw_numbers" && (
+              <div>
+                <DisplayFormatInput
+                  value={displayFormatCarrierFrequency}
+                  onChange={setDisplayFormatCarrierFrequency}
+                />
+              </div>
+            )}
           </HStack>
 
           {hasOptionToShowContributionsBySource && (

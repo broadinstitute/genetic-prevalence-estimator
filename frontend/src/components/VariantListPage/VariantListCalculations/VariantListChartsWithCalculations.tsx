@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import {
   allVariantListCalculations,
+  PopIdNumberRecord,
+  PopIdRawCarrierNumberRecord,
   shouldCalculateContributionsBySource,
 } from "./calculations";
 import { Variant, VariantList } from "../../../types";
@@ -20,11 +22,14 @@ const VariantListChartsWithCalculations = (
   const {
     carrierFrequency,
     carrierFrequencySimplified,
+    carrierFrequencyRawNumbers,
     prevalence,
     clinvarOnlyCarrierFrequency,
     clinvarOnlyCarrierFrequencySimplified,
+    clinvarOnlyCarrierFrequencyRawNumbers,
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
+    plofOnlyCarrierFrequencyRawNumbers,
   } = useMemo(() => allVariantListCalculations(variants, variantList), [
     variants,
     variantList,
@@ -36,15 +41,30 @@ const VariantListChartsWithCalculations = (
       hasOptionToShowContributionsBySource={shouldCalculateContributionsBySource(
         variantList
       )}
-      carrierFrequency={carrierFrequency!}
-      carrierFrequencySimplified={carrierFrequencySimplified!}
-      prevalence={prevalence!}
-      clinvarOnlyCarrierFrequency={clinvarOnlyCarrierFrequency!}
-      clinvarOnlyCarrierFrequencySimplified={
-        clinvarOnlyCarrierFrequencySimplified!
+      carrierFrequency={carrierFrequency! as PopIdNumberRecord}
+      carrierFrequencySimplified={
+        carrierFrequencySimplified! as PopIdNumberRecord
       }
-      plofOnlyCarrierFrequency={plofOnlyCarrierFrequency!}
-      plofOnlyCarrierFrequencySimplified={plofOnlyCarrierFrequencySimplified!}
+      carrierFrequencyRawNumbers={
+        carrierFrequencyRawNumbers! as PopIdRawCarrierNumberRecord
+      }
+      prevalence={prevalence! as PopIdNumberRecord}
+      clinvarOnlyCarrierFrequency={
+        clinvarOnlyCarrierFrequency! as PopIdNumberRecord
+      }
+      clinvarOnlyCarrierFrequencySimplified={
+        clinvarOnlyCarrierFrequencySimplified! as PopIdNumberRecord
+      }
+      clinvarOnlyCarrierFrequencyRawNumbers={
+        clinvarOnlyCarrierFrequencyRawNumbers! as PopIdRawCarrierNumberRecord
+      }
+      plofOnlyCarrierFrequency={plofOnlyCarrierFrequency! as PopIdNumberRecord}
+      plofOnlyCarrierFrequencySimplified={
+        plofOnlyCarrierFrequencySimplified! as PopIdNumberRecord
+      }
+      plofOnlyCarrierFrequencyRawNumbers={
+        plofOnlyCarrierFrequencyRawNumbers! as PopIdRawCarrierNumberRecord
+      }
     />
   );
 };

@@ -55,15 +55,31 @@ export const renderFrequencyFractionOver100000 = (f: number) => {
   );
 };
 
-export const renderFrequency = (f: number, format: DisplayFormat) => {
+export type RawCarrierFrequencyData = {
+  total_ac: number;
+  average_an: number;
+};
+
+export const renderFrequencyRawNumbers = (f: RawCarrierFrequencyData) => {
+  return `${f.total_ac.toFixed(0)} / ${f.average_an.toFixed(0)}`;
+};
+
+export const renderFrequency = (
+  f: number | RawCarrierFrequencyData,
+  format: DisplayFormat
+) => {
   if (format === "scientific") {
-    return renderFrequencyScientific(f);
+    return renderFrequencyScientific(f as number);
   }
   if (format === "fraction") {
-    return renderFrequencyFraction(f);
+    return renderFrequencyFraction(f as number);
   }
   if (format === "fraction_of_100000") {
-    return renderFrequencyFractionOver100000(f);
+    return renderFrequencyFractionOver100000(f as number);
+  }
+
+  if (format === "raw_numbers") {
+    return renderFrequencyRawNumbers(f as RawCarrierFrequencyData);
   }
 };
 
@@ -71,16 +87,13 @@ interface DisplayFormatInputProps {
   value: DisplayFormat;
   onChange: (value: DisplayFormat) => void;
   includeFractionOf100000?: boolean;
-  includeRawNumber?: boolean;
 }
 
 export const DisplayFormatInput = ({
   value,
   onChange,
   includeFractionOf100000 = false,
-  includeRawNumber = false,
 }: DisplayFormatInputProps) => {
-  // const { value, onChange } = props;
   return (
     <FormControl id="calculations-display-format" as="fieldset">
       <FormLabel as="legend">Display format</FormLabel>
@@ -96,7 +109,6 @@ export const DisplayFormatInput = ({
           {includeFractionOf100000 && (
             <Radio value="fraction_of_100000">Fraction of 100,000</Radio>
           )}
-          {includeRawNumber && <Radio value="raw_numbers">Raw numbers</Radio>}
         </HStack>
       </RadioGroup>
     </FormControl>
