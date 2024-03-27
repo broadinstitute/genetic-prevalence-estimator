@@ -1,3 +1,4 @@
+# pylint: skip-file
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import override_settings
