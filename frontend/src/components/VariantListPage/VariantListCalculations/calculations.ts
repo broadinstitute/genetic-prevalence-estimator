@@ -1,6 +1,7 @@
 import { mapValues } from "lodash";
 import { GnomadPopulationId, Variant, VariantList } from "../../../types";
 import { getVariantSources } from "../variantSources";
+import { RawCarrierFrequencyData } from "./calculationsDisplayFormats";
 
 export const calculateCarrierFrequencyAndPrevalence = (
   variants: Variant[],
@@ -22,9 +23,35 @@ export const calculateCarrierFrequencyAndPrevalence = (
 
   const carrierFrequencySimplified = totalAlleleFrequencies.map((q) => 2 * q);
 
+  const variantsTotalAlleleCountsAndNumbers = variants.reduce(
+    (acc, variant) => {
+      return acc.map((obj, i) => ({
+        AC: obj.AC + variant.AC![i],
+        AN: obj.AN + variant.AN![i],
+      }));
+    },
+    Array.from(
+      { length: variantList.metadata.populations!.length + 1 },
+      () => ({
+        AC: 0,
+        AN: 0,
+      })
+    )
+  );
+
+  const length = variants.length;
+  const carrierFrequencyRawNumbers = variantsTotalAlleleCountsAndNumbers.map(
+    (total) => ({ total_ac: total.AC, average_an: total.AN / length })
+  );
+
   const prevalence = totalAlleleFrequencies.map((q) => q ** 2);
 
-  return { carrierFrequency, carrierFrequencySimplified, prevalence };
+  return {
+    carrierFrequency,
+    carrierFrequencySimplified,
+    carrierFrequencyRawNumbers,
+    prevalence,
+  };
 };
 
 export const shouldCalculateContributionsBySource = (
@@ -39,15 +66,23 @@ export const shouldCalculateContributionsBySource = (
 type Calculation =
   | "carrierFrequency"
   | "carrierFrequencySimplified"
+  | "carrierFrequencyRawNumbers"
   | "prevalence"
   | "clinvarOnlyCarrierFrequency"
   | "clinvarOnlyCarrierFrequencySimplified"
+  | "clinvarOnlyCarrierFrequencyRawNumbers"
   | "plofOnlyCarrierFrequency"
-  | "plofOnlyCarrierFrequencySimplified";
+  | "plofOnlyCarrierFrequencySimplified"
+  | "plofOnlyCarrierFrequencyRawNumbers";
+
+export type PopIdNumberRecord = Partial<Record<GnomadPopulationId, number>>;
+export type PopIdRawCarrierNumberRecord = Partial<
+  Record<GnomadPopulationId, RawCarrierFrequencyData>
+>;
 
 type VariantListCalculations = Record<
   Calculation,
-  Partial<Record<GnomadPopulationId, number>> | null
+  PopIdNumberRecord | PopIdRawCarrierNumberRecord | null
 >;
 
 export const allVariantListCalculations = (
@@ -61,12 +96,14 @@ export const allVariantListCalculations = (
   const {
     carrierFrequency,
     carrierFrequencySimplified,
+    carrierFrequencyRawNumbers,
     prevalence,
   } = calculateCarrierFrequencyAndPrevalence(variants, variantList);
 
   const {
     carrierFrequency: clinvarOnlyCarrierFrequency,
     carrierFrequencySimplified: clinvarOnlyCarrierFrequencySimplified,
+    carrierFrequencyRawNumbers: clinvarOnlyCarrierFrequencyRawNumbers,
   } = calculateContributionsBySource
     ? calculateCarrierFrequencyAndPrevalence(
         variants.filter((variant) =>
@@ -77,11 +114,13 @@ export const allVariantListCalculations = (
     : {
         carrierFrequency: null,
         carrierFrequencySimplified: null,
+        carrierFrequencyRawNumbers: null,
       };
 
   const {
     carrierFrequency: plofOnlyCarrierFrequency,
     carrierFrequencySimplified: plofOnlyCarrierFrequencySimplified,
+    carrierFrequencyRawNumbers: plofOnlyCarrierFrequencyRawNumbers,
   } = calculateContributionsBySource
     ? calculateCarrierFrequencyAndPrevalence(
         variants.filter(
@@ -93,16 +132,20 @@ export const allVariantListCalculations = (
     : {
         carrierFrequency: null,
         carrierFrequencySimplified: null,
+        carrierFrequencyRawNumbers: null,
       };
 
   const allCalculations = {
     carrierFrequency,
     carrierFrequencySimplified,
+    carrierFrequencyRawNumbers,
     prevalence,
     clinvarOnlyCarrierFrequency,
     clinvarOnlyCarrierFrequencySimplified,
+    clinvarOnlyCarrierFrequencyRawNumbers,
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
+    plofOnlyCarrierFrequencyRawNumbers,
   };
 
   return mapValues(allCalculations, (values) =>
