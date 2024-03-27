@@ -6,7 +6,7 @@ import {
   RadioGroup,
 } from "@chakra-ui/react";
 
-export type DisplayFormat = "scientific" | "fraction";
+export type DisplayFormat = "scientific" | "fraction" | "fraction_of_100000";
 
 export const renderFrequencyScientific = (f: number) => {
   const truncated = Number(f.toPrecision(3));
@@ -25,12 +25,41 @@ export const renderFrequencyFraction = (f: number) => {
   );
 };
 
+export const calculateFrequencyFractionOver100000 = (
+  f: number,
+  decimals: number | undefined
+) => {
+  return ((f * 100_000 * 1_000) / 1_000).toFixed(decimals).toLocaleString();
+};
+
+export const formatFrequencyFractionOver100000 = (
+  f: number,
+  decimals: number | undefined
+) => {
+  return f === 0
+    ? "-"
+    : `${calculateFrequencyFractionOver100000(f, decimals || 3)} / 100,000`;
+};
+
+export const renderFrequencyFractionOver100000 = (f: number) => {
+  return (
+    <span style={{ whiteSpace: "nowrap" }}>
+      {f === 0
+        ? "-"
+        : `${calculateFrequencyFractionOver100000(f, 3)} / 100,000`}
+    </span>
+  );
+};
+
 export const renderFrequency = (f: number, format: DisplayFormat) => {
   if (format === "scientific") {
     return renderFrequencyScientific(f);
   }
   if (format === "fraction") {
     return renderFrequencyFraction(f);
+  }
+  if (format === "fraction_of_100000") {
+    return renderFrequencyFractionOver100000(f);
   }
 };
 
@@ -53,6 +82,7 @@ export const DisplayFormatInput = (props: DisplayFormatInputProps) => {
         <HStack spacing="24px">
           <Radio value="fraction">Fraction</Radio>
           <Radio value="scientific">Scientific notation</Radio>
+          <Radio value="fraction_of_100000">Fraction of 100,000</Radio>
         </HStack>
       </RadioGroup>
     </FormControl>
