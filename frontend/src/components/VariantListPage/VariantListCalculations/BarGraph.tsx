@@ -16,6 +16,7 @@ import { GnomadPopulationId } from "../../../types";
 
 import {
   DisplayFormat,
+  formatFrequencyFractionOver100000,
   renderFrequency,
   renderFrequencyScientific,
 } from "./calculationsDisplayFormats";
@@ -35,13 +36,6 @@ interface BarGraphProps {
   height?: number;
 }
 
-const margin = {
-  top: 20,
-  right: 20,
-  bottom: 110,
-  left: 60,
-};
-
 const BarGraph = (props: BarGraphProps) => {
   const {
     populations,
@@ -51,6 +45,13 @@ const BarGraph = (props: BarGraphProps) => {
     label,
     displayFormat,
   } = props;
+
+  const margin = {
+    top: 20,
+    right: 20,
+    bottom: 110,
+    left: displayFormat !== "fraction_of_100000" ? 60 : 110,
+  };
 
   const data = populations.map((population, i) => ({
     population: population,
@@ -104,7 +105,13 @@ const BarGraph = (props: BarGraphProps) => {
   const tickFormat =
     displayFormat === "scientific"
       ? (d: { valueOf(): number }) => renderFrequencyScientific(d.valueOf())
-      : (d: { valueOf(): number }) => {
+      : displayFormat === "fraction_of_100000"
+      ? (d: { valueOf(): number }) =>
+          // calculateFrequencyFractionOver100000(d.valueOf())
+          // renderFrequencyFractionOver100000(d.valueOf())
+          formatFrequencyFractionOver100000(d.valueOf(), 1)
+      : // `${((d.valueOf() * 100_000 * 1_000) / 1_000).toFixed(2).toLocaleString()} / 100,000`
+        (d: { valueOf(): number }) => {
           const n = d.valueOf();
           if (n === 0) {
             return "0";
