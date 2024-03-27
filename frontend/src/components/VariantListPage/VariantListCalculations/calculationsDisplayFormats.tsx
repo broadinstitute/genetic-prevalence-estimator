@@ -6,7 +6,11 @@ import {
   RadioGroup,
 } from "@chakra-ui/react";
 
-export type DisplayFormat = "scientific" | "fraction" | "fraction_of_100000";
+export type DisplayFormat =
+  | "scientific"
+  | "fraction"
+  | "fraction_of_100000"
+  | "raw_numbers";
 
 export const renderFrequencyScientific = (f: number) => {
   const truncated = Number(f.toPrecision(3));
@@ -66,10 +70,17 @@ export const renderFrequency = (f: number, format: DisplayFormat) => {
 interface DisplayFormatInputProps {
   value: DisplayFormat;
   onChange: (value: DisplayFormat) => void;
+  includeFractionOf100000?: boolean;
+  includeRawNumber?: boolean;
 }
 
-export const DisplayFormatInput = (props: DisplayFormatInputProps) => {
-  const { value, onChange } = props;
+export const DisplayFormatInput = ({
+  value,
+  onChange,
+  includeFractionOf100000 = false,
+  includeRawNumber = false,
+}: DisplayFormatInputProps) => {
+  // const { value, onChange } = props;
   return (
     <FormControl id="calculations-display-format" as="fieldset">
       <FormLabel as="legend">Display format</FormLabel>
@@ -82,7 +93,10 @@ export const DisplayFormatInput = (props: DisplayFormatInputProps) => {
         <HStack spacing="24px">
           <Radio value="fraction">Fraction</Radio>
           <Radio value="scientific">Scientific notation</Radio>
-          <Radio value="fraction_of_100000">Fraction of 100,000</Radio>
+          {includeFractionOf100000 && (
+            <Radio value="fraction_of_100000">Fraction of 100,000</Radio>
+          )}
+          {includeRawNumber && <Radio value="raw_numbers">Raw numbers</Radio>}
         </HStack>
       </RadioGroup>
     </FormControl>

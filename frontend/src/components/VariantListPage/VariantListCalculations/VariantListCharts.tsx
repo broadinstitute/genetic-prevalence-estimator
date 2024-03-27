@@ -79,7 +79,15 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     popId,
   ]);
 
-  const [displayFormat, setDisplayFormat] = useState<DisplayFormat>("fraction");
+  const [
+    displayFormatCarrierFrequency,
+    setDisplayFormatCarrierFrequency,
+  ] = useState<DisplayFormat>("fraction");
+  const [
+    displayFormatGeneticPrevalence,
+    setDisplayFormatGeneticPrevalence,
+  ] = useState<DisplayFormat>("fraction");
+
   const [
     carrierFrequencyModel,
     setCarrierFrequencyModel,
@@ -142,7 +150,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                   : []),
               ]}
               populations={sortedPopulations}
-              displayFormat={displayFormat}
+              displayFormat={displayFormatCarrierFrequency}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
@@ -182,7 +190,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                       },
                     ]
               }
-              displayFormat={displayFormat}
+              displayFormat={displayFormatCarrierFrequency}
             />
           </Box>
         </Stack>
@@ -191,8 +199,9 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           <HStack spacing={16}>
             <div>
               <DisplayFormatInput
-                value={displayFormat}
-                onChange={setDisplayFormat}
+                value={displayFormatCarrierFrequency}
+                onChange={setDisplayFormatCarrierFrequency}
+                includeRawNumber
               />
             </div>
 
@@ -252,7 +261,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                 },
               ]}
               populations={sortedPopulations}
-              displayFormat={displayFormat}
+              displayFormat={displayFormatGeneticPrevalence}
             />
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
@@ -265,15 +274,16 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                   data: toSeries(prevalence!),
                 },
               ]}
-              displayFormat={displayFormat}
+              displayFormat={displayFormatGeneticPrevalence}
             />
           </Box>
         </Stack>
 
         <Box mb={4}>
           <DisplayFormatInput
-            value={displayFormat}
-            onChange={setDisplayFormat}
+            value={displayFormatGeneticPrevalence}
+            onChange={setDisplayFormatGeneticPrevalence}
+            includeFractionOf100000
           />
         </Box>
 
