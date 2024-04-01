@@ -1179,6 +1179,7 @@ class TestGetVariantListAnnotation:
         ).json()
         assert response == {
             "selected_variants": [],
+            "variant_calculations": {},
             "variant_notes": {},
         }
 
@@ -1191,6 +1192,7 @@ class TestGetVariantListAnnotation:
         ).json()
         assert response == {
             "selected_variants": ["1-55516888-G-A"],
+            "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},
         }
 
@@ -1304,6 +1306,7 @@ class TestEditVariantListAnnotation:
         assert response.status_code == 200, response.json()
         assert response.json() == {
             "selected_variants": ["1-55516888-G-GA"],
+            "variant_calculations": {},
             "variant_notes": {},
         }
 
@@ -1434,6 +1437,7 @@ class TestGetVariantListSharedAnnotation:
         ).json()
         assert response == {
             "selected_variants": [],
+            "variant_calculations": {},
             "variant_notes": {},
         }
 
@@ -1446,6 +1450,7 @@ class TestGetVariantListSharedAnnotation:
         ).json()
         assert response == {
             "selected_variants": ["1-55516888-G-A"],
+            "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},
         }
 
