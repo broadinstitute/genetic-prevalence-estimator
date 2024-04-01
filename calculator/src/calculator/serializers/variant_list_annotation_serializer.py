@@ -56,4 +56,8 @@ class VariantListAnnotationSerializer(ModelSerializer):
     class Meta:
         model = VariantListAnnotation
 
-        fields = ["selected_variants", "variant_notes"]
+        fields = [
+            "selected_variants",
+            "variant_notes",
+            "variant_calculations",
+        ]

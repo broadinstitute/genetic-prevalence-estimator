@@ -207,6 +207,8 @@ class VariantListAnnotation(models.Model):
 
     variant_notes = models.JSONField(default=dict)
 
+    variant_calculations = models.JSONField(default=dict)
+
 
 def object_level_predicate(fn):  # pylint: disable=invalid-name
     @rules.predicate
