@@ -287,6 +287,18 @@ const BASE_COLUMNS: ColumnDef[] = [
               </Badge>
             </Tooltip>
           )}
+          {variant.flags?.includes("has_homozygotes") && (
+            <Tooltip hasArrow label={filteredVariantDescription(variant)}>
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Homozygotes
+              </Badge>
+            </Tooltip>
+          )}
           {variant.sample_sets && !variant.sample_sets.includes("exome") && (
             <Tooltip
               hasArrow
