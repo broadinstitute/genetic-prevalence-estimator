@@ -439,6 +439,13 @@ def get_gnomad_v4_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                freq(exomes).homozygote_count,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         exome_freq_non_ukb=hl.struct(
             AC=[
@@ -452,6 +459,15 @@ def get_gnomad_v4_variants():
                 freq(exomes, subset="non_ukb").AN,
                 *(
                     freq(exomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+            homozygote_count=[
+                freq(exomes, subset="non_ukb").homozygote_count,
+                *(
+                    freq(
+                        exomes, pop=pop, subpop=subpop, subset="non_ukb"
+                    ).homozygote_count
                     for pop, subpop in populations
                 ),
             ],
@@ -478,6 +494,13 @@ def get_gnomad_v4_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                freq(genomes).homozygote_count,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         genome_freq_non_ukb=hl.struct(
             AC=[
@@ -491,6 +514,15 @@ def get_gnomad_v4_variants():
                 freq(genomes, subset="non_ukb").AN,
                 *(
                     freq(genomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+            homozygote_count=[
+                freq(genomes, subset="non_ukb").homozygote_count,
+                *(
+                    freq(
+                        genomes, pop=pop, subpop=subpop, subset="non_ukb"
+                    ).homozygote_count
                     for pop, subpop in populations
                 ),
             ],
