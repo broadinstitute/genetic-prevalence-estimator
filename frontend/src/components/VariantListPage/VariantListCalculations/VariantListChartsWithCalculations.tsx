@@ -4,6 +4,7 @@ import {
   shouldCalculateContributionsBySource,
 } from "./calculations";
 import { Variant, VariantList } from "../../../types";
+import { useState } from "react";
 
 import VariantListCharts from "./VariantListCharts";
 
@@ -17,6 +18,8 @@ const VariantListChartsWithCalculations = (
 ) => {
   const { variantList, variants } = props;
 
+  const [removeHomozygotes, setRemoveHomozygotes] = useState(false);
+
   const {
     carrierFrequency,
     carrierFrequencySimplified,
@@ -25,10 +28,10 @@ const VariantListChartsWithCalculations = (
     clinvarOnlyCarrierFrequencySimplified,
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
-  } = useMemo(() => allVariantListCalculations(variants, variantList), [
-    variants,
-    variantList,
-  ]);
+  } = useMemo(
+    () => allVariantListCalculations(variants, variantList, removeHomozygotes),
+    [variants, variantList, removeHomozygotes]
+  );
 
   return (
     <VariantListCharts
@@ -45,6 +48,8 @@ const VariantListChartsWithCalculations = (
       }
       plofOnlyCarrierFrequency={plofOnlyCarrierFrequency!}
       plofOnlyCarrierFrequencySimplified={plofOnlyCarrierFrequencySimplified!}
+      removeHomozygotes={removeHomozygotes}
+      setRemoveHomozygotes={setRemoveHomozygotes}
     />
   );
 };

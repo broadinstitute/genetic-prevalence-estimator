@@ -40,6 +40,8 @@ interface VariantListChartsProps {
   plofOnlyCarrierFrequencySimplified: Partial<
     Record<GnomadPopulationId, number>
   >;
+  removeHomozygotes?: boolean;
+  setRemoveHomozygotes?: any;
 }
 
 const VariantListCharts = (props: VariantListChartsProps) => {
@@ -53,6 +55,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     clinvarOnlyCarrierFrequencySimplified,
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
+    removeHomozygotes,
+    setRemoveHomozygotes,
   } = props;
 
   const allPopulations: GnomadPopulationId[] = [
@@ -231,6 +235,19 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             </span>
           </Checkbox>
         </Box>
+
+        <Box>
+          <Checkbox
+            isChecked={removeHomozygotes}
+            onChange={(e) => {
+              setRemoveHomozygotes(e.target.checked);
+            }}
+          >
+            <span style={{ whiteSpace: "nowrap" }}>
+              Remove homozygotes from calculations
+            </span>
+          </Checkbox>
+        </Box>
       </Box>
 
       <Box mb={8}>
@@ -290,6 +307,19 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             </span>
           </Checkbox>
         </Box>
+      </Box>
+
+      <Box>
+        <Checkbox
+          isChecked={removeHomozygotes}
+          onChange={(e) => {
+            setRemoveHomozygotes(e.target.checked);
+          }}
+        >
+          <span style={{ whiteSpace: "nowrap" }}>
+            Remove homozygotes from calculations
+          </span>
+        </Checkbox>
       </Box>
     </>
   );
