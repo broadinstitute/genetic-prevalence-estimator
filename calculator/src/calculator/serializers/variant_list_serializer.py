@@ -58,7 +58,6 @@ class VariantListV2MetadataSerializer(
     )
 
     def get_reference_genome(self, obj):
-        #
         return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
 
     def validate_gene_id(self, value):
@@ -190,6 +189,21 @@ class VariantListSerializer(ModelSerializer):
     public_status = ChoiceField(choices=VariantList.PublicStatus.choices)
     public_status_updated_by = UsernameField()
 
+    estimates = serializers.SerializerMethodField()
+
+    def get_estimates(self, obj):
+        shared_annotation = obj.annotations.filter(user__isnull=True).first()
+        if shared_annotation:
+            return {
+                "genetic_prevalence": (
+                    shared_annotation.variant_calculations.get("prevalence", "-")
+                ),
+                "carrier_frequency": (
+                    shared_annotation.variant_calculations.get("carrierFrequency", "-")
+                ),
+            }
+        return None
+
     def get_metadata(self, obj):
         metadata_version = obj.metadata.get("version", "1")
         metadata_serializer_class = {
@@ -253,6 +267,7 @@ class VariantListSerializer(ModelSerializer):
             "public_status",
             "public_status_updated_by",
             "variants",
+            "estimates",
         ]
 
         read_only_fields = [
