@@ -4,12 +4,14 @@ import { getVariantSources } from "../variantSources";
 
 export const calculateCarrierFrequencyAndPrevalence = (
   variants: Variant[],
-  variantList: VariantList
+  variantList: VariantList,
+  removeHomozygotes: boolean
 ) => {
   const variantAlleleFrequencies = variants.map((variant) => {
     return variant.AC!.map((ac, i) => {
+      const AC = removeHomozygotes ? ac - 2 * variant.homozygote_count![i] : ac;
       const an = variant.AN![i];
-      return an === 0 ? 0 : ac / an;
+      return an === 0 ? 0 : AC / an;
     });
   });
 
@@ -52,7 +54,8 @@ type VariantListCalculations = Record<
 
 export const allVariantListCalculations = (
   variants: Variant[],
-  variantList: VariantList
+  variantList: VariantList,
+  removeHomozygotes: boolean
 ): VariantListCalculations => {
   const calculateContributionsBySource = shouldCalculateContributionsBySource(
     variantList
@@ -62,7 +65,11 @@ export const allVariantListCalculations = (
     carrierFrequency,
     carrierFrequencySimplified,
     prevalence,
-  } = calculateCarrierFrequencyAndPrevalence(variants, variantList);
+  } = calculateCarrierFrequencyAndPrevalence(
+    variants,
+    variantList,
+    removeHomozygotes
+  );
 
   const {
     carrierFrequency: clinvarOnlyCarrierFrequency,
@@ -72,7 +79,8 @@ export const allVariantListCalculations = (
         variants.filter((variant) =>
           getVariantSources(variant, variantList).includes("ClinVar")
         ),
-        variantList
+        variantList,
+        removeHomozygotes
       )
     : {
         carrierFrequency: null,
@@ -88,7 +96,8 @@ export const allVariantListCalculations = (
           (variant) =>
             !getVariantSources(variant, variantList).includes("ClinVar")
         ),
-        variantList
+        variantList,
+        removeHomozygotes
       )
     : {
         carrierFrequency: null,
