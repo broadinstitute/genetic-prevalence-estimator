@@ -48,7 +48,16 @@ type DashboardList = {
   genetic_prevalence_genereviews: string;
   genetic_prevalence_other: string;
   genetic_incidence_orphanet: string;
-  public_variant_list?: VariantList;
+  public_variant_list?: VariantList & {
+    estimates: {
+      genetic_prevalence: {
+        global: number;
+      };
+      carrier_frequency: {
+        global: number;
+      };
+    };
+  };
 };
 
 const DashboardLists = (props: {
@@ -204,7 +213,10 @@ const DashboardLists = (props: {
                         as={RRLink}
                         to={`/variant-lists/${dashboardList.public_variant_list.uuid}`}
                       >
-                        {dashboardList.public_variant_list.label}
+                        {renderFrequencyFraction(
+                          dashboardList.public_variant_list.estimates
+                            .genetic_prevalence.global
+                        )}
                       </Link>
                     </Td>
                     <Td>
