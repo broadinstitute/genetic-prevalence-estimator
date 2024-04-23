@@ -1,6 +1,7 @@
 import { mapValues } from "lodash";
 import { GnomadPopulationId, Variant, VariantList } from "../../../types";
 import { getVariantSources } from "../variantSources";
+import numpy as np
 
 export const calculateCarrierFrequencyAndPrevalence = (
   variants: Variant[],
@@ -24,7 +25,10 @@ export const calculateCarrierFrequencyAndPrevalence = (
 
   const prevalence = totalAlleleFrequencies.map((q) => q ** 2);
 
-  return { carrierFrequency, carrierFrequencySimplified, prevalence };
+  const af: number[] = [0.01, 0.05, 0.1];
+  const newPrevalenceModel = Math.pow(1 - numpy.prod(af.map(i => 1 - i)), 2);
+
+  return { carrierFrequency, carrierFrequencySimplified, prevalence, newPrevalenceModel };
 };
 
 export const shouldCalculateContributionsBySource = (
