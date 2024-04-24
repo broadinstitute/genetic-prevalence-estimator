@@ -162,7 +162,9 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
     )
 
 
-def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_variants):
+def annotate_variants_with_flags(
+    ds, max_af_of_clinvar_path_or_likely_path_variants, max_an
+):
     return hl.array(
         [
             hl.or_missing(hl.is_missing(ds.freq), "not_found"),
@@ -180,6 +182,7 @@ def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_varia
                 & (hl.is_missing(ds.clinvar_variation_id)),
                 "high_AF",
             ),
+            hl.or_missing((ds.AN[0]) < (max_an / 2), "low_AN"),
         ]
     ).filter(hl.is_defined)
 
@@ -476,6 +479,9 @@ def _process_variant_list(variant_list):
             hl.agg.max(ds.AC[0] / ds.AN[0]),
         )
     )
+
+    max_an = ds.aggregate(hl.agg.max(ds.AN[0]))
+
     # if there are no clinvar path or likely path variants, the aggregation returns None
     # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
     max_af_of_clinvar_path_or_likely_path_variants = (
@@ -486,7 +492,9 @@ def _process_variant_list(variant_list):
 
     ds = ds.annotate(
         flags=annotate_variants_with_flags(
-            ds, max_af_of_clinvar_path_or_likely_path_variants
+            ds,
+            max_af_of_clinvar_path_or_likely_path_variants,
+            max_an,
         )
     )
 
