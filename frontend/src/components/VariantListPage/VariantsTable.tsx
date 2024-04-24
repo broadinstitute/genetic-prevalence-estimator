@@ -277,6 +277,21 @@ const BASE_COLUMNS: ColumnDef[] = [
               </Badge>
             </Tooltip>
           )}
+          {variant.flags?.includes("low_AN") && (
+            <Tooltip
+              hasArrow
+              label="This variant is covered in fewer than 50% of individuals in gnomAD. Allele frequency estimates may not be reliable."
+            >
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Low AN
+              </Badge>
+            </Tooltip>
+          )}
           {variant.flags?.includes("filtered") && (
             <Tooltip hasArrow label={filteredVariantDescription(variant)}>
               <Badge
