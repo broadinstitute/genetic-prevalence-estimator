@@ -55,7 +55,7 @@ if [ $import_gnomad = "true" ]; then
     --gnomad-version=4 \
     --intervals=$GRCH38_INTERVALS \
     --partitions=2 \
-    ./data/gnomAD_v4.0.0_variants.ht
+    ./data/gnomAD_v4.1.0_variants.ht
 
   python data-pipelines/prepare_gnomad_variants.py \
     --gnomad-version=2 \
