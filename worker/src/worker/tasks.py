@@ -107,8 +107,11 @@ def parse_variant_id(variant_id_str, reference_genome):
     )
 
 
-def combined_freq(ds, n_populations, include_filtered=False):
+def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
     zeroes = hl.range(1 + n_populations).map(lambda _: 0)
+
+    datasets_to_use = ("joint",) if gnomad_version == "4.1.0" else ("exome", "genome")
+
     return hl.struct(
         **{
             field: hl.zip(
@@ -130,7 +133,7 @@ def combined_freq(ds, n_populations, include_filtered=False):
                         ds.freq[sample_set][field],
                         zeroes,
                     )
-                    for sample_set in ("exome", "genome")
+                    for sample_set in datasets_to_use
                 )
             ).map(lambda f: f[0] + f[1])
             for field in ("AC", "AN")
@@ -180,9 +183,9 @@ def fetch_transcript(transcript_id, gnomad_version):
 
     variables = {
         "transcript_id": transcript_id,
-        "reference_genome": "GRCh37"
-        if gnomad_version.split(".")[0] == "2"
-        else "GRCh38",
+        "reference_genome": (
+            "GRCh37" if gnomad_version.split(".")[0] == "2" else "GRCh38"
+        ),
     }
 
     for _ in range(3):
@@ -214,7 +217,7 @@ def get_recommended_variants(metadata, transcript):
     reference_genome = metadata["reference_genome"]
 
     subset = "_non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
-    gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
+    gnomad_version = "4.1.0" if gnomad_version == "4.0.0" else gnomad_version
 
     ds = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
@@ -238,12 +241,21 @@ def get_recommended_variants(metadata, transcript):
         ],
     )
 
-    ds.transmute(
-        freq=hl.struct(
-            exome=ds.freq[f"exome{subset}"],
-            genome=ds.freq[f"genome{subset}"],
+    if gnomad_version == "4.1.0":
+        ds.transmute(
+            freq=hl.struct(
+                exome=ds.freq[f"exome{subset}"],
+                genome=ds.freq[f"genome{subset}"],
+                joint=ds.freq["joint"],
+            )
         )
-    )
+    else:
+        ds.transmute(
+            freq=hl.struct(
+                exome=ds.freq[f"exome{subset}"],
+                genome=ds.freq[f"genome{subset}"],
+            )
+        )
 
     ds = ds.transmute(
         transcript_consequence=ds.transcript_consequences.find(
@@ -328,15 +340,13 @@ def _process_variant_list(variant_list):
     metadata = serializer.data["metadata"]
 
     gnomad_version = metadata["gnomad_version"]
+    gnomad_version = "4.1.0" if gnomad_version == "4.0.0" else gnomad_version
+
     assert gnomad_version in (
         "2.1.1",
         "3.1.2",
-        "4.0.0",
-        "4.0.0_non-ukb",
+        "4.1.0",
     ), f"Invalid gnomAD version '{gnomad_version}'"
-
-    subset = "non_ukb" if gnomad_version == "4.0.0_non-ukb" else ""
-    gnomad_version = "4.0.0" if gnomad_version == "4.0.0_non-ukb" else gnomad_version
 
     if metadata.get("include_gnomad_plof") or metadata.get(
         "include_clinvar_clinical_significance"
@@ -416,7 +426,14 @@ def _process_variant_list(variant_list):
     populations = hl.eval(gnomad.globals.populations)
     variant_list.metadata["populations"] = populations
 
-    ds = ds.annotate(**combined_freq(ds, n_populations=len(populations)))
+    if gnomad_version == "4.1.0":
+        ds = ds.annotate(**ds.freq.joint)
+    else:
+        ds = ds.annotate(
+            **combined_freq(
+                ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
+            )
+        )
 
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
@@ -479,6 +496,8 @@ def process_variant_list(uid):
 
     variant_list = VariantList.objects.get(uuid=uid)
     variant_list.status = VariantList.Status.PROCESSING
+    if variant_list.metadata["gnomad_version"] == "4.0.0":
+        variant_list.metadata["gnomad_version"] = "4.1.0"
     variant_list.save()
 
     try:
@@ -498,6 +517,7 @@ def process_variant_list(uid):
         logger.info("Done processing new variant list %s", uid)
 
         variant_list.status = VariantList.Status.READY
+
         variant_list.save()
 
 
