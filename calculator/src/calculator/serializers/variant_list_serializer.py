@@ -58,6 +58,7 @@ class VariantListV2MetadataSerializer(
     )
 
     def get_reference_genome(self, obj):
+        #
         return GNOMAD_REFERENCE_GENOMES[obj["gnomad_version"]]
 
     def validate_gene_id(self, value):
