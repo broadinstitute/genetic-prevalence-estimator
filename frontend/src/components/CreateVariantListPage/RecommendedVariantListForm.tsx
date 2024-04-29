@@ -44,7 +44,7 @@ const RecommendedVariantListForm = () => {
   const [transcriptId, setTranscriptId] = useState("");
   const isTranscriptIdValid = /^ENST\d{11}\.\d+$/.test(transcriptId);
 
-  const [gnomadVersion, setGnomadVersion] = useState("4.0.0");
+  const [gnomadVersion, setGnomadVersion] = useState("4.1.0");
 
   const [
     includeGnomadMissenseWithHighRevelScore,
@@ -141,7 +141,7 @@ const RecommendedVariantListForm = () => {
             }}
           >
             <VStack align="flex-start">
-              <Radio value="4.0.0">4.0.0 (GRCh38)</Radio>
+              <Radio value="4.1.0">4.1.0 (GRCh38)</Radio>
               <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
             </VStack>
           </RadioGroup>
@@ -217,7 +217,7 @@ const RecommendedVariantListForm = () => {
           </Text>
         </FormControl>
 
-        {gnomadVersion === "4.0.0" && (
+        {gnomadVersion === "4.1.0" && (
           <FormControl
             id="recommended-variant-list-included-gnomad-missense-variants-with-high-revel-score"
             isRequired
