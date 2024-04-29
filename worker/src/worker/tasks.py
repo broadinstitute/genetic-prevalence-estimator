@@ -496,8 +496,8 @@ def process_variant_list(uid):
 
     variant_list = VariantList.objects.get(uuid=uid)
     variant_list.status = VariantList.Status.PROCESSING
-    if variant_list.metadata["gnomad_version"] == "4.0.0":
-        variant_list.metadata["gnomad_version"] = "4.1.0"
+    # if variant_list.metadata["gnomad_version"] == "4.0.0":
+    #     variant_list.metadata["gnomad_version"] = "4.1.0"
     variant_list.save()
 
     try:
