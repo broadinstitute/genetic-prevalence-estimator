@@ -36,10 +36,10 @@ RUN pip install --no-cache-dir -r ./shared-requirements.txt
 
 # Copy code
 COPY calculator ./calculator
-RUN pip install -e calculator
+RUN pip install --no-cache-dir -e calculator
 
 COPY website ./website
-RUN pip install -e website
+RUN pip install --no-cache-dir -e website
 
 COPY --from=frontend /app/build/index.html ./website/src/website/templates/frontend/index.html
 COPY --from=frontend /app/build/static ./website/src/website/static
