@@ -110,9 +110,11 @@ def _get_gnomad_population_sample_counts(ds):
         hl.dict(
             hl.zip(
                 ds.globals.freq_meta,
-                ds.globals.freq_sample_count
-                if "freq_sample_count" in ds.globals
-                else hl.empty_array(hl.tint),
+                (
+                    ds.globals.freq_sample_count
+                    if "freq_sample_count" in ds.globals
+                    else hl.empty_array(hl.tint)
+                ),
                 fill_missing=True,
             )
             .filter(
@@ -132,14 +134,28 @@ def _get_gnomad_population_sample_counts(ds):
     )
 
 
-def _get_gnomad_population_sample_counts_v4(ds, genetic_ancestry_groups):
-    sample_counts = {}
+def _get_gnomad_population_sample_counts_v4p1(ds, genetic_ancestry_groups):
+    exome_sample_counts = {}
+    genome_sample_counts = {}
+    joint_sample_counts = {}
     for group in genetic_ancestry_groups:
-        sample_counts[(group, None)] = hl.eval(
-            ds.freq_meta_sample_count[ds.freq_index_dict[f"{group}_adj"]]
+        exome_sample_counts[(group, None)] = hl.eval(
+            ds.exomes_globals.freq_meta_sample_count[
+                ds.exomes_globals.freq_index_dict[f"{group}_adj"]
+            ]
+        )
+        genome_sample_counts[(group, None)] = hl.eval(
+            ds.genomes_globals.freq_meta_sample_count[
+                ds.genomes_globals.freq_index_dict[f"{group}_adj"]
+            ]
+        )
+        joint_sample_counts[(group, None)] = hl.eval(
+            ds.joint_globals.freq_meta_sample_count[
+                ds.joint_globals.freq_index_dict[f"{group}_adj"]
+            ]
         )
 
-    return sample_counts
+    return exome_sample_counts, genome_sample_counts, joint_sample_counts
 
 
 def _sort_populations(populations):
@@ -397,30 +413,55 @@ def get_gnomad_v4_variants():
             ),
         )
 
+    def joint_freq(ds, subset=None, pop=None, subpop=None, sex=None, raw=False):
+        if subpop:
+            raise ValueError("subpops are not available for gnomAD v4")
+
+        parts = [s for s in [subset, pop, sex] if s is not None]
+        parts.append("raw" if raw else "adj")
+        key = "_".join(parts)
+
+        return hl.rbind(
+            hl.or_missing(
+                ds.joint_globals.freq_index_dict.contains(key),
+                ds.joint.freq[ds.joint_globals.freq_index_dict[key]],
+            ),
+            lambda f: hl.struct(
+                AC=hl.or_else(f.AC, 0),
+                AN=hl.or_else(f.AN, 0),
+            ),
+        )
+
     exomes = hl.read_table(
-        "gs://gcp-public-data--gnomad/release/4.0/ht/exomes/gnomad.exomes.v4.0.sites.ht"
+        "gs://gcp-public-data--gnomad/release/4.1/ht/exomes/gnomad.exomes.v4.1.sites.ht"
     )
     genomes = hl.read_table(
-        "gs://gcp-public-data--gnomad/release/4.0/ht/genomes/gnomad.genomes.v4.0.sites.ht/"
+        "gs://gcp-public-data--gnomad/release/4.1/ht/genomes/gnomad.genomes.v4.1.sites.ht"
+    )
+    joint = hl.read_table(
+        "gs://gcp-public-data--gnomad/release/4.1/ht/joint/gnomad.joint.v4.1.sites.ht"
     )
 
-    exome_population_sample_counts = _get_gnomad_population_sample_counts_v4(
-        exomes, GNOMAD_V4_GENETIC_ANCESTRY_GROUPS
-    )
-    genome_population_sample_counts = _get_gnomad_population_sample_counts_v4(
-        genomes, GNOMAD_V4_GENETIC_ANCESTRY_GROUPS
+    (
+        exome_population_sample_counts,
+        genome_population_sample_counts,
+        joint_population_sample_counts,
+    ) = _get_gnomad_population_sample_counts_v4p1(
+        joint, GNOMAD_V4_GENETIC_ANCESTRY_GROUPS
     )
 
-    all_populations = set(exome_population_sample_counts) | set(
-        genome_population_sample_counts
+    all_populations = (
+        set(exome_population_sample_counts)
+        | set(genome_population_sample_counts)
+        | set(joint_population_sample_counts)
     )
 
     populations = _sort_populations(
         pop
         for pop in all_populations
-        if exome_population_sample_counts.get(pop, 0)
-        + genome_population_sample_counts.get(pop, 0)
-        > 1000
+        # if exome_population_sample_counts.get(pop, 0)
+        # + genome_population_sample_counts.get(pop, 0)
+        if joint_population_sample_counts.get(pop, 0) > 1000
     )
 
     exomes = exomes.select(
@@ -501,8 +542,33 @@ def get_gnomad_v4_variants():
     )
     genomes = genomes.filter(genomes.genome_freq.AC[0] > 0)
 
+    joint = joint.select(
+        joint_freq=hl.struct(
+            AC=[
+                joint_freq(joint).AC,
+                *(
+                    joint_freq(joint, pop=pop, subpop=subpop).AC
+                    for pop, subpop in populations
+                ),
+            ],
+            AN=[
+                joint_freq(joint).AN,
+                *(
+                    joint_freq(joint, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
+        ),
+        joint_filters=hl.empty_set(hl.tstr),
+        # transcript_consequences=joint.vep.transcript_consequences,
+        # revel_score=joint.in_silico_predictors.revel_max,
+    )
+    joint = joint.filter(joint.joint_freq.AC[0] > 0)
+
     exomes = exomes.select_globals()
     genomes = genomes.select_globals()
+    joint = joint.select_globals()
+
     ds = exomes.join(genomes, how="outer")
     ds = ds.transmute(
         transcript_consequences=hl.or_else(
@@ -511,6 +577,8 @@ def get_gnomad_v4_variants():
     )
 
     ds = ds.select_globals(populations=_format_populations(populations))
+
+    ds = ds.annotate(**joint[ds.locus, ds.alleles])
 
     return ds
 
@@ -542,6 +610,7 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
                 exome_non_ukb=ds.exome_freq_non_ukb,
                 genome=ds.genome_freq,
                 genome_non_ukb=ds.genome_freq_non_ukb,
+                joint=ds.joint_freq,
             )
         )
     else:
@@ -565,6 +634,10 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
             genome=hl.or_missing(
                 hl.is_defined(ds.genome_filters) & (hl.len(ds.genome_filters) > 0),
                 ds.genome_filters,
+            ),
+            joint=hl.or_missing(
+                hl.is_defined(ds.joint_filters) & (hl.len(ds.joint_filters) > 0),
+                ds.joint_filters,
             ),
         )
     )
