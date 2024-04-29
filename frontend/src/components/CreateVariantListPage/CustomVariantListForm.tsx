@@ -40,7 +40,7 @@ const CustomVariantListForm = () => {
 
   const [label, setLabel] = useState("");
   const [notes, setNotes] = useState("");
-  const [gnomadVersion, setGnomadVersion] = useState("4.0.0");
+  const [gnomadVersion, setGnomadVersion] = useState("4.1.0");
   const [selectTranscript, setSelectTranscript] = useState(false);
   const [geneId, setGeneId] = useState("");
   const [geneSymbol, setGeneSymbol] = useState("");
@@ -131,7 +131,7 @@ const CustomVariantListForm = () => {
             <FormLabel>gnomAD version</FormLabel>
             <RadioGroup value={gnomadVersion} onChange={setGnomadVersion}>
               <VStack align="flex-start">
-                <Radio value="4.0.0">4.0.0 (GRCh38)</Radio>
+                <Radio value="4.1.0">4.1.0 (GRCh38)</Radio>
                 <Radio value="2.1.1">2.1.1 (GRCh37)</Radio>
               </VStack>
             </RadioGroup>
