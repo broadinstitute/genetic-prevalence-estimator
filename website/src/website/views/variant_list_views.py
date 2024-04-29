@@ -165,6 +165,8 @@ class VariantListProcessView(GenericAPIView):
         )
 
         variant_list.status = VariantList.Status.QUEUED
+        if variant_list.metadata["gnomad_version"] == "4.0.0":
+            variant_list.metadata["gnomad_version"] = "4.1.0"
         variant_list.save()
 
         return Response({})
@@ -212,6 +214,8 @@ class VariantListVariantsView(GenericAPIView):
         ]
 
         variant_list.status = VariantList.Status.QUEUED
+        if variant_list.metadata["gnomad_version"] == "4.0.0":
+            variant_list.metadata["gnomad_version"] = "4.1.0"
         variant_list.save()
 
         publisher.send_to_worker(
