@@ -115,8 +115,19 @@ const VariantListCharts = (props: VariantListChartsProps) => {
   }
 
   // TODO: move toSeries into the wrapper
-  const toSeries = (populationData: { [popId: string]: number }) =>
-    allPopulations.map((popId) => populationData[popId]);
+  const toSeries = (
+    populationData: { [popId: string]: number },
+    includeSubcontinentalPopulations: boolean
+  ) => {
+    const removeSubcontinentalPopulationsIfNeeded = includeSubcontinentalPopulations
+      ? () => true
+      : (popId: GnomadPopulationId) => !isSubcontinentalPopulation(popId);
+
+    const series = allPopulations
+      .filter(removeSubcontinentalPopulationsIfNeeded)
+      .map((popId) => populationData[popId]);
+    return series;
+  };
 
   return (
     <>
@@ -184,7 +195,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? clinvarOnlyCarrierFrequencySimplified!
-                            : clinvarOnlyCarrierFrequency!
+                            : clinvarOnlyCarrierFrequency!,
+                          includeSubcontinentalPopulations
                         ),
                       },
                       {
@@ -193,7 +205,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? plofOnlyCarrierFrequencySimplified!
-                            : plofOnlyCarrierFrequency!
+                            : plofOnlyCarrierFrequency!,
+                          includeSubcontinentalPopulations
                         ),
                       },
                     ]
@@ -203,7 +216,8 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? carrierFrequencySimplified!
-                            : carrierFrequency!
+                            : carrierFrequency!,
+                          includeSubcontinentalPopulations
                         ),
                       },
                     ]
@@ -301,7 +315,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
               series={[
                 {
                   label: "Prevalence",
-                  data: toSeries(prevalence!),
+                  data: toSeries(prevalence!, includeSubcontinentalPopulations),
                 },
               ]}
               displayFormat={displayFormatGeneticPrevalence}
