@@ -107,11 +107,8 @@ const BarGraph = (props: BarGraphProps) => {
       ? (d: { valueOf(): number }) => renderFrequencyScientific(d.valueOf())
       : displayFormat === "fraction_of_100000"
       ? (d: { valueOf(): number }) =>
-          // calculateFrequencyFractionOver100000(d.valueOf())
-          // renderFrequencyFractionOver100000(d.valueOf())
           formatFrequencyFractionOver100000(d.valueOf(), 1)
-      : // `${((d.valueOf() * 100_000 * 1_000) / 1_000).toFixed(2).toLocaleString()} / 100,000`
-        (d: { valueOf(): number }) => {
+      : (d: { valueOf(): number }) => {
           const n = d.valueOf();
           if (n === 0) {
             return "0";
