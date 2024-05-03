@@ -24,37 +24,34 @@ import {
   CarrierFrequencyModelInput,
 } from "./carrierFrequencyModels";
 import CalculationsTable from "./CalculationsTable";
+import { PopIdNumberRecord, PopIdRawCarrierNumberRecord } from "./calculations";
 
-interface VariantListChartsProps {
+type VariantListChartsProps = {
   genetic_ancestry_groups: GnomadPopulationId[];
   hasOptionToShowContributionsBySource: boolean;
 
-  carrierFrequency: Partial<Record<GnomadPopulationId, number>>;
-  carrierFrequencySimplified: Partial<Record<GnomadPopulationId, number>>;
-  carrierFrequencyRawNumbers: Partial<
-    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
-  >;
-  prevalence: Partial<Record<GnomadPopulationId, number>>;
-  clinvarOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
-  clinvarOnlyCarrierFrequencySimplified: Partial<
-    Record<GnomadPopulationId, number>
-  >;
-  clinvarOnlyCarrierFrequencyRawNumbers: Partial<
-    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
-  >;
-  plofOnlyCarrierFrequency: Partial<Record<GnomadPopulationId, number>>;
-  plofOnlyCarrierFrequencySimplified: Partial<
-    Record<GnomadPopulationId, number>
-  >;
-  plofOnlyCarrierFrequencyRawNumbers: Partial<
-    Record<GnomadPopulationId, { total_ac: number; average_an: number }>
-  >;
-}
+  calculations: {
+    prevalence: PopIdNumberRecord;
+    carrierFrequency: PopIdNumberRecord;
+    carrierFrequencySimplified?: PopIdNumberRecord;
+    carrierFrequencyRawNumbers?: PopIdRawCarrierNumberRecord;
+    clinvarOnlyCarrierFrequency?: PopIdNumberRecord | null;
+    clinvarOnlyCarrierFrequencySimplified?: PopIdNumberRecord | null;
+    clinvarOnlyCarrierFrequencyRawNumbers?: PopIdRawCarrierNumberRecord | null;
+    plofOnlyCarrierFrequency?: PopIdNumberRecord | null;
+    plofOnlyCarrierFrequencySimplified?: PopIdNumberRecord | null;
+    plofOnlyCarrierFrequencyRawNumbers?: PopIdRawCarrierNumberRecord | null;
+  };
+};
 
 const VariantListCharts = (props: VariantListChartsProps) => {
   const {
     genetic_ancestry_groups,
     hasOptionToShowContributionsBySource,
+    calculations,
+  } = props;
+
+  const {
     carrierFrequency,
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
@@ -65,7 +62,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     plofOnlyCarrierFrequency,
     plofOnlyCarrierFrequencySimplified,
     plofOnlyCarrierFrequencyRawNumbers,
-  } = props;
+  } = calculations;
 
   const allPopulations: GnomadPopulationId[] = [
     "global",
@@ -150,10 +147,11 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                     carrierFrequencyModel === "simplified"
                       ? carrierFrequencySimplified!
                       : carrierFrequencyModel === "raw_numbers"
-                      ? carrierFrequencyRawNumbers
+                      ? carrierFrequencyRawNumbers!
                       : carrierFrequency!,
                 },
-                ...(showContributionsBySource
+                ...(hasOptionToShowContributionsBySource &&
+                showContributionsBySource
                   ? [
                       {
                         label: "Carrier frequency (ClinVar)",
@@ -162,7 +160,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                           carrierFrequencyModel === "simplified"
                             ? clinvarOnlyCarrierFrequencySimplified!
                             : carrierFrequencyModel === "raw_numbers"
-                            ? clinvarOnlyCarrierFrequencyRawNumbers
+                            ? clinvarOnlyCarrierFrequencyRawNumbers!
                             : clinvarOnlyCarrierFrequency!,
                       },
                       {
@@ -172,7 +170,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                           carrierFrequencyModel === "simplified"
                             ? plofOnlyCarrierFrequencySimplified!
                             : carrierFrequencyModel === "raw_numbers"
-                            ? plofOnlyCarrierFrequencyRawNumbers
+                            ? plofOnlyCarrierFrequencyRawNumbers!
                             : plofOnlyCarrierFrequency!,
                       },
                     ]

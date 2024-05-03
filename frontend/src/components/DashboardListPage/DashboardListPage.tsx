@@ -136,22 +136,16 @@ const DashboardListPage = (props: DashboardListPageProps) => {
       <VariantListCharts
         genetic_ancestry_groups={dashboardList.metadata.populations}
         hasOptionToShowContributionsBySource={true}
-        carrierFrequency={toRecord(
-          dashboardList.carrier_frequency,
-          dashboardList.metadata.populations
-        )}
-        carrierFrequencySimplified={{}}
-        carrierFrequencyRawNumbers={{}}
-        prevalence={toRecord(
-          dashboardList.genetic_prevalence,
-          dashboardList.metadata.populations
-        )}
-        clinvarOnlyCarrierFrequency={{}}
-        clinvarOnlyCarrierFrequencySimplified={{}}
-        clinvarOnlyCarrierFrequencyRawNumbers={{}}
-        plofOnlyCarrierFrequency={{}}
-        plofOnlyCarrierFrequencySimplified={{}}
-        plofOnlyCarrierFrequencyRawNumbers={{}}
+        calculations={{
+          prevalence: toRecord(
+            dashboardList.carrer_frequency,
+            dashboardList.metadata.populations
+          ),
+          carrierFrequency: toRecord(
+            dashboardList.genetic_prevalence,
+            dashboardList.metadata.populations
+          ),
+        }}
       />
 
       <Box sx={screenOnly} mb={6}>
