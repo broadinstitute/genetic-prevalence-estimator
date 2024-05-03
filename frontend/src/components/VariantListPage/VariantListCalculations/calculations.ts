@@ -63,27 +63,25 @@ export const shouldCalculateContributionsBySource = (
   );
 };
 
-type Calculation =
-  | "carrierFrequency"
-  | "carrierFrequencySimplified"
-  | "carrierFrequencyRawNumbers"
-  | "prevalence"
-  | "clinvarOnlyCarrierFrequency"
-  | "clinvarOnlyCarrierFrequencySimplified"
-  | "clinvarOnlyCarrierFrequencyRawNumbers"
-  | "plofOnlyCarrierFrequency"
-  | "plofOnlyCarrierFrequencySimplified"
-  | "plofOnlyCarrierFrequencyRawNumbers";
-
 export type PopIdNumberRecord = Partial<Record<GnomadPopulationId, number>>;
 export type PopIdRawCarrierNumberRecord = Partial<
   Record<GnomadPopulationId, RawCarrierFrequencyData>
 >;
 
-type VariantListCalculations = Record<
-  Calculation,
-  PopIdNumberRecord | PopIdRawCarrierNumberRecord | null
->;
+export type VariantListCalculations = {
+  prevalence: PopIdNumberRecord;
+  carrierFrequency: PopIdNumberRecord;
+  carrierFrequencySimplified: PopIdNumberRecord;
+  carrierFrequencyRawNumbers: PopIdRawCarrierNumberRecord;
+
+  clinvarOnlyCarrierFrequency: PopIdNumberRecord | null;
+  clinvarOnlyCarrierFrequencySimplified: PopIdNumberRecord | null;
+  clinvarOnlyCarrierFrequencyRawNumbers: PopIdRawCarrierNumberRecord | null;
+
+  plofOnlyCarrierFrequency: PopIdNumberRecord | null;
+  plofOnlyCarrierFrequencySimplified: PopIdNumberRecord | null;
+  plofOnlyCarrierFrequencyRawNumbers: PopIdRawCarrierNumberRecord | null;
+};
 
 export const allVariantListCalculations = (
   variants: Variant[],
@@ -135,11 +133,24 @@ export const allVariantListCalculations = (
         carrierFrequencyRawNumbers: null,
       };
 
-  const allCalculations = {
+  const fullListCalculations = {
     carrierFrequency,
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
+  };
+
+  const fullListValues = mapValues(fullListCalculations, (values) => {
+    const value = Object.fromEntries(
+      [
+        "global",
+        ...variantList.metadata.populations!,
+      ].map((popId, popIndex) => [popId, values[popIndex]])
+    );
+    return value;
+  });
+
+  const partialLisCalculations = {
     clinvarOnlyCarrierFrequency,
     clinvarOnlyCarrierFrequencySimplified,
     clinvarOnlyCarrierFrequencyRawNumbers,
@@ -148,14 +159,20 @@ export const allVariantListCalculations = (
     plofOnlyCarrierFrequencyRawNumbers,
   };
 
-  return mapValues(allCalculations, (values) =>
-    values === null
-      ? null
-      : Object.fromEntries(
-          [
-            "global",
-            ...variantList.metadata.populations!,
-          ].map((popId, popIndex) => [popId, values[popIndex]])
-        )
-  );
+  const partialListValues = mapValues(partialLisCalculations, (values) => {
+    const value =
+      values === null
+        ? null
+        : Object.fromEntries(
+            [
+              "global",
+              ...variantList.metadata.populations!,
+            ].map((popId, popIndex) => [popId, values[popIndex]])
+          );
+    return value;
+  });
+
+  const allValues = { ...partialListValues, ...fullListValues };
+
+  return allValues;
 };

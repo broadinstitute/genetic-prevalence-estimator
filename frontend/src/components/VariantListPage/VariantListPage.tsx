@@ -47,7 +47,6 @@ import VariantsInput, { InputVariant } from "../VariantsInput";
 import { AnnotationOption } from "./AnnotationTypeSelector";
 import { EditVariantListButton } from "./EditVariantList";
 import Methods from "./Methods";
-import VariantListChartsWithCalculations from "./VariantListCalculations/VariantListChartsWithCalculations";
 import {
   VariantListSharingButton,
   accessLevelDescriptions,
@@ -56,6 +55,12 @@ import VariantListMetadata from "./VariantListMetadata";
 import VariantListStatus from "./VariantListStatus";
 import VariantListVariants from "./VariantListVariants";
 import VariantListReviewStatus from "./VariantListReviewStatus";
+import {
+  allVariantListCalculations,
+  shouldCalculateContributionsBySource,
+  VariantListCalculations,
+} from "./VariantListCalculations/calculations";
+import VariantListCharts from "./VariantListCalculations/VariantListCharts";
 
 const addVariantsToVariantList = (
   uuid: string,
@@ -90,6 +95,7 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
 type VariantListAnnotation = {
   selectedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
+  variantCalculations: VariantListCalculations;
 };
 
 const useVariantListAnnotation = (
