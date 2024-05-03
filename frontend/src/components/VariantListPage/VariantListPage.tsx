@@ -105,6 +105,18 @@ const useVariantListAnnotation = (
   const [annotation, setAnnotation] = useState<VariantListAnnotation>({
     selectedVariants: new Set<VariantId>([]),
     variantNotes: {},
+    variantCalculations: {
+      prevalence: {},
+      carrierFrequency: {},
+      carrierFrequencySimplified: {},
+      carrierFrequencyRawNumbers: {},
+      clinvarOnlyCarrierFrequency: null,
+      clinvarOnlyCarrierFrequencySimplified: null,
+      clinvarOnlyCarrierFrequencyRawNumbers: null,
+      plofOnlyCarrierFrequency: null,
+      plofOnlyCarrierFrequencySimplified: null,
+      plofOnlyCarrierFrequencyRawNumbers: null,
+    },
   });
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
@@ -114,17 +126,58 @@ const useVariantListAnnotation = (
     personal: "annotation",
   };
 
+  const calculationsHaveNeverBeenSavedToDatabase = (annotation: {
+    variant_calculations: VariantListCalculations;
+  }) => {
+    const databaseResponseIsEmptyHuh =
+      Object.keys(annotation.variant_calculations).length === 0;
+    return databaseResponseIsEmptyHuh;
+  };
+
   useEffect(() => {
     setLoading(true);
     get(
       `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`
     )
-      .then((annotation) => {
-        setAnnotation({
-          selectedVariants: new Set(annotation.selected_variants),
-          variantNotes: annotation.variant_notes,
-        });
-      })
+      .then(
+        (annotation: {
+          selected_variants: Set<string>;
+          variant_notes: Record<VariantId, string>;
+          variant_calculations: VariantListCalculations;
+        }) => {
+          const selectedVariants = new Set(annotation.selected_variants);
+
+          // An update to the appliation moved to the model of calculating storing
+          //   the calculated values in the database, to allow for viewing
+          //   of these values in other views (i.e. the dashboard), since previously
+          //   calculation always happened on the users machine.
+          // Since this happened when there were already users, we check here
+          //   if the results of the calculations were never saved to the database
+          //   if so, we calculate and save on first load of these older lists
+          const variantCalculations = calculationsHaveNeverBeenSavedToDatabase(
+            annotation
+          )
+            ? allVariantListCalculations(
+                selectedVariants
+                  ? variantList.variants.filter((variant) =>
+                      selectedVariants.has(variant.id)
+                    )
+                  : variantList.variants,
+                variantList
+              )
+            : annotation.variant_calculations;
+
+          if (calculationsHaveNeverBeenSavedToDatabase(annotation)) {
+            saveVariantCalculations(variantCalculations);
+          }
+
+          setAnnotation({
+            selectedVariants: selectedVariants,
+            variantNotes: annotation.variant_notes,
+            variantCalculations: variantCalculations,
+          });
+        }
+      )
       .finally(() => {
         setLoading(false);
       })
@@ -133,7 +186,7 @@ const useVariantListAnnotation = (
           title: "Unable to retrieve variant list annotations",
           description: renderErrorDescription(error),
           status: "error",
-          duration: 10000,
+          duration: 10_000,
           isClosable: true,
         });
       });
@@ -142,21 +195,60 @@ const useVariantListAnnotation = (
 
   const toast = useToast();
 
+  const saveVariantCalculations = (
+    variantCalculations: VariantListCalculations
+  ) => {
+    patch(
+      `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
+      {
+        variant_calculations: variantCalculations,
+      }
+    )
+      .then(() => {
+        toast({
+          title: "Saved variant calculations",
+          status: "success",
+          duration: 1_000,
+          isClosable: true,
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Unable to save variant calculations",
+          description: renderErrorDescription(error),
+          status: "error",
+          duration: 10_000,
+          isClosable: true,
+        });
+      });
+  };
+
   const saveSelectedVariants = useMemo(
     () =>
       debounce(() => {
         const annotation = getCurrentAnnotation();
+        const variantCalculations = allVariantListCalculations(
+          annotation.selectedVariants
+            ? variantList.variants.filter((variant) =>
+                annotation.selectedVariants.has(variant.id)
+              )
+            : variantList.variants,
+          variantList
+        );
+        setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
+
         patch(
           `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
           {
             selected_variants: Array.from(annotation.selectedVariants),
+            variant_calculations: variantCalculations,
           }
         )
           .then(() => {
             toast({
               title: "Saved selected variants",
               status: "success",
-              duration: 1000,
+              duration: 1_000,
               isClosable: true,
             });
           })
@@ -165,11 +257,11 @@ const useVariantListAnnotation = (
               title: "Unable to save selected variants",
               description: renderErrorDescription(error),
               status: "error",
-              duration: 10000,
+              duration: 10_000,
               isClosable: true,
             });
           });
-      }, 2000),
+      }, 3_000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [variantList.uuid, annotationType]
   );
@@ -250,6 +342,7 @@ const useVariantListAnnotation = (
     setSelectedVariants,
     variantNotes: annotation.variantNotes,
     setVariantNote,
+    variantCalculations: annotation.variantCalculations,
   };
 };
 
@@ -283,6 +376,7 @@ const VariantListPage = (props: VariantListPageProps) => {
     setSelectedVariants,
     variantNotes,
     setVariantNote,
+    variantCalculations,
   } = useVariantListAnnotation(variantList, annotationType);
 
   const history = useHistory();
@@ -421,16 +515,13 @@ const VariantListPage = (props: VariantListPageProps) => {
         </Box>
       )}
 
-      {variantList.status === "Ready" && (
-        <VariantListChartsWithCalculations
-          variantList={variantList}
-          variants={
-            selectedVariants
-              ? variantList.variants.filter((variant) =>
-                  selectedVariants.has(variant.id)
-                )
-              : variantList.variants
-          }
+      {variantList.status === "Ready" && loadingAnnotation === false && (
+        <VariantListCharts
+          genetic_ancestry_groups={variantList.metadata!.populations!}
+          hasOptionToShowContributionsBySource={shouldCalculateContributionsBySource(
+            variantList
+          )}
+          calculations={variantCalculations}
         />
       )}
 
