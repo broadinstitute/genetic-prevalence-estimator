@@ -55,27 +55,29 @@ class VariantList(models.Model):
 
     error = models.TextField(null=True, default=None)
 
-    class PublicStatus(models.TextChoices):
+    class RepresentativeStatus(models.TextChoices):
         PRIVATE = ("", "Private")
         PENDING = ("P", "Pending")
         REJECTED = ("R", "Rejected")
         APPROVED = ("A", "Approved")
 
-    public_status = models.CharField(
-        max_length=1, choices=PublicStatus.choices, default=""
+    representative_status = models.CharField(
+        max_length=1, choices=RepresentativeStatus.choices, default=""
     )
 
-    public_status_updated_by = models.ForeignKey(
+    representative_status_updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         on_delete=models.SET_NULL,
         related_name="+",
     )
 
+    is_public = models.BooleanField(default=False)
+
     class Meta:
         indexes = [
             models.Index(fields=("uuid",)),
-            models.Index(fields=("public_status",)),
+            models.Index(fields=("representative_status",)),
         ]
 
 
@@ -99,12 +101,12 @@ class DashboardList(models.Model):
 
     top_ten_variants = models.JSONField(default=list)
 
-    public_variant_list = models.ForeignKey(
+    representative_variant_list = models.ForeignKey(
         VariantList,
         null=True,
         on_delete=models.SET_NULL,
-        related_name="public_variant_list",
-        related_query_name="public_variant_list",
+        related_name="representative_variant_list",
+        related_query_name="representative_variant_list",
     )
 
     class Status(models.TextChoices):
@@ -249,11 +251,17 @@ def is_variant_list_viewer(user, variant_list):
         return False
 
 
-@object_level_predicate
 # pylint: disable=unused-argument
+@object_level_predicate
 def is_accessing_a_public_variant_list(user, variant_list):
-    public_status = variant_list.public_status
-    return public_status == VariantList.PublicStatus.APPROVED
+    is_public = variant_list.is_public
+    return is_public
+
+
+@object_level_predicate
+def is_accessing_a_representative_variant_list(user, variant_list):
+    representative_status = variant_list.representative_status
+    return representative_status == VariantList.RepresentativeStatus.APPROVED
 
 
 # pylint: enable=unused-argument
