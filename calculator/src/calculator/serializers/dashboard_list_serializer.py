@@ -127,7 +127,7 @@ class DashboardListDashboardSerializer(ModelSerializer):
 
     # pylint: disable=fixme
     # TODO: use a reduced serializer here?
-    public_variant_list = VariantListSerializer(many=False, read_only=True)
+    representative_variant_list = VariantListSerializer(many=False, read_only=True)
 
     class Meta:
         model = DashboardList
@@ -136,7 +136,7 @@ class DashboardListDashboardSerializer(ModelSerializer):
             "gene_symbol",
             "label",
             "metadata",
-            "public_variant_list",
+            "representative_variant_list",
             "genetic_prevalence",
             "genetic_prevalence_orphanet",
             "genetic_prevalence_genereviews",
@@ -151,7 +151,7 @@ class DashboardListSerializer(ModelSerializer):
     status = ChoiceField(choices=DashboardList.Status.choices, read_only=True)
     metadata = serializers.SerializerMethodField()
 
-    public_variant_list = VariantListSerializer(many=False, read_only=True)
+    representative_variant_list = VariantListSerializer(many=False, read_only=True)
 
     def get_metadata(self, obj):
         metadata_serializer = DashboardListMetadataSerializer(
@@ -177,7 +177,7 @@ class DashboardListSerializer(ModelSerializer):
             "genetic_prevalence_other",
             "genetic_incidence_other",
             "top_ten_variants",
-            "public_variant_list",
+            "representative_variant_list",
             "status",
             "error",
         ]

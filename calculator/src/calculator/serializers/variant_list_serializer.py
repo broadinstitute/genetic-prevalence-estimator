@@ -186,8 +186,10 @@ class VariantListSerializer(ModelSerializer):
         many=True, read_only=True
     )
 
-    public_status = ChoiceField(choices=VariantList.PublicStatus.choices)
-    public_status_updated_by = UsernameField()
+    representative_status = ChoiceField(
+        choices=VariantList.RepresentativeStatus.choices
+    )
+    representative_status_updated_by = UsernameField()
 
     estimates = serializers.SerializerMethodField()
 
@@ -264,8 +266,9 @@ class VariantListSerializer(ModelSerializer):
             "status",
             "error",
             "access_permissions",
-            "public_status",
-            "public_status_updated_by",
+            "is_public",
+            "representative_status",
+            "representative_status_updated_by",
             "variants",
             "estimates",
         ]
@@ -277,8 +280,9 @@ class VariantListSerializer(ModelSerializer):
             not in (
                 "label",
                 "notes",
-                "public_status",
-                "public_status_updated_by",
+                "is_public",
+                "representative_status",
+                "representative_status_updated_by",
             )
         ]
 
@@ -329,7 +333,10 @@ class AddedVariantsSerializer(
 class VariantListDashboardSerializer(ModelSerializer):
     gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
     created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
-    public_status_updated_by = serializers.SlugRelatedField(
+    representative_status = ChoiceField(
+        choices=VariantList.RepresentativeStatus.choices
+    )
+    representative_status_updated_by = serializers.SlugRelatedField(
         slug_field="username", read_only=True
     )
 
@@ -340,7 +347,9 @@ class VariantListDashboardSerializer(ModelSerializer):
             "created_by",
             "gene_symbol",
             "label",
-            "public_status_updated_by",
+            "is_public",
+            "representative_status",
+            "representative_status_updated_by",
             "metadata",
         ]
         read_only_fields = list(fields)
