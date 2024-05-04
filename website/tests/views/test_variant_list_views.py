@@ -30,7 +30,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
+            representative_status="",
         )
 
         VariantListAccessPermission.objects.create(variant_list=list1, user=user1)
@@ -44,7 +44,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
+            representative_status="",
         )
 
         VariantList.objects.create(
@@ -55,7 +55,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
+            representative_status="",
         )
 
         VariantList.objects.create(
@@ -66,7 +66,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="A",
+            representative_status="A",
         )
 
         VariantList.objects.create(
@@ -77,7 +77,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="R",
+            representative_status="R",
         )
 
         VariantList.objects.create(
@@ -88,7 +88,7 @@ class TestGetVariantLists:
                 "gnomad_version": "2.1.1",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="P",
+            representative_status="P",
         )
 
         VariantListAccessPermission.objects.create(variant_list=list2, user=user1)
@@ -365,8 +365,8 @@ class TestGetVariantList:
                 "gene_id": "ENSG00000169174",
                 "gene_symbol": "PCSK9",
             },
-            public_status=VariantList.PublicStatus.APPROVED,
-            public_status_updated_by=staffuser,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+            representative_status_updated_by=staffuser,
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
@@ -380,8 +380,8 @@ class TestGetVariantList:
                 "gene_id": "testid2",
                 "gene_symbol": "testsymbol2",
             },
-            public_status=VariantList.PublicStatus.PENDING,
-            public_status_updated_by=testuser,
+            representative_status=VariantList.RepresentativeStatus.PENDING,
+            representative_status_updated_by=testuser,
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
@@ -395,8 +395,8 @@ class TestGetVariantList:
                 "gene_id": "testid3",
                 "gene_symbol": "testsymbol3",
             },
-            public_status=VariantList.PublicStatus.REJECTED,
-            public_status_updated_by=staffuser,
+            representative_status=VariantList.RepresentativeStatus.REJECTED,
+            representative_status_updated_by=staffuser,
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
@@ -410,8 +410,8 @@ class TestGetVariantList:
                 "gene_id": "testid4",
                 "gene_symbol": "testsymbol4",
             },
-            public_status=VariantList.PublicStatus.APPROVED,
-            public_status_updated_by=staffuser,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+            representative_status_updated_by=staffuser,
             variants=[{"id": "1-55516888-G-GA"}],
         )
 
@@ -550,7 +550,7 @@ class TestEditVariantList:
                 "gene_symbol": "PCSK9",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
+            representative_status="",
         )
 
         VariantList.objects.create(
@@ -565,8 +565,8 @@ class TestEditVariantList:
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="A",
-            public_status_updated_by=staffmember,
+            representative_status="A",
+            representative_status_updated_by=staffmember,
         )
 
         variant_list_2 = VariantList.objects.create(
@@ -581,7 +581,7 @@ class TestEditVariantList:
                 "gene_symbol": "PCSK4",
             },
             variants=[{"id": "1-55516888-G-GA"}],
-            public_status="",
+            representative_status="",
         )
 
         VariantListAccessPermission.objects.create(
@@ -650,19 +650,20 @@ class TestEditVariantList:
         else:
             assert variant_list.notes == initial_notes
 
-    def test_editing_variant_list_public_status_request_authentication(self):
+    def test_editing_variant_list_representative_status_request_authentication(self):
         variant_list = VariantList.objects.get(id=1)
-        initial_public_status = variant_list.public_status
+        initial_representative_status = variant_list.representative_status
         client = APIClient()
         response = client.patch(
-            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+            f"/api/public-variant-lists/{variant_list.uuid}/",
+            {"representative_status": "P"},
         )
         assert response.status_code == 403
         variant_list.refresh_from_db()
-        assert variant_list.public_status == initial_public_status
+        assert variant_list.representative_status == initial_representative_status
 
     @pytest.mark.parametrize(
-        "user,new_public_status,expected_response",
+        "user,new_representative_status,expected_response",
         [
             # viewers and editors cannot edit public status
             ("viewer", "P", 403),
@@ -684,27 +685,27 @@ class TestEditVariantList:
         ],
     )
     # editing public status implements more specialized permissions
-    def test_editing_variant_list_public_status_requires_permission(
-        self, user, new_public_status, expected_response
+    def test_editing_variant_list_representative_status_requires_permission(
+        self, user, new_representative_status, expected_response
     ):
         variant_list = VariantList.objects.get(id=1)
-        initial_public_status = variant_list.public_status
+        initial_representative_status = variant_list.representative_status
         client = APIClient()
         client.force_authenticate(User.objects.get(username=user))
 
         response = client.patch(
             f"/api/public-variant-lists/{variant_list.uuid}/",
-            {"public_status": new_public_status},
+            {"representative_status": new_representative_status},
         )
         assert response.status_code == expected_response
         variant_list.refresh_from_db()
 
         if expected_response == 200:
-            assert variant_list.public_status == new_public_status
+            assert variant_list.representative_status == new_representative_status
         else:
-            assert variant_list.public_status == initial_public_status
+            assert variant_list.representative_status == initial_representative_status
 
-    def test_editing_variant_list_public_status_cannot_make_duplicates_unless_staff(
+    def test_editing_variant_list_representative_status_cannot_make_duplicates_unless_staff(
         self,
     ):
         variant_list = VariantList.objects.get(id=3)
@@ -713,14 +714,16 @@ class TestEditVariantList:
         client.force_authenticate(User.objects.get(username="owner"))
 
         response = client.patch(
-            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+            f"/api/public-variant-lists/{variant_list.uuid}/",
+            {"representative_status": "P"},
         )
         assert response.status_code == 400
 
         # staff can always update the public status
         client.force_authenticate(User.objects.get(username="staffmember"))
         response = client.patch(
-            f"/api/public-variant-lists/{variant_list.uuid}/", {"public_status": "P"}
+            f"/api/public-variant-lists/{variant_list.uuid}/",
+            {"representative_status": "P"},
         )
         assert response.status_code == 200
 

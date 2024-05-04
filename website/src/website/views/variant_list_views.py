@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import OrderingFilter
@@ -90,9 +91,11 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
             if self.request.user.is_staff and self.request.user.is_active:
                 return VariantList.objects.all()
 
-            # anonymous users or inactive users can view all approved public lists
+            # anonymous users or inactive users can view all public lists and
+            #   approved representative lists
             public_lists = VariantList.objects.filter(
-                public_status=VariantList.PublicStatus.APPROVED
+                Q(is_public=True)
+                | Q(representative_status=VariantList.RepresentativeStatus.APPROVED)
             )
             if self.request.user.is_anonymous or not self.request.user.is_active:
                 return public_lists
@@ -122,7 +125,7 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         if (
             not self.request.user.has_perm("calculator.change_variantlist", instance)
-            or "public_status" in request.data
+            or "representative_status" in request.data
         ):
             raise PermissionDenied
 
@@ -293,9 +296,12 @@ class PublicVariantListsView(ListAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return VariantList.objects.exclude(public_status="")
+            return VariantList.objects.filter(
+                Q(is_public=True) | ~Q(representative_status="")
+            )
         return VariantList.objects.filter(
-            public_status=VariantList.PublicStatus.APPROVED
+            Q(is_public=True)
+            | Q(representative_status=VariantList.RepresentativeStatus.APPROVED)
         )
 
     def get_serializer_class(self):
@@ -314,7 +320,9 @@ class PublicVariantListView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_update(self, serializer):
-        request_public_status = serializer.validated_data["public_status"]
+        request_representative_status = serializer.validated_data[
+            "representative_status"
+        ]
 
         variant_list_gene_id = (
             f"{serializer.instance.metadata['gene_id'].split('.')[0]}."
@@ -323,20 +331,23 @@ class PublicVariantListView(RetrieveUpdateAPIView):
         # if the user is a staff member, they can update a list to any public status
         if self.request.user.is_staff and self.request.user.is_active:
             serializer.save(
-                public_status_updated_by=self.request.user,
-                public_status=request_public_status,
+                representative_status_updated_by=self.request.user,
+                representative_status=request_representative_status,
             )
 
             # when a staff member approves the list, if there is a dashboard list for
             #   this gene_id, set the foreign key of that dashboard list to this variant
             #   list, as this is now the representative variant list
-            if request_public_status == VariantList.PublicStatus.APPROVED:
+            if (
+                request_representative_status
+                == VariantList.RepresentativeStatus.APPROVED
+            ):
                 dashboard_lists_with_same_gene_id = DashboardList.objects.filter(
                     metadata__gene_id__startswith=variant_list_gene_id
                 )
                 if dashboard_lists_with_same_gene_id.count() > 0:
                     dashboard_list = dashboard_lists_with_same_gene_id[0]
-                    dashboard_list.public_variant_list = serializer.instance
+                    dashboard_list.representative_variant_list = serializer.instance
                     dashboard_list.save()
 
             # pylint: disable=fixme
@@ -351,7 +362,7 @@ class PublicVariantListView(RetrieveUpdateAPIView):
 
         # if a user has edit permissions on the list, they are only allowed to submit the
         #   list as pending or make it private
-        if request_public_status not in ["", "P"]:
+        if request_representative_status not in ["", "P"]:
             raise PermissionDenied
 
         # If a user with correct permissions submits
@@ -359,7 +370,7 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             VariantList.objects.exclude(uuid=serializer.instance.uuid)
             .filter(
                 metadata__gene_id__startswith=variant_list_gene_id,
-                public_status=VariantList.PublicStatus.APPROVED,
+                representative_status=VariantList.RepresentativeStatus.APPROVED,
             )
             .count()
             > 0
@@ -369,6 +380,6 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             )
 
         serializer.save(
-            public_status_updated_by=self.request.user,
-            public_status=request_public_status,
+            representative_status_updated_by=self.request.user,
+            representative_status=request_representative_status,
         )

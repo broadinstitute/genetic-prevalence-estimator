@@ -98,11 +98,9 @@ class DashboardListsLoadView(CreateAPIView):
                     gene_id_with_decimal = f"{gene_id}."
 
                     representative_variant_list = None
-                    representative_variant_list_with_same_gene_id = (
-                        VariantList.objects.filter(
-                            metadata__gene_id__startswith=gene_id_with_decimal,
-                            public_status=VariantList.PublicStatus.APPROVED,
-                        )
+                    representative_variant_list_with_same_gene_id = VariantList.objects.filter(
+                        metadata__gene_id__startswith=gene_id_with_decimal,
+                        representative_status=VariantList.RepresentativeStatus.APPROVED,
                     )
                     if representative_variant_list_with_same_gene_id.count() > 0:
                         representative_variant_list = (
@@ -110,7 +108,7 @@ class DashboardListsLoadView(CreateAPIView):
                         )
 
                     dashboard_list = serializer.save(
-                        public_variant_list=representative_variant_list
+                        representative_variant_list=representative_variant_list
                     )
 
                     # pylint: disable=fixme
@@ -155,15 +153,19 @@ class DashboardListsView(ListCreateAPIView):
 
         # If an approved public variant list already exists when this dashboard list is created
         #   assign that list as the dashboard entries associated public list
-        public_variant_list = None
-        public_variant_list_with_same_gene_id = VariantList.objects.filter(
+        representative_variant_list = None
+        representative_variant_list_with_same_gene_id = VariantList.objects.filter(
             metadata__gene_id=self.request.data["metadata"]["gene_id"],
-            public_status=VariantList.PublicStatus.APPROVED,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
         )
-        if public_variant_list_with_same_gene_id.count() > 0:
-            public_variant_list = public_variant_list_with_same_gene_id[0]
+        if representative_variant_list_with_same_gene_id.count() > 0:
+            representative_variant_list = representative_variant_list_with_same_gene_id[
+                0
+            ]
 
-        dashboard_list = serializer.save(public_variant_list=public_variant_list)
+        dashboard_list = serializer.save(
+            representative_variant_list=representative_variant_list
+        )
 
         publisher.send_to_worker(
             {
