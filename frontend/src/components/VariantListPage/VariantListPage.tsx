@@ -135,6 +135,11 @@ const useVariantListAnnotation = (
   };
 
   useEffect(() => {
+    if (variantList.status !== "Ready") {
+      // only start loading annotations if the variant list has been processed
+      return;
+    }
+
     setLoading(true);
     get(
       `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`
@@ -168,7 +173,14 @@ const useVariantListAnnotation = (
             : annotation.variant_calculations;
 
           if (calculationsHaveNeverBeenSavedToDatabase(annotation)) {
-            saveVariantCalculations(variantCalculations);
+            // Hacky -- on first creation of a variant list, useMemo recieves an update
+            //   to the variantList dependency too late, and has to wait one more cycle
+            //   to actually use the data to process the list, on the first cycle there
+            //   will be no selected variants, so don't bother saving at that time to
+            //   avoid an unneccessary network request
+            if (selectedVariants.size !== 0) {
+              saveVariantCalculations(variantCalculations);
+            }
           }
 
           setAnnotation({
@@ -191,7 +203,7 @@ const useVariantListAnnotation = (
         });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantList.uuid, annotationType]);
+  }, [variantList.uuid, variantList.status, annotationType]);
 
   const toast = useToast();
 
@@ -226,7 +238,23 @@ const useVariantListAnnotation = (
   const saveSelectedVariants = useMemo(
     () =>
       debounce(() => {
+        // This useMemo function recieves an update to the dependency of variantList
+        //   after any useEffect does, here we manually avoid running calculations on
+        //   an unprocessed variant lists as calculations need frequency data
+        if (variantList.status !== "Ready") {
+          return;
+        }
+
         const annotation = getCurrentAnnotation();
+
+        // Hacky -- once the variantList updates and triggers a re-run of this function
+        //   per a useEffect calling this, the annotations will not have been saved ever
+        //   so we mimic the old behavior by setting all variants as selected
+        if (annotation.selectedVariants.size === 0) {
+          annotation.selectedVariants = new Set(
+            variantList.variants.map((variant) => variant.id)
+          );
+        }
         const variantCalculations = allVariantListCalculations(
           annotation.selectedVariants
             ? variantList.variants.filter((variant) =>
@@ -263,7 +291,7 @@ const useVariantListAnnotation = (
           });
       }, 3_000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [variantList.uuid, annotationType]
+    [variantList.uuid, variantList.status, variantList.variants, annotationType]
   );
 
   const setSelectedVariants = useCallback(
@@ -272,7 +300,7 @@ const useVariantListAnnotation = (
       saveSelectedVariants();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [variantList]
   );
 
   const saveVariantNotes = useCallback(
