@@ -45,8 +45,8 @@ interface PublicVariantList {
     gnomad_version: string;
   };
   updated_at: string;
-  public_status_updated_by: string;
-  public_status: VariantListReviewStatusCode | "";
+  representative_status: VariantListReviewStatusCode | "";
+  representative_status_updated_by: string;
 }
 
 const PublicVariantLists = (props: {
@@ -56,9 +56,9 @@ const PublicVariantLists = (props: {
   const toast = useToast();
   const { user } = useStore(authStore);
 
-  const updatePublicVariantList = (
+  const updateRepresentativeVariantList = (
     publicVariantListToUpdate: PublicVariantList,
-    update: { public_status: VariantListReviewStatusCode | "" }
+    update: { representative_status: VariantListReviewStatusCode | "" }
   ): Promise<PublicVariantList> => {
     return patch(
       `/public-variant-lists/${publicVariantListToUpdate.uuid}/`,
@@ -75,7 +75,7 @@ const PublicVariantLists = (props: {
         toast({
           title: "Public variant list updated",
           status: "success",
-          duration: 30_000,
+          duration: 3_000,
           isClosable: true,
         });
         return updatedPublicVariantList;
@@ -96,7 +96,7 @@ const PublicVariantLists = (props: {
     publicVariantListToDelete: PublicVariantList
   ): Promise<void> => {
     return patch(`/public-variant-lists/${publicVariantListToDelete.uuid}/`, {
-      public_status: "",
+      representative_status: "",
     }).then(
       () => {
         props.publicVariantListsStore.set(
@@ -108,7 +108,7 @@ const PublicVariantLists = (props: {
         toast({
           title: "Public variant list deleted",
           status: "success",
-          duration: 30_000,
+          duration: 3_000,
           isClosable: true,
         });
       },
@@ -131,7 +131,8 @@ const PublicVariantLists = (props: {
           <Tr>
             <Th>Gene</Th>
             <Th>Label</Th>
-            {!user?.is_staff && <Th>gnomAD version</Th>}
+            <Th>gnomAD version</Th>
+            <Th>Representative</Th>
             {user?.is_staff && <Th>Updated by</Th>}
             {user?.is_staff && <Th>Approval status</Th>}
             {user?.is_staff && <Th>Remove list</Th>}
@@ -147,60 +148,70 @@ const PublicVariantLists = (props: {
                     {publicList.label}
                   </Link>
                 </Td>
-                {!user?.is_staff && (
-                  <Td>{publicList.metadata.gnomad_version}</Td>
-                )}
-                {user?.is_staff && (
-                  <Td>{publicList.public_status_updated_by}</Td>
-                )}
+                <Td>{publicList.metadata.gnomad_version}</Td>
+                <Td>
+                  {publicList.representative_status === "Approved"
+                    ? "Yes"
+                    : "No"}
+                </Td>
                 {user?.is_staff && (
                   <Td>
-                    <Menu>
-                      <MenuButton
-                        as={Button}
-                        size="sm"
-                        rightIcon={<ChevronDownIcon />}
-                      >
-                        {publicList.public_status.toString()}
-                      </MenuButton>
-                      <MenuList>
-                        <MenuItem
-                          onClick={() => {
-                            updatePublicVariantList(publicList, {
-                              public_status:
-                                VariantListReviewStatusCode.APPROVED,
-                            });
-                          }}
-                        >
-                          Approve
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            updatePublicVariantList(publicList, {
-                              public_status:
-                                VariantListReviewStatusCode.REJECTED,
-                            });
-                          }}
-                        >
-                          Reject
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
+                    {publicList.representative_status !== "" &&
+                      publicList.representative_status_updated_by}
                   </Td>
                 )}
                 {user?.is_staff && (
                   <Td>
-                    <ButtonWithConfirmation
-                      size="sm"
-                      colorScheme="red"
-                      confirmationPrompt="This cannot be undone."
-                      confirmButtonText="Delete"
-                      onClick={() => {
-                        deletePublicVariantList(publicList);
-                      }}
-                    >
-                      Delete
-                    </ButtonWithConfirmation>
+                    {publicList.representative_status !== "" && (
+                      <Menu>
+                        <MenuButton
+                          as={Button}
+                          size="sm"
+                          rightIcon={<ChevronDownIcon />}
+                        >
+                          {publicList.representative_status.toString()}
+                        </MenuButton>
+                        <MenuList>
+                          <MenuItem
+                            onClick={() => {
+                              updateRepresentativeVariantList(publicList, {
+                                representative_status:
+                                  VariantListReviewStatusCode.APPROVED,
+                              });
+                            }}
+                          >
+                            Approve
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              updateRepresentativeVariantList(publicList, {
+                                representative_status:
+                                  VariantListReviewStatusCode.REJECTED,
+                              });
+                            }}
+                          >
+                            Reject
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    )}
+                  </Td>
+                )}
+                {user?.is_staff && (
+                  <Td>
+                    {publicList.representative_status !== "" && (
+                      <ButtonWithConfirmation
+                        size="sm"
+                        colorScheme="red"
+                        confirmationPrompt="This cannot be undone."
+                        confirmButtonText="Delete"
+                        onClick={() => {
+                          deletePublicVariantList(publicList);
+                        }}
+                      >
+                        Delete
+                      </ButtonWithConfirmation>
+                    )}
                   </Td>
                 )}
               </Tr>

@@ -48,7 +48,7 @@ type DashboardList = {
   genetic_prevalence_genereviews: string;
   genetic_prevalence_other: string;
   genetic_incidence_orphanet: string;
-  public_variant_list?: VariantList & {
+  representative_variant_list?: VariantList & {
     estimates: {
       genetic_prevalence: {
         global: number;
@@ -206,21 +206,21 @@ const DashboardLists = (props: {
                   </Link>
                 </Td>
 
-                {dashboardList.public_variant_list && (
+                {dashboardList.representative_variant_list && (
                   <>
                     <Td>
                       <Link
                         as={RRLink}
-                        to={`/variant-lists/${dashboardList.public_variant_list.uuid}`}
+                        to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
                       >
                         {renderFrequencyFraction(
-                          dashboardList.public_variant_list.estimates
+                          dashboardList.representative_variant_list.estimates
                             .genetic_prevalence.global
                         )}
                       </Link>
                     </Td>
                     <Td>
-                      {dashboardList.public_variant_list.access_permissions
+                      {dashboardList.representative_variant_list.access_permissions
                         ?.filter((ap) => ap.level === "Owner")
                         .map((ap) => ap.user)}
                     </Td>
@@ -229,7 +229,7 @@ const DashboardLists = (props: {
                   </>
                 )}
 
-                {!dashboardList.public_variant_list && (
+                {!dashboardList.representative_variant_list && (
                   <>
                     <Td></Td>
                     <Td></Td>
