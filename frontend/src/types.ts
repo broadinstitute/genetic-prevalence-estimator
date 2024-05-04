@@ -124,7 +124,8 @@ export interface VariantList {
   access_level?: VariantListAccessLevel;
   access_permissions?: VariantListAccessPermission[];
   status: VariantListStatus;
-  public_status?: VariantListReviewStatusCode | "";
+  is_public: boolean;
+  representative_status?: VariantListReviewStatusCode | "";
   error?: string;
   variants: Variant[];
 }

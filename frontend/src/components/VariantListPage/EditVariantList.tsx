@@ -12,6 +12,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Select,
   Textarea,
   VStack,
   useDisclosure,
@@ -27,6 +28,7 @@ import { VariantList } from "../../types";
 interface VariantListPatch {
   label: string;
   notes: string;
+  is_public: boolean;
 }
 
 const submitVariantList = (
@@ -50,6 +52,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
 
   const [label, setLabel] = useState(variantList.label);
   const [notes, setNotes] = useState(variantList.notes);
+  const [isPublic, setIsPublic] = useState(variantList.is_public);
 
   const toast = useToast();
 
@@ -63,9 +66,16 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
           submitVariantList(variantList.uuid, {
             label,
             notes,
+            is_public: isPublic,
           }).then(
             (updatedVariantList) => {
               variantListStore.set(updatedVariantList);
+              toast({
+                title: "Edited variant list",
+                status: "success",
+                duration: 1_000,
+                isClosable: true,
+              });
               onSuccessfulEdit();
             },
             (error) => {
@@ -74,7 +84,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
                 title: "Unable to edit variant list",
                 description: renderErrorDescription(error),
                 status: "error",
-                duration: 10000,
+                duration: 10_000,
                 isClosable: true,
               });
             }
@@ -106,6 +116,19 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
               setNotes(e.target.value);
             }}
           />
+        </FormControl>
+
+        <FormControl id="edit-variant-list-publicity">
+          <FormLabel>Publicity</FormLabel>
+          <Select
+            value={isPublic.toString()}
+            onChange={(e) => {
+              setIsPublic(e.target.value === "true");
+            }}
+          >
+            <option value="true">Public</option>
+            <option value="false">Private</option>
+          </Select>
         </FormControl>
 
         <HStack justify="flex-end" width="100%">
