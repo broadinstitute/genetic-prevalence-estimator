@@ -4,6 +4,8 @@
 #
 #    pip-compile data-pipelines/requirements-pipeline.in
 #
+beautifulsoup4==4.12.3
+    # via -r data-pipelines/requirements-pipeline.in
 numpy==1.25.2
     # via
     #   -r data-pipelines/requirements-pipeline.in
@@ -16,5 +18,7 @@ pytz==2024.1
     # via pandas
 six==1.16.0
     # via python-dateutil
+soupsieve==2.5
+    # via beautifulsoup4
 tzdata==2024.1
     # via pandas
