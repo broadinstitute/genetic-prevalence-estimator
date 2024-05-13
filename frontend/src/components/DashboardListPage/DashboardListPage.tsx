@@ -47,13 +47,20 @@ type DashboardListPageProps = {
   refreshDashboardList: () => void;
 };
 
-const toRecord = (
-  seriesData: number[],
-  genetic_ancestry_groups: GnomadPopulationId[]
-) => {
-  const all_genetic_ancestry_groups = ["global", ...genetic_ancestry_groups];
+const toRecord = ({
+  seriesData,
+  geneticAncestryGroups,
+}: {
+  seriesData: number[];
+  geneticAncestryGroups: GnomadPopulationId[];
+}) => {
+  console.log("in toRecord");
+  const all_genetic_ancestry_groups = ["global", ...geneticAncestryGroups];
 
   const recordData: { [key: string]: number } = {};
+
+  console.log("seriesData is");
+  console.log(seriesData);
 
   for (let i = 0; i < all_genetic_ancestry_groups.length; i++) {
     recordData[all_genetic_ancestry_groups[i]] = seriesData[i];
@@ -75,6 +82,12 @@ const DashboardListPage = (props: DashboardListPageProps) => {
   const userIsStaff = user?.is_staff ? true : false;
 
   const blankSet: Set<string> = new Set<string>();
+
+  console.log("in component dashboardList is");
+  console.log(dashboardList);
+
+  console.log(dashboardList.carrier_frequency);
+  console.log(dashboardList.genetic_prevalence);
 
   return (
     <>
@@ -135,16 +148,16 @@ const DashboardListPage = (props: DashboardListPageProps) => {
 
       <VariantListCharts
         genetic_ancestry_groups={dashboardList.metadata.populations}
-        hasOptionToShowContributionsBySource={true}
+        hasOptionToShowContributionsBySource={false}
         calculations={{
-          prevalence: toRecord(
-            dashboardList.carrer_frequency,
-            dashboardList.metadata.populations
-          ),
-          carrierFrequency: toRecord(
-            dashboardList.genetic_prevalence,
-            dashboardList.metadata.populations
-          ),
+          prevalence: toRecord({
+            seriesData: dashboardList.genetic_prevalence,
+            geneticAncestryGroups: dashboardList.metadata.populations,
+          }),
+          carrierFrequency: toRecord({
+            seriesData: dashboardList.carrier_frequency,
+            geneticAncestryGroups: dashboardList.metadata.populations,
+          }),
         }}
       />
 
