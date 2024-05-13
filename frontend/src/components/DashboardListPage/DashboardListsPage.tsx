@@ -43,7 +43,9 @@ type DashboardList = {
     reference_genome: string;
     gene_symbol: string;
   };
-  genetic_prevalence: number[];
+  estimates: {
+    genetic_prevalence: number[];
+  };
   genetic_prevalence_orphanet: string;
   genetic_prevalence_genereviews: string;
   genetic_prevalence_other: string;
@@ -201,7 +203,7 @@ const DashboardLists = (props: {
                     to={`/dashboard-lists/${dashboardList.gene_id}`}
                   >
                     {renderFrequencyFraction(
-                      dashboardList.genetic_prevalence[0]
+                      dashboardList.estimates.genetic_prevalence[0]
                     )}
                   </Link>
                 </Td>

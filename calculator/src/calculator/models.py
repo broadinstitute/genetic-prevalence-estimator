@@ -90,9 +90,7 @@ class DashboardList(models.Model):
 
     metadata = models.JSONField()
 
-    total_allele_frequency = models.JSONField(default=list)
-    carrier_frequency = models.JSONField(default=list)
-    genetic_prevalence = models.JSONField(default=list)
+    variant_calculations = models.JSONField(default=dict)
 
     genetic_prevalence_orphanet = models.CharField(max_length=100, blank=True)
     genetic_prevalence_genereviews = models.CharField(max_length=100, blank=True)

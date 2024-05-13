@@ -101,9 +101,7 @@ class NewDashboardListSerializer(ModelSerializer):
             "notes",
             "created_at",
             "metadata",
-            "total_allele_frequency",
-            "carrier_frequency",
-            "genetic_prevalence",
+            "variant_calculations",
             "top_ten_variants",
             "genetic_prevalence_orphanet",
             "genetic_prevalence_genereviews",
@@ -129,6 +127,13 @@ class DashboardListDashboardSerializer(ModelSerializer):
     # TODO: use a reduced serializer here?
     representative_variant_list = VariantListSerializer(many=False, read_only=True)
 
+    estimates = serializers.SerializerMethodField()
+
+    def get_estimates(self, obj):
+        return {
+            "genetic_prevalence": (obj.variant_calculations.get("prevalence", "-")),
+        }
+
     class Meta:
         model = DashboardList
         fields = [
@@ -137,7 +142,7 @@ class DashboardListDashboardSerializer(ModelSerializer):
             "label",
             "metadata",
             "representative_variant_list",
-            "genetic_prevalence",
+            "estimates",
             "genetic_prevalence_orphanet",
             "genetic_prevalence_genereviews",
             "genetic_prevalence_other",
@@ -169,9 +174,7 @@ class DashboardListSerializer(ModelSerializer):
             "notes",
             "created_at",
             "metadata",
-            "total_allele_frequency",
-            "carrier_frequency",
-            "genetic_prevalence",
+            "variant_calculations",
             "genetic_prevalence_orphanet",
             "genetic_prevalence_genereviews",
             "genetic_prevalence_other",
@@ -191,10 +194,8 @@ class DashboardListSerializer(ModelSerializer):
                 "notes",
                 "created_at",
                 "metadata",
+                "variant_calculations",
                 "top_ten_variants",
-                "total_allele_frequency",
-                "carrier_frequency",
-                "genetic_prevalence",
                 "genetic_prevalence_orphanet",
                 "genetic_prevalence_genereviews",
                 "genetic_prevalence_other",

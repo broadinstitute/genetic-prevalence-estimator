@@ -56,6 +56,7 @@ class DashboardListsLoadView(CreateAPIView):
                 gene_id = row[0]
 
                 metadata = json.loads(row[4])
+                variant_calculations = json.loads(row[5])
 
                 row_dict = {
                     "gene_id": row[0],
@@ -63,14 +64,12 @@ class DashboardListsLoadView(CreateAPIView):
                     "notes": row[2],
                     "created_at": datetime.strptime(row[3], "%Y-%m-%dT%H:%M:%S.%f"),
                     "metadata": metadata,
-                    "total_allele_frequency": json.loads(row[5]),
-                    "carrier_frequency": json.loads(row[6]),
-                    "genetic_prevalence": json.loads(row[7]),
-                    "top_ten_variants": json.loads(row[8]),
-                    "genetic_prevalence_orphanet": row[9],
-                    "genetic_prevalence_genereviews": row[10],
-                    "genetic_prevalence_other": row[11],
-                    "genetic_incidence_other": row[12],
+                    "variant_calculations": variant_calculations,
+                    "top_ten_variants": json.loads(row[6]),
+                    "genetic_prevalence_orphanet": row[7],
+                    "genetic_prevalence_genereviews": row[8],
+                    "genetic_prevalence_other": row[9],
+                    "genetic_incidence_other": row[10],
                 }
 
                 if DashboardList.objects.filter(gene_id=gene_id).count() > 0:
