@@ -54,13 +54,9 @@ const toRecord = ({
   seriesData: number[];
   geneticAncestryGroups: GnomadPopulationId[];
 }) => {
-  console.log("in toRecord");
   const all_genetic_ancestry_groups = ["global", ...geneticAncestryGroups];
 
   const recordData: { [key: string]: number } = {};
-
-  console.log("seriesData is");
-  console.log(seriesData);
 
   for (let i = 0; i < all_genetic_ancestry_groups.length; i++) {
     recordData[all_genetic_ancestry_groups[i]] = seriesData[i];
@@ -82,12 +78,6 @@ const DashboardListPage = (props: DashboardListPageProps) => {
   const userIsStaff = user?.is_staff ? true : false;
 
   const blankSet: Set<string> = new Set<string>();
-
-  console.log("in component dashboardList is");
-  console.log(dashboardList);
-
-  console.log(dashboardList.carrier_frequency);
-  console.log(dashboardList.genetic_prevalence);
 
   return (
     <>
@@ -151,11 +141,21 @@ const DashboardListPage = (props: DashboardListPageProps) => {
         hasOptionToShowContributionsBySource={false}
         calculations={{
           prevalence: toRecord({
-            seriesData: dashboardList.genetic_prevalence,
+            seriesData: dashboardList.variant_calculations.prevalence,
             geneticAncestryGroups: dashboardList.metadata.populations,
           }),
           carrierFrequency: toRecord({
-            seriesData: dashboardList.carrier_frequency,
+            seriesData: dashboardList.variant_calculations.carrier_frequency,
+            geneticAncestryGroups: dashboardList.metadata.populations,
+          }),
+          carrierFrequencySimplified: toRecord({
+            seriesData:
+              dashboardList.variant_calculations.carrier_frequency_simplified,
+            geneticAncestryGroups: dashboardList.metadata.populations,
+          }),
+          carrierFrequencyRawNumbers: toRecord({
+            seriesData:
+              dashboardList.variant_calculations.carrier_frequency_raw_numbers,
             geneticAncestryGroups: dashboardList.metadata.populations,
           }),
         }}

@@ -294,7 +294,7 @@ def process_dashboard_list(
     return variants
 
 
-def calculate_stats(dataframe, index, variants, populations):
+def calculate_carrier_frequency_and_prevalence(variants, populations):
 
     # calculate sum of allele frequencies across all variants
     total_allele_frequencies = [0] * (len(populations) + 1)
@@ -313,17 +313,50 @@ def calculate_stats(dataframe, index, variants, populations):
 
     # calculate total summary frequency and prevalence
     carrier_frequency_array = []
+    carrier_frequency_simplified_array = []
     prevalence_array = []
     for q in total_allele_frequencies:
         carrier_frequency = 2 * (1 - q) * q
         carrier_frequency_array.append(carrier_frequency)
+
+        carrier_frequency_simplified = 2 * q
+        carrier_frequency_simplified_array.append(carrier_frequency_simplified)
+
         prevalence = q ** 2
         prevalence_array.append(prevalence)
 
-    # store results in dataframe
-    dataframe.at[index, "carrier_frequency"] = json.dumps(carrier_frequency_array)
-    dataframe.at[index, "genetic_prevalence"] = json.dumps(prevalence_array)
-    dataframe.at[index, "total_allele_frequency"] = json.dumps(total_allele_frequencies)
+    # TODO: combine these two into one after tests pass?
+    total_allele_counts_and_numbers = [
+        {"AC": 0, "AN": 0} for _ in range(len(populations) + 1)
+    ]
+    for variant in variants:
+        for index_ac, allele_count in enumerate(variant["AC"]):
+            allele_number = variant["AN"][index_ac]
+            total_allele_counts_and_numbers[index_ac]["AC"] += allele_count
+            total_allele_counts_and_numbers[index_ac]["AN"] += allele_number
+
+    length = len(variants)
+    carrier_frequency_raw_numbers_array = []
+    for ac_an in total_allele_counts_and_numbers:
+        carrier_frequency_raw_numbers = {
+            "total_ac": ac_an["AC"],
+            "average_an": ac_an["AN"] / length,
+        }
+        carrier_frequency_raw_numbers_array.append(carrier_frequency_raw_numbers)
+
+    calculations_object = {
+        "carrier_frequency": carrier_frequency_array,
+        "prevalence": prevalence_array,
+        "carrier_frequency_simplified": carrier_frequency_simplified_array,
+        "carrier_frequency_raw_numbers": carrier_frequency_raw_numbers_array,
+    }
+
+    return calculations_object
+
+
+def calculate_stats(dataframe, index, variants, populations):
+    stats_dict = calculate_carrier_frequency_and_prevalence(variants, populations)
+    dataframe.at[index, "variant_calculations"] = json.dumps(stats_dict)
 
 
 def prepare_dashboard_lists(genes_fullpath):
@@ -362,10 +395,7 @@ def prepare_dashboard_lists(genes_fullpath):
     current_datetime = datetime.now()
     iso_8601_datetime = current_datetime.isoformat()
     df["date_created"] = iso_8601_datetime
-
-    df["total_allele_frequency"] = [[] for _ in range(len(df))]
-    df["carrier_frequency"] = [[] for _ in range(len(df))]
-    df["genetic_prevalence"] = [[] for _ in range(len(df))]
+    df["variant_calculations"] = [{} for _ in range(len(df))]
 
     # TODO: need to get orphanet data, create task to call and create its own CSV
     #    once to avoid calling the API more than once
@@ -431,9 +461,7 @@ def prepare_dashboard_lists(genes_fullpath):
         "notes",
         "date_created",
         "metadata",
-        "total_allele_frequency",
-        "carrier_frequency",
-        "genetic_prevalence",
+        "variant_calculations",
         "top_ten_variants",
         "genetic_prevalence_orphanet",
         "genetic_prevalence_genereviews",
@@ -451,9 +479,12 @@ def prepare_dashboard_download(dataframe):
 
     for index, row in df_download.iterrows():
         metadata = json.loads(row["metadata"])
+
         top_ten_variants = json.loads(row["top_ten_variants"])
-        carrier_frequency = json.loads(row["carrier_frequency"])
-        prevalence = json.loads(row["genetic_prevalence"])
+
+        calculations = json.loads(row["variant_calculations"])
+        carrier_frequency = calculations["carrier_frequency"]
+        prevalence = calculations["prevalence"]
 
         # metadata ones
         df_download.at[index, "gene_symbol"] = metadata["gene_symbol"]
