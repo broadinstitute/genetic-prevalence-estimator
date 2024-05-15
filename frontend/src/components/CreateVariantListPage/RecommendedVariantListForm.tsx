@@ -207,7 +207,7 @@ const RecommendedVariantListForm = () => {
                 with conflicting interpretations of pathogenicity *
               </Radio>
               <Radio value="">
-                Do not include variants based on clinical significance
+                Include all ClinVar variants regardless of classification
               </Radio>
             </VStack>
           </RadioGroup>

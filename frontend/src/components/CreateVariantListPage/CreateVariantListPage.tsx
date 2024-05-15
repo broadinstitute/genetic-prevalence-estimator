@@ -9,6 +9,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Text,
 } from "@chakra-ui/react";
 import { Link as RRLink } from "react-router-dom";
 
@@ -43,6 +44,10 @@ const CreateVariantListPage = () => {
       <Heading as="h1" mb={4}>
         New variant list
       </Heading>
+
+      <Text fontSize='lg'>
+        This method is designed for autosomal recessive disease, and does not work as well for many autosomal dominant or X-linked conditions. For more information and future directions of GeniE please see our FAQ.
+      </Text>
 
       <Tabs>
         <TabList>

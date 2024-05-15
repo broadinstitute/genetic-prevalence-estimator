@@ -67,7 +67,7 @@ const RequireSignIn: FC<{}> = ({ children }) => {
           <Box borderLeftWidth="1px" borderColor="gray.400" pl={4} mt={2}>
             In order to store your variant lists, and allow you to edit them
             over time we need to have you signed in. By having users sign in we
-            are also able to allow sharing lists across users, enabling
+            are also able to allow for sharing of lists across users, enabling
             collaboration.
           </Box>
         </details>

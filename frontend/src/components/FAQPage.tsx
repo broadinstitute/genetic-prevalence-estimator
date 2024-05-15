@@ -47,7 +47,7 @@ const FAQView = () => {
         <Text>
           In order to store your variant lists, and allow you to edit them
           overtime we need to have you signed in. By having users sign in we are
-          also able to allow sharing lists across users, enabling collaboration.
+          also able to allow for sharing of lists across users, enabling collaboration.
         </Text>
       </FAQItem>
 

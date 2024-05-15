@@ -10,6 +10,7 @@ import {
   Radio,
   RadioGroup,
   Textarea,
+  Text,
   VStack,
   useToast,
 } from "@chakra-ui/react";
@@ -106,6 +107,10 @@ const CustomVariantListForm = () => {
           }
         }}
       >
+        <Text fontSize='lg'>
+          Custom variant lists include any variants with a gnomAD ID that is provided by the user.  These can either be entered manually or uploaded in a list in either .tsv, .csv, or .txt format. Please use caution including a list of variants from multiple genes, as this will assume digenic inheritance is possible. For more information on how to use GeniE for multiple genes please see our FAQ.
+        </Text>
+        
         <VStack spacing={4} align="flex-start">
           <FormControl id="custom-variant-list-label" isRequired>
             <FormLabel>Label</FormLabel>
