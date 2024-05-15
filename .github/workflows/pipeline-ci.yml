@@ -1,0 +1,32 @@
+name: Pipeline CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data-pipelines/**"
+  pull_request:
+    paths:
+      - "data-pipelines/**"
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.17
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r dev-requirements.txt
+          pip install -r shared-requirements.txt
+          pip install -r data-pipelines/requirements-pipeline.txt
+      - name: Run pipeline tests
+        run: |
+          source venv/bin/activate
+          pytest data-pipelines/test_pipeline_calculations.py
