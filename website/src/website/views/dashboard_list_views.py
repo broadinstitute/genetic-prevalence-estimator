@@ -70,6 +70,7 @@ class DashboardListsLoadView(CreateAPIView):
                     "genetic_prevalence_genereviews": row[8],
                     "genetic_prevalence_other": row[9],
                     "genetic_incidence_other": row[10],
+                    "inheritance_type": row[11],
                 }
 
                 if DashboardList.objects.filter(gene_id=gene_id).count() > 0:
