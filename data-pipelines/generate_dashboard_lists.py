@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import ast
 
 from datetime import datetime
 import hail as hl
@@ -359,6 +360,42 @@ def calculate_stats(dataframe, index, variants, populations):
     dataframe.at[index, "variant_calculations"] = json.dumps(stats_dict)
 
 
+def annotate_variants_with_orphanet_prevalences(variants, orphanet):
+    def format_prevalence(prevalence):
+        parts = prevalence.split("/")
+        numerator = parts[0].strip()
+        denominator = parts[1].strip()
+        formatted_denominator = "{:,}".format(
+            int(denominator.replace(" ", "").replace(",", ""))
+        )
+        return f"{numerator} / {formatted_denominator}"
+
+    def extract_prevalences(row):
+        row = ast.literal_eval(row)
+        prevalences = [prevalence.split(":")[1] for prevalence in row]
+        prevalences = [
+            "-" if prevalence == "Unknown" else prevalence for prevalence in prevalences
+        ]
+        if all(value == prevalences[0] for value in prevalences):
+            if "/" in prevalences[0]:
+                return format_prevalence(prevalences[0])
+            return prevalences[0]
+        else:
+            return "multiple_prevalences"
+
+    orphanet["genetic_prevalence_orphanet"] = orphanet["OrphaPrevalence"].apply(
+        extract_prevalences
+    )
+
+    orphanet = orphanet.rename(columns={"ENSG_ID": "gene_id"}).drop(
+        columns=["OrphaCodes", "OrphaPrevalence", "GeneSymbol"]
+    )
+
+    pd.set_option("display.max_columns", None)
+    merged_df = pd.merge(variants, orphanet, on="gene_id", how="left")
+    return merged_df
+
+
 def prepare_dashboard_lists(genes_fullpath):
     ds = hl.import_table(
         genes_fullpath, delimiter=",", quote='"', key="symbol", impute=True
@@ -398,8 +435,10 @@ def prepare_dashboard_lists(genes_fullpath):
     df["variant_calculations"] = [{} for _ in range(len(df))]
 
     # TODO: need to get orphanet data, create task to call and create its own CSV
-    #    once to avoid calling the API more than once
-    df["genetic_prevalence_orphanet"] = ""
+    LOCAL_ORPHANET_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/orphanet_prevalences.tsv"
+    ds_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
+
+    ds = annotate_variants_with_orphanet_prevalences(ds, ds_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
@@ -454,6 +493,10 @@ def prepare_dashboard_lists(genes_fullpath):
             populations=metadata_populations,
             variants=recommended_variants,
         )
+
+    LOCAL_ORPHANET_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/orphanet_prevalences.tsv"
+    ds_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
+    df = annotate_variants_with_orphanet_prevalences(df, ds_orphanet_prevalences)
 
     FINAL_COLUMNS = [
         "gene_id",
