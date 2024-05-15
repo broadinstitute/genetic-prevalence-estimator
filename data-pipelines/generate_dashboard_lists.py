@@ -67,37 +67,6 @@ def variant_id(locus, alleles):
     )
 
 
-def combined_freq(ds, n_populations, include_filtered=False):
-    zeroes = hl.range(1 + n_populations).map(lambda _: 0)
-    return hl.struct(
-        **{
-            field: hl.zip(
-                *(
-                    hl.if_else(
-                        hl.is_defined(ds.freq[sample_set])
-                        & (
-                            hl.literal(True)
-                            if include_filtered
-                            else (
-                                hl.len(
-                                    hl.or_else(
-                                        ds.filters[sample_set], hl.empty_set(hl.tstr)
-                                    )
-                                )
-                                == 0
-                            )
-                        ),
-                        ds.freq[sample_set][field],
-                        zeroes,
-                    )
-                    for sample_set in ("exome", "genome")
-                )
-            ).map(lambda f: f[0] + f[1])
-            for field in ("AC", "AN")
-        }
-    )
-
-
 def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_variants):
     return hl.array(
         [
@@ -192,6 +161,7 @@ def process_dashboard_list(
         freq=hl.struct(
             exome=ht.freq[f"exome"],
             genome=ht.freq[f"genome"],
+            joint=ht.freq["joint"],
         )
     )
 
@@ -241,8 +211,7 @@ def process_dashboard_list(
 
     ht = ht.transmute(**ht.transcript_consequence)
 
-    populations = hl.eval(gnomad_variants.globals.populations)
-    ht = ht.annotate(**combined_freq(ht, n_populations=len(populations)))
+    ht = ht.annotate(**ht.freq.joint)
 
     ht = ht.annotate(
         **clinvar_variants[ht.locus, ht.alleles].select(
@@ -413,7 +382,7 @@ def prepare_dashboard_lists(genes_fullpath):
     ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
 
     # load gnomad and clinvar tables for use in main task
-    LOCAL_GNOMAD_V4_VARIANTS_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/gnomAD_v4.0.0_variants.ht"
+    LOCAL_GNOMAD_V4_VARIANTS_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/gnomAD_v4.1.0_variants.ht"
     ht_gnomad_variants = hl.read_table(LOCAL_GNOMAD_V4_VARIANTS_PATH)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
@@ -460,7 +429,7 @@ def prepare_dashboard_lists(genes_fullpath):
         df.at[index, "date_created"] = iso_8601_datetime
 
         metadata = {
-            "gnomad_version": "4.0.0",
+            "gnomad_version": "4.1.0",
             "reference_genome": "GRCh38",
             "gene_symbol": row.symbol,
             "populations": metadata_populations,
