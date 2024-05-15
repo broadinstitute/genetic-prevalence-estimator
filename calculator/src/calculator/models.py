@@ -97,6 +97,8 @@ class DashboardList(models.Model):
     genetic_prevalence_other = models.CharField(max_length=100, blank=True)
     genetic_incidence_other = models.CharField(max_length=100, blank=True)
 
+    inheritance_type = models.CharField(max_length=50, blank=True)
+
     top_ten_variants = models.JSONField(default=list)
 
     representative_variant_list = models.ForeignKey(

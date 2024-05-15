@@ -107,6 +107,7 @@ class NewDashboardListSerializer(ModelSerializer):
             "genetic_prevalence_genereviews",
             "genetic_prevalence_other",
             "genetic_incidence_other",
+            "inheritance_type",
         ]
 
 
@@ -147,6 +148,7 @@ class DashboardListDashboardSerializer(ModelSerializer):
             "genetic_prevalence_genereviews",
             "genetic_prevalence_other",
             "genetic_incidence_other",
+            "inheritance_type",
         ]
         read_only_fields = list(fields)
 
@@ -180,6 +182,7 @@ class DashboardListSerializer(ModelSerializer):
             "genetic_prevalence_other",
             "genetic_incidence_other",
             "top_ten_variants",
+            "inheritance_type",
             "representative_variant_list",
             "status",
             "error",
@@ -196,6 +199,7 @@ class DashboardListSerializer(ModelSerializer):
                 "metadata",
                 "variant_calculations",
                 "top_ten_variants",
+                "inheritance_type",
                 "genetic_prevalence_orphanet",
                 "genetic_prevalence_genereviews",
                 "genetic_prevalence_other",

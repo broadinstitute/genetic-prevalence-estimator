@@ -367,7 +367,12 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
 
 def prepare_dashboard_lists(genes_fullpath):
     ds = hl.import_table(
-        genes_fullpath, delimiter=",", quote='"', key="symbol", impute=True
+        genes_fullpath,
+        delimiter=",",
+        quote='"',
+        key="symbol",
+        impute=True,
+        # genes_fullpath, delimiter=",", quote='"', key="GENE_SYMBOL", impute=True
     )
 
     # Using checkpoint instead of function to speed up development, if first time running
@@ -412,6 +417,8 @@ def prepare_dashboard_lists(genes_fullpath):
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
 
+    df["inheritance_type"] = ""
+
     for index, row in df.iterrows():
         print(f"=== Processing row {index + 1} of {len(df)}")
         print(f"  gene_id is: {row.gene_id}")
@@ -427,6 +434,8 @@ def prepare_dashboard_lists(genes_fullpath):
         current_datetime = datetime.now()
         iso_8601_datetime = current_datetime.isoformat()
         df.at[index, "date_created"] = iso_8601_datetime
+
+        df.at[index, "inheritance_type"] = row.type
 
         metadata = {
             "gnomad_version": "4.1.0",
@@ -477,8 +486,9 @@ def prepare_dashboard_lists(genes_fullpath):
         "top_ten_variants",
         "genetic_prevalence_orphanet",
         "genetic_prevalence_genereviews",
-        "genetic_prevalence_other",  # TODO: should this be here? or on a variant list
-        "genetic_incidence_other",  # TODO: should this be here? or on a variant list
+        "genetic_prevalence_other",
+        "genetic_incidence_other",
+        "type",
     ]
     df = df[FINAL_COLUMNS]
 
@@ -653,17 +663,21 @@ def main() -> None:
 
     csv_dir = os.path.join(os.path.dirname(__file__), "../data")
 
-    genes_filename = "TEST_ar_genes_genie.csv"
+    genes_filename = "input/current_dashboard_ar_genes_plus_some.csv"
     if args.genes_file:
         genes_filename = args.genes_file
 
     genes_fullpath = os.path.join(csv_dir, genes_filename)
 
+    print("Preparing dashboard list models ...")
     df_dashboard_models = prepare_dashboard_lists(genes_fullpath)
-    df_dashboard_models.to_csv("data/output.csv", index=False)
+    df_dashboard_models.to_csv("data/dashboard_models.csv", index=False)
+    print("Wrote dashboard list models to file")
 
+    print("Preparing dashboard downloads")
     df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
-    df_dashboard_download.to_csv("data/download.csv", index=False)
+    df_dashboard_download.to_csv("data/dashboard_download.csv", index=False)
+    print("Wrote dashboard downloads to file")
 
 
 if __name__ == "__main__":
