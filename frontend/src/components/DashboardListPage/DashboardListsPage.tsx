@@ -241,7 +241,15 @@ const DashboardLists = (props: {
                     <Td></Td>
                   </>
                 )}
-                <Td>{dashboardList.genetic_prevalence_orphanet}</Td>
+                <Td>
+                  <Link
+                    href={`https://www.orpha.net/en/disease`}
+                    isExternal
+                    target="_blank"
+                  >
+                    {dashboardList.genetic_prevalence_orphanet}
+                  </Link>
+                </Td>
                 {/* TODO: Until any of these have values, hide them */}
                 {/* <Td>{dashboardList.genetic_prevalence_genereviews}</Td> */}
                 {/* <Td>{dashboardList.genetic_prevalence_other}</Td> */}
