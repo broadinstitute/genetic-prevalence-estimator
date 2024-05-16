@@ -166,7 +166,7 @@ const DashboardLists = (props: {
 
           <ButtonWithConfirmation
             size="sm"
-            colorScheme="red"
+            colorScheme="blue"
             confirmationPrompt="This cannot be undone."
             confirmButtonText="Re-load"
             onClick={() => {
@@ -177,6 +177,7 @@ const DashboardLists = (props: {
           </ButtonWithConfirmation>
         </>
       )}
+
       <Table variant="striped">
         <Thead>
           <Tr>
@@ -187,9 +188,10 @@ const DashboardLists = (props: {
             <Th>Supporting documents</Th>
             <Th>Additional resources</Th>
             <Th>Prevalence orphanet</Th>
-            <Th>Prevalence GeneReviews</Th>
-            <Th>Prevalence other</Th>
-            <Th>Incidence other</Th>
+            {/* TODO: Until any of these have values, leave them blank */}
+            {/* <Th>Prevalence GeneReviews</Th> */}
+            {/* <Th>Prevalence other</Th> */}
+            {/* <Th>Incidence other</Th> */}
           </Tr>
         </Thead>
         <Tbody>
@@ -240,9 +242,10 @@ const DashboardLists = (props: {
                   </>
                 )}
                 <Td>{dashboardList.genetic_prevalence_orphanet}</Td>
-                <Td>{dashboardList.genetic_prevalence_genereviews}</Td>
-                <Td>{dashboardList.genetic_prevalence_other}</Td>
-                <Td>{dashboardList.genetic_incidence_orphanet}</Td>
+                {/* TODO: Until any of these have values, hide them */}
+                {/* <Td>{dashboardList.genetic_prevalence_genereviews}</Td> */}
+                {/* <Td>{dashboardList.genetic_prevalence_other}</Td> */}
+                {/* <Td>{dashboardList.genetic_incidence_orphanet}</Td> */}
                 {user?.is_staff && (
                   <Td>
                     <ButtonWithConfirmation
