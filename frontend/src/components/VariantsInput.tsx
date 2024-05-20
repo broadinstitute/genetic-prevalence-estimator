@@ -19,6 +19,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { isVariantId } from "@gnomad/identifiers";
+import { isStructuralVariantId } from "./VariantListPage/VariantListPage";
 
 export type InputVariant = {
   key: string;
@@ -29,22 +30,6 @@ type VariantsInputProps = {
   id: string;
   value: InputVariant[];
   onChange: (value: InputVariant[]) => void;
-};
-
-const isStructuralVariantId = (id: string) => {
-  const svRegex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR(\d+|X|Y)_([0-9a-f]*)$/i;
-  const match = svRegex.exec(id);
-  if (!match) {
-    return false;
-  }
-
-  const chrom = match[2];
-  const chromNumber = Number(chrom);
-  if (!Number.isNaN(chromNumber) && (chromNumber < 1 || chromNumber > 22)) {
-    return false;
-  }
-
-  return true;
 };
 
 let counter = 0;
