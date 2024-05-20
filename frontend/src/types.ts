@@ -128,4 +128,5 @@ export interface VariantList {
   representative_status?: VariantListReviewStatusCode | "";
   error?: string;
   variants: Variant[];
+  structural_variants: any[];
 }
