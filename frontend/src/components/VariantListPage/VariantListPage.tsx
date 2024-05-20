@@ -270,9 +270,12 @@ const useVariantListAnnotation = (
         //   per a useEffect calling this, the annotations will not have been saved ever
         //   so we mimic the old behavior by setting all variants as selected
         if (annotation.selectedVariants.size === 0) {
-          annotation.selectedVariants = new Set(
-            variantList.variants.map((variant) => variant.id)
-          );
+          annotation.selectedVariants = new Set([
+            ...variantList.variants.map((variant) => variant.id),
+            ...(variantList.structural_variants ?? []).map(
+              (structural_variant) => structural_variant.id
+            ),
+          ]);
         }
 
         const selectedVariants = annotation.selectedVariants
