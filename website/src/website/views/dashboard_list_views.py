@@ -135,7 +135,7 @@ class DashboardListsView(ListCreateAPIView):
     def get_queryset(self):
         return DashboardList.objects.all()
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     filter_backends = [OrderingFilter]
     ordering_fields = ["label", "created_at"]
