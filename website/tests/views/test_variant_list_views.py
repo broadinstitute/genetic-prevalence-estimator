@@ -970,7 +970,7 @@ class TestVariantListVariantsView:
         client.force_authenticate(User.objects.get(username=user))
         response = client.post(
             f"/api/variant-lists/{variant_list.uuid}/variants/",
-            {"variants": ["1-55505452-T-G"]},
+            {"variants": ["1-55505452-T-G"], "structural_variants": []},
         )
         assert response.status_code == expected_response
 
@@ -981,7 +981,12 @@ class TestVariantListVariantsView:
             ({"variants": "1-100-A-T"}, 400),  # wrong data type
             ({"variants": [1, 2, 3]}, 400),  # wrong data type
             ({"variants": ["1-55516888-G-GA"]}, 400),  # duplicate variants
-            ({"variants": ["1-55505452-T-G"]}, 200),  # valid
+            ({"variants": ["1-55505452-T-G"]}, 400),  # no structural_variants
+            (
+                {"variants": "1-100-A-T", "structural_variants": ["fake_sv"]},
+                400,
+            ),  # wrong data type for sv
+            ({"variants": ["1-55505452-T-G"], "structural_variants": []}, 200),  # valid
         ],
     )
     def test_variant_list_variants_validates_variants(
@@ -1001,7 +1006,10 @@ class TestVariantListVariantsView:
         client.force_authenticate(User.objects.get(username="owner"))
         client.post(
             f"/api/variant-lists/{variant_list.uuid}/variants/",
-            {"variants": ["1-55505452-T-G"]},
+            {
+                "variants": ["1-55505452-T-G"],
+                "structural_variants": ["DEL_chr1_2acf8150"],
+            },
         )
 
         variant_list.refresh_from_db()
@@ -1011,13 +1019,23 @@ class TestVariantListVariantsView:
             "1-55505452-T-G",
         ]
 
+        assert [
+            structural_variant["id"]
+            for structural_variant in variant_list.structural_variants
+        ] == [
+            "DEL_chr1_2acf8150",
+        ]
+
     def test_variant_list_variants_sends_request_to_worker(self, send_to_worker):
         variant_list = VariantList.objects.get(id=1)
         client = APIClient()
         client.force_authenticate(User.objects.get(username="owner"))
         client.post(
             f"/api/variant-lists/{variant_list.uuid}/variants/",
-            {"variants": ["1-55505452-T-G"]},
+            {
+                "variants": ["1-55505452-T-G"],
+                "structural_variants": ["DEL_chr1_2acf8150"],
+            },
         )
 
         send_to_worker.assert_called_once_with(
@@ -1032,7 +1050,10 @@ class TestVariantListVariantsView:
         client.force_authenticate(User.objects.get(username="owner"))
         client.post(
             f"/api/variant-lists/{variant_list.uuid}/variants/",
-            {"variants": ["1-55505452-T-G"]},
+            {
+                "variants": ["1-55505452-T-G"],
+                "structural_variants": ["DEL_chr1_2acf8150"],
+            },
         )
 
         variant_list.refresh_from_db()
@@ -1074,7 +1095,10 @@ class TestVariantListVariantsView:
         client.force_authenticate(editor)
         response = client.post(
             f"/api/variant-lists/{variant_list.uuid}/variants/",
-            {"variants": ["1-55505452-T-G"]},
+            {
+                "variants": ["1-55505452-T-G"],
+                "structural_variants": ["DEL_chr1_2acf8150"],
+            },
         )
 
         variant_list.refresh_from_db()

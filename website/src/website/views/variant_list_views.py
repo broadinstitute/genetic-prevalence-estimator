@@ -202,6 +202,9 @@ class VariantListVariantsView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         added_variants = serializer.validated_data["variants"]
+        added_structural_variants = serializer.validated_data.get(
+            "structural_variants", []
+        )
 
         if variant_list.status not in (
             VariantList.Status.READY,
@@ -214,6 +217,14 @@ class VariantListVariantsView(GenericAPIView):
         variant_list.variants = [
             *variant_list.variants,
             *[{"id": variant_id} for variant_id in added_variants],
+        ]
+
+        variant_list.structural_variants = [
+            *variant_list.structural_variants,
+            *[
+                {"id": structural_variant_id}
+                for structural_variant_id in added_structural_variants
+            ],
         ]
 
         variant_list.status = VariantList.Status.QUEUED
