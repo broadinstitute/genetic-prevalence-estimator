@@ -13,7 +13,12 @@ import {
 import { useState } from "react";
 
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
-import { GnomadPopulationId, VariantId, VariantList } from "../../types";
+import {
+  GnomadPopulationId,
+  Variant,
+  VariantId,
+  VariantList,
+} from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
 
@@ -22,6 +27,43 @@ import AnnotationTypeSelector, {
 } from "./AnnotationTypeSelector";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
+
+export const combineVariants = (
+  variants: Variant[],
+  structuralVariants: any[]
+) => {
+  const reshapedStructuralVariants = structuralVariants.map((sv: any) => {
+    return {
+      id: sv.id,
+      hgvsc: `g.chr${sv.chrom}-${sv.pos}-${sv.end} ${sv.type}`,
+      hgvsp: sv.length !== -1 ? sv.length : "-",
+      lof: null,
+      major_consequence: `${sv.consequence}-${sv.type}`,
+      revel_score: null,
+      gene_id: null,
+      gene_symbol: null,
+      transcript_id: null,
+      AC: sv.AC,
+      AN: sv.AN,
+      sample_sets: ["genome"],
+      filters: {
+        exome: [],
+        genome: [],
+      },
+      flags: [],
+      clinvar_variation_id: null,
+      clinical_significance: null,
+      gold_stars: null,
+      lof_curation: null,
+      source: ["Custom"],
+    };
+  });
+
+  const combinedVariants = variants.concat(
+    reshapedStructuralVariants as Variant[]
+  );
+  return combinedVariants;
+};
 
 interface VariantListVariantsProps {
   variantList: VariantList;
@@ -56,7 +98,11 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
   ] = useState<GnomadPopulationId[]>([]);
   const [includeAC0Variants, setIncludeAC0Variants] = useState(false);
 
-  const { variants } = variantList;
+  const { variants, structural_variants } = variantList;
+
+  const renderedVariants = !structural_variants
+    ? variants
+    : combineVariants(variants, structural_variants);
 
   if (variants.length === 0) {
     if (
@@ -75,14 +121,14 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     return <Text mb={4}>This variant list has no variants.</Text>;
   }
 
-  const numAC0Variants = variants.filter(
+  const numAC0Variants = renderedVariants.filter(
     (variant) => (variant.AC || [])[0] === 0
   ).length;
 
   return (
     <>
       <Text mb={2}>
-        This variant list contains {variantList.variants.length} variant
+        This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
 
@@ -203,7 +249,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         </>
       ) : (
         <UnorderedList mb={4}>
-          {variantList.variants.map(({ id: variantId }) => (
+          {renderedVariants.map(({ id: variantId }) => (
             <ListItem key={variantId}>{variantId}</ListItem>
           ))}
         </UnorderedList>
