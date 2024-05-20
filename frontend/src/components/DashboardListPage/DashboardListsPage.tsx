@@ -1,3 +1,4 @@
+import { ArrowDownIcon, ArrowUpIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -19,9 +20,12 @@ import {
   Th,
   Td,
   useToast,
+  Tooltip,
+  Badge,
 } from "@chakra-ui/react";
+import { sortBy } from "lodash";
 
-import { useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { del, get, postFile } from "../../api";
@@ -59,16 +63,270 @@ type DashboardList = {
         global: number;
       };
     };
+    supporting_documents?: string;
   };
+  inheritance_type: string;
+};
+
+const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        maxWidth: `${maxWidth}px`,
+        overflow: "hidden",
+        textOverflow: "ellipses",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+interface ColumnDef {
+  key: string;
+  heading: string;
+  isNumeric?: boolean;
+  sortKey?: (
+    dashboardList: DashboardList
+  ) => string | number | (string | number)[];
+  render: (
+    dashboardList: DashboardList
+  ) =>
+    | JSX.Element
+    | string
+    | (JSX.Element | string)[]
+    | null
+    | undefined
+    | false;
+}
+
+const BASE_COLUMNS: ColumnDef[] = [
+  {
+    key: "gene_symbol",
+    heading: "Gene Symbol",
+    sortKey: (dashboardList) => {
+      return dashboardList.gene_symbol;
+    },
+    render: (dashboardList) => {
+      return <Cell maxWidth={130}>{dashboardList.gene_symbol}</Cell>;
+    },
+  },
+
+  {
+    key: "dashboard_estimate",
+    heading: "ClinVar LP/P and gnomaD LoF",
+    sortKey: (dashboardList) => {
+      return dashboardList.estimates.genetic_prevalence[0] !== 0
+        ? Math.round(1 / dashboardList.estimates.genetic_prevalence[0])
+        : 0;
+    },
+    render: (dashboardList) => {
+      return (
+        <Cell maxWidth={200}>
+          <Link as={RRLink} to={`/dashboard-lists/${dashboardList.gene_id}`}>
+            {renderFrequencyFraction(
+              dashboardList.estimates.genetic_prevalence[0]
+            )}
+          </Link>
+        </Cell>
+      );
+    },
+  },
+
+  {
+    key: "representative_estimate",
+    heading: "Estimates available on GeniE",
+    sortKey: (dashboardList) => {
+      if (dashboardList.representative_variant_list) {
+        return dashboardList.representative_variant_list.estimates
+          .genetic_prevalence.global !== 0
+          ? Math.round(
+              1 /
+                dashboardList.representative_variant_list.estimates
+                  .genetic_prevalence.global
+            )
+          : 0;
+      }
+      return 0;
+    },
+    render: (dashboardList) => {
+      return (
+        <Cell maxWidth={200}>
+          {dashboardList.representative_variant_list && (
+            <Link
+              as={RRLink}
+              to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
+            >
+              {renderFrequencyFraction(
+                dashboardList.representative_variant_list.estimates
+                  .genetic_prevalence.global
+              )}
+            </Link>
+          )}
+          {!dashboardList.representative_variant_list && ""}
+        </Cell>
+      );
+    },
+  },
+
+  {
+    key: "representative_contact",
+    heading: "Contact for public estimate",
+    render: (dashboardList) => {
+      const ownersArray = dashboardList.representative_variant_list
+        ? dashboardList
+            .representative_variant_list!.access_permissions!.filter(
+              (ap) => ap.level === "Owner"
+            )
+            .map((ap) => ap.user)
+        : [""];
+
+      return <Cell maxWidth={200}>{ownersArray[0]}</Cell>;
+    },
+  },
+
+  {
+    key: "supporting_documents",
+    heading: "Supporting documents",
+    render: (dashboardList) => {
+      return (
+        <Cell maxWidth={200}>
+          {dashboardList.representative_variant_list &&
+            dashboardList.representative_variant_list.supporting_documents && (
+              <Link
+                href={
+                  dashboardList.representative_variant_list.supporting_documents
+                }
+                isExternal
+                target="_blank"
+              >
+                {/* TODO: include supporting documents on dashboard list model */}
+                {"documents"}
+              </Link>
+            )}
+        </Cell>
+      );
+    },
+  },
+
+  {
+    key: "prevalence_orphanet",
+    heading: "Prevalence orphanet",
+    sortKey: (dashboardList) => {
+      return dashboardList.genetic_prevalence_orphanet;
+    },
+    render: (dashboardList) => {
+      return (
+        <Cell maxWidth={200}>
+          <Link
+            href={`https://www.orpha.net/en/disease`}
+            isExternal
+            target="_blank"
+          >
+            {dashboardList.genetic_prevalence_orphanet}
+          </Link>
+        </Cell>
+      );
+    },
+  },
+];
+
+type SortOrder = "ascending" | "descending";
+interface SortState {
+  key: string;
+  order: SortOrder;
+}
+
+const useSort = (
+  columns: ColumnDef[],
+  defaultSortKey: string,
+  defaultSortOrder: SortOrder = "ascending"
+): [ColumnDef, SortOrder, (sortKey: string) => void] => {
+  const defaultSortColumn = columns.find(
+    (column) => column.key === defaultSortKey
+  )!;
+  const [sortState, setSortState] = useState<SortState>({
+    key: defaultSortColumn.key,
+    order: defaultSortOrder,
+  });
+
+  const setSortKey = useCallback(
+    (sortKey: string) =>
+      setSortState((prevSortState) => {
+        if (sortKey === prevSortState.key) {
+          return {
+            ...prevSortState,
+            order:
+              prevSortState.order === "ascending" ? "descending" : "ascending",
+          };
+        }
+        return { key: sortKey, order: "ascending" };
+      }),
+    []
+  );
+
+  const selectedSortColumn = columns.find(
+    (column) => column.key === sortState.key
+  );
+  if (!selectedSortColumn) {
+    return [defaultSortColumn, "ascending", setSortKey];
+  }
+
+  return [selectedSortColumn, sortState.order, setSortKey];
 };
 
 const DashboardLists = (props: {
   dashboardListsStore: Store<DashboardList[]>;
 }) => {
   const dashboardLists = useStore(props.dashboardListsStore);
+
   const toast = useToast();
   const { user } = useStore(authStore);
   const userIsStaff = user?.is_staff ? true : false;
+
+  const STAFF_COLUMNS: ColumnDef[] = [
+    {
+      key: "delete_dashboard_list",
+      heading: "",
+      render: (dashboardList) => {
+        return (
+          <Cell maxWidth={200}>
+            <ButtonWithConfirmation
+              size="sm"
+              colorScheme="red"
+              confirmationPrompt="This cannot be undone."
+              confirmButtonText="Delete"
+              onClick={() => {
+                deleteDashboardList(dashboardList);
+              }}
+            >
+              Delete
+            </ButtonWithConfirmation>
+          </Cell>
+        );
+      },
+    },
+  ];
+
+  const columns = [
+    ...BASE_COLUMNS,
+    ...(userIsStaff ? STAFF_COLUMNS : ([] as ColumnDef[])),
+  ];
+
+  const [sortColumn, sortOrder, setSortKey] = useSort(
+    columns,
+    "gene_symbol",
+    "ascending"
+  );
+
+  const sortedDashboardLists = sortBy(dashboardLists, (dashboardList) =>
+    sortColumn.sortKey!(dashboardList)
+  );
+  if (sortOrder === "descending") {
+    sortedDashboardLists.reverse();
+  }
 
   const [file, setFile] = useState<File | null>(null);
 
@@ -181,94 +439,73 @@ const DashboardLists = (props: {
       <Table variant="striped">
         <Thead>
           <Tr>
-            <Th>Gene</Th>
-            <Th>ClinVar LP/P and gnomAD LoF</Th>
-            <Th>Estimates available on GeniE</Th>
-            <Th>Contact for public estimate</Th>
-            <Th>Supporting documents</Th>
-            <Th>Additional resources</Th>
-            <Th>Prevalence orphanet</Th>
-            {/* TODO: Until any of these have values, leave them blank */}
-            {/* <Th>Prevalence GeneReviews</Th> */}
-            {/* <Th>Prevalence other</Th> */}
-            {/* <Th>Incidence other</Th> */}
+            {columns.map((column) => {
+              return (
+                <Th
+                  key={column.key}
+                  scope="col"
+                  isNumeric={column.isNumeric}
+                  aria-sort={column.key === sortColumn.key ? sortOrder : "none"}
+                  style={{ position: "relative" }}
+                >
+                  {column.sortKey ? (
+                    <>
+                      <button
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          height: "100%",
+                          appearance: "none",
+                          fontSize: "inherit",
+                          fontWeight: "inherit",
+                          textAlign: "inherit",
+                        }}
+                        onClick={() => {
+                          setSortKey(column.key);
+                        }}
+                      >
+                        {column.heading}
+                      </button>
+                      {column.key === sortColumn.key && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            right: "3px",
+                            top: "calc(50% - 10px)",
+                          }}
+                        >
+                          {sortOrder === "descending" ? (
+                            <ArrowDownIcon />
+                          ) : (
+                            <ArrowUpIcon />
+                          )}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    column.heading
+                  )}
+                </Th>
+              );
+            })}
           </Tr>
         </Thead>
+
         <Tbody>
-          {dashboardLists.map((dashboardList: DashboardList) => {
+          {sortedDashboardLists.map((dashboardList) => {
             return (
               <Tr key={dashboardList.gene_symbol}>
-                <Td>{dashboardList.gene_symbol}</Td>
-                <Td>
-                  <Link
-                    as={RRLink}
-                    to={`/dashboard-lists/${dashboardList.gene_id}`}
-                  >
-                    {renderFrequencyFraction(
-                      dashboardList.estimates.genetic_prevalence[0]
-                    )}
-                  </Link>
-                </Td>
-
-                {dashboardList.representative_variant_list && (
-                  <>
-                    <Td>
-                      <Link
-                        as={RRLink}
-                        to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
-                      >
-                        {renderFrequencyFraction(
-                          dashboardList.representative_variant_list.estimates
-                            .genetic_prevalence.global
-                        )}
-                      </Link>
-                    </Td>
-                    <Td>
-                      {dashboardList.representative_variant_list.access_permissions
-                        ?.filter((ap) => ap.level === "Owner")
-                        .map((ap) => ap.user)}
-                    </Td>
-                    <Td>todo-replist</Td>
-                    <Td>todo-replist</Td>
-                  </>
-                )}
-
-                {!dashboardList.representative_variant_list && (
-                  <>
-                    <Td></Td>
-                    <Td></Td>
-                    <Td></Td>
-                    <Td></Td>
-                  </>
-                )}
-                <Td>
-                  <Link
-                    href={`https://www.orpha.net/en/disease`}
-                    isExternal
-                    target="_blank"
-                  >
-                    {dashboardList.genetic_prevalence_orphanet}
-                  </Link>
-                </Td>
-                {/* TODO: Until any of these have values, hide them */}
-                {/* <Td>{dashboardList.genetic_prevalence_genereviews}</Td> */}
-                {/* <Td>{dashboardList.genetic_prevalence_other}</Td> */}
-                {/* <Td>{dashboardList.genetic_incidence_orphanet}</Td> */}
-                {user?.is_staff && (
-                  <Td>
-                    <ButtonWithConfirmation
-                      size="sm"
-                      colorScheme="red"
-                      confirmationPrompt="This cannot be undone."
-                      confirmButtonText="Delete"
-                      onClick={() => {
-                        deleteDashboardList(dashboardList);
-                      }}
+                {columns.map((column) => {
+                  return (
+                    <Td
+                      key={column.key}
+                      fontWeight="normal"
+                      isNumeric={column.isNumeric}
                     >
-                      Delete
-                    </ButtonWithConfirmation>
-                  </Td>
-                )}
+                      {column.render(dashboardList)}
+                    </Td>
+                  );
+                })}
               </Tr>
             );
           })}
