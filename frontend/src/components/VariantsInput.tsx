@@ -31,6 +31,22 @@ type VariantsInputProps = {
   onChange: (value: InputVariant[]) => void;
 };
 
+const isStructuralVariantId = (id: string) => {
+  const svRegex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR(\d+|X|Y)_([0-9a-f]*)$/i;
+  const match = svRegex.exec(id);
+  if (!match) {
+    return false;
+  }
+
+  const chrom = match[2];
+  const chromNumber = Number(chrom);
+  if (!Number.isNaN(chromNumber) && (chromNumber < 1 || chromNumber > 22)) {
+    return false;
+  }
+
+  return true;
+};
+
 let counter = 0;
 const nextKey = () => `${counter++}`;
 
@@ -43,7 +59,8 @@ const VariantsInput = (props: VariantsInputProps) => {
     <>
       <VStack spacing={4} align="flex-start" alignSelf="stretch">
         {variants.map((variant, i) => {
-          const isValid = isVariantId(variant.id);
+          const isValid =
+            isVariantId(variant.id) || isStructuralVariantId(variant.id);
           return (
             <FormControl
               key={variant.key}
