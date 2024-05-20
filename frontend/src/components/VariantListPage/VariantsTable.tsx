@@ -28,6 +28,7 @@ import {
 
 import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
+import { combineVariants } from "./VariantListVariants";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -184,10 +185,10 @@ const BASE_COLUMNS: ColumnDef[] = [
         VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)) ||
       "",
     render: (variant) => {
-      return (
-        variant.major_consequence &&
-        VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
-      );
+      return variant.major_consequence &&
+        variant.major_consequence in VEP_CONSEQUENCE_LABELS
+        ? VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)
+        : variant.major_consequence;
     },
   },
   {
@@ -558,7 +559,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
     );
   }
 
-  if (variantList.variants.some((variant) => variant.lof_curation)) {
+  const combinedVariants = !variantList.structural_variants
+    ? variantList.variants
+    : combineVariants(variantList.variants, variantList.structural_variants);
+
+  if (combinedVariants.some((variant) => variant.lof_curation)) {
     columns.splice(
       columns.findIndex((col) => col.key === "loftee") + 1,
       0,
@@ -572,7 +577,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
     "descending"
   );
 
-  const visibleVariants = variantList.variants.filter((variant) =>
+  const visibleVariants = combinedVariants.filter((variant) =>
     shouldShowVariant(variant)
   );
   const sortedVariants = sortBy(visibleVariants, (variant) =>
@@ -597,17 +602,15 @@ const VariantsTable: FC<VariantsTableProps> = ({
           {includeCheckboxColumn && (
             <Th scope="col">
               <Checkbox
-                isChecked={
-                  selectedVariants.size === variantList.variants.length
-                }
+                isChecked={selectedVariants.size === combinedVariants.length}
                 isIndeterminate={
                   selectedVariants.size > 0 &&
-                  selectedVariants.size < variantList.variants.length
+                  selectedVariants.size < combinedVariants.length
                 }
                 onChange={(e) => {
                   if (e.target.checked) {
                     onChangeSelectedVariants(
-                      new Set(variantList.variants.map((variant) => variant.id))
+                      new Set(combinedVariants.map((variant) => variant.id))
                     );
                   } else {
                     onChangeSelectedVariants(new Set());
