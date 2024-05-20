@@ -71,7 +71,21 @@ const addVariantsToVariantList = (
   uuid: string,
   variants: string[]
 ): Promise<void> => {
-  return post(`/variant-lists/${uuid}/variants/`, { variants });
+  const shortVariants: string[] = [];
+  const structuralVariants: string[] = [];
+  variants.forEach((variant_id) => {
+    if (isStructuralVariantId(variant_id)) {
+      structuralVariants.push(variant_id);
+    } else {
+      shortVariants.push(variant_id);
+    }
+  });
+  const postObject = {
+    variants: shortVariants,
+    structural_variants: structuralVariants,
+  };
+
+  return post(`/variant-lists/${uuid}/variants/`, postObject);
 };
 
 const reprocessVariantList = (uuid: string): Promise<void> => {
@@ -260,12 +274,23 @@ const useVariantListAnnotation = (
             variantList.variants.map((variant) => variant.id)
           );
         }
-        const variantCalculations = allVariantListCalculations(
-          annotation.selectedVariants
-            ? variantList.variants.filter((variant) =>
-                annotation.selectedVariants.has(variant.id)
+
+        const selectedVariants = annotation.selectedVariants
+          ? variantList.variants.filter((variant) =>
+              annotation.selectedVariants.has(variant.id)
+            )
+          : variantList.variants;
+
+        const selectedStructuralVariants = variantList.structural_variants
+          ? annotation.selectedVariants
+            ? variantList.structural_variants.filter((structural_variant) =>
+                annotation.selectedVariants.has(structural_variant.id)
               )
-            : variantList.variants,
+            : variantList.structural_variants
+          : [];
+
+        const variantCalculations = allVariantListCalculations(
+          selectedVariants.concat(selectedStructuralVariants),
           variantList
         );
         setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
