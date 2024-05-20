@@ -53,7 +53,6 @@ type DashboardList = {
   genetic_prevalence_orphanet: string;
   genetic_prevalence_genereviews: string;
   genetic_prevalence_other: string;
-  genetic_incidence_orphanet: string;
   representative_variant_list?: VariantList & {
     estimates: {
       genetic_prevalence: {
@@ -105,6 +104,11 @@ const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
       {children}
     </span>
   );
+};
+
+const orphanetPrevalencesRemappings: { [key: string]: string } = {
+  multiple_prevalences: "Multiple prevalences",
+  "-": "No estimated prevalence",
 };
 
 interface ColumnDef {
@@ -250,6 +254,8 @@ const BASE_COLUMNS: ColumnDef[] = [
       return dashboardList.genetic_prevalence_orphanet;
     },
     render: (dashboardList) => {
+      const orphanetPrevalence = dashboardList.genetic_prevalence_orphanet;
+
       return (
         <Cell maxWidth={200}>
           <Link
@@ -257,7 +263,9 @@ const BASE_COLUMNS: ColumnDef[] = [
             isExternal
             target="_blank"
           >
-            {dashboardList.genetic_prevalence_orphanet}
+            {orphanetPrevalence in orphanetPrevalencesRemappings
+              ? orphanetPrevalencesRemappings[orphanetPrevalence]
+              : orphanetPrevalence}
           </Link>
         </Cell>
       );
