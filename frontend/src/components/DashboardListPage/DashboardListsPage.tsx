@@ -68,6 +68,29 @@ type DashboardList = {
   inheritance_type: string;
 };
 
+const MultipleInheritanceFlag = () => {
+  return (
+    <Tooltip
+      hasArrow
+      label="This gene is associated with multiple inheritance patterns"
+    >
+      <Badge colorScheme="yellow" fontSize="0.8em" ml={2} style={{ order: -1 }}>
+        I
+      </Badge>
+    </Tooltip>
+  );
+};
+
+const MultipleDiseaseFlag = () => {
+  return (
+    <Tooltip hasArrow label="This gene is associated with multiple diseases">
+      <Badge colorScheme="yellow" fontSize="0.8em" ml={2} style={{ order: -1 }}>
+        D
+      </Badge>
+    </Tooltip>
+  );
+};
+
 const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
   return (
     <span
@@ -110,7 +133,16 @@ const BASE_COLUMNS: ColumnDef[] = [
       return dashboardList.gene_symbol;
     },
     render: (dashboardList) => {
-      return <Cell maxWidth={130}>{dashboardList.gene_symbol}</Cell>;
+      return (
+        <Cell maxWidth={130}>
+          {dashboardList.gene_symbol}
+          {dashboardList.inheritance_type.includes("/") && (
+            <MultipleInheritanceFlag />
+          )}
+          {dashboardList.genetic_prevalence_orphanet ===
+            "multiple_prevalences" && <MultipleDiseaseFlag />}
+        </Cell>
+      );
     },
   },
 
