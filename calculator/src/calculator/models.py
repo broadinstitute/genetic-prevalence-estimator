@@ -22,6 +22,7 @@ class VariantList(models.Model):
     metadata = models.JSONField()
 
     variants = models.JSONField(default=list)
+    structural_variants = models.JSONField(default=list)
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
