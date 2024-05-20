@@ -23,6 +23,16 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
+def is_structural_variant_id(maybe_structural_variant_id):
+    return bool(
+        re.fullmatch(
+            r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$",
+            maybe_structural_variant_id,
+            re.IGNORECASE,
+        )
+    )
+
+
 class MultipleChoiceField(serializers.MultipleChoiceField):
     def to_internal_value(self, data):
         return list(super().to_internal_value(data))
@@ -270,6 +280,7 @@ class VariantListSerializer(ModelSerializer):
             "representative_status",
             "representative_status_updated_by",
             "variants",
+            "structural_variants",
             "estimates",
         ]
 
@@ -290,29 +301,57 @@ class VariantListSerializer(ModelSerializer):
 class AddedVariantsSerializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
-    variants = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    variants = serializers.ListField(child=serializers.CharField(), allow_empty=True)
+    structural_variants = serializers.ListField(
+        child=serializers.CharField(), allow_empty=True
+    )
 
-    def validate_variants(self, value):
+    def validate(self, attrs):
+
+        attrs = super().validate(attrs)
+
+        variants = attrs.get("variants", [])
+        structural_variants = attrs.get("structural_variants", [])
+
+        if not variants and not structural_variants:
+            raise serializers.ValidationError("At least one variant must be provided")
+
         invalid_variant_ids = [
-            variant_id for variant_id in value if not is_variant_id(variant_id)
+            variant_id for variant_id in variants if not is_variant_id(variant_id)
         ]
-        if invalid_variant_ids:
+        invalid_structural_variant_ids = [
+            structural_variant_id
+            for structural_variant_id in structural_variants
+            if not is_structural_variant_id(structural_variant_id)
+        ]
+        all_invalid_ids = invalid_variant_ids.append(invalid_structural_variant_ids)
+
+        if all_invalid_ids:
             raise serializers.ValidationError(
                 [
                     f"'{variant_id}' is not a valid variant ID"
-                    for variant_id in invalid_variant_ids
+                    for variant_id in all_invalid_ids
                 ]
             )
 
-        num_unique_variants = len(set(value))
-        if num_unique_variants != len(value):
+        num_unique_variants = len(set(variants)) + len(set(structural_variants))
+        if num_unique_variants != len(variants) + len(structural_variants):
             raise serializers.ValidationError("Variants must be unique.")
 
         existing_variant_ids = set(
             variant["id"] for variant in self.context["variant_list"].variants
         )
+        existing_structural_variant_ids = set(
+            structural_variant["id"]
+            for structural_variant in self.context["variant_list"].structural_variants
+        )
 
-        duplicate_variant_ids = set(value) & existing_variant_ids
+        combined_variant_set = set(variants) | set(structural_variants)
+        combined_existing_variant_set = (
+            existing_variant_ids | existing_structural_variant_ids
+        )
+
+        duplicate_variant_ids = combined_variant_set & combined_existing_variant_set
         if duplicate_variant_ids:
             raise serializers.ValidationError(
                 [
@@ -322,12 +361,12 @@ class AddedVariantsSerializer(
             )
 
         max_num_variants = 5000
-        if len(set(value) | existing_variant_ids) > max_num_variants:
+        if len(combined_variant_set | combined_existing_variant_set) > max_num_variants:
             raise serializers.ValidationError(
                 f"Variant lists may not contain more than {max_num_variants} variants"
             )
 
-        return value
+        return attrs
 
 
 class VariantListDashboardSerializer(ModelSerializer):
