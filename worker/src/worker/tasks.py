@@ -53,6 +53,27 @@ VARIANT_FIELDS = [
     "lof_curation",
 ]
 
+STRUCTURAL_VARIANT_FIELDS = [
+    "id_upper_case",
+    "id",
+    # Consequence
+    "major_consequence",
+    "consequence",
+    # Frequency
+    "AC",
+    "AN",
+    "homozygote_count",
+    # Other
+    "chrom",
+    "pos",
+    "end",
+    "chrom2",
+    "pos2",
+    "end2",
+    "length",
+    "type",
+]
+
 
 def initialize_hail():
     spark_conf = os.getenv("SPARK_CONF", default=None)
@@ -489,6 +510,64 @@ def _process_variant_list(variant_list):
     variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
     variant_list.variants = variants
     variant_list.save()
+
+    if gnomad_version == "4.1.0" and variant_list.structural_variants:
+        structural_variants = get_structural_variants(
+            variant_list.structural_variants, metadata, gnomad_version
+        )
+        structural_variants = [
+            json.loads(structural_variant)
+            for structural_variant in hl.json(structural_variants.row_value).collect()
+        ]
+        variant_list.structural_variants = structural_variants
+        variant_list.save()
+
+
+def get_structural_variants(structural_variants, metadata, gnomad_version):
+
+    gnomad_structural_variants = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_structural_variants.ht"
+    )
+
+    structural_variant_ids = [
+        structural_variant["id"] for structural_variant in structural_variants
+    ]
+
+    ds = hl.Table.parallelize(
+        [
+            {
+                "id_upper_case": structural_variant_id.upper(),
+            }
+            for structural_variant_id in structural_variant_ids
+        ],
+        hl.tstruct(id_upper_case=hl.tstr),
+    )
+
+    ds = ds.annotate(**gnomad_structural_variants[ds.id_upper_case])
+
+    ds = ds.annotate(**ds.freq.joint)
+
+    if metadata.get("gene_symbol"):
+        ds = ds.transmute(
+            consequences=ds.consequences.find(
+                lambda consequence: consequence.gene == metadata["gene_symbol"]
+            )
+        )
+    else:
+        ds = ds.transmute(consequences=ds.consequences.first())
+
+    ds = ds.transmute(
+        consequence=hl.or_missing(
+            hl.is_defined(ds.consequences), ds.consequences.consequence
+        )
+    )
+
+    table_fields = set(ds.row)
+    select_fields = [
+        field for field in STRUCTURAL_VARIANT_FIELDS if field in table_fields
+    ]
+    ds = ds.select(*select_fields)
+    return ds
 
 
 def process_variant_list(uid):
