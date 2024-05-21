@@ -29,6 +29,7 @@ import {
 import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
+import { isStructuralVariantId } from "../identifiers";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -164,10 +165,16 @@ const BASE_COLUMNS: ColumnDef[] = [
         "4.1.0": "gnomad_r4",
       }[gnomadVersion];
 
+      const dataset = isStructuralVariantId(variant.id)
+        ? "gnomad_sv_r4"
+        : gnomadDataset;
+      const variantId =
+        dataset === "gnomad_sv_r4" ? variant.id.toUpperCase() : variant.id;
+
       return (
         <Cell maxWidth={200}>
           <Link
-            href={`https://gnomad.broadinstitute.org/variant/${variant.id}?dataset=${gnomadDataset}`}
+            href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${dataset}`}
             isExternal
             target="_blank"
           >
