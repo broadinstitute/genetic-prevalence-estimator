@@ -82,7 +82,7 @@ const VariantListReviewStatus = ({
       {variantList.representative_status === "" && (
         <ButtonWithConfirmation
           size="sm"
-          confirmationPrompt="Representativity requires staff approval"
+          confirmationPrompt="Representativity requires staff approval. Approved representative lists are public to view by any user of the website, this includes the emails of any associated owners of the list."
           confirmButtonText="Make representative"
           confirmButtonColorScheme="blue"
           onClick={() => makeVariantListRepresentative()}

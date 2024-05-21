@@ -71,6 +71,7 @@ type DashboardList = {
       };
     };
     supporting_documents?: string;
+    owners: string[];
   };
   inheritance_type: string;
 };
@@ -224,15 +225,9 @@ const BASE_COLUMNS: ColumnDef[] = [
     heading: "Contact for public estimate",
     width: 200,
     render: (dashboardList) => {
-      const ownersArray =
-        dashboardList.representative_variant_list &&
-        dashboardList.representative_variant_list.access_permissions
-          ? dashboardList
-              .representative_variant_list!.access_permissions!.filter(
-                (ap) => ap.level === "Owner"
-              )
-              .map((ap) => ap.user)
-          : [""];
+      const ownersArray = dashboardList.representative_variant_list
+        ? dashboardList.representative_variant_list.owners
+        : [""];
 
       return <Cell maxWidth={200}>{ownersArray[0]}</Cell>;
     },
