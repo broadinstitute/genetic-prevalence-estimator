@@ -24,6 +24,11 @@ import {
   Badge,
   FormControl,
   FormLabel,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
@@ -517,39 +522,6 @@ const DashboardLists = (props: {
 
   return (
     <>
-      {userIsStaff && (
-        <Box mb={4}>
-          <Input
-            type="file"
-            onChange={handleFileChange}
-            placeholder="Add a file populate lists"
-            size="md"
-            sx={{
-              "::file-selector-button": {
-                height: 10,
-                padding: 0,
-                mr: 4,
-                background: "none",
-                border: "none",
-                fontWeight: "bold",
-              },
-            }}
-          />
-
-          <ButtonWithConfirmation
-            size="sm"
-            colorScheme="blue"
-            confirmationPrompt="This cannot be undone."
-            confirmButtonText="Re-load"
-            onClick={() => {
-              loadDashboardLists();
-            }}
-          >
-            Load
-          </ButtonWithConfirmation>
-        </Box>
-      )}
-
       <Box mb={2}>
         <FormControl>
           <FormLabel>Search</FormLabel>
@@ -644,6 +616,56 @@ const DashboardLists = (props: {
           </FixedSizeList>
         </Tbody>
       </Table>
+
+      {userIsStaff && (
+        <Box mt={6}>
+          <Accordion allowToggle>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <Box as="span" flex="1" textAlign="left">
+                    Upload dashboard lists from .csv file
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Box mb={4}>
+                  <Input
+                    type="file"
+                    onChange={handleFileChange}
+                    placeholder="Add a file populate lists"
+                    size="md"
+                    mb={2}
+                    sx={{
+                      "::file-selector-button": {
+                        height: 10,
+                        padding: 0,
+                        mr: 4,
+                        background: "none",
+                        border: "none",
+                        fontWeight: "bold",
+                      },
+                    }}
+                  />
+
+                  <ButtonWithConfirmation
+                    size="sm"
+                    colorScheme="blue"
+                    confirmationPrompt="This cannot be undone."
+                    confirmButtonText="Re-load"
+                    onClick={() => {
+                      loadDashboardLists();
+                    }}
+                  >
+                    Load
+                  </ButtonWithConfirmation>
+                </Box>
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
+        </Box>
+      )}
     </>
   );
 };
