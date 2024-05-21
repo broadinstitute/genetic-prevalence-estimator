@@ -282,6 +282,7 @@ class VariantListSerializer(ModelSerializer):
             "uuid",
             "label",
             "notes",
+            "supporting_document",
             "type",
             "metadata",
             "created_at",
@@ -305,6 +306,7 @@ class VariantListSerializer(ModelSerializer):
             not in (
                 "label",
                 "notes",
+                "supporting_document",
                 "is_public",
                 "representative_status",
                 "representative_status_updated_by",
@@ -400,6 +402,7 @@ class VariantListDashboardSerializer(ModelSerializer):
             "created_by",
             "gene_symbol",
             "label",
+            "supporting_document",
             "is_public",
             "representative_status",
             "representative_status_updated_by",
