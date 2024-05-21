@@ -201,6 +201,8 @@ class VariantListSerializer(ModelSerializer):
     )
     representative_status_updated_by = UsernameField()
 
+    owners = serializers.SerializerMethodField()
+
     estimates = serializers.SerializerMethodField()
 
     def get_estimates(self, obj):
@@ -215,6 +217,13 @@ class VariantListSerializer(ModelSerializer):
                 ),
             }
         return None
+
+    def get_owners(self, obj):
+        permissions = VariantListAccessPermission.objects.filter(
+            variant_list=obj, level=VariantListAccessPermission.Level.OWNER
+        )
+        owners = [permission.user.username for permission in permissions]
+        return owners
 
     def get_metadata(self, obj):
         metadata_version = obj.metadata.get("version", "1")
@@ -260,6 +269,10 @@ class VariantListSerializer(ModelSerializer):
             data.pop("access_permissions")
             data.pop("error")
 
+        # Only show the owners array for approved representative lists
+        if instance.representative_status != VariantList.RepresentativeStatus.APPROVED:
+            data.pop("owners")
+
         return data
 
     class Meta:
@@ -282,6 +295,7 @@ class VariantListSerializer(ModelSerializer):
             "variants",
             "structural_variants",
             "estimates",
+            "owners",
         ]
 
         read_only_fields = [
