@@ -299,6 +299,23 @@ const BASE_COLUMNS: ColumnDef[] = [
               </Badge>
             </Tooltip>
           )}
+          {variant.flags?.includes("has_homozygotes") && (
+            <Tooltip
+              hasArrow
+              label={`${variant.homozygote_count![0]} individual${
+                variant.homozygote_count![0] !== 1 ? "s" : ""
+              } homozygous with this variant`}
+            >
+              <Badge
+                colorScheme="yellow"
+                fontSize="0.8em"
+                mr={2}
+                style={{ order: -1 }}
+              >
+                Homozygotes
+              </Badge>
+            </Tooltip>
+          )}
           {variant.flags?.includes("filtered") && (
             <Tooltip hasArrow label={filteredVariantDescription(variant)}>
               <Badge
