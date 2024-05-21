@@ -19,7 +19,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { isVariantId } from "@gnomad/identifiers";
-import { isStructuralVariantId } from "./VariantListPage/VariantListPage";
+import { isStructuralVariantId } from "./identifiers";
 
 export type InputVariant = {
   key: string;
