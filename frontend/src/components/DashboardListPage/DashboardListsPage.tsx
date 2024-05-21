@@ -27,6 +27,7 @@ import { sortBy } from "lodash";
 
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
+import { FixedSizeList } from "react-window";
 
 import { del, get, postFile } from "../../api";
 import { renderErrorDescription } from "../../errors";
@@ -115,6 +116,7 @@ interface ColumnDef {
   key: string;
   heading: string;
   isNumeric?: boolean;
+  width: number;
   sortKey?: (
     dashboardList: DashboardList
   ) => string | number | (string | number)[];
@@ -133,6 +135,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "gene_symbol",
     heading: "Gene Symbol",
+    width: 200,
     sortKey: (dashboardList) => {
       return dashboardList.gene_symbol;
     },
@@ -153,6 +156,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "dashboard_estimate",
     heading: "ClinVar LP/P and gnomaD LoF",
+    width: 200,
     sortKey: (dashboardList) => {
       return dashboardList.estimates.genetic_prevalence[0] !== 0
         ? Math.round(1 / dashboardList.estimates.genetic_prevalence[0])
@@ -174,6 +178,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "representative_estimate",
     heading: "Estimates available on GeniE",
+    width: 200,
     sortKey: (dashboardList) => {
       if (dashboardList.representative_variant_list) {
         return dashboardList.representative_variant_list.estimates
@@ -210,6 +215,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "representative_contact",
     heading: "Contact for public estimate",
+    width: 200,
     render: (dashboardList) => {
       const ownersArray = dashboardList.representative_variant_list
         ? dashboardList
@@ -226,6 +232,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "supporting_documents",
     heading: "Supporting documents",
+    width: 200,
     render: (dashboardList) => {
       return (
         <Cell maxWidth={200}>
@@ -250,6 +257,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "prevalence_orphanet",
     heading: "Prevalence orphanet",
+    width: 200,
     sortKey: (dashboardList) => {
       return dashboardList.genetic_prevalence_orphanet;
     },
@@ -317,6 +325,54 @@ const useSort = (
   return [selectedSortColumn, sortState.order, setSortKey];
 };
 
+const ROW_HEIGHT = 70;
+
+const DataRow = ({
+  index: dataRowIndex,
+  data: { columns, data },
+  style,
+}: {
+  index: number;
+  data: {
+    columns: ColumnDef[];
+    data: any;
+  };
+  style: any;
+}) => {
+  const rowData = data[dataRowIndex];
+  const rowIndex = dataRowIndex + 1;
+  return (
+    <Tr
+      key={rowIndex}
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "stretch",
+        boxSizing: "border-box",
+        height: `${ROW_HEIGHT}px`,
+        background: dataRowIndex % 2 === 1 ? "initial" : "#edf2f7",
+      }}
+      style={style}
+    >
+      {columns.map((column: ColumnDef, columnIndex: number) => {
+        return (
+          <Td
+            key={column.key}
+            fontWeight="normal"
+            isNumeric={column.isNumeric}
+            width={`${column.width}px`}
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+            }}
+          >
+            {column.render(rowData)}
+          </Td>
+        );
+      })}
+    </Tr>
+  );
+};
+
 const DashboardLists = (props: {
   dashboardListsStore: Store<DashboardList[]>;
 }) => {
@@ -330,6 +386,7 @@ const DashboardLists = (props: {
     {
       key: "delete_dashboard_list",
       heading: "",
+      width: 200,
       render: (dashboardList) => {
         return (
           <Cell maxWidth={200}>
@@ -444,7 +501,7 @@ const DashboardLists = (props: {
   return (
     <>
       {userIsStaff && (
-        <>
+        <Box mb={4}>
           <Input
             type="file"
             onChange={handleFileChange}
@@ -473,12 +530,21 @@ const DashboardLists = (props: {
           >
             Load
           </ButtonWithConfirmation>
-        </>
+        </Box>
       )}
 
-      <Table variant="striped">
+      <Table>
         <Thead>
-          <Tr>
+          <Tr
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "stretch",
+              boxSizing: "border-box",
+              borderBottom: "1px solid #e0e0e0",
+              height: `${ROW_HEIGHT}px`,
+            }}
+          >
             {columns.map((column) => {
               return (
                 <Th
@@ -486,7 +552,7 @@ const DashboardLists = (props: {
                   scope="col"
                   isNumeric={column.isNumeric}
                   aria-sort={column.key === sortColumn.key ? sortOrder : "none"}
-                  style={{ position: "relative" }}
+                  style={{ position: "relative", width: `${column.width}px` }}
                 >
                   {column.sortKey ? (
                     <>
@@ -530,25 +596,23 @@ const DashboardLists = (props: {
             })}
           </Tr>
         </Thead>
-
         <Tbody>
-          {sortedDashboardLists.map((dashboardList) => {
-            return (
-              <Tr key={dashboardList.gene_symbol}>
-                {columns.map((column) => {
-                  return (
-                    <Td
-                      key={column.key}
-                      fontWeight="normal"
-                      isNumeric={column.isNumeric}
-                    >
-                      {column.render(dashboardList)}
-                    </Td>
-                  );
-                })}
-              </Tr>
-            );
-          })}
+          <FixedSizeList
+            height={10 * ROW_HEIGHT - 1}
+            itemCount={sortedDashboardLists.length}
+            itemSize={ROW_HEIGHT}
+            width={"100%"}
+            overscanCount={5}
+            itemData={{
+              columns,
+              data: sortedDashboardLists,
+            }}
+            style={{
+              overflowX: "hidden",
+            }}
+          >
+            {DataRow}
+          </FixedSizeList>
         </Tbody>
       </Table>
     </>
