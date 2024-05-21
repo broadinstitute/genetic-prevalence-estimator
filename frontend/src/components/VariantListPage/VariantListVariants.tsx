@@ -5,7 +5,6 @@ import {
   Checkbox,
   HStack,
   ListItem,
-  Spacer,
   Text,
   Tooltip,
   UnorderedList,
@@ -22,9 +21,6 @@ import {
 
 import MultipleSelect from "../MultipleSelect";
 
-import AnnotationTypeSelector, {
-  AnnotationOption,
-} from "./AnnotationTypeSelector";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
@@ -74,20 +70,16 @@ interface VariantListVariantsProps {
   userIsStaff: boolean;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
-  annotationType: AnnotationOption;
-  onChangeAnnotationType: (type: AnnotationOption) => void;
 }
 
 const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
-    annotationType,
     selectedVariants,
     selectionDisabled,
     variantList,
     variantNotes,
     userCanEdit,
     userIsStaff,
-    onChangeAnnotationType,
     onChangeSelectedVariants,
     onEditVariantNote,
   } = props;
@@ -206,16 +198,6 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               >
                 Download variants
               </DownloadVariantListLink>
-            </Box>
-            <Spacer />
-            <Box>
-              <AnnotationTypeSelector
-                userCanEdit={userCanEdit}
-                value={annotationType}
-                onChange={(e) => {
-                  onChangeAnnotationType(e);
-                }}
-              />
             </Box>
           </Box>
 

@@ -44,7 +44,6 @@ import DocumentTitle from "../DocumentTitle";
 import { printOnly, screenOnly } from "../media";
 import VariantsInput, { InputVariant } from "../VariantsInput";
 
-import { AnnotationOption } from "./AnnotationTypeSelector";
 import { EditVariantListButton } from "./EditVariantList";
 import Methods from "./Methods";
 import {
@@ -113,10 +112,7 @@ type VariantListAnnotation = {
   variantCalculations: VariantListCalculations;
 };
 
-const useVariantListAnnotation = (
-  variantList: VariantList,
-  annotationType: AnnotationOption
-) => {
+const useVariantListAnnotation = (variantList: VariantList) => {
   const [annotation, setAnnotation] = useState<VariantListAnnotation>({
     selectedVariants: new Set<VariantId>([]),
     variantNotes: {},
@@ -136,11 +132,6 @@ const useVariantListAnnotation = (
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
 
-  const annotationEndpoints = {
-    shared: "shared-annotation",
-    personal: "annotation",
-  };
-
   const calculationsHaveNeverBeenSavedToDatabase = (annotation: {
     variant_calculations: VariantListCalculations;
   }) => {
@@ -156,9 +147,7 @@ const useVariantListAnnotation = (
     }
 
     setLoading(true);
-    get(
-      `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`
-    )
+    get(`/variant-lists/${variantList.uuid}/shared-annotation/`)
       .then(
         (annotation: {
           selected_variants: Set<string>;
@@ -218,19 +207,16 @@ const useVariantListAnnotation = (
         });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantList.uuid, variantList.status, annotationType]);
+  }, [variantList.uuid, variantList.status]);
 
   const toast = useToast();
 
   const saveVariantCalculations = (
     variantCalculations: VariantListCalculations
   ) => {
-    patch(
-      `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
-      {
-        variant_calculations: variantCalculations,
-      }
-    )
+    patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+      variant_calculations: variantCalculations,
+    })
       .then(() => {
         toast({
           title: "Saved variant calculations",
@@ -294,13 +280,10 @@ const useVariantListAnnotation = (
         );
         setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
 
-        patch(
-          `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
-          {
-            selected_variants: Array.from(annotation.selectedVariants),
-            variant_calculations: variantCalculations,
-          }
-        )
+        patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+          selected_variants: Array.from(annotation.selectedVariants),
+          variant_calculations: variantCalculations,
+        })
           .then(() => {
             toast({
               title: "Saved selected variants",
@@ -320,7 +303,7 @@ const useVariantListAnnotation = (
           });
       }, 3_000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [variantList.uuid, variantList.status, variantList.variants, annotationType]
+    [variantList.uuid, variantList.status, variantList.variants]
   );
 
   const setSelectedVariants = useCallback(
@@ -334,12 +317,9 @@ const useVariantListAnnotation = (
 
   const saveVariantNotes = useCallback(
     (variantNotes) => {
-      patch(
-        `/variant-lists/${variantList.uuid}/${annotationEndpoints[annotationType]}/`,
-        {
-          variant_notes: variantNotes,
-        }
-      )
+      patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+        variant_notes: variantNotes,
+      })
         .then(() => {
           toast({
             title: "Saved notes",
@@ -359,7 +339,7 @@ const useVariantListAnnotation = (
         });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [variantList.uuid, annotationType]
+    [variantList.uuid]
   );
 
   const setVariantNote = useCallback(
@@ -413,9 +393,6 @@ const VariantListPage = (props: VariantListPageProps) => {
 
   const { variantListStore, refreshVariantList } = props;
   const variantList = useStore(variantListStore);
-  const [annotationType, setAnnotationType] = useState<AnnotationOption>(
-    "shared"
-  );
 
   const [addedVariants, setAddedVariants] = useState<InputVariant[]>([]);
   const [addingVariants, setAddingVariants] = useState(false);
@@ -434,7 +411,7 @@ const VariantListPage = (props: VariantListPageProps) => {
     variantNotes,
     setVariantNote,
     variantCalculations,
-  } = useVariantListAnnotation(variantList, annotationType);
+  } = useVariantListAnnotation(variantList);
 
   const history = useHistory();
 
@@ -612,14 +589,12 @@ const VariantListPage = (props: VariantListPageProps) => {
         </HStack>
 
         <VariantListVariants
-          annotationType={annotationType}
           selectedVariants={selectedVariants}
           selectionDisabled={loadingAnnotation}
           variantList={variantList}
           variantNotes={variantNotes}
           userCanEdit={userCanEdit}
           userIsStaff={userIsStaff}
-          onChangeAnnotationType={setAnnotationType}
           onChangeSelectedVariants={setSelectedVariants}
           onEditVariantNote={setVariantNote}
         />
