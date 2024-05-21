@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db.models import Q
+from django.core.validators import URLValidator
 
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import OrderingFilter
@@ -16,6 +17,7 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
+from rest_framework import status
 
 from calculator.models import (
     VariantList,
@@ -128,6 +130,17 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
             or "representative_status" in request.data
         ):
             raise PermissionDenied
+
+        supporting_document = request.data.get("supporting_document", "")
+        if supporting_document:
+            url_validator = URLValidator()
+            try:
+                url_validator(supporting_document)
+            except ValidationError:
+                return Response(
+                    {"error": "The supporting document must be a valid URL."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         return self.partial_update(request, *args, **kwargs)
 
