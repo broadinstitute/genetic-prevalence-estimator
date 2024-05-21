@@ -22,10 +22,12 @@ import {
   useToast,
   Tooltip,
   Badge,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Link as RRLink } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 
@@ -378,6 +380,13 @@ const DashboardLists = (props: {
 }) => {
   const dashboardLists = useStore(props.dashboardListsStore);
 
+  type Filter = {
+    searchText: string;
+  };
+  const [filter, setFilter] = useState<Filter>({
+    searchText: "",
+  });
+
   const toast = useToast();
   const { user } = useStore(authStore);
   const userIsStaff = user?.is_staff ? true : false;
@@ -418,7 +427,15 @@ const DashboardLists = (props: {
     "ascending"
   );
 
-  const sortedDashboardLists = sortBy(dashboardLists, (dashboardList) =>
+  const filteredDashboardLists = useMemo(() => {
+    return dashboardLists.filter((dashboardList: DashboardList) =>
+      dashboardList.gene_symbol
+        .toUpperCase()
+        .includes(filter.searchText.toUpperCase())
+    );
+  }, [dashboardLists, filter]);
+
+  const sortedDashboardLists = sortBy(filteredDashboardLists, (dashboardList) =>
     sortColumn.sortKey!(dashboardList)
   );
   if (sortOrder === "descending") {
@@ -532,6 +549,18 @@ const DashboardLists = (props: {
           </ButtonWithConfirmation>
         </Box>
       )}
+
+      <Box mb={2}>
+        <FormControl>
+          <FormLabel>Search</FormLabel>
+          <Input
+            value={filter.searchText}
+            onChange={(e) =>
+              setFilter({ ...filter, searchText: e.target.value })
+            }
+          />
+        </FormControl>
+      </Box>
 
       <Table>
         <Thead>
