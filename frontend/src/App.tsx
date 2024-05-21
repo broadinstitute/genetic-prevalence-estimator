@@ -207,13 +207,11 @@ const App = () => {
               </RequireSignIn>
             )}
           />
-
           <Route
             exact
             path="/variant-lists/:uuid/"
             render={({ match }) => <VariantListPage uuid={match.params.uuid} />}
           />
-
           <Route
             exact
             path="/variant-lists/"
@@ -223,11 +221,22 @@ const App = () => {
               </RequireSignIn>
             )}
           />
-
           <Route
             exact
             path="/public-lists"
             render={() => <PublicListsPage />}
+          />
+          <Route
+            exact
+            path="/dashboard-lists/"
+            render={() => <DashboardListsPage />}
+          />
+          <Route
+            exact
+            path="/dashboard-lists/:uuid/"
+            render={({ match }) => (
+              <DashboardListPage uuid={match.params.uuid} />
+            )}
           />
 
           {user?.is_staff && [
@@ -255,39 +264,15 @@ const App = () => {
 
             <Route
               exact
-              path="/dashboard-lists/:uuid/"
-              render={({ match }) => (
-                <RequireSignIn>
-                  <DashboardListPage uuid={match.params.uuid} />
-                </RequireSignIn>
-              )}
-            />,
-
-            <Route
-              exact
-              path="/dashboard-lists/"
-              render={() => (
-                <RequireSignIn>
-                  <DashboardListsPage />
-                </RequireSignIn>
-              )}
-            />,
-
-            <Route
-              exact
               path="/variant-lists/:uuid/"
               render={({ match }) => (
                 <VariantListPage uuid={match.params.uuid} />
               )}
             />,
           ]}
-
           <Route exact path="/about/" render={() => <AboutPage />} />
-
           <Route exact path="/faq/" render={() => <FAQPage />} />
-
           <Route exact path="/" render={() => <HomePage />} />
-
           <Route path="*" render={() => <PageNotFoundPage />} />
         </Switch>
       </Container>
