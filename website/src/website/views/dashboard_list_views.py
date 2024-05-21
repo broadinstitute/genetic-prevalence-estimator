@@ -195,9 +195,7 @@ class DashboardListView(RetrieveUpdateDestroyAPIView):
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        if not self.request.user.is_staff:
-            raise PermissionDenied
-        return self.update(request, *args, **kwargs)
+        raise PermissionDenied
 
     def patch(self, request, *args, **kwargs):
         if not self.request.user.is_staff:

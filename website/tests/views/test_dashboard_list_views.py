@@ -140,3 +140,120 @@ class TestDashboardListsView:
         response = client.get("/api/dashboard-lists/ENSG00000094914/")
 
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+class TestDashboardListView:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="User 1")
+        User.objects.create(username="staffuser", is_staff=True)
+
+        DashboardList.objects.create(
+            gene_id="ENSG00000094914",
+            label="AAAS - Dashboard",
+            notes="This list was algorithmically generated ...",
+            created_at="2024-05-14T21:49:36.005507Z",
+            metadata={
+                "gnomad_version": "4.1.0",
+                "reference_genome": "GRCh38",
+                "populations": [
+                    "afr",
+                    "amr",
+                    "asj",
+                    "eas",
+                    "fin",
+                    "mid",
+                    "nfe",
+                    "remaining",
+                    "sas",
+                ],
+                "clinvar_version": "2024-04-21",
+                "gene_id": "ENSG00000094914.14",
+                "gene_symbol": "AAAS",
+                "transcript_id": "ENST00000209873.9",
+                "include_gnomad_plof": True,
+                "include_gnomad_missense_with_high_revel_score": False,
+                "include_clinvar_clinical_significance": [
+                    "pathogenic_or_likely_pathogenic"
+                ],
+            },
+            variant_calculations={
+                "prevalence": [],
+                "carrier_frequency": [],
+                "carrier_frequency_simplified": [],
+                "carrier_frequency_raw_numbers": [],
+            },
+            genetic_prevalence_orphanet="",
+            genetic_prevalence_genereviews="",
+            genetic_prevalence_other="",
+            genetic_incidence_other="",
+            inheritance_type="AR",
+            top_ten_variants=[],
+            status="R",
+            error=None,
+        )
+
+    def test_get_does_not_require_authentication(self):
+        client = APIClient()
+        response = client.get("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == 200
+
+    @pytest.mark.parametrize(
+        "username, expected_response", [("User 1", 200), ("staffuser", 200)]
+    )
+    def test_get_does_not_require_permission(self, username, expected_response):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+
+        response = client.get("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == expected_response
+
+    def test_put_requires_authentication(self):
+        client = APIClient()
+        response = client.put("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "username, expected_response", [("User 1", 403), ("staffuser", 403)]
+    )
+    def test_put_requires_permission(self, username, expected_response):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+
+        response = client.put("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == expected_response
+
+    def test_patch_requires_authentication(self):
+        client = APIClient()
+        response = client.patch("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "username, expected_response", [("User 1", 403), ("staffuser", 200)]
+    )
+    def test_patch_requires_permission(self, username, expected_response):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+
+        patch_data = {
+            "notes": "new patch notes",
+        }
+
+        response = client.patch("/api/dashboard-lists/ENSG00000094914/", patch_data)
+        assert response.status_code == expected_response
+
+    def test_delete_requires_authentication(self):
+        client = APIClient()
+        response = client.delete("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "username, expected_response", [("User 1", 403), ("staffuser", 204)]
+    )
+    def test_delete_requires_permission(self, username, expected_response):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+
+        response = client.delete("/api/dashboard-lists/ENSG00000094914/")
+        assert response.status_code == expected_response
