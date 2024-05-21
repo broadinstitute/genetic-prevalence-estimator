@@ -230,6 +230,7 @@ def get_gnomad_v2_variants():
             lambda f: hl.struct(
                 AC=hl.or_else(f.AC, 0),
                 AN=hl.or_else(f.AN, 0),
+                homozygote_count=hl.or_else(f.homozygote_count, 0),
             ),
         )
 
@@ -277,6 +278,13 @@ def get_gnomad_v2_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                freq(exomes).homozygote_count,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         exome_filters=exomes.filters,
         transcript_consequences=exomes.vep.transcript_consequences,
@@ -296,6 +304,13 @@ def get_gnomad_v2_variants():
                 freq(genomes).AN,
                 *(
                     freq(genomes, pop=pop, subpop=subpop).AN
+                    for pop, subpop in populations
+                ),
+            ],
+            homozygote_count=[
+                freq(genomes).homozygote_count,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).homozygote_count
                     for pop, subpop in populations
                 ),
             ],
@@ -338,6 +353,7 @@ def get_gnomad_v3_variants():
             lambda f: hl.struct(
                 AC=hl.or_else(f.AC, 0),
                 AN=hl.or_else(f.AN, 0),
+                homozygote_count=hl.or_else(f.homozygote_count, 0),
             ),
         )
 
@@ -363,6 +379,13 @@ def get_gnomad_v3_variants():
             AN=[
                 freq(ds).AN,
                 *(freq(ds, pop=pop, subpop=subpop).AN for pop, subpop in populations),
+            ],
+            homozygote_count=[
+                freq(ds).homozygote_count,
+                *(
+                    freq(ds, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
             ],
         ),
         genome_filters=ds.filters,
@@ -410,6 +433,7 @@ def get_gnomad_v4_variants():
             lambda f: hl.struct(
                 AC=hl.or_else(f.AC, 0),
                 AN=hl.or_else(f.AN, 0),
+                homozygote_count=hl.or_else(f.homozygote_count, 0),
             ),
         )
 
@@ -429,6 +453,7 @@ def get_gnomad_v4_variants():
             lambda f: hl.struct(
                 AC=hl.or_else(f.AC, 0),
                 AN=hl.or_else(f.AN, 0),
+                homozygote_count=hl.or_else(f.homozygote_count, 0),
             ),
         )
 
@@ -480,6 +505,13 @@ def get_gnomad_v4_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                freq(exomes).homozygote_count,
+                *(
+                    freq(exomes, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         exome_freq_non_ukb=hl.struct(
             AC=[
@@ -493,6 +525,15 @@ def get_gnomad_v4_variants():
                 freq(exomes, subset="non_ukb").AN,
                 *(
                     freq(exomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+            homozygote_count=[
+                freq(exomes, subset="non_ukb").homozygote_count,
+                *(
+                    freq(
+                        exomes, pop=pop, subpop=subpop, subset="non_ukb"
+                    ).homozygote_count
                     for pop, subpop in populations
                 ),
             ],
@@ -519,6 +560,13 @@ def get_gnomad_v4_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                freq(genomes).homozygote_count,
+                *(
+                    freq(genomes, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         genome_freq_non_ukb=hl.struct(
             AC=[
@@ -532,6 +580,15 @@ def get_gnomad_v4_variants():
                 freq(genomes, subset="non_ukb").AN,
                 *(
                     freq(genomes, pop=pop, subpop=subpop, subset="non_ukb").AN
+                    for pop, subpop in populations
+                ),
+            ],
+            homozygote_count=[
+                freq(genomes, subset="non_ukb").homozygote_count,
+                *(
+                    freq(
+                        genomes, pop=pop, subpop=subpop, subset="non_ukb"
+                    ).homozygote_count
                     for pop, subpop in populations
                 ),
             ],
@@ -558,10 +615,15 @@ def get_gnomad_v4_variants():
                     for pop, subpop in populations
                 ),
             ],
+            homozygote_count=[
+                joint_freq(joint).homozygote_count,
+                *(
+                    joint_freq(joint, pop=pop, subpop=subpop).homozygote_count
+                    for pop, subpop in populations
+                ),
+            ],
         ),
         joint_filters=hl.empty_set(hl.tstr),
-        # transcript_consequences=joint.vep.transcript_consequences,
-        # revel_score=joint.in_silico_predictors.revel_max,
     )
     joint = joint.filter(joint.joint_freq.AC[0] > 0)
 
