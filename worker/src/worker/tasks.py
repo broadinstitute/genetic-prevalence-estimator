@@ -40,6 +40,7 @@ VARIANT_FIELDS = [
     # Frequency
     "AC",
     "AN",
+    "homozygote_count",
     # ClinVar
     "clinvar_variation_id",
     "clinical_significance",
@@ -72,6 +73,8 @@ STRUCTURAL_VARIANT_FIELDS = [
     "end2",
     "length",
     "type",
+    #
+    "flags",
 ]
 
 
@@ -157,7 +160,7 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
                     for sample_set in datasets_to_use
                 )
             ).map(lambda f: f[0] + f[1])
-            for field in ("AC", "AN")
+            for field in ("AC", "AN", "homozygote_count")
         }
     )
 
@@ -183,6 +186,7 @@ def annotate_variants_with_flags(
                 "high_AF",
             ),
             hl.or_missing((ds.AN[0]) < (max_an / 2), "low_AN"),
+            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
         ]
     ).filter(hl.is_defined)
 
@@ -531,6 +535,14 @@ def _process_variant_list(variant_list):
         variant_list.save()
 
 
+def annotate_structural_variants_with_flags(ds):
+    return hl.array(
+        [
+            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
+        ]
+    ).filter(hl.is_defined)
+
+
 def get_structural_variants(structural_variants, metadata, gnomad_version):
 
     gnomad_structural_variants = hl.read_table(
@@ -569,6 +581,8 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
             hl.is_defined(ds.consequences), ds.consequences.consequence
         )
     )
+
+    ds = ds.annotate(flags=annotate_structural_variants_with_flags(ds))
 
     table_fields = set(ds.row)
     select_fields = [
