@@ -1205,6 +1205,7 @@ class TestGetVariantListAnnotation:
             f"/api/variant-lists/{variant_list.uuid}/annotation/"
         ).json()
         assert response == {
+            "include_homozygotes_in_calculations": True,
             "selected_variants": [],
             "variant_calculations": {},
             "variant_notes": {},
@@ -1218,6 +1219,7 @@ class TestGetVariantListAnnotation:
             f"/api/variant-lists/{variant_list.uuid}/annotation/"
         ).json()
         assert response == {
+            "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-A"],
             "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},
@@ -1332,6 +1334,7 @@ class TestEditVariantListAnnotation:
         )
         assert response.status_code == 200, response.json()
         assert response.json() == {
+            "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-GA"],
             "variant_calculations": {},
             "variant_notes": {},
@@ -1463,6 +1466,7 @@ class TestGetVariantListSharedAnnotation:
             f"/api/variant-lists/{variant_list.uuid}/shared-annotation/"
         ).json()
         assert response == {
+            "include_homozygotes_in_calculations": True,
             "selected_variants": [],
             "variant_calculations": {},
             "variant_notes": {},
@@ -1476,6 +1480,7 @@ class TestGetVariantListSharedAnnotation:
             f"/api/variant-lists/{variant_list.uuid}/shared-annotation/"
         ).json()
         assert response == {
+            "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-A"],
             "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},

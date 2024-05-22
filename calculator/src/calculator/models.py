@@ -212,6 +212,7 @@ class VariantListAnnotation(models.Model):
 
     variant_notes = models.JSONField(default=dict)
 
+    include_homozygotes_in_calculations = models.BooleanField(default=True)
     variant_calculations = models.JSONField(default=dict)
 
 
