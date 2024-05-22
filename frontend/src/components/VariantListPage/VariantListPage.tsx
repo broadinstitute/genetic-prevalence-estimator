@@ -110,6 +110,7 @@ type VariantListAnnotation = {
   selectedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
   variantCalculations: VariantListCalculations;
+  includeHomozygotesInCalculations: boolean;
 };
 
 const useVariantListAnnotation = (variantList: VariantList) => {
@@ -128,6 +129,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       plofOnlyCarrierFrequencySimplified: null,
       plofOnlyCarrierFrequencyRawNumbers: null,
     },
+    includeHomozygotesInCalculations: true,
   });
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
@@ -153,6 +155,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           selected_variants: Set<string>;
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
+          include_homozygotes_in_calculations: boolean;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
 
@@ -172,7 +175,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
                       selectedVariants.has(variant.id)
                     )
                   : variantList.variants,
-                variantList
+                variantList,
+                annotation.include_homozygotes_in_calculations
               )
             : annotation.variant_calculations;
 
@@ -191,6 +195,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             selectedVariants: selectedVariants,
             variantNotes: annotation.variant_notes,
             variantCalculations: variantCalculations,
+            includeHomozygotesInCalculations:
+              annotation.include_homozygotes_in_calculations,
           });
         }
       )
@@ -276,13 +282,16 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
         const variantCalculations = allVariantListCalculations(
           selectedVariants.concat(selectedStructuralVariants),
-          variantList
+          variantList,
+          annotation.includeHomozygotesInCalculations
         );
         setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
 
         patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
           selected_variants: Array.from(annotation.selectedVariants),
           variant_calculations: variantCalculations,
+          include_homozygotes_in_calculations:
+            annotation.includeHomozygotesInCalculations,
         })
           .then(() => {
             toast({
@@ -301,7 +310,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
               isClosable: true,
             });
           });
-      }, 3_000),
+      }, 2_000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [variantList.uuid, variantList.status, variantList.variants]
   );
@@ -309,6 +318,18 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const setSelectedVariants = useCallback(
     (selectedVariants: VariantListAnnotation["selectedVariants"]) => {
       setAnnotation((annotation) => ({ ...annotation, selectedVariants }));
+      saveSelectedVariants();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
+  const setIncludeHomozygotesInCalculations = useCallback(
+    (includeHomozygotesInCalculations: boolean) => {
+      setAnnotation((annotation) => ({
+        ...annotation,
+        includeHomozygotesInCalculations,
+      }));
       saveSelectedVariants();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -380,6 +401,9 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     variantNotes: annotation.variantNotes,
     setVariantNote,
     variantCalculations: annotation.variantCalculations,
+    includeHomozygotesInCalculations:
+      annotation.includeHomozygotesInCalculations,
+    setIncludeHomozygotesInCalculations,
   };
 };
 
@@ -411,6 +435,8 @@ const VariantListPage = (props: VariantListPageProps) => {
     variantNotes,
     setVariantNote,
     variantCalculations,
+    includeHomozygotesInCalculations,
+    setIncludeHomozygotesInCalculations,
   } = useVariantListAnnotation(variantList);
 
   const history = useHistory();
@@ -556,6 +582,17 @@ const VariantListPage = (props: VariantListPageProps) => {
             variantList
           )}
           calculations={variantCalculations}
+          includeHomozygotesOptions={
+            variantList.variants.some(
+              (variant) =>
+                variant.flags && variant.flags.includes("has_homozygotes")
+            )
+              ? {
+                  includeHomozygotesInCalculations,
+                  setIncludeHomozygotesInCalculations,
+                }
+              : undefined
+          }
         />
       )}
 

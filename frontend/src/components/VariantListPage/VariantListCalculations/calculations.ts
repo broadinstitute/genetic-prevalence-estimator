@@ -5,12 +5,18 @@ import { RawCarrierFrequencyData } from "./calculationsDisplayFormats";
 
 export const calculateCarrierFrequencyAndPrevalence = (
   variants: Variant[],
-  variantList: VariantList
+  variantList: VariantList,
+  includeHomozygotes: boolean
 ) => {
   const variantAlleleFrequencies = variants.map((variant) => {
     return variant.AC!.map((ac, i) => {
+      const homozygote_ac =
+        !includeHomozygotes && variant.homozygote_count
+          ? variant.homozygote_count[i] * 2
+          : 0;
+
       const an = variant.AN![i];
-      return an === 0 ? 0 : ac / an;
+      return an === 0 ? 0 : (ac - homozygote_ac) / an;
     });
   });
 
@@ -25,10 +31,16 @@ export const calculateCarrierFrequencyAndPrevalence = (
 
   const variantsTotalAlleleCountsAndNumbers = variants.reduce(
     (acc, variant) => {
-      return acc.map((obj, i) => ({
-        AC: obj.AC + variant.AC![i],
-        AN: obj.AN + variant.AN![i],
-      }));
+      return acc.map((obj, i) => {
+        const homozygote_ac =
+          !includeHomozygotes && variant.homozygote_count
+            ? variant.homozygote_count[i] * 2
+            : 0;
+        return {
+          AC: obj.AC + variant.AC![i] - homozygote_ac,
+          AN: obj.AN + variant.AN![i],
+        };
+      });
     },
     Array.from(
       { length: variantList.metadata.populations!.length + 1 },
@@ -85,7 +97,8 @@ export type VariantListCalculations = {
 
 export const allVariantListCalculations = (
   variants: Variant[],
-  variantList: VariantList
+  variantList: VariantList,
+  includeHomozygotes: boolean
 ): VariantListCalculations => {
   const calculateContributionsBySource = shouldCalculateContributionsBySource(
     variantList
@@ -96,7 +109,11 @@ export const allVariantListCalculations = (
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
-  } = calculateCarrierFrequencyAndPrevalence(variants, variantList);
+  } = calculateCarrierFrequencyAndPrevalence(
+    variants,
+    variantList,
+    includeHomozygotes
+  );
 
   const {
     carrierFrequency: clinvarOnlyCarrierFrequency,
@@ -107,7 +124,8 @@ export const allVariantListCalculations = (
         variants.filter((variant) =>
           getVariantSources(variant, variantList).includes("ClinVar")
         ),
-        variantList
+        variantList,
+        includeHomozygotes
       )
     : {
         carrierFrequency: null,
@@ -125,7 +143,8 @@ export const allVariantListCalculations = (
           (variant) =>
             !getVariantSources(variant, variantList).includes("ClinVar")
         ),
-        variantList
+        variantList,
+        includeHomozygotes
       )
     : {
         carrierFrequency: null,
