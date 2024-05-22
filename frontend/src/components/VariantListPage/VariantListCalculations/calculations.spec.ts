@@ -7,7 +7,8 @@ describe("calculations", () => {
   it("calculates the expected values given a list of variants", () => {
     const result = calculateCarrierFrequencyAndPrevalence(
       testDataJson.variants as Variant[],
-      (testDataJson.variant_list as unknown) as VariantList
+      (testDataJson.variant_list as unknown) as VariantList,
+      true
     );
 
     // Rename the fields for consistency across frontend and backend to
@@ -18,6 +19,7 @@ describe("calculations", () => {
       carrier_frequency_simplified: result.carrierFrequencySimplified,
       carrier_frequency_raw_numbers: result.carrierFrequencyRawNumbers,
       prevalence: result.prevalence,
+      prevalence_bayesian: result.prevalenceBayesian,
     };
 
     expect(renamedResult).toEqual(testDataJson.expected_results);

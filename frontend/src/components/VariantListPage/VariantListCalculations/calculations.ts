@@ -57,12 +57,20 @@ export const calculateCarrierFrequencyAndPrevalence = (
   );
 
   const prevalence = totalAlleleFrequencies.map((q) => q ** 2);
+  const multipliedAlleleFrequencies = variantAlleleFrequencies.reduce(
+    (acc, values) => acc.map((q, i) => q * (1 - values[i])),
+    [1, ...variantList.metadata.populations!.map(() => 1)]
+  );
+  const prevalenceBayesian = multipliedAlleleFrequencies.map((q) =>
+    Math.pow(1 - q, 2)
+  );
 
   return {
     carrierFrequency,
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
+    prevalenceBayesian,
   };
 };
 
@@ -109,6 +117,7 @@ export const allVariantListCalculations = (
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
+    prevalenceBayesian,
   } = calculateCarrierFrequencyAndPrevalence(
     variants,
     variantList,
@@ -157,6 +166,7 @@ export const allVariantListCalculations = (
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
+    prevalenceBayesian,
   };
 
   const fullListValues = mapValues(fullListCalculations, (values) => {
