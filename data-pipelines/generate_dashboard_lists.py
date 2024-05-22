@@ -268,6 +268,8 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
 
     # calculate sum of allele frequencies across all variants
     total_allele_frequencies = [0] * (len(populations) + 1)
+    multiplied_allele_frequencies = [1] * (len(populations) + 1)
+
     for variant in variants:
         allele_frequencies = []
         if variant["AC"]:
@@ -280,6 +282,9 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
                 total_allele_frequencies[index_ac] = (
                     total_allele_frequencies[index_ac] + allele_frequency
                 )
+                multiplied_allele_frequencies[index_ac] = multiplied_allele_frequencies[
+                    index_ac
+                ] * (1 - allele_frequency)
 
     # calculate total summary frequency and prevalence
     carrier_frequency_array = []
@@ -314,9 +319,15 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         }
         carrier_frequency_raw_numbers_array.append(carrier_frequency_raw_numbers)
 
+    prevalence_bayesian_array = []
+    for q in multiplied_allele_frequencies:
+        prevalence_bayesian = (1 - q) ** 2
+        prevalence_bayesian_array.append(prevalence_bayesian)
+
     calculations_object = {
-        "carrier_frequency": carrier_frequency_array,
         "prevalence": prevalence_array,
+        "prevalence_bayesian": prevalence_bayesian_array,
+        "carrier_frequency": carrier_frequency_array,
         "carrier_frequency_simplified": carrier_frequency_simplified_array,
         "carrier_frequency_raw_numbers": carrier_frequency_raw_numbers_array,
     }
