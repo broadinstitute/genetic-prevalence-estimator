@@ -45,6 +45,7 @@ import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
 import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
+import { returnDomainOrLink } from "../VariantListPage/VariantListMetadata";
 
 type DashboardList = {
   gene_id: string;
@@ -70,7 +71,6 @@ type DashboardList = {
         global: number;
       };
     };
-    supporting_documents?: string;
     owners: string[];
   };
   inheritance_type: string;
@@ -223,7 +223,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "representative_contact",
     heading: "Contact for public estimate",
-    width: 200,
+    width: 240,
     render: (dashboardList) => {
       const ownersArray = dashboardList.representative_variant_list
         ? dashboardList.representative_variant_list.owners
@@ -234,23 +234,24 @@ const BASE_COLUMNS: ColumnDef[] = [
   },
 
   {
-    key: "supporting_documents",
-    heading: "Supporting documents",
+    key: "supporting_document",
+    heading: "Supporting document",
     width: 200,
     render: (dashboardList) => {
       return (
         <Cell maxWidth={200}>
           {dashboardList.representative_variant_list &&
-            dashboardList.representative_variant_list.supporting_documents && (
+            dashboardList.representative_variant_list.supporting_document && (
               <Link
                 href={
-                  dashboardList.representative_variant_list.supporting_documents
+                  dashboardList.representative_variant_list.supporting_document
                 }
                 isExternal
                 target="_blank"
               >
-                {/* TODO: include supporting documents on dashboard list model */}
-                {"documents"}
+                {returnDomainOrLink(
+                  dashboardList.representative_variant_list.supporting_document
+                )}
               </Link>
             )}
         </Cell>

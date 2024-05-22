@@ -117,6 +117,7 @@ interface VariantListAccessPermission {
 export interface VariantList {
   uuid: string;
   label: string;
+  supporting_document: string;
   notes: string;
   type: VariantListType;
   metadata: VariantListMetadata;
