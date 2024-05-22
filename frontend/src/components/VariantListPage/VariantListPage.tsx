@@ -119,6 +119,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     variantNotes: {},
     variantCalculations: {
       prevalence: {},
+      prevalenceBayesian: {},
       carrierFrequency: {},
       carrierFrequencySimplified: {},
       carrierFrequencyRawNumbers: {},
