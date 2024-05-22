@@ -42,6 +42,11 @@ type VariantListChartsProps = {
     plofOnlyCarrierFrequencySimplified?: PopIdNumberRecord | null;
     plofOnlyCarrierFrequencyRawNumbers?: PopIdRawCarrierNumberRecord | null;
   };
+
+  includeHomozygotesOptions?: {
+    includeHomozygotesInCalculations: boolean;
+    setIncludeHomozygotesInCalculations: (v: boolean) => void;
+  };
 };
 
 const VariantListCharts = (props: VariantListChartsProps) => {
@@ -49,6 +54,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     genetic_ancestry_groups,
     hasOptionToShowContributionsBySource,
     calculations,
+    includeHomozygotesOptions,
   } = props;
 
   const {
@@ -269,6 +275,25 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           )}
         </Flex>
 
+        {includeHomozygotesOptions && (
+          <Box>
+            <Checkbox
+              isChecked={
+                includeHomozygotesOptions.includeHomozygotesInCalculations
+              }
+              onChange={(e) => {
+                includeHomozygotesOptions.setIncludeHomozygotesInCalculations(
+                  e.target.checked
+                );
+              }}
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                Include homozygotes in calculations
+              </span>
+            </Checkbox>
+          </Box>
+        )}
+
         <Box>
           <Checkbox
             disabled={!variantListHasSubcontinentalPopulations}
@@ -329,6 +354,24 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           />
         </Box>
 
+        {includeHomozygotesOptions && (
+          <Box>
+            <Checkbox
+              isChecked={
+                includeHomozygotesOptions.includeHomozygotesInCalculations
+              }
+              onChange={(e) => {
+                includeHomozygotesOptions.setIncludeHomozygotesInCalculations(
+                  e.target.checked
+                );
+              }}
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                Include homozygotes in calculations
+              </span>
+            </Checkbox>
+          </Box>
+        )}
         <Box>
           <Checkbox
             disabled={!variantListHasSubcontinentalPopulations}
