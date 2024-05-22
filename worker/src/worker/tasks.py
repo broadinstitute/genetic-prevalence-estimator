@@ -10,7 +10,12 @@ import requests
 from django.conf import settings
 
 from calculator.models import VariantList, DashboardList
-from calculator.serializers import VariantListSerializer, DashboardListSerializer
+from calculator.serializers import (
+    VariantListSerializer,
+    DashboardListSerializer,
+    is_variant_id,
+    is_structural_variant_id,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -411,6 +416,14 @@ def _process_variant_list(variant_list):
     # Import existing variants into a Hail Table
     ds = None
     if variant_list.variants:
+        # filter out any bad variant -- needed when users could accidentally include v2 SV notation
+        #   and the frontend/backend would interpret this as a short variant, resulting in lists
+        #   in a limbo state, with an incorrect id stuck in them which caused them to infinitely
+        #   fail when attempting to re-process
+        variant_list.variants = [
+            variant for variant in variant_list.variants if is_variant_id(variant["id"])
+        ]
+
         chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
         variant_ids = [
             f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
