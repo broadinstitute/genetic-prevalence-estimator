@@ -84,8 +84,6 @@ const CustomVariantListForm = () => {
             variantListRequest.metadata.transcript_id = transcriptId;
           }
 
-          console.log(variantListRequest);
-
           if (!isSubmitting) {
             setIsSubmitting(true);
             submitVariantList(variantListRequest).then(
