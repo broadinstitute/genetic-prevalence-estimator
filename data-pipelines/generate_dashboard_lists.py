@@ -421,9 +421,9 @@ def prepare_dashboard_lists(genes_fullpath):
 
     # TODO: need to get orphanet data, create task to call and create its own CSV
     LOCAL_ORPHANET_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/orphanet_prevalences.tsv"
-    ds_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
+    df_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
 
-    ds = annotate_variants_with_orphanet_prevalences(ds, ds_orphanet_prevalences)
+    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
