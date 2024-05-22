@@ -154,7 +154,7 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
                                 == 0
                             )
                         ),
-                        ds.freq[sample_set][field],
+                        ds.freq[sample_set].get(field, zeroes),
                         zeroes,
                     )
                     for sample_set in datasets_to_use
