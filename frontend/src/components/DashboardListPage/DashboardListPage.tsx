@@ -144,6 +144,10 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             seriesData: dashboardList.variant_calculations.prevalence,
             geneticAncestryGroups: dashboardList.metadata.populations,
           }),
+          prevalenceBayesian: toRecord({
+            seriesData: dashboardList.variant_calculations.prevalence_bayesian,
+            geneticAncestryGroups: dashboardList.metadata.populations,
+          }),
           carrierFrequency: toRecord({
             seriesData: dashboardList.variant_calculations.carrier_frequency,
             geneticAncestryGroups: dashboardList.metadata.populations,

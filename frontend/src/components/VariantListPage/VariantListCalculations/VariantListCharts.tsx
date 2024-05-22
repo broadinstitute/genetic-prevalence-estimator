@@ -23,6 +23,10 @@ import {
   CarrierFrequencyModel,
   CarrierFrequencyModelInput,
 } from "./carrierFrequencyModels";
+import {
+  GeneticPrevalenceModel,
+  GeneticPrevalenceModelInput,
+} from "./geneticPrevalenceModels";
 import CalculationsTable from "./CalculationsTable";
 import { PopIdNumberRecord, PopIdRawCarrierNumberRecord } from "./calculations";
 
@@ -32,6 +36,7 @@ type VariantListChartsProps = {
 
   calculations: {
     prevalence: PopIdNumberRecord;
+    prevalenceBayesian: PopIdNumberRecord;
     carrierFrequency: PopIdNumberRecord;
     carrierFrequencySimplified?: PopIdNumberRecord;
     carrierFrequencyRawNumbers?: PopIdRawCarrierNumberRecord;
@@ -62,6 +67,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     carrierFrequencySimplified,
     carrierFrequencyRawNumbers,
     prevalence,
+    prevalenceBayesian,
     clinvarOnlyCarrierFrequency,
     clinvarOnlyCarrierFrequencySimplified,
     clinvarOnlyCarrierFrequencyRawNumbers,
@@ -99,14 +105,18 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     setDisplayFormatCarrierFrequency,
   ] = useState<DisplayFormat>("fraction");
   const [
-    displayFormatGeneticPrevalence,
-    setDisplayFormatGeneticPrevalence,
-  ] = useState<DisplayFormat>("fraction");
-
-  const [
     carrierFrequencyModel,
     setCarrierFrequencyModel,
   ] = useState<CarrierFrequencyModel>("full");
+
+  const [
+    displayFormatGeneticPrevalence,
+    setDisplayFormatGeneticPrevalence,
+  ] = useState<DisplayFormat>("fraction");
+  const [
+    geneticPrevalenceModel,
+    setGeneticPrevalenceModel,
+  ] = useState<GeneticPrevalenceModel>("simplified");
 
   const [showContributionsBySource, setShowContributionsBySource] = useState(
     false
@@ -324,7 +334,10 @@ const VariantListCharts = (props: VariantListChartsProps) => {
               columns={[
                 {
                   label: "Prevalence",
-                  data: prevalence!,
+                  data:
+                    geneticPrevalenceModel === "simplified"
+                      ? prevalence!
+                      : prevalenceBayesian!,
                 },
               ]}
               populations={sortedPopulations}
@@ -338,7 +351,12 @@ const VariantListCharts = (props: VariantListChartsProps) => {
               series={[
                 {
                   label: "Prevalence",
-                  data: toSeries(prevalence!, includeSubcontinentalPopulations),
+                  data: toSeries(
+                    geneticPrevalenceModel === "simplified"
+                      ? prevalence!
+                      : prevalenceBayesian!,
+                    includeSubcontinentalPopulations
+                  ),
                 },
               ]}
               displayFormat={displayFormatGeneticPrevalence}
@@ -346,13 +364,25 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           </Box>
         </Stack>
 
-        <Box mb={4}>
-          <DisplayFormatInput
-            value={displayFormatGeneticPrevalence}
-            onChange={setDisplayFormatGeneticPrevalence}
-            includeFractionOf100000
-          />
-        </Box>
+        <Flex align="flex-end" justify="space-between" wrap="wrap" mb={4}>
+          <HStack spacing={16}>
+            <div>
+              <GeneticPrevalenceModelInput
+                value={geneticPrevalenceModel}
+                onChange={(e) => {
+                  setGeneticPrevalenceModel(e);
+                }}
+              />
+            </div>
+            <Box mb={4}>
+              <DisplayFormatInput
+                value={displayFormatGeneticPrevalence}
+                onChange={setDisplayFormatGeneticPrevalence}
+                includeFractionOf100000
+              />
+            </Box>
+          </HStack>
+        </Flex>
 
         {includeHomozygotesOptions && (
           <Box>

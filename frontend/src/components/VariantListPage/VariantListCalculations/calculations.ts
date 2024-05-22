@@ -90,6 +90,8 @@ export type PopIdRawCarrierNumberRecord = Partial<
 
 export type VariantListCalculations = {
   prevalence: PopIdNumberRecord;
+  prevalenceBayesian: PopIdNumberRecord;
+
   carrierFrequency: PopIdNumberRecord;
   carrierFrequencySimplified: PopIdNumberRecord;
   carrierFrequencyRawNumbers: PopIdRawCarrierNumberRecord;
