@@ -31,6 +31,8 @@ from calculator.serializers import (
     VariantListSerializer,
     VariantListAnnotationSerializer,
     VariantListDashboardSerializer,
+    is_variant_id,
+    is_structural_variant_id,
 )
 from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
@@ -214,10 +216,29 @@ class VariantListVariantsView(GenericAPIView):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         added_variants = serializer.validated_data["variants"]
+        for variant in added_variants:
+            if not is_variant_id(variant):
+                raise ValidationError(
+                    f"All short variants must be of a valid ID, malformed ID: {variant}"
+                )
+
         added_structural_variants = serializer.validated_data.get(
             "structural_variants", []
         )
+        if (
+            len(added_structural_variants) > 0
+            and variant_list.metadata["gnomad_version"] != "4.1.0"
+        ):
+            raise ValidationError(
+                f"gnomAD version {variant_list.metadata['gnomad_version']} does not support Structural Variants yet"
+            )
+        for structural_variant in added_structural_variants:
+            if not is_structural_variant_id(structural_variant):
+                raise ValidationError(
+                    f"All structural variants must have a valid ID, malformed ID: {structural_variant}",
+                )
 
         if variant_list.status not in (
             VariantList.Status.READY,

@@ -745,7 +745,7 @@ class TestDeleteVariantList:
             type=VariantList.Type.CUSTOM,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -825,7 +825,7 @@ class TestProcessVariantList:
             status=VariantList.Status.READY,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -918,7 +918,7 @@ class TestVariantListVariantsView:
             status=VariantList.Status.READY,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -1080,7 +1080,7 @@ class TestVariantListVariantsView:
             status=status,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[{"id": "1-55516888-G-GA"}],
         )
@@ -1373,7 +1373,7 @@ class TestGetVariantListSharedAnnotation:
             type=VariantList.Type.CUSTOM,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[
                 {"id": "1-55516888-G-A"},
@@ -1387,7 +1387,7 @@ class TestGetVariantListSharedAnnotation:
             type=VariantList.Type.CUSTOM,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[
                 {"id": "1-55516888-G-A"},
@@ -1509,7 +1509,7 @@ class TestEditVariantListSharedAnnotation:
             type=VariantList.Type.CUSTOM,
             metadata={
                 "version": "2",
-                "gnomad_version": "2.1.1",
+                "gnomad_version": "4.1.0",
             },
             variants=[
                 {"id": "1-55516888-G-A"},
