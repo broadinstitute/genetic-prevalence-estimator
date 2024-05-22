@@ -8,9 +8,11 @@ on:
       - main
     paths:
       - "frontend/**"
+      - "data-pipelines/tests/calculationsData.json"
   pull_request:
     paths:
       - "frontend/**"
+      - "data-pipelines/tests/calculationsData.json"
 jobs:
   checks:
     name: Checks
