@@ -3,6 +3,8 @@ from calculator.serializers.variant_list_serializer import (
     NewVariantListSerializer,
     VariantListSerializer,
     VariantListDashboardSerializer,
+    is_variant_id,
+    is_structural_variant_id,
 )
 from calculator.serializers.variant_list_access_permission_serializer import (
     NewVariantListAccessPermissionSerializer,
