@@ -137,9 +137,24 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const calculationsHaveNeverBeenSavedToDatabase = (annotation: {
     variant_calculations: VariantListCalculations;
   }) => {
-    const databaseResponseIsEmptyHuh =
-      Object.keys(annotation.variant_calculations).length === 0;
-    return databaseResponseIsEmptyHuh;
+    const expectedKeys = [
+      "prevalence",
+      "prevalenceBayesian",
+      "carrierFrequency",
+      "carrierFrequencySimplified",
+      "carrierFrequencyRawNumbers",
+      "plofOnlyCarrierFrequency",
+      "plofOnlyCarrierFrequencySimplified",
+      "plofOnlyCarrierFrequencyRawNumbers",
+      "clinvarOnlyCarrierFrequency",
+      "clinvarOnlyCarrierFrequencyRawNumbers",
+      "clinvarOnlyCarrierFrequencySimplified",
+    ];
+
+    const isAnyCalcMissingFromDatabase = !expectedKeys.every((key) =>
+      annotation.variant_calculations.hasOwnProperty(key)
+    );
+    return isAnyCalcMissingFromDatabase;
   };
 
   useEffect(() => {
