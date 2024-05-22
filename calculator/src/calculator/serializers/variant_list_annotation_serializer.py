@@ -77,5 +77,6 @@ class VariantListAnnotationSerializer(ModelSerializer):
         fields = [
             "selected_variants",
             "variant_notes",
+            "include_homozygotes_in_calculations",
             "variant_calculations",
         ]
