@@ -21,6 +21,16 @@ const formatClinvarReleaseDate = (releaseDate: string) => {
   return clinvarDateFormatter.format(date);
 };
 
+export const returnDomainOrLink = (url: string) => {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.hostname;
+  } catch (error) {
+    console.log("Malformed URL:", error);
+    return url;
+  }
+};
+
 const VariantListMetadata = (props: { variantList: VariantList }) => {
   const { variantList } = props;
 
@@ -32,6 +42,17 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
 
   return (
     <DescriptionList mb={4}>
+      {variantList.supporting_document && (
+        <DescriptionListItem label="Supporting document">
+          <Link
+            href={variantList.supporting_document}
+            isExternal
+            target="_blank"
+          >
+            {returnDomainOrLink(variantList.supporting_document)}
+          </Link>
+        </DescriptionListItem>
+      )}
       <DescriptionListItem label="Type">
         {formatVariantListType(variantList)}
       </DescriptionListItem>

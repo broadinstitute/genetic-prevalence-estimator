@@ -29,6 +29,7 @@ interface VariantListPatch {
   label: string;
   notes: string;
   is_public: boolean;
+  supporting_document: string;
 }
 
 const submitVariantList = (
@@ -44,6 +45,15 @@ interface EditVariantListFormProps {
   onSuccessfulEdit: () => void;
 }
 
+const isValidURL = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 const EditVariantListForm = (props: EditVariantListFormProps) => {
   const { variantListStore, onSuccessfulEdit, onCancel } = props;
   const variantList = useStore(variantListStore);
@@ -53,6 +63,11 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
   const [label, setLabel] = useState(variantList.label);
   const [notes, setNotes] = useState(variantList.notes);
   const [isPublic, setIsPublic] = useState(variantList.is_public);
+  const [supportingDocument, setSupportingDocument] = useState(
+    variantList.supporting_document
+  );
+  const supportingDocumentIsValid =
+    supportingDocument === "" || isValidURL(supportingDocument);
 
   const toast = useToast();
 
@@ -67,6 +82,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
             label,
             notes,
             is_public: isPublic,
+            supporting_document: supportingDocument,
           }).then(
             (updatedVariantList) => {
               variantListStore.set(updatedVariantList);
@@ -129,6 +145,22 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
             <option value="true">Public</option>
             <option value="false">Private</option>
           </Select>
+        </FormControl>
+
+        <FormControl
+          id="edit-variant-list-supporting-document"
+          isInvalid={!supportingDocumentIsValid}
+        >
+          <FormLabel>Supporting document</FormLabel>
+          <Input
+            value={supportingDocument}
+            onChange={(e) => {
+              setSupportingDocument(e.target.value);
+            }}
+          />
+          <FormErrorMessage>
+            Supporting document must be a valid URL
+          </FormErrorMessage>
         </FormControl>
 
         <HStack justify="flex-end" width="100%">
