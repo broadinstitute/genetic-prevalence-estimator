@@ -298,7 +298,7 @@ const DashboardListPageContainer = (props: { uuid: string }) => {
             </BreadcrumbItem>
             <BreadcrumbItem>
               <BreadcrumbLink as={RRLink} to="/dashboard/">
-                Dashboard Lists
+                Dashboard
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
@@ -331,7 +331,7 @@ const DashboardListPageContainer = (props: { uuid: string }) => {
             </BreadcrumbItem>
             <BreadcrumbItem>
               <BreadcrumbLink as={RRLink} to="/dashboard/">
-                Dashboard Lists
+                Dashboard
               </BreadcrumbLink>
             </BreadcrumbItem>
 

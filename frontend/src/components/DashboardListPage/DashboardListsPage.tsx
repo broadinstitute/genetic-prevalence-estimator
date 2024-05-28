@@ -711,7 +711,7 @@ const DashboardListContainer = () => {
 const DashboardListsPage = () => {
   return (
     <>
-      <DocumentTitle title="Dashboard Lists" />
+      <DocumentTitle title="Dashboard" />
 
       <Box mb={2}>
         <Breadcrumb>
@@ -721,12 +721,12 @@ const DashboardListsPage = () => {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <span>Dashboard lists</span>
+            <span>Dashboard</span>
           </BreadcrumbItem>
         </Breadcrumb>
       </Box>
       <Heading as="h1" mb={4}>
-        Dashboard lists
+        Dashboard
       </Heading>
 
       <DashboardListContainer />
