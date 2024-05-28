@@ -69,25 +69,31 @@ const VariantListReviewStatus = ({
       });
   };
 
+  const representativeStatusToWordingMap = {
+    Pending: "This list is pending approval to be represented on the dashboard",
+    Rejected: "This list was not chosen to be on the dashboard",
+    Approved: "This list is currently represented on the dashboard",
+  };
+
   return (
     <Box mb={4}>
       <Heading as="h2" size="md" mb={2}>
         Representivity
       </Heading>
-      <Text mb={2}>{`This variant list is ${
-        variantList.representative_status
-          ? variantList.representative_status.toLowerCase()
-          : "not the representative"
-      }`}</Text>
+      <Text mb={2}>
+        {variantList.representative_status
+          ? representativeStatusToWordingMap[variantList.representative_status]
+          : "This list is not currently represented on the dashboard"}
+      </Text>
       {variantList.representative_status === "" && (
         <ButtonWithConfirmation
           size="sm"
-          confirmationPrompt="Representativity requires staff approval. Approved representative lists are public to view by any user of the website, this includes the emails of any associated owners of the list."
+          confirmationPrompt="Inclusion on the dashboard requires staff approval. Approved representative lists are public to view by any user of the website, this includes the emails of any associated owners of the list."
           confirmButtonText="Make representative"
           confirmButtonColorScheme="blue"
           onClick={() => makeVariantListRepresentative()}
         >
-          Submit to be representative
+          Apply to be included on the dashboard
         </ButtonWithConfirmation>
       )}
 
