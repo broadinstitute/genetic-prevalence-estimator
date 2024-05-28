@@ -173,7 +173,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     render: (dashboardList) => {
       return (
         <Cell maxWidth={200}>
-          <Link as={RRLink} to={`/dashboard-lists/${dashboardList.gene_id}`}>
+          <Link as={RRLink} to={`/dashboard/${dashboardList.gene_id}`}>
             {renderFrequencyFraction(
               dashboardList.estimates.genetic_prevalence[0]
             )}

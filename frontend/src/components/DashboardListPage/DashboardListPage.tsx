@@ -117,7 +117,7 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             onClick={() => {
               deleteDashboardList(dashboardList.uuid).then(
                 () => {
-                  history.push("/dashboard-lists/");
+                  history.push("/dashboard/");
                 },
                 (error) => {
                   toast({
@@ -297,7 +297,7 @@ const DashboardListPageContainer = (props: { uuid: string }) => {
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <BreadcrumbLink as={RRLink} to="/dashboard-lists/">
+              <BreadcrumbLink as={RRLink} to="/dashboard/">
                 Dashboard Lists
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -330,7 +330,7 @@ const DashboardListPageContainer = (props: { uuid: string }) => {
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <BreadcrumbLink as={RRLink} to="/dashboard-lists/">
+              <BreadcrumbLink as={RRLink} to="/dashboard/">
                 Dashboard Lists
               </BreadcrumbLink>
             </BreadcrumbItem>

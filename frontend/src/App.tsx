@@ -171,7 +171,7 @@ const App = () => {
                         <MenuItem as={RRLink} to="/status/">
                           System status
                         </MenuItem>
-                        <MenuItem as={RRLink} to="/dashboard-lists/">
+                        <MenuItem as={RRLink} to="/dashboard/">
                           Dashboard
                         </MenuItem>
                       </>
@@ -228,12 +228,12 @@ const App = () => {
           />
           <Route
             exact
-            path="/dashboard-lists/"
+            path="/dashboard/"
             render={() => <DashboardListsPage />}
           />
           <Route
             exact
-            path="/dashboard-lists/:uuid/"
+            path="/dashboard/:uuid/"
             render={({ match }) => (
               <DashboardListPage uuid={match.params.uuid} />
             )}
