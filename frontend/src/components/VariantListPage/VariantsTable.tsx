@@ -302,9 +302,9 @@ const BASE_COLUMNS: ColumnDef[] = [
           {variant.flags?.includes("has_homozygotes") && (
             <Tooltip
               hasArrow
-              label={`${variant.homozygote_count![0]} individual${
+              label={`${variant.homozygote_count![0]} homozygous individual${
                 variant.homozygote_count![0] !== 1 ? "s" : ""
-              } homozygous with this variant`}
+              } in gnomAD`}
             >
               <Badge
                 colorScheme="yellow"
