@@ -272,7 +272,7 @@ const BASE_COLUMNS: ColumnDef[] = [
       return (
         <Cell maxWidth={200}>
           <Link
-            href={`https://www.orpha.net/en/disease`}
+            href={`https://www.orpha.net/en/disease/gene/${dashboardList.gene_symbol.toUpperCase()}?name=${dashboardList.gene_symbol.toLocaleLowerCase()}&mode=gene`}
             isExternal
             target="_blank"
           >
