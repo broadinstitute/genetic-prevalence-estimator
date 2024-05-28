@@ -687,28 +687,52 @@ def prepare_gnomad_variants(gnomad_version, *, intervals=None, partitions=2000):
         ).filter(hl.is_defined)
     )
 
-    ds = ds.transmute(
-        filters=hl.struct(
-            exome=hl.or_missing(
-                hl.is_defined(ds.exome_filters) & (hl.len(ds.exome_filters) > 0),
-                ds.exome_filters,
-            ),
-            genome=hl.or_missing(
-                hl.is_defined(ds.genome_filters) & (hl.len(ds.genome_filters) > 0),
-                ds.genome_filters,
-            ),
-            joint=hl.or_missing(
-                hl.is_defined(ds.joint_filters) & (hl.len(ds.joint_filters) > 0),
-                ds.joint_filters,
-            ),
+    if gnomad_version == 4:
+        ds = ds.transmute(
+            filters=hl.struct(
+                exome=hl.or_missing(
+                    hl.is_defined(ds.exome_filters) & (hl.len(ds.exome_filters) > 0),
+                    ds.exome_filters,
+                ),
+                genome=hl.or_missing(
+                    hl.is_defined(ds.genome_filters) & (hl.len(ds.genome_filters) > 0),
+                    ds.genome_filters,
+                ),
+                joint=hl.or_missing(
+                    hl.is_defined(ds.joint_filters) & (hl.len(ds.joint_filters) > 0),
+                    ds.joint_filters,
+                ),
+            )
         )
-    )
-    ds = ds.annotate(
-        filters=hl.or_missing(
-            hl.is_defined(ds.filters.exome) | hl.is_defined(ds.filters.genome),
-            ds.filters,
+
+        ds = ds.annotate(
+            filters=hl.or_missing(
+                hl.is_defined(ds.filters.exome)
+                | hl.is_defined(ds.filters.genome)
+                | hl.is_defined(ds.filters.joint),
+                ds.filters,
+            )
         )
-    )
+    else:
+        ds = ds.transmute(
+            filters=hl.struct(
+                exome=hl.or_missing(
+                    hl.is_defined(ds.exome_filters) & (hl.len(ds.exome_filters) > 0),
+                    ds.exome_filters,
+                ),
+                genome=hl.or_missing(
+                    hl.is_defined(ds.genome_filters) & (hl.len(ds.genome_filters) > 0),
+                    ds.genome_filters,
+                ),
+            )
+        )
+
+        ds = ds.annotate(
+            filters=hl.or_missing(
+                hl.is_defined(ds.filters.exome) | hl.is_defined(ds.filters.genome),
+                ds.filters,
+            )
+        )
 
     ds = ds.annotate(
         transcript_consequences=ds.transcript_consequences.map(
