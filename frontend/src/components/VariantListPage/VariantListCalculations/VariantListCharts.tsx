@@ -298,7 +298,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
               }}
             >
               <span style={{ whiteSpace: "nowrap" }}>
-                Include homozygotes in calculations
+                Include gnomAD homozygotes in calculations
               </span>
             </Checkbox>
           </Box>
@@ -397,7 +397,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
               }}
             >
               <span style={{ whiteSpace: "nowrap" }}>
-                Include homozygotes in calculations
+                Include gnomAD homozygotes in calculations
               </span>
             </Checkbox>
           </Box>
