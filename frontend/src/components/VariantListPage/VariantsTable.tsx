@@ -180,7 +180,7 @@ const BASE_COLUMNS: ColumnDef[] = [
         : variant.id;
 
       return (
-        <Cell maxWidth={200}>
+        <Cell maxWidth={160}>
           <Link
             href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${dataset}`}
             isExternal
@@ -219,7 +219,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     heading: "HGVSc",
     sortKey: (variant) => variant.hgvsc || "",
     render: (variant) => {
-      return <Cell maxWidth={150}>{variant.hgvsc}</Cell>;
+      return <Cell maxWidth={110}>{variant.hgvsc}</Cell>;
     },
   },
   {
@@ -227,7 +227,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     heading: "HGVSp",
     sortKey: (variant) => variant.hgvsp || "",
     render: (variant) => {
-      return <Cell maxWidth={150}>{variant.hgvsp}</Cell>;
+      return <Cell maxWidth={110}>{variant.hgvsp}</Cell>;
     },
   },
   {

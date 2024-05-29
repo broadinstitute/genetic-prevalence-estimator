@@ -263,7 +263,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           scope="row"
         >
           <span
-            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -296,7 +296,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -304,7 +304,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -387,7 +387,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           scope="row"
         >
           <span
-            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -420,7 +420,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -428,7 +428,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -511,7 +511,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           scope="row"
         >
           <span
-            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -544,7 +544,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -552,7 +552,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -652,7 +652,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           scope="row"
         >
           <span
-            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -685,7 +685,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -693,7 +693,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -819,7 +819,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           scope="row"
         >
           <span
-            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -852,7 +852,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
@@ -860,7 +860,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
