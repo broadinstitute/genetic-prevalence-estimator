@@ -229,7 +229,13 @@ const BASE_COLUMNS: ColumnDef[] = [
         ? dashboardList.representative_variant_list.owners
         : [""];
 
-      return <Cell maxWidth={200}>{ownersArray[0]}</Cell>;
+      return (
+        <Cell maxWidth={200}>
+          <Tooltip hasArrow label={ownersArray[0]}>
+            {ownersArray[0]}
+          </Tooltip>
+        </Cell>
+      );
     },
   },
 
