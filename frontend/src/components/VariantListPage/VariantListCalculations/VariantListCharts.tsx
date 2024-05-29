@@ -321,7 +321,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
 
       <Box mb={8}>
         <Heading as="h2" size="md" mb={2}>
-          Prevalence
+          Genetic Prevalence
         </Heading>
 
         <Stack
@@ -333,7 +333,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             <CalculationsTable
               columns={[
                 {
-                  label: "Prevalence",
+                  label: "Genetic prevalence",
                   data:
                     geneticPrevalenceModel === "simplified"
                       ? prevalence!
@@ -346,11 +346,11 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
-              label="Prevalence"
+              label="Genetic prevalence"
               populations={sortedPopulations}
               series={[
                 {
-                  label: "Prevalence",
+                  label: "Genetic prevalence",
                   data: toSeries(
                     geneticPrevalenceModel === "simplified"
                       ? prevalence!
