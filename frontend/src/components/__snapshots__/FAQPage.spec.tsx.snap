@@ -43,6 +43,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
   >
     Frequently asked questions
   </h1>
+  <p
+    class="chakra-text css-0"
+  >
+    Below are commonly asked questions.
+  </p>
   <div
     class="chakra-accordion css-0"
   >
@@ -60,7 +65,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         <h2
           class="chakra-heading css-acszkm"
         >
-          Why do I need to sign in?
+          Why do I need to log in?
         </h2>
         <svg
           aria-hidden="true"
@@ -87,7 +92,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
           <p
             class="chakra-text css-0"
           >
-            In order to store your variant lists, and allow you to edit them overtime we need to have you signed in. By having users sign in we are also able to allow sharing lists across users, enabling collaboration.
+            In order to store your variant lists and allow you to edit them over time, we need to have you logged into a Google account. By having users log in, we are also able to allow for sharing of lists across users, enabling collaboration.
           </p>
         </div>
       </div>
@@ -106,7 +111,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         <h2
           class="chakra-heading css-acszkm"
         >
-          Why do you call this an Estimated Genetic Prevalence?
+          How do you pronounce GeniE
         </h2>
         <svg
           aria-hidden="true"
@@ -131,12 +136,58 @@ exports[`FAQPage has no unexpected changes 1`] = `
           role="region"
         >
           <p
+            class="chakra-text css-0"
+          >
+            Jee · nee
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-3"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="2"
+        id="accordion-button-3"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          Why do you call this an Estimated Genetic Prevalence?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-3"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-3"
+          role="region"
+        >
+          <p
             class="chakra-text css-wlea3r"
           >
             <strong>
               Prevalence
             </strong>
-             is the proportion of a population that has a specific characteristic in a given time period, regardless of when the characteristic first appears.
+             is the proportion of a population that has a specific characteristic in a given time period. Example: "1 in 10 Americans has Type 2 diabetes"
           </p>
           <p
             class="chakra-text css-wlea3r"
@@ -144,7 +195,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
             <strong>
               Incidence
             </strong>
-             is the measure of the number of new cases with a specific characteristic in a population over a specified time period; (ex. cases per 100,000 births)
+             is the measure of the number of new cases with a specific characteristic or disease in a population over a specified time period. Example: "Every year, 1 in every 600 women is diagnosed with breast cancer"
           </p>
           <p
             class="chakra-text css-0"
@@ -171,52 +222,6 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-3"
-        aria-expanded="false"
-        class="chakra-accordion__button css-9179w8"
-        data-index="2"
-        id="accordion-button-3"
-        type="button"
-      >
-        <h2
-          class="chakra-heading css-acszkm"
-        >
-          Why is this calculator not suited for autosomal dominant and x-linked conditions?
-        </h2>
-        <svg
-          aria-hidden="true"
-          class="chakra-icon chakra-accordion__icon css-8o5ky2"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
-            fill="currentColor"
-          />
-        </svg>
-      </button>
-      <div
-        class="chakra-collapse"
-        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
-      >
-        <div
-          aria-labelledby="accordion-button-3"
-          class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-3"
-          role="region"
-        >
-          <p
-            class="chakra-text css-0"
-          >
-            This method is designed for autosomal recessive disease. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases, so this method does not work for autosomal dominant or X-linked conditions. For the same reason, the depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD. We are working on creating methods and tools for estimating genetic prevalence of AD and XL diseases and hope to add them in future versions.
-          </p>
-        </div>
-      </div>
-    </div>
-    <div
-      class="chakra-accordion__item css-1fsnuue"
-    >
-      <button
         aria-controls="accordion-panel-4"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
@@ -227,7 +232,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         <h2
           class="chakra-heading css-acszkm"
         >
-          Why don’t I see all the populations in gnomAD in the graphs?
+          Is the Estimated Genetic Prevalence the same as disease prevalence?
         </h2>
         <svg
           aria-hidden="true"
@@ -254,16 +259,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
           <p
             class="chakra-text css-0"
           >
-            Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
-            <a
-              class="chakra-link css-0"
-              href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              PMID: 30311383
-            </a>
-            ). Due to this recommendation we only return results for subpopulations with more than 2,000 reference alleles.
+            No. Genetic prevalence correlates but does not equate to disease prevalence (PMID: 34078906). Genetic prevalence refers to the proportion of a population that has a causal genotype for a specific genetic disorder, irrespective of whether these individuals will or will not manifest the disease. For instance, if the causative genotype is not fully penetrant, then the estimated genetic prevalence will be higher than actual disease prevalence. To learn more about the factors that shape the estimated genetic prevalence, please read “What factors should I consider when interpreting the results?”.
           </p>
         </div>
       </div>
@@ -282,7 +278,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         <h2
           class="chakra-heading css-acszkm"
         >
-          Why do I not see all known pathogenic variants in my list?
+          What method does GeniE use to calculate carrier frequency and genetic prevalence?
         </h2>
         <svg
           aria-hidden="true"
@@ -309,7 +305,222 @@ exports[`FAQPage has no unexpected changes 1`] = `
           <p
             class="chakra-text css-0"
           >
-            Since we use gnomAD as our reference database for allele frequencies we can only include variants that have been seen in 1 or more individuals in gnomAD. If a variant is absent from gnomAD, it will not be listed in your report, but that doesn’t not mean it is not pathogenic. It means that the variant is either low frequency, it is not well covered by exome and/or genome sequencing, or is present in a population not well represented in gnomAD. The variant could be in future versions of gnomAD, which is why we recommend reassessing these frequencies after new gnomAD releases.
+            GeniE offers multiple methods for calculating carrier frequency and genetic prevalence, allowing users to easily compare and constrast the various methods and find the one that works best for their gene/disease of interest. All of these methods are based primarily on the 
+            <a
+              class="chakra-link css-0"
+              href="https://en.wikipedia.org/wiki/Hardy-Weinberg_principle"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Hardy-Weinberg principle
+            </a>
+            (HW):
+          </p>
+          <p
+            class="chakra-text css-15fzge"
+          >
+            <em>
+              P
+              <sup>
+                2
+              </sup>
+               + 2pq + q
+              <sup>
+                2
+              </sup>
+               = 1
+            </em>
+          </p>
+          <p
+            class="chakra-text css-1isemmb"
+          />
+          <ul
+            class="css-tu0njr"
+            role="list"
+          >
+            <li
+              class="css-0"
+            >
+              p
+              <sup>
+                2
+              </sup>
+               = homozygous reference allele frequency (AA)
+            </li>
+            <li
+              class="css-0"
+            >
+              2pq = heterozygous variant allele frequency (Aa)
+            </li>
+            <li
+              class="css-0"
+            >
+              q
+              <sup>
+                2
+              </sup>
+               = homozygous variant allele frequency (aa)
+            </li>
+          </ul>
+          <p />
+          <p />
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Carrier frequency methods:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            For the purposes of genetic prevalence, 
+            <i>
+              q
+            </i>
+             equals the sum of the allele frequences (AF) for all variants included in the designated variant list (note: variants can be excluded from the sum by unchecking the box next to the variant name). Thre are four options for calculating carrier frequency in GeniE:
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Full (2pq)
+            </i>
+             This method takes into account the aggregate allele frequency of p, which is equal to 1-q.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Simplified (2q)
+            </i>
+             In rare disease, p is so close to 1 that it can be excluded from the formula. This model is often used in rare disease to simplify the math.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Remove gnomAD homozygotes:
+            </i>
+             This version of the formula will subtract the homozygous counts for any variant in the list that has homozygotes in gnomAD before performing the calculations via the formula: 
+          </p>
+          <p
+            class="chakra-text css-15fzge"
+          >
+            AC - 2 * (# of homozygotes)
+          </p>
+          <p
+            class="chakra-text css-1isemmb"
+          >
+            AC = allele count of a particular variant
+          </p>
+          This approach might be taken if there is concern that homozygous variants seen in the general population as represented by gnomaD may not be pathogenic. For some recessive conditions, there are hypomorphic or mild variants that can cause disease when in trans to a more severe variant but do not cause disease in the homozygous state.
+          <p />
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Raw numbers:
+            </i>
+             This option shows you the sum total of the allele counts for all variants included over the average allele number (AN) for all variants included within that ancestry group. Note: the AN can vary for each variant due to differences in coverage across regions of a gene and/or limitations of exomes. 
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Genetic prevalence methods:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Simplified (q
+              <sup>
+                2
+              </sup>
+              )
+            </i>
+            : This method calculates prevalence by squaring the sum of all AFs for variants included in the variant list (q).
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <i>
+              Bayesian method
+            </i>
+            : This model assumes linkage equilibrium across the variants, whcih can make a sligh difference in the estimates for more common recessive diseases. The formula (below) used for this method is based on Schrodi et al 2015 (
+            <a
+              class="chakra-link css-0"
+              rel="noopener noreferrer"
+              target="_blank"
+              to="https://pubmed.ncbi.nlm.nih.gov/25893794/"
+            >
+              PMID: 25893794
+            </a>
+            )
+          </p>
+          <p
+            class="chakra-text css-15fzge"
+          >
+            (1 - ∏
+            <sub>
+              i=1
+            </sub>
+            <sup>
+              k
+            </sup>
+            (1 - p
+            <sub>
+              i
+            </sub>
+            ))
+            <sup>
+              2
+            </sup>
+          </p>
+          <p
+            class="chakra-text css-1isemmb"
+          >
+            p
+            <sub>
+              i
+            </sub>
+             = the frequency of the "i"th pathogenic variant in the populage studied, assuming linkage equilibrium across the variants. This converges to (1 - ∑
+            <sub>
+              i=1
+            </sub>
+            <sup>
+              k
+            </sup>
+            (1 - p
+            <sub>
+              i
+            </sub>
+            ))
+            <sup>
+              2
+            </sup>
+             as the frequencies go to 0.
+          </p>
+          <p />
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Display options
+            </em>
+            :
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            For both carrier frequency and genetic prevalence the user is given a variety of options for displaying the reuslts, including fraction and scientific notation. For genetic prevalence, we also provide the option to see the results as "per 100,00" which is a common metric in epidemiology.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            Users can also compare the results by source (gnomaD vs ClinVar), and choose whether or not to include sub genetic ancestry group estimates (gnomAD v2.1.1 only)
           </p>
         </div>
       </div>
@@ -323,6 +534,404 @@ exports[`FAQPage has no unexpected changes 1`] = `
         class="chakra-accordion__button css-9179w8"
         data-index="5"
         id="accordion-button-6"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          What types of variants does GeniE support?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-6"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-6"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            GeniE supports gnomAD single nucleotide variants (SNVs), small insertions and deletions (indels), and structural variants (SVs).
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-7"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="6"
+        id="accordion-button-7"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          How do I add structural variants to a variant list
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-7"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-7"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            Currently, structural variants (SVs) can only be added via creation of a manual list, or by adding the variant manually after a recommended list is created.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            Please note: for gnomAD v2 SVs there are fewer genetic ancestry groups for both the non-Finnish european and Finnish ancestry groups are included in the "European" ancestry group. For the purposes of display in GeniE, we have included the v2 SV "European" gnetic ancestry group in the "European (non-Finnish)" group.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-8"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="7"
+        id="accordion-button-8"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          How do I add or remove variants after a variant list is created
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-8"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-8"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            To add more variants to a list after a variant list is created, select the '+' button next to the "Variants" header. At this time, variants cannot be completely removed from the list after it is created, but can be excluded from the calculations by unchecking the box next to the gnomAD ID in the variant table.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-9"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="8"
+        id="accordion-button-9"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          Why is this calculator not suited for autosomal dominant and x-linked conditions?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-9"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-9"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            This method is designed for autosomal recessive disease because prevalence can be calculated by observing carriers at expected rates in the general population, i.e., using the carrier frequency in unaffected individuals. In contrast, for dominant disorders, pathogenic variants are typically found in affected individuals who are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases. As a result, this method does not work as well for many autosomal dominant conditions. For X-linked disorders in carrier females, the mild manifestation of disease could have similar effects as dominant disorders. We are working on creating methods and tools for estimating genetic prevalence of AD and XL diseases and hope to add them in future versions. This method is designed for autosomal recessive disease. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases, so this method does not work for autosomal dominant or X-linked conditions. For the same reason, the depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD. We are working on creating methods and tools for estimating genetic prevalence of AD and XL diseases and hope to add them in future versions.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-10"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="9"
+        id="accordion-button-10"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          What version of gnomAD is used in GeniE?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-10"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-10"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            Currently GeniE allows users to select on of two versions of gnomAD: v4.1.0 (default) and v2.1.1. While most of the individuals in v2.1.1 are included in v4.1, there are some key different between the two datasets.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Genome build:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            v4.1.0 is mapped to GRCh38/hg38 and v2.1.1 is mapped to GRCh37/hg19.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Size:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            The gnomAD v4.1.0 data set is over 5 times the size of previous versions of gnomAD, containing 730,947 exomes plus the 76,215 genomes previously called in gnomAD v3, all mapped to the GRCh38/hg38 reference sequence.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            The gnomAD v2.1.1 data set contains data from 125,748 exomes and 15,708 whole genomes, all mapped to the GRCh37/hg19 reference sequence. Most of the data from v2 are included in v4.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Coverage corrections:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            In gnomAD v4.1.0, allele numbers are calculated across all callable sites in the gnomAD exomes and genomes. This allows us to combine exome and genome allele numbers at all sites with gnomAD variation, improving the accuracy of the allele frequency estimtes. In gnomAD v2.1.1 this method was not used, meaning that allele frequencies could look higher than they truly were. An example of this is if a variant was identified in one genome sample in v2, the allele frequency was reported as ~1/32,000 (0.00003) despite there being sufficient coverage in the exomes to show the variant was absent from the other ~220,000 alelles, and thus has a frequency closer to 1/250,000 (0.000004)
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            <em>
+              Genetic ancestry subgroups:
+            </em>
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            Genetic ancestry subgroups (ex. Korean, Bulgariant, Estonian) are available in v2, but not in v4.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-11"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="10"
+        id="accordion-button-11"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          Why don’t I see all the genetic ancestry groups in gnomAD in the graphs?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-11"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-11"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            Clinical Genome Resource (ClinGen) Sequence Variant Interpretation Working Group has recommended only using allele frequencies when there are more than 2,000 reference alleles (
+            <a
+              class="chakra-link css-0"
+              href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              PMID: 30311383
+            </a>
+            ). Due to this recommendation we only return results for genetic ancestry groups with more than 2,000 reference alleles. For more information on the genetic ancestry included in gnomAD and how those are determined, plase see the
+            <a
+              class="chakra-link css-0"
+              href="https://gnomad.broadinstitute.org/help/ancestry"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+               gnomAD FAQ
+            </a>
+            on genetic ancestry.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-12"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="11"
+        id="accordion-button-12"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          Why do I not see all known pathogenic variants in my list?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-12"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-12"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            Since we use gnomAD as our reference database for allele frequencies we can only include variants that have been seen in 1 or more individuals in gnomAD. If a variant is absent from gnomAD, it will not be listed in your report, but that doesn’t not mean it is not pathogenic. It means that the variant is either low frequency, it is not well covered by exome and/or genome sequencing, or is present in a population not well represented in gnomAD. The variant could be in future versions of gnomAD, which is why we recommend reassessing these frequencies after new gnomAD releases.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-what-factors-should-i-consider-when-interpreting-these-results"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="12"
+        id="accordion-button-what-factors-should-i-consider-when-interpreting-these-results"
         type="button"
       >
         <h2
@@ -347,9 +956,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-6"
+          aria-labelledby="accordion-button-what-factors-should-i-consider-when-interpreting-these-results"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-6"
+          id="accordion-panel-what-factors-should-i-consider-when-interpreting-these-results"
           role="region"
         >
           <p
@@ -471,11 +1080,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-7"
+        aria-controls="accordion-panel-13"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="6"
-        id="accordion-button-7"
+        data-index="13"
+        id="accordion-button-13"
         type="button"
       >
         <h2
@@ -500,9 +1109,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-7"
+          aria-labelledby="accordion-button-13"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-7"
+          id="accordion-panel-13"
           role="region"
         >
           <p
@@ -540,6 +1149,185 @@ exports[`FAQPage has no unexpected changes 1`] = `
               clinical genetic testing laboratories
             </a>
             . Variant curation (the process used for determining clinical significance) guidelines have changed over time, so we do recommend reviewing the source data to determine if you feel the variant should be included in your calculations.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-14"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="14"
+        id="accordion-button-14"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          Can GeniE compute genetic prevalence estimates for multiple genes at one time?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-14"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-14"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            While you can upload variants from multiple genes using GeniE's custom variant list, the model for genetic prevalence will assume digenic inheritance, rather than giving you the sum of each of the individual genes. We are working towards having functionality that allows you to create a meta report for multiple gene estimates, but for now we recommend calculating each gene separately and then adding the estimates together.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-15"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="15"
+        id="accordion-button-15"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          What is the difference between each of the roles for sharing
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-15"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-15"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            GeniE users can share their lists with other GeniE users via the sharing functionality on the results page. Only owners of a list can add additional users. In order to be added as a user to the list, they must sign in using a Google authorized account.
+          </p>
+          <ul
+            class="css-tu0njr"
+            role="list"
+          >
+            <li
+              class="css-0"
+            >
+              <em>
+                Viewer:
+              </em>
+              These users can view the data but not make any changes
+            </li>
+            <li
+              class="css-0"
+            >
+              <em>
+                Editor:
+              </em>
+              These users will be allowed to make changes to the variant list and add private notes, but not will not be able to add any users or make a list public
+            </li>
+            <li
+              class="css-0"
+            >
+              <em>
+                Owner:
+              </em>
+              These users will have all the capabilities of an editor but also have the ability to add other collaborators or designate a list to become public. Creators of a list are owners by default. There can be multiple owners of a list.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-16"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="16"
+        id="accordion-button-16"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          What are public lists?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-16"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-16"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            All new variant lists default to being a private list, only visible to the creator and any GeniE users that are given access by an owner. Users can choose to make their lists public, which allows any individual to have view-only access to their estimates.
+          </p>
+          <p
+            class="chakra-text css-0"
+          >
+            Variant list owners can also apply to have their variant list represented on GeniE's dashboard. After applying, a staff member must approve the list for it to be on the 
+            <a
+              class="chakra-link css-0"
+              href="/dashboard"
+            >
+              Dashboard
+            </a>
+            .
           </p>
         </div>
       </div>
