@@ -63,6 +63,37 @@ export interface Variant {
   source?: VariantSource[];
 }
 
+type StructuralVariantId = string;
+
+type StructuralVariantClass =
+  | "BND"
+  | "CPX"
+  | "CTX"
+  | "DEL"
+  | "DUP"
+  | "INS"
+  | "INV"
+  | "CNV";
+
+export type StructuralVariant = {
+  id: StructuralVariantId;
+  id_upper_case: StructuralVariantId;
+  AC?: number[];
+  AN?: number[];
+  homozygote_count?: number[];
+  chrom?: number;
+  pos?: number;
+  end?: number;
+  chrom2?: number;
+  pos2?: number;
+  end2?: number;
+  type?: StructuralVariantClass;
+  flags?: string[];
+  length?: number;
+  consequence?: string | null;
+  major_consequence?: string | null;
+};
+
 export type VariantListStatus = "Queued" | "Processing" | "Ready" | "Error";
 
 export enum VariantListReviewStatusCode {
@@ -106,6 +137,7 @@ export interface VariantListRequest {
   type: VariantListType;
   metadata: VariantListMetadata;
   variants?: Variant[];
+  structural_variants?: any[];
 }
 
 interface VariantListAccessPermission {
