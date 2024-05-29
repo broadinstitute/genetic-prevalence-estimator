@@ -36,6 +36,11 @@ type VariantsInputProps = {
 let counter = 0;
 const nextKey = () => `${counter++}`;
 
+const hasStructuralVariantPrefix = (id: string) => {
+  const regex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)/;
+  return regex.test(id);
+};
+
 const VariantsInput = (props: VariantsInputProps) => {
   const { id, gnomadVersion, value: variants, onChange } = props;
 
@@ -82,7 +87,11 @@ const VariantsInput = (props: VariantsInputProps) => {
                 </Tooltip>
               </Flex>
               <FormErrorMessage>
-                Expected variant ID in chrom-pos-ref-alt format.
+                {hasStructuralVariantPrefix(variant.id)
+                  ? gnomadVersion === "4.1.0"
+                    ? "Expected SV ID in class-chrom-number format, e.g. DEL_CHR19_4BB4DFA2"
+                    : "Expected SV ID in class-chrom-number format, e.g. DEL_19_169804"
+                  : "Expected variant ID in chrom-pos-ref-alt format."}
               </FormErrorMessage>
             </FormControl>
           );

@@ -13,7 +13,7 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { normalizeVariantId } from "@gnomad/identifiers";
+import { isVariantId, normalizeVariantId } from "@gnomad/identifiers";
 import { useState } from "react";
 import { Link as RRLink, useHistory } from "react-router-dom";
 
@@ -25,6 +25,7 @@ import {
   VariantListRequest,
   VariantListType,
 } from "../../types";
+import { isStructuralVariantId } from "../identifiers";
 import VariantsInput, { InputVariant } from "../VariantsInput";
 import GeneInput from "./GeneInput";
 import TranscriptInput from "./TranscriptInput";
@@ -58,6 +59,25 @@ const CustomVariantListForm = () => {
         onSubmit={(e) => {
           e.preventDefault();
 
+          const invalid = variants.some(({ id }) => {
+            if (!isVariantId(id) && !isStructuralVariantId(id, gnomadVersion)) {
+              toast({
+                title: "Invalid variant ID",
+                description: `Variant with id: ${id} is not recognized as either a short variant or structural variant ID`,
+                status: "error",
+                duration: 3_000,
+                isClosable: true,
+              });
+              return true;
+            }
+            return false;
+          });
+
+          // if there are any malformed variants, don't allow submission
+          if (invalid) {
+            return;
+          }
+
           if (
             (selectTranscript && !transcriptId) ||
             (geneId && !isGeneIdValid) ||
@@ -73,9 +93,16 @@ const CustomVariantListForm = () => {
             metadata: {
               gnomad_version: gnomadVersion as GnomadVersion,
             },
-            variants: variants.map(({ id }) => ({
-              id: normalizeVariantId(id),
-            })),
+            variants: variants
+              .filter(({ id }) => isVariantId(id))
+              .map(({ id }) => ({
+                id: normalizeVariantId(id),
+              })),
+            structural_variants: variants
+              .filter(({ id }) => isStructuralVariantId(id, gnomadVersion))
+              .map(({ id }) => ({
+                id,
+              })),
           };
 
           if (selectTranscript) {
