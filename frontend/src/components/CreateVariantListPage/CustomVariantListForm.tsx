@@ -201,6 +201,7 @@ const CustomVariantListForm = () => {
 
           <VariantsInput
             id="custom-variant-list-variants"
+            gnomadVersion={gnomadVersion}
             value={variants}
             onChange={setVariants}
           />
