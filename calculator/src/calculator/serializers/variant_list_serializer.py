@@ -186,7 +186,15 @@ class NewVariantListSerializer(ModelSerializer):
 
     class Meta:
         model = VariantList
-        fields = ["uuid", "label", "notes", "type", "metadata", "variants"]
+        fields = [
+            "uuid",
+            "label",
+            "notes",
+            "type",
+            "metadata",
+            "variants",
+            "structural_variants",
+        ]
         read_only_fields = ["uuid"]
 
 
@@ -334,7 +342,9 @@ class AddedVariantsSerializer(
         structural_variants = attrs.get("structural_variants", [])
 
         if not variants and not structural_variants:
-            raise serializers.ValidationError("At least one variant must be provided")
+            raise serializers.ValidationError(
+                "At least one valid variant ID must be provided"
+            )
 
         gnomad_version = self.context["variant_list"].metadata["gnomad_version"]
 
