@@ -240,23 +240,26 @@ const BASE_COLUMNS: ColumnDef[] = [
   },
 
   {
-    key: "supporting_document",
+    key: "supporting_documents",
     heading: "Supporting document",
     width: 200,
     render: (dashboardList) => {
       return (
         <Cell maxWidth={200}>
           {dashboardList.representative_variant_list &&
-            dashboardList.representative_variant_list.supporting_document && (
+            dashboardList.representative_variant_list.supporting_documents
+              .length > 0 && (
               <Link
                 href={
-                  dashboardList.representative_variant_list.supporting_document
+                  dashboardList.representative_variant_list
+                    .supporting_documents[0].url
                 }
                 isExternal
                 target="_blank"
               >
                 {returnDomainOrLink(
-                  dashboardList.representative_variant_list.supporting_document
+                  dashboardList.representative_variant_list
+                    .supporting_documents[0].title
                 )}
               </Link>
             )}

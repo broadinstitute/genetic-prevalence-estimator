@@ -29,7 +29,10 @@ interface VariantListPatch {
   label: string;
   notes: string;
   is_public: boolean;
-  supporting_document: string;
+  supporting_documents: {
+    title: string;
+    url: string;
+  }[];
 }
 
 const submitVariantList = (
@@ -64,10 +67,12 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
   const [notes, setNotes] = useState(variantList.notes);
   const [isPublic, setIsPublic] = useState(variantList.is_public);
   const [supportingDocument, setSupportingDocument] = useState(
-    variantList.supporting_document
+    variantList.supporting_documents[0] || { title: "", url: "" }
   );
+
   const supportingDocumentIsValid =
-    supportingDocument === "" || isValidURL(supportingDocument);
+    (supportingDocument.title === "" && supportingDocument.url === "") ||
+    (supportingDocument.title !== "" && isValidURL(supportingDocument.url));
 
   const toast = useToast();
 
@@ -82,7 +87,10 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
             label,
             notes,
             is_public: isPublic,
-            supporting_document: supportingDocument,
+            supporting_documents:
+              supportingDocument.title && supportingDocument.url
+                ? [supportingDocument]
+                : [],
           }).then(
             (updatedVariantList) => {
               variantListStore.set(updatedVariantList);
@@ -153,13 +161,28 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
         >
           <FormLabel>Supporting document</FormLabel>
           <Input
-            value={supportingDocument}
+            mb={2}
+            placeholder={"title"}
+            value={supportingDocument.title}
             onChange={(e) => {
-              setSupportingDocument(e.target.value);
+              setSupportingDocument({
+                title: e.target.value,
+                url: supportingDocument.url,
+              });
+            }}
+          />
+          <Input
+            placeholder={"url"}
+            value={supportingDocument.url}
+            onChange={(e) => {
+              setSupportingDocument({
+                title: supportingDocument.title,
+                url: e.target.value,
+              });
             }}
           />
           <FormErrorMessage>
-            Supporting document must be a valid URL
+            A supporting documnent must have a non-empty title and a valid URL
           </FormErrorMessage>
         </FormControl>
 
