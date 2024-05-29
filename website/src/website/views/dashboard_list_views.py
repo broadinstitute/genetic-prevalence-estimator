@@ -26,8 +26,6 @@ from calculator.serializers import (
     DashboardListSerializer,
     DashboardListDashboardSerializer,
 )
-from website.pubsub import publisher
-
 
 # set csv field size limit to half of a megabyte
 csv.field_size_limit(512 * 1024)  # 512 KB in bytes

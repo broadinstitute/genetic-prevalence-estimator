@@ -23,14 +23,18 @@ def is_variant_id(maybe_variant_id):
     return bool(re.fullmatch(r"(\d{1,2}|X|Y)-\d+-[ACGT]+-[ACGT]+", maybe_variant_id))
 
 
-def is_structural_variant_id(maybe_structural_variant_id):
-    return bool(
-        re.fullmatch(
-            r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$",
-            maybe_structural_variant_id,
-            re.IGNORECASE,
+def is_structural_variant_id(maybe_structural_variant_id, gnomad_version):
+    if gnomad_version not in ("4.1.0", "2.1.1"):
+        raise ValueError(
+            f"Version ${gnomad_version} does not have a known pattern for structural variant ids"
         )
-    )
+
+    if gnomad_version == "4.1.0":
+        pattern = r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$"
+    elif gnomad_version == "2.1.1":
+        pattern = r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$"
+
+    return bool(re.fullmatch(pattern, maybe_structural_variant_id, re.IGNORECASE))
 
 
 class MultipleChoiceField(serializers.MultipleChoiceField):
@@ -332,13 +336,15 @@ class AddedVariantsSerializer(
         if not variants and not structural_variants:
             raise serializers.ValidationError("At least one variant must be provided")
 
+        gnomad_version = self.context["variant_list"].metadata["gnomad_version"]
+
         invalid_variant_ids = [
             variant_id for variant_id in variants if not is_variant_id(variant_id)
         ]
         invalid_structural_variant_ids = [
             structural_variant_id
             for structural_variant_id in structural_variants
-            if not is_structural_variant_id(structural_variant_id)
+            if not is_structural_variant_id(structural_variant_id, gnomad_version)
         ]
         all_invalid_ids = invalid_variant_ids.append(invalid_structural_variant_ids)
 

@@ -26,13 +26,22 @@ class VariantListAnnotationSerializer(ModelSerializer):
             for structural_variant in variant_list.structural_variants
         )
 
+    def _get_gnomad_version(self):
+        variant_list = self.instance.variant_list
+        return variant_list.metadata["gnomad_version"]
+
     def validate_selected_variants(self, value):
         if not isinstance(value, list):
             raise serializers.ValidationError(
                 "Selected variants must contain a list of variant IDs."
             )
 
-        if not all(is_variant_id(id) or is_structural_variant_id(id) for id in value):
+        gnomad_version = self._get_gnomad_version()
+
+        if not all(
+            is_variant_id(id) or is_structural_variant_id(id, gnomad_version)
+            for id in value
+        ):
             raise serializers.ValidationError(
                 "Selected variants must contain a list of variant IDs."
             )
