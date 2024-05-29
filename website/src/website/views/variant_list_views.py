@@ -63,6 +63,23 @@ class VariantListsView(ListCreateAPIView):
                 "You have created the maximum number of variant lists. Delete one to create another."
             )
 
+        variants = serializer.validated_data.get("variants", [])
+        for variant in variants:
+            if not is_variant_id(variant["id"]):
+                raise ValidationError(
+                    f"All short variants must be of a valid ID, malformed ID: {variant['id']}"
+                )
+
+        structural_variants = serializer.validated_data.get("structural_variants", [])
+        for structural_variant in structural_variants:
+            if not is_structural_variant_id(
+                structural_variant["id"],
+                serializer.validated_data["metadata"]["gnomad_version"],
+            ):
+                raise ValidationError(
+                    f"All structural variants must be of a valid ID, malformed ID: {structural_variant['id']}"
+                )
+
         variant_list = serializer.save(created_by=self.request.user)
         VariantListAccessPermission.objects.create(
             variant_list=variant_list,
