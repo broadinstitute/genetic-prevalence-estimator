@@ -13,7 +13,7 @@ class VariantList(models.Model):
 
     notes = models.TextField(default="")
 
-    supporting_document = models.CharField(max_length=1000, default="")
+    supporting_documents = models.JSONField(default=list)
 
     class Type(models.TextChoices):
         CUSTOM = ("c", "Custom")
