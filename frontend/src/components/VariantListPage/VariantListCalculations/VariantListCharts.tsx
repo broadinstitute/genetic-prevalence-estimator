@@ -313,7 +313,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             }}
           >
             <span style={{ whiteSpace: "nowrap" }}>
-              Include subcontinental populations
+              Include genetic ancestry sub-groups
             </span>
           </Checkbox>
         </Box>
@@ -411,7 +411,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             }}
           >
             <span style={{ whiteSpace: "nowrap" }}>
-              Include subcontinental populations
+              Include genetic ancestry sub-groups
             </span>
           </Checkbox>
         </Box>
