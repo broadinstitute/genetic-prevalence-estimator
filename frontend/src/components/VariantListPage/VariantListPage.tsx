@@ -61,21 +61,21 @@ import {
 } from "./VariantListCalculations/calculations";
 import VariantListCharts from "./VariantListCalculations/VariantListCharts";
 import { isStructuralVariantId } from "../identifiers";
+import { isVariantId } from "@gnomad/identifiers";
 
 const addVariantsToVariantList = (
   uuid: string,
   gnomadVersion: string,
   variants: string[]
 ): Promise<void> => {
-  const shortVariants: string[] = [];
-  const structuralVariants: string[] = [];
-  variants.forEach((variantId) => {
-    if (isStructuralVariantId(variantId, gnomadVersion)) {
-      structuralVariants.push(variantId);
-    } else {
-      shortVariants.push(variantId);
-    }
-  });
+  const shortVariants = variants
+    .filter((variantId) => isVariantId(variantId))
+    .map((variantId) => variantId);
+
+  const structuralVariants = variants
+    .filter((variantId) => isStructuralVariantId(variantId, gnomadVersion))
+    .map((variantId) => variantId);
+
   const postObject = {
     variants: shortVariants,
     structural_variants: structuralVariants,
