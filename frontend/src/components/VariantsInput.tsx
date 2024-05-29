@@ -131,7 +131,8 @@ const VariantsInput = (props: VariantsInputProps) => {
               }}
             >
               <p style={{ marginBottom: "1em" }}>
-                Uploaded file should contain one variant ID per line.
+                Uploaded file should be a .csv, .tsv, or .txt file that contains
+                one variant ID per line.
               </p>
               <Button
                 as="label"
