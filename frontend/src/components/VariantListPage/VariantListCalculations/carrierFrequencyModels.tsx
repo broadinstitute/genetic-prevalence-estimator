@@ -20,7 +20,7 @@ export const CarrierFrequencyModelInput = (
   const { value, onChange } = props;
   return (
     <FormControl id="carrier-frequency-model" as="fieldset">
-      <FormLabel as="legend">Carrier frequency model</FormLabel>
+      <FormLabel as="legend">Cumulative carrier frequency model</FormLabel>
       <RadioGroup
         value={value}
         onChange={(value) => {
