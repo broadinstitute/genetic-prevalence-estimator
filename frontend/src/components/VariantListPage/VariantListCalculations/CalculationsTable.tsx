@@ -36,7 +36,7 @@ const CalculationsTable = (props: CalculationsTableProps) => {
     >
       <Thead>
         <Tr>
-          <Th scope="col">Population</Th>
+          <Th scope="col">Genetic ancestry group</Th>
           {columns.map((column) => (
             <Th key={column.label} scope="col" isNumeric>
               {column.label}

@@ -138,7 +138,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
                 renderValue={(value) =>
                   `${value.length} of ${
                     variantList.metadata.populations!.length
-                  } populations selected`
+                  } groups selected`
                 }
                 style={{ width: "auto" }}
                 value={populationsDisplayedInTable}
