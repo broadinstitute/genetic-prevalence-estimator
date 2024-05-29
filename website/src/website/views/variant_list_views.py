@@ -227,15 +227,16 @@ class VariantListVariantsView(GenericAPIView):
         added_structural_variants = serializer.validated_data.get(
             "structural_variants", []
         )
-        if (
-            len(added_structural_variants) > 0
-            and variant_list.metadata["gnomad_version"] != "4.1.0"
-        ):
+        if len(added_structural_variants) > 0 and variant_list.metadata[
+            "gnomad_version"
+        ] not in ("2.1.1", "4.1.0"):
             raise ValidationError(
-                f"gnomAD version {variant_list.metadata['gnomad_version']} does not support Structural Variants yet"
+                f"gnomAD version {variant_list.metadata['gnomad_version']} does not support Structural Variants"
             )
         for structural_variant in added_structural_variants:
-            if not is_structural_variant_id(structural_variant):
+            if not is_structural_variant_id(
+                structural_variant, variant_list.metadata["gnomad_version"]
+            ):
                 raise ValidationError(
                     f"All structural variants must have a valid ID, malformed ID: {structural_variant}",
                 )
