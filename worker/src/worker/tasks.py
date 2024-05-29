@@ -528,7 +528,7 @@ def _process_variant_list(variant_list):
     variant_list.variants = variants
     variant_list.save()
 
-    if gnomad_version == "4.1.0" and variant_list.structural_variants:
+    if gnomad_version in ("2.1.1", "4.1.0") and variant_list.structural_variants:
         structural_variants = get_structural_variants(
             variant_list.structural_variants, metadata, gnomad_version
         )
@@ -549,7 +549,6 @@ def annotate_structural_variants_with_flags(ds):
 
 
 def get_structural_variants(structural_variants, metadata, gnomad_version):
-
     gnomad_structural_variants = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_structural_variants.ht"
     )
