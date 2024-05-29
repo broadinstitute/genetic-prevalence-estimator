@@ -146,7 +146,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
     <>
       <Box mb={8}>
         <Heading as="h2" size="md" mb={2}>
-          Carrier frequency
+          Cumulative carrier frequency
         </Heading>
 
         <Stack
@@ -158,7 +158,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
             <CalculationsTable
               columns={[
                 {
-                  label: "Carrier frequency",
+                  label: "Cumulative carrier frequency",
                   data:
                     carrierFrequencyModel === "simplified"
                       ? carrierFrequencySimplified!
@@ -170,7 +170,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                 showContributionsBySource
                   ? [
                       {
-                        label: "Carrier frequency (ClinVar)",
+                        label: "Cumulative carrier frequency (ClinVar)",
 
                         data:
                           carrierFrequencyModel === "simplified"
@@ -180,7 +180,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                             : clinvarOnlyCarrierFrequency!,
                       },
                       {
-                        label: "Carrier frequency (pLoF only)",
+                        label: "Cumulative carrier frequency (pLoF only)",
 
                         data:
                           carrierFrequencyModel === "simplified"
@@ -198,13 +198,13 @@ const VariantListCharts = (props: VariantListChartsProps) => {
           </Box>
           <Box width={stackHorizontally ? "calc(40% - 16px)" : "100%"}>
             <BarGraph
-              label="Carrier frequency"
+              label="Cumulative carrier frequency"
               populations={sortedPopulations}
               series={
                 showContributionsBySource
                   ? [
                       {
-                        label: "Carrier frequency (ClinVar)",
+                        label: "Cumulative carrier frequency (ClinVar)",
                         color: theme.colors.purple["600"],
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
@@ -214,7 +214,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                         ),
                       },
                       {
-                        label: "Carrier frequency (pLoF only)",
+                        label: "Cumulative carrier frequency (pLoF only)",
                         color: theme.colors.red["600"],
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
@@ -226,7 +226,7 @@ const VariantListCharts = (props: VariantListChartsProps) => {
                     ]
                   : [
                       {
-                        label: "Carrier frequency",
+                        label: "Cumulative carrier frequency",
                         data: toSeries(
                           carrierFrequencyModel === "simplified"
                             ? carrierFrequencySimplified!
