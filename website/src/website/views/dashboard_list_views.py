@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     CreateAPIView,
-    ListCreateAPIView,
+    ListAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import (
@@ -131,7 +131,7 @@ class DashboardListsLoadView(CreateAPIView):
             )
 
 
-class DashboardListsView(ListCreateAPIView):
+class DashboardListsView(ListAPIView):
     def get_queryset(self):
         return DashboardList.objects.all()
 
@@ -142,43 +142,7 @@ class DashboardListsView(ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_serializer_class(self):
-        # if self.request.method == "POST":
-        #     return NewDashboardListSerializer
-        # return DashboardListSerializer
         return DashboardListDashboardSerializer
-
-    def perform_create(self, serializer):
-        if not self.request.user.is_staff:
-            raise PermissionDenied
-
-        # If an approved public variant list already exists when this dashboard list is created
-        #   assign that list as the dashboard entries associated public list
-        representative_variant_list = None
-        representative_variant_list_with_same_gene_id = VariantList.objects.filter(
-            metadata__gene_id=self.request.data["metadata"]["gene_id"],
-            representative_status=VariantList.RepresentativeStatus.APPROVED,
-        )
-        if representative_variant_list_with_same_gene_id.count() > 0:
-            representative_variant_list = representative_variant_list_with_same_gene_id[
-                0
-            ]
-
-        dashboard_list = serializer.save(
-            representative_variant_list=representative_variant_list
-        )
-
-        publisher.send_to_worker(
-            {
-                "type": "process_dashboard_list",
-                "args": {"uuid": str(dashboard_list.uuid)},
-            }
-        )
-
-    def get_success_headers(self, data):
-        try:
-            return {"Location": f"/api/dashboard-lists/{data['uuid']}/"}
-        except KeyError:
-            return {}
 
 
 class DashboardListView(RetrieveUpdateDestroyAPIView):
