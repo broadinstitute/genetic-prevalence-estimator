@@ -64,15 +64,16 @@ import { isStructuralVariantId } from "../identifiers";
 
 const addVariantsToVariantList = (
   uuid: string,
+  gnomadVersion: string,
   variants: string[]
 ): Promise<void> => {
   const shortVariants: string[] = [];
   const structuralVariants: string[] = [];
-  variants.forEach((variant_id) => {
-    if (isStructuralVariantId(variant_id)) {
-      structuralVariants.push(variant_id);
+  variants.forEach((variantId) => {
+    if (isStructuralVariantId(variantId, gnomadVersion)) {
+      structuralVariants.push(variantId);
     } else {
-      shortVariants.push(variant_id);
+      shortVariants.push(variantId);
     }
   });
   const postObject = {
@@ -693,6 +694,7 @@ const VariantListPage = (props: VariantListPageProps) => {
             </Alert>
             <VariantsInput
               id="added-variants"
+              gnomadVersion={variantList.metadata.gnomad_version}
               value={addedVariants}
               onChange={setAddedVariants}
             />
@@ -711,6 +713,7 @@ const VariantListPage = (props: VariantListPageProps) => {
                 setAddingVariants(true);
                 addVariantsToVariantList(
                   variantList.uuid,
+                  variantList.metadata.gnomad_version,
                   addedVariants.map((variant) => variant.id)
                 )
                   .then(

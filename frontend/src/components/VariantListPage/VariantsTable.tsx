@@ -165,11 +165,19 @@ const BASE_COLUMNS: ColumnDef[] = [
         "4.1.0": "gnomad_r4",
       }[gnomadVersion];
 
-      const dataset = isStructuralVariantId(variant.id)
-        ? "gnomad_sv_r4"
+      const gnomadSVDataset = {
+        "2.1.1": "gnomad_sv_r2_1",
+        "3.1.2": "gnomad_sv_r4",
+        "4.0.0": "gnomad_sv_r4",
+        "4.1.0": "gnomad_sv_r4",
+      }[gnomadVersion];
+
+      const dataset = isStructuralVariantId(variant.id, gnomadVersion)
+        ? gnomadSVDataset
         : gnomadDataset;
-      const variantId =
-        dataset === "gnomad_sv_r4" ? variant.id.toUpperCase() : variant.id;
+      const variantId = isStructuralVariantId(variant.id, gnomadVersion)
+        ? variant.id.toUpperCase()
+        : variant.id;
 
       return (
         <Cell maxWidth={200}>

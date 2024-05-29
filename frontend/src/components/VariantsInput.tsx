@@ -28,6 +28,7 @@ export type InputVariant = {
 
 type VariantsInputProps = {
   id: string;
+  gnomadVersion: string;
   value: InputVariant[];
   onChange: (value: InputVariant[]) => void;
 };
@@ -36,7 +37,7 @@ let counter = 0;
 const nextKey = () => `${counter++}`;
 
 const VariantsInput = (props: VariantsInputProps) => {
-  const { id, value: variants, onChange } = props;
+  const { id, gnomadVersion, value: variants, onChange } = props;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -45,7 +46,8 @@ const VariantsInput = (props: VariantsInputProps) => {
       <VStack spacing={4} align="flex-start" alignSelf="stretch">
         {variants.map((variant, i) => {
           const isValid =
-            isVariantId(variant.id) || isStructuralVariantId(variant.id);
+            isVariantId(variant.id) ||
+            isStructuralVariantId(variant.id, gnomadVersion);
           return (
             <FormControl
               key={variant.key}
