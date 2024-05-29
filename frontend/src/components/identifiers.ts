@@ -3,7 +3,7 @@ export const isStructuralVariantId = (id: string, gnomadVersion: string) => {
     const svRegex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$/i;
     return svRegex.test(id);
   } else if (gnomadVersion === "2.1.1") {
-    const svRegex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$/i;
+    const svRegex = /^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9]*)$/i;
     return svRegex.test(id);
   }
   return false;
