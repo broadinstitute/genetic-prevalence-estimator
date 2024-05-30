@@ -44,7 +44,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
     Frequently asked questions
   </h1>
   <p
-    class="chakra-text css-0"
+    class="chakra-text css-19idom"
   >
     Below are commonly asked questions.
   </p>
@@ -55,11 +55,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-1"
+        aria-controls="accordion-panel-why-do-i-need-to-log-in"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="0"
-        id="accordion-button-1"
+        id="accordion-button-why-do-i-need-to-log-in"
         type="button"
       >
         <h2
@@ -84,9 +84,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-1"
+          aria-labelledby="accordion-button-why-do-i-need-to-log-in"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-1"
+          id="accordion-panel-why-do-i-need-to-log-in"
           role="region"
         >
           <p
@@ -101,17 +101,17 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-2"
+        aria-controls="accordion-panel-how-do-you-pronounce-genie"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="1"
-        id="accordion-button-2"
+        id="accordion-button-how-do-you-pronounce-genie"
         type="button"
       >
         <h2
           class="chakra-heading css-acszkm"
         >
-          How do you pronounce GeniE
+          How do you pronounce GeniE?
         </h2>
         <svg
           aria-hidden="true"
@@ -130,9 +130,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-2"
+          aria-labelledby="accordion-button-how-do-you-pronounce-genie"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-2"
+          id="accordion-panel-how-do-you-pronounce-genie"
           role="region"
         >
           <p
@@ -147,11 +147,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-3"
+        aria-controls="accordion-panel-why-do-you-call-this-an-estimated-genetic-prevalence"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="2"
-        id="accordion-button-3"
+        id="accordion-button-why-do-you-call-this-an-estimated-genetic-prevalence"
         type="button"
       >
         <h2
@@ -176,9 +176,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-3"
+          aria-labelledby="accordion-button-why-do-you-call-this-an-estimated-genetic-prevalence"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-3"
+          id="accordion-panel-why-do-you-call-this-an-estimated-genetic-prevalence"
           role="region"
         >
           <p
@@ -204,7 +204,14 @@ exports[`FAQPage has no unexpected changes 1`] = `
             <strong>
               estimated genetic prevalence
             </strong>
-            , as it represents the estimated proportion of a population that will have a genotype for a genetic disorder, irrespective of penetrance, age of onset, and other factors affecting the disease prevalence. These results should always be interpreted in the context of the disease/gene of interest. To learn more about considerations for these results please see our FAQ "What factors should I consider when interpreting these results?" To read more about how these estimates relate to prevalence, incidence and lifetime risk please read 
+            , as it represents the estimated proportion of a population that will have a genotype for a genetic disorder, irrespective of penetrance, age of onset, and other factors affecting the disease prevalence. These results should always be interpreted in the context of the disease/gene of interest. To learn more about considerations for these results please see our FAQ 
+            <a
+              class="chakra-link css-0"
+              href="/faq#what-factors-should-i-consider-when-interpreting-these-results"
+            >
+              "What factors should I consider when interpreting these results?"
+            </a>
+            . To read more about how these estimates relate to prevalence, incidence and lifetime risk please read 
             <a
               class="chakra-link css-0"
               href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
@@ -222,11 +229,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-4"
+        aria-controls="accordion-panel-is-the-estimated-genetic-prevalence-the-same-as-disease-prevalence"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="3"
-        id="accordion-button-4"
+        id="accordion-button-is-the-estimated-genetic-prevalence-the-same-as-disease-prevalence"
         type="button"
       >
         <h2
@@ -251,15 +258,22 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-4"
+          aria-labelledby="accordion-button-is-the-estimated-genetic-prevalence-the-same-as-disease-prevalence"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-4"
+          id="accordion-panel-is-the-estimated-genetic-prevalence-the-same-as-disease-prevalence"
           role="region"
         >
           <p
             class="chakra-text css-0"
           >
-            No. Genetic prevalence correlates but does not equate to disease prevalence (PMID: 34078906). Genetic prevalence refers to the proportion of a population that has a causal genotype for a specific genetic disorder, irrespective of whether these individuals will or will not manifest the disease. For instance, if the causative genotype is not fully penetrant, then the estimated genetic prevalence will be higher than actual disease prevalence. To learn more about the factors that shape the estimated genetic prevalence, please read “What factors should I consider when interpreting the results?”.
+            No. Genetic prevalence correlates but does not equate to disease prevalence (PMID: 34078906). Genetic prevalence refers to the proportion of a population that has a causal genotype for a specific genetic disorder, irrespective of whether these individuals will or will not manifest the disease. For instance, if the causative genotype is not fully penetrant, then the estimated genetic prevalence will be higher than actual disease prevalence. To learn more about the factors that shape the estimated genetic prevalence, please read 
+            <a
+              class="chakra-link css-0"
+              href="/faq#what-factors-should-i-consider-when-interpreting-these-results"
+            >
+              "What factors should I consider when interpreting these results?"
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -268,11 +282,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-5"
+        aria-controls="accordion-panel-what-method-does-genie-use-to-calculate-carrier-frequency-and-genetic-prevalence"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="4"
-        id="accordion-button-5"
+        id="accordion-button-what-method-does-genie-use-to-calculate-carrier-frequency-and-genetic-prevalence"
         type="button"
       >
         <h2
@@ -297,9 +311,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-5"
+          aria-labelledby="accordion-button-what-method-does-genie-use-to-calculate-carrier-frequency-and-genetic-prevalence"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-5"
+          id="accordion-panel-what-method-does-genie-use-to-calculate-carrier-frequency-and-genetic-prevalence"
           role="region"
         >
           <p
@@ -314,12 +328,12 @@ exports[`FAQPage has no unexpected changes 1`] = `
             >
               Hardy-Weinberg principle
             </a>
-            (HW):
+             (HW):
           </p>
           <p
-            class="chakra-text css-15fzge"
+            class="chakra-text css-1um4smj"
           >
-            <em>
+            <strong>
               P
               <sup>
                 2
@@ -329,13 +343,10 @@ exports[`FAQPage has no unexpected changes 1`] = `
                 2
               </sup>
                = 1
-            </em>
+            </strong>
           </p>
-          <p
-            class="chakra-text css-1isemmb"
-          />
           <ul
-            class="css-tu0njr"
+            class="css-2gw8km"
             role="list"
           >
             <li
@@ -363,16 +374,15 @@ exports[`FAQPage has no unexpected changes 1`] = `
             </li>
           </ul>
           <p />
-          <p />
           <p
             class="chakra-text css-0"
           >
-            <em>
+            <strong>
               Carrier frequency methods:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             For the purposes of genetic prevalence, 
             <i>
@@ -381,18 +391,18 @@ exports[`FAQPage has no unexpected changes 1`] = `
              equals the sum of the allele frequences (AF) for all variants included in the designated variant list (note: variants can be excluded from the sum by unchecking the box next to the variant name). Thre are four options for calculating carrier frequency in GeniE:
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             <i>
-              Full (2pq)
+              Full (2pq):
             </i>
              This method takes into account the aggregate allele frequency of p, which is equal to 1-q.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             <i>
-              Simplified (2q)
+              Simplified (2q):
             </i>
              In rare disease, p is so close to 1 that it can be excluded from the formula. This model is often used in rare disease to simplify the math.
           </p>
@@ -405,19 +415,19 @@ exports[`FAQPage has no unexpected changes 1`] = `
              This version of the formula will subtract the homozygous counts for any variant in the list that has homozygotes in gnomAD before performing the calculations via the formula: 
           </p>
           <p
-            class="chakra-text css-15fzge"
+            class="chakra-text css-1um4smj"
           >
             AC - 2 * (# of homozygotes)
           </p>
           <p
-            class="chakra-text css-1isemmb"
+            class="chakra-text css-x8lc58"
           >
             AC = allele count of a particular variant
           </p>
           This approach might be taken if there is concern that homozygous variants seen in the general population as represented by gnomaD may not be pathogenic. For some recessive conditions, there are hypomorphic or mild variants that can cause disease when in trans to a more severe variant but do not cause disease in the homozygous state.
           <p />
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             <i>
               Raw numbers:
@@ -425,43 +435,43 @@ exports[`FAQPage has no unexpected changes 1`] = `
              This option shows you the sum total of the allele counts for all variants included over the average allele number (AN) for all variants included within that ancestry group. Note: the AN can vary for each variant due to differences in coverage across regions of a gene and/or limitations of exomes. 
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-164r41r"
           >
-            <em>
+            <strong>
               Genetic prevalence methods:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             <i>
               Simplified (q
               <sup>
                 2
               </sup>
-              )
+              ):
             </i>
-            : This method calculates prevalence by squaring the sum of all AFs for variants included in the variant list (q).
+            This method calculates prevalence by squaring the sum of all AFs for variants included in the variant list (q).
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             <i>
-              Bayesian method
+              Bayesian method:
             </i>
-            : This model assumes linkage equilibrium across the variants, whcih can make a sligh difference in the estimates for more common recessive diseases. The formula (below) used for this method is based on Schrodi et al 2015 (
+             This model assumes linkage equilibrium across the variants, whcih can make a sligh difference in the estimates for more common recessive diseases. The formula (below) used for this method is based on Schrodi et al 2015 (
             <a
               class="chakra-link css-0"
+              href="https://pubmed.ncbi.nlm.nih.gov/25893794/"
               rel="noopener noreferrer"
               target="_blank"
-              to="https://pubmed.ncbi.nlm.nih.gov/25893794/"
             >
               PMID: 25893794
             </a>
             )
           </p>
           <p
-            class="chakra-text css-15fzge"
+            class="chakra-text css-14aub4a"
           >
             (1 - ∏
             <sub>
@@ -480,7 +490,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
             </sup>
           </p>
           <p
-            class="chakra-text css-1isemmb"
+            class="chakra-text css-x8lc58"
           >
             p
             <sub>
@@ -507,18 +517,18 @@ exports[`FAQPage has no unexpected changes 1`] = `
           <p
             class="chakra-text css-0"
           >
-            <em>
+            <strong>
               Display options
-            </em>
+            </strong>
             :
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             For both carrier frequency and genetic prevalence the user is given a variety of options for displaying the reuslts, including fraction and scientific notation. For genetic prevalence, we also provide the option to see the results as "per 100,00" which is a common metric in epidemiology.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             Users can also compare the results by source (gnomaD vs ClinVar), and choose whether or not to include sub genetic ancestry group estimates (gnomAD v2.1.1 only)
           </p>
@@ -529,11 +539,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-6"
+        aria-controls="accordion-panel-what-types-of-variants-does-genie-support"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="5"
-        id="accordion-button-6"
+        id="accordion-button-what-types-of-variants-does-genie-support"
         type="button"
       >
         <h2
@@ -558,9 +568,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-6"
+          aria-labelledby="accordion-button-what-types-of-variants-does-genie-support"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-6"
+          id="accordion-panel-what-types-of-variants-does-genie-support"
           role="region"
         >
           <p
@@ -575,17 +585,17 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-7"
+        aria-controls="accordion-panel-how-do-i-add-structural-variants-to-a-variant-list"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="6"
-        id="accordion-button-7"
+        id="accordion-button-how-do-i-add-structural-variants-to-a-variant-list"
         type="button"
       >
         <h2
           class="chakra-heading css-acszkm"
         >
-          How do I add structural variants to a variant list
+          How do I add structural variants to a variant list?
         </h2>
         <svg
           aria-hidden="true"
@@ -604,20 +614,27 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-7"
+          aria-labelledby="accordion-button-how-do-i-add-structural-variants-to-a-variant-list"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-7"
+          id="accordion-panel-how-do-i-add-structural-variants-to-a-variant-list"
           role="region"
         >
           <p
             class="chakra-text css-0"
           >
-            Currently, structural variants (SVs) can only be added via creation of a manual list, or by adding the variant manually after a recommended list is created.
+            Currently, structural variants (SVs) can only be added via creation of a manual list, or by adding the variant 
+            <a
+              class="chakra-link css-0"
+              href="/faq#how-do-i-add-or-remove-variants-after-a-variant-list-is-created"
+            >
+              manually
+            </a>
+             after a recommended list is created.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
-            Please note: for gnomAD v2 SVs there are fewer genetic ancestry groups for both the non-Finnish european and Finnish ancestry groups are included in the "European" ancestry group. For the purposes of display in GeniE, we have included the v2 SV "European" gnetic ancestry group in the "European (non-Finnish)" group.
+            Please note: for gnomAD v2 SVs there are fewer genetic ancestry groups for both the non-Finnish european and Finnish ancestry groups are included in the "European" ancestry group. For the purposes of display in GeniE, we have included the v2 SV "European" genetic ancestry group in the "European (non-Finnish)" group.
           </p>
         </div>
       </div>
@@ -626,17 +643,17 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-8"
+        aria-controls="accordion-panel-how-do-i-add-or-remove-variants-after-a-variant-list-is-created"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="7"
-        id="accordion-button-8"
+        id="accordion-button-how-do-i-add-or-remove-variants-after-a-variant-list-is-created"
         type="button"
       >
         <h2
           class="chakra-heading css-acszkm"
         >
-          How do I add or remove variants after a variant list is created
+          How do I add or remove variants after a variant list is created?
         </h2>
         <svg
           aria-hidden="true"
@@ -655,9 +672,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-8"
+          aria-labelledby="accordion-button-how-do-i-add-or-remove-variants-after-a-variant-list-is-created"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-8"
+          id="accordion-panel-how-do-i-add-or-remove-variants-after-a-variant-list-is-created"
           role="region"
         >
           <p
@@ -672,11 +689,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-9"
+        aria-controls="accordion-panel-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="8"
-        id="accordion-button-9"
+        id="accordion-button-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
         type="button"
       >
         <h2
@@ -701,9 +718,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-9"
+          aria-labelledby="accordion-button-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-9"
+          id="accordion-panel-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
           role="region"
         >
           <p
@@ -718,11 +735,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-10"
+        aria-controls="accordion-panel-what-version-of-gnomad-is-used-in-genie"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="9"
-        id="accordion-button-10"
+        id="accordion-button-what-version-of-gnomad-is-used-in-genie"
         type="button"
       >
         <h2
@@ -747,9 +764,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-10"
+          aria-labelledby="accordion-button-what-version-of-gnomad-is-used-in-genie"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-10"
+          id="accordion-panel-what-version-of-gnomad-is-used-in-genie"
           role="region"
         >
           <p
@@ -758,57 +775,57 @@ exports[`FAQPage has no unexpected changes 1`] = `
             Currently GeniE allows users to select on of two versions of gnomAD: v4.1.0 (default) and v2.1.1. While most of the individuals in v2.1.1 are included in v4.1, there are some key different between the two datasets.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-164r41r"
           >
-            <em>
+            <strong>
               Genome build:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             v4.1.0 is mapped to GRCh38/hg38 and v2.1.1 is mapped to GRCh37/hg19.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-164r41r"
           >
-            <em>
+            <strong>
               Size:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             The gnomAD v4.1.0 data set is over 5 times the size of previous versions of gnomAD, containing 730,947 exomes plus the 76,215 genomes previously called in gnomAD v3, all mapped to the GRCh38/hg38 reference sequence.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             The gnomAD v2.1.1 data set contains data from 125,748 exomes and 15,708 whole genomes, all mapped to the GRCh37/hg19 reference sequence. Most of the data from v2 are included in v4.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-164r41r"
           >
-            <em>
+            <strong>
               Coverage corrections:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             In gnomAD v4.1.0, allele numbers are calculated across all callable sites in the gnomAD exomes and genomes. This allows us to combine exome and genome allele numbers at all sites with gnomAD variation, improving the accuracy of the allele frequency estimtes. In gnomAD v2.1.1 this method was not used, meaning that allele frequencies could look higher than they truly were. An example of this is if a variant was identified in one genome sample in v2, the allele frequency was reported as ~1/32,000 (0.00003) despite there being sufficient coverage in the exomes to show the variant was absent from the other ~220,000 alelles, and thus has a frequency closer to 1/250,000 (0.000004)
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-164r41r"
           >
-            <em>
+            <strong>
               Genetic ancestry subgroups:
-            </em>
+            </strong>
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
-            Genetic ancestry subgroups (ex. Korean, Bulgariant, Estonian) are available in v2, but not in v4.
+            Genetic ancestry subgroups (ex. Korean, Bulgarian, Estonian) are available in v2, but not in v4.
           </p>
         </div>
       </div>
@@ -817,11 +834,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-11"
+        aria-controls="accordion-panel-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="10"
-        id="accordion-button-11"
+        id="accordion-button-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
         type="button"
       >
         <h2
@@ -846,9 +863,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-11"
+          aria-labelledby="accordion-button-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-11"
+          id="accordion-panel-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
           role="region"
         >
           <p
@@ -863,16 +880,16 @@ exports[`FAQPage has no unexpected changes 1`] = `
             >
               PMID: 30311383
             </a>
-            ). Due to this recommendation we only return results for genetic ancestry groups with more than 2,000 reference alleles. For more information on the genetic ancestry included in gnomAD and how those are determined, plase see the
+            ). Due to this recommendation we only return results for genetic ancestry groups with more than 2,000 reference alleles. For more information on the genetic ancestry included in gnomAD and how those are determined, plase see the 
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/help/ancestry"
               rel="noopener noreferrer"
               target="_blank"
             >
-               gnomAD FAQ
+              gnomAD FAQ
             </a>
-            on genetic ancestry.
+             on genetic ancestry.
           </p>
         </div>
       </div>
@@ -881,11 +898,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-12"
+        aria-controls="accordion-panel-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="11"
-        id="accordion-button-12"
+        id="accordion-button-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
         type="button"
       >
         <h2
@@ -910,9 +927,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-12"
+          aria-labelledby="accordion-button-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-12"
+          id="accordion-panel-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
           role="region"
         >
           <p
@@ -978,17 +995,26 @@ exports[`FAQPage has no unexpected changes 1`] = `
             <li
               class="css-0"
             >
-              Symptomatic carriers: We use gnomAD as our source of allele frequencies for GeniE. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases. Depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD.
+              <strong>
+                Symptomatic carriers:
+              </strong>
+               We use gnomAD as our source of allele frequencies for GeniE. Individuals with rare disease are less likely to participate in or meet recruitment criteria for research studies that are included in reference population databases. Depletion of symptomatic carriers could lower the allele frequencies of pathogenic variants observed in gnomAD.
             </li>
             <li
               class="css-0"
             >
-              Impacts to life expectancy: Genetic prevalence represents the estimated proportion of a population that has a causal genotype for a genetic disorder, however it does not account for the possibility that specific allele combinations may lead to early misscarriage or neonatal loss. Some combinations could lead to loss of life early on, before the individual could be identified as having the clinical diagnosis.
+              <strong>
+                Impacts to life expectancy:
+              </strong>
+               Genetic prevalence represents the estimated proportion of a population that has a causal genotype for a genetic disorder, however it does not account for the possibility that specific allele combinations may lead to early misscarriage or neonatal loss. Some combinations could lead to loss of life early on, before the individual could be identified as having the clinical diagnosis.
             </li>
             <li
               class="css-0"
             >
-              Reduced penetrance and variable expressivity: Similarly, the full phenotypic spectrum is still being discovered for many diseases. This final estimate does not currently take into consideration whether everyone with a casual genotype would present with the phenotype/disease of interest.
+              <strong>
+                Reduced penetrance and variable expressivity:
+              </strong>
+               Similarly, the full phenotypic spectrum is still being discovered for many diseases. This final estimate does not currently take into consideration whether everyone with a casual genotype would present with the phenotype/disease of interest.
             </li>
           </ul>
           <p
@@ -1011,7 +1037,15 @@ exports[`FAQPage has no unexpected changes 1`] = `
               <em>
                 Is the disease known to be more common in a population not well represented in gnomAD (e.g. Middle Eastern)?
               </em>
-               Representation can have a big influence on these calculations if a variant is more common in a population that is not well represented in gnomAD, the disease-causing variant(s) could appear to be absent or rare in the population data.
+               Representation can have a big influence on these calculations if a variant is more common in a population that is not well represented in gnomAD, the disease-causing variant(s) could appear to be absent or rare in the population data. Learn more about the genetic ancestry groups in gnomAD 
+              <a
+                class="chakra-link css-0"
+                href="https://gnomad.broadinstitute.org/stats#diversity"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                here
+              </a>
             </li>
             <li
               class="css-0"
@@ -1053,7 +1087,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
               <em>
                 Do we know the full phenotypic spectrum of the gene?
               </em>
-               As mentioned above, disease spectrum should always be considered in interpreting these results. Impacts to life expectancy, reduced penetrance and variable expressivity can all lead to estimated genetic prevalence being considerably higher than estimates based on a clinical diagnosis alone.
+               As mentioned above, disease spectrum should always be considered in interpreting these results. Impacts to life expectancy, reduced penetrance and variable expressivity can all lead to estimated genetic prevalence being considerably higher than estimates based on a clinical diagnosis alone. Additionally, does the disease have any phenocopies, either caused by another gene that could lead to individuals being diagnostically grouped in with some more common, non-specific phenotype like autism or cerebral palsy?
             </li>
             <li
               class="css-0"
@@ -1080,11 +1114,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-13"
+        aria-controls="accordion-panel-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="13"
-        id="accordion-button-13"
+        id="accordion-button-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
         type="button"
       >
         <h2
@@ -1109,9 +1143,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-13"
+          aria-labelledby="accordion-button-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-13"
+          id="accordion-panel-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
           role="region"
         >
           <p
@@ -1157,11 +1191,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-14"
+        aria-controls="accordion-panel-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="14"
-        id="accordion-button-14"
+        id="accordion-button-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
         type="button"
       >
         <h2
@@ -1186,9 +1220,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-14"
+          aria-labelledby="accordion-button-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-14"
+          id="accordion-panel-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
           role="region"
         >
           <p
@@ -1203,17 +1237,17 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-15"
+        aria-controls="accordion-panel-what-is-the-difference-between-each-of-the-roles-for-sharing"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="15"
-        id="accordion-button-15"
+        id="accordion-button-what-is-the-difference-between-each-of-the-roles-for-sharing"
         type="button"
       >
         <h2
           class="chakra-heading css-acszkm"
         >
-          What is the difference between each of the roles for sharing
+          What is the difference between each of the roles for sharing?
         </h2>
         <svg
           aria-hidden="true"
@@ -1232,9 +1266,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-15"
+          aria-labelledby="accordion-button-what-is-the-difference-between-each-of-the-roles-for-sharing"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-15"
+          id="accordion-panel-what-is-the-difference-between-each-of-the-roles-for-sharing"
           role="region"
         >
           <p
@@ -1243,7 +1277,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
             GeniE users can share their lists with other GeniE users via the sharing functionality on the results page. Only owners of a list can add additional users. In order to be added as a user to the list, they must sign in using a Google authorized account.
           </p>
           <ul
-            class="css-tu0njr"
+            class="css-1v9vn7f"
             role="list"
           >
             <li
@@ -1255,7 +1289,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
               These users can view the data but not make any changes
             </li>
             <li
-              class="css-0"
+              class="css-1fhgjcy"
             >
               <em>
                 Editor:
@@ -1263,7 +1297,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
               These users will be allowed to make changes to the variant list and add private notes, but not will not be able to add any users or make a list public
             </li>
             <li
-              class="css-0"
+              class="css-1fhgjcy"
             >
               <em>
                 Owner:
@@ -1278,11 +1312,11 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-16"
+        aria-controls="accordion-panel-what-are-public-lists"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="16"
-        id="accordion-button-16"
+        id="accordion-button-what-are-public-lists"
         type="button"
       >
         <h2
@@ -1307,9 +1341,9 @@ exports[`FAQPage has no unexpected changes 1`] = `
         style="overflow: hidden; display: none; opacity: 0; height: 0px;"
       >
         <div
-          aria-labelledby="accordion-button-16"
+          aria-labelledby="accordion-button-what-are-public-lists"
           class="chakra-accordion__panel css-142xu0k"
-          id="accordion-panel-16"
+          id="accordion-panel-what-are-public-lists"
           role="region"
         >
           <p
@@ -1318,7 +1352,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
             All new variant lists default to being a private list, only visible to the creator and any GeniE users that are given access by an owner. Users can choose to make their lists public, which allows any individual to have view-only access to their estimates.
           </p>
           <p
-            class="chakra-text css-0"
+            class="chakra-text css-1fhgjcy"
           >
             Variant list owners can also apply to have their variant list represented on GeniE's dashboard. After applying, a staff member must approve the list for it to be on the 
             <a
@@ -1328,6 +1362,52 @@ exports[`FAQPage has no unexpected changes 1`] = `
               Dashboard
             </a>
             .
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-how-to-handle-reduced-penetrance-variants"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="17"
+        id="accordion-button-how-to-handle-reduced-penetrance-variants"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          How to handle reduced penetrance variants?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-how-to-handle-reduced-penetrance-variants"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-how-to-handle-reduced-penetrance-variants"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            Some variants can be pathogenic yet have much reduced penetrance compared to other variants in the gene. For recessive diseases, these are often hypomorphic alleles where they have partial activity. For example, some splice variants only lead to partial splice disruption and the transcript is still expressed at a reduced level. Others may be a missense variant that reduces enzyme activity but still leaves the protein largely intact. For many of these variants, they may only cause disease if combined with a second allele that is fully pathogenic but not when the hypomorphic allele is homozygous. Therefore, one may wish to exclude them from the calculation if the disease that is manifest is too divergent from the primary disease or in order to exclude the effects of the homozygous state. Alternatively one can include these alleles and then subtract the homozygous frequency of the reduced penetrant allele(s) from the final calculation.
           </p>
         </div>
       </div>
