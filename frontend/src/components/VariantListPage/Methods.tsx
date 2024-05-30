@@ -184,10 +184,10 @@ const Methods: FC<{ variantList: VariantList }> = ({ variantList }) => {
       </Text>
 
       <Heading as="h3" size="sm" mt={4} mb={2}>
-        Population and subpopulation inference
+        Genetic Ancestry Group and Subgroup inference
       </Heading>
       <Text mb={2}>
-        Continental ancestry was inferred using a PCA and random forest
+        Genetic ancestry groups were inferred using a PCA and random forest
         approach. Ancestries are assigned taking samples of known ancestry and
         then using the common genetic variants in the data to identify samples
         with genetic similarity. We do this by computing the top 20 principal
@@ -195,11 +195,11 @@ const Methods: FC<{ variantList: VariantList }> = ({ variantList }) => {
         used in the PCRelate PCA and projecting the remaining related samples
         onto these principal components (Karczewski K, 2020; Supplementary Fig.
         1). The random forest model is then trained on a set of samples with
-        known continental ancestry and used this model to assign continental
-        ancestry labels to samples for which the random forest probability &gt;
-        0.9. For additional details on population inference, including how the
-        subpopulations were determined, please see pages 13-16 of the
-        supplementary materials in Karczewski K, 2020 (PMID: 32461654).
+        known genetic ancestry and uses this model to assign genetic ancestry
+        group labels to samples for which the random forest probability &gt;
+        0.9. For additional details on group inference, including how the
+        subgroups were determined, please see pages 13-16 of the supplementary
+        materials in Karczewski K, 2020 (PMID: 32461654).
       </Text>
 
       <Heading as="h3" size="sm" mt={4} mb={2}>
