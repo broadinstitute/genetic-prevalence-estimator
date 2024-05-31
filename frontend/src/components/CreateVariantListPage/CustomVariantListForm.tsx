@@ -13,6 +13,7 @@ import {
   VStack,
   useToast,
   Text,
+  Box,
 } from "@chakra-ui/react";
 import { isVariantId, normalizeVariantId } from "@gnomad/identifiers";
 import { useState } from "react";
@@ -26,6 +27,7 @@ import {
   VariantListRequest,
   VariantListType,
 } from "../../types";
+import HelpTextHover from "../HelpTextHover";
 import { isStructuralVariantId } from "../identifiers";
 import VariantsInput, { InputVariant } from "../VariantsInput";
 import GeneInput from "./GeneInput";
@@ -147,7 +149,10 @@ const CustomVariantListForm = () => {
             </Text>
           </Text>
           <FormControl id="custom-variant-list-label" isRequired>
-            <FormLabel>Label</FormLabel>
+            <Box display="flex">
+              <FormLabel>Label</FormLabel>
+              <HelpTextHover helpText="This is the name of your variant list that will be displayed on your home page. If you share your variant list with others this will be the name displayed on their home page as well." />
+            </Box>
             <Input
               value={label}
               onChange={(e) => {
@@ -214,6 +219,20 @@ const CustomVariantListForm = () => {
                 key={`${gnomadVersion}-gene`}
                 id="custom-variant-list-gene-id"
                 label="Gene"
+                helpText={
+                  <span>
+                    Gene names are based on gnomAD, which uses GENCODE/VEP to
+                    annotate gene names. Gene names are usually HGNC but there
+                    are some exceptions. To find out more information about how
+                    gencode selects gene names go to{" "}
+                    <Link
+                      href="https://www.gencodegenes.org/pages/faq.html"
+                      isExternal
+                    >
+                      https://www.gencodegenes.org/pages/faq.html
+                    </Link>
+                  </span>
+                }
                 referenceGenome={
                   gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"
                 }
@@ -230,6 +249,28 @@ const CustomVariantListForm = () => {
                 key={`${gnomadVersion}-transcript`}
                 id="custom-variant-list-transcript-id"
                 label="Transcript"
+                helpText={
+                  <span>
+                    GeniE defaults to the MANE (GRCh38)/canonical (GRCh37/hg19)
+                    transcript of the gene. You can also select other
+                    transcripts from the drop down. Additional support,
+                    including visualizing various transcripts and pext scores,
+                    can be found on the{" "}
+                    <Link
+                      href={`https://gnomad.broadinstitute.org/gene/${
+                        geneId.split(".")[0]
+                      }?dataset=${
+                        gnomadVersion.startsWith("2")
+                          ? "gnomad_r2_1"
+                          : "gnomad_r4"
+                      }`}
+                      isExternal
+                    >
+                      gnomAD gene page
+                    </Link>
+                    .
+                  </span>
+                }
                 geneId={geneId}
                 referenceGenome={
                   gnomadVersion.startsWith("2") ? "GRCh37" : "GRCh38"

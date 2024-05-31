@@ -5,6 +5,7 @@ import {
   Heading,
   HStack,
   Stack,
+  Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
@@ -29,6 +30,7 @@ import {
 } from "./geneticPrevalenceModels";
 import CalculationsTable from "./CalculationsTable";
 import { PopIdNumberRecord, PopIdRawCarrierNumberRecord } from "./calculations";
+import HelpTextHover from "../../HelpTextHover";
 
 type VariantListChartsProps = {
   genetic_ancestry_groups: GnomadPopulationId[];
@@ -145,9 +147,22 @@ const VariantListCharts = (props: VariantListChartsProps) => {
   return (
     <>
       <Box mb={8}>
-        <Heading as="h2" size="md" mb={2}>
-          Cumulative carrier frequency
-        </Heading>
+        <Box display="flex">
+          <Heading as="h2" size="md" mb={2}>
+            Cumulative carrier frequency
+          </Heading>
+          <Box ml={2}>
+            <HelpTextHover
+              helpText={
+                <Text>
+                  The estimated proportion of individuals that are heterozygous
+                  disease-causing variant (see variant list below to see which
+                  variants are included in this estimation)
+                </Text>
+              }
+            />
+          </Box>
+        </Box>
 
         <Stack
           direction={stackHorizontally ? "row" : "column"}
@@ -320,9 +335,23 @@ const VariantListCharts = (props: VariantListChartsProps) => {
       </Box>
 
       <Box mb={8}>
-        <Heading as="h2" size="md" mb={2}>
-          Genetic Prevalence
-        </Heading>
+        <Box display="flex">
+          <Heading as="h2" size="md" mb={2}>
+            Genetic Prevalence
+          </Heading>
+          <Box ml={2}>
+            <HelpTextHover
+              helpText={
+                <Text>
+                  The estimated proportion of individuals that are either
+                  compound heterozygous or homozygous for disease-causing
+                  variant(s) (see variant list below to see which variants are
+                  included in this estimation)
+                </Text>
+              }
+            />
+          </Box>
+        </Box>
 
         <Stack
           direction={stackHorizontally ? "row" : "column"}

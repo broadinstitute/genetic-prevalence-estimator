@@ -1,10 +1,13 @@
 import {
+  Box,
   FormControl,
   FormLabel,
   HStack,
   Radio,
   RadioGroup,
+  Text,
 } from "@chakra-ui/react";
+import HelpTextHover from "../../HelpTextHover";
 
 export type GeneticPrevalenceModel = "simplified" | "bayesian";
 
@@ -19,7 +22,27 @@ export const GeneticPrevalenceModelInput = (
   const { value, onChange } = props;
   return (
     <FormControl id="genetic-prevalence-model" as="fieldset">
-      <FormLabel as="legend">Genetic prevalence model</FormLabel>
+      <Box display="flex">
+        <FormLabel as="legend">Genetic prevalence model</FormLabel>
+        <Box>
+          <HelpTextHover
+            helpText={
+              <>
+                <Text>
+                  The <strong>Simplified</strong> model is based on the
+                  Hardy-Weinberg equation. It square the cumulative allele
+                  frequency of all variants in the list
+                </Text>
+                <Text mt={4}>
+                  The <strong>Bayesian estimate</strong> accounts for linkage
+                  equilibrium between variants. This can make a slight
+                  difference in more common recessive diseases{" "}
+                </Text>
+              </>
+            }
+          />
+        </Box>
+      </Box>
       <RadioGroup
         value={value}
         onChange={(value) => {

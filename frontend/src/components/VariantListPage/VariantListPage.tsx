@@ -62,6 +62,7 @@ import {
 import VariantListCharts from "./VariantListCalculations/VariantListCharts";
 import { isStructuralVariantId } from "../identifiers";
 import { isVariantId } from "@gnomad/identifiers";
+import HelpTextHover from "../HelpTextHover";
 
 const addVariantsToVariantList = (
   uuid: string,
@@ -561,9 +562,34 @@ const VariantListPage = (props: VariantListPageProps) => {
 
       {variantList.access_permissions && (
         <Box sx={screenOnly}>
-          <Heading as="h2" size="md" mb={2}>
-            Sharing
-          </Heading>
+          <Box display="flex">
+            <Heading as="h2" size="md" mb={2}>
+              Sharing
+            </Heading>
+            <Box ml={2}>
+              <HelpTextHover
+                helpText={
+                  <>
+                    <Text>
+                      This functionality enables you to share variant lists with
+                      other registered GeniE users.{" "}
+                    </Text>
+                    <Text ml={4} mt={4}>
+                      <strong>Owners:</strong> can edit the list, manage
+                      collaborators, and delete the list.
+                    </Text>
+                    <Text ml={4}>
+                      <strong>Editors:</strong> can rename the list and edit
+                      notes.
+                    </Text>
+                    <Text ml={4}>
+                      <strong>Viewers:</strong> can view and download the list.
+                    </Text>
+                  </>
+                }
+              />
+            </Box>
+          </Box>
           <UnorderedList mb={4}>
             {variantList.access_permissions.map((accessPermission) => {
               return (
