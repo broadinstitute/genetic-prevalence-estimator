@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
+  Box,
   FormControl,
   FormLabel,
   IconButton,
@@ -18,10 +19,12 @@ import { debounce } from "lodash";
 import { useCallback, useRef, useState } from "react";
 
 import CancelablePromise from "../CancelablePromise";
+import HelpTextHover from "./HelpTextHover";
 
 interface ComboboxProps<ComboboxItem> {
   id: string;
   label: string;
+  helpText?: string;
   placeholder?: string;
   isRequired?: boolean;
   fetchItems: (inputValue: string) => Promise<ComboboxItem[]>;
@@ -33,6 +36,7 @@ const Combobox = <ComboboxItem,>(props: ComboboxProps<ComboboxItem>) => {
   const {
     id,
     label,
+    helpText,
     placeholder,
     isRequired = false,
     fetchItems,
@@ -105,7 +109,10 @@ const Combobox = <ComboboxItem,>(props: ComboboxProps<ComboboxItem>) => {
   });
   return (
     <FormControl id={id} isRequired={isRequired}>
-      <FormLabel {...getLabelProps()}>{label}</FormLabel>
+      <Box display="flex">
+        <FormLabel {...getLabelProps()}>{label}</FormLabel>
+        {helpText && <HelpTextHover helpText={helpText} />}
+      </Box>
       <div {...getComboboxProps()}>
         <InputGroup>
           <Input placeholder={placeholder} {...getInputProps()} />

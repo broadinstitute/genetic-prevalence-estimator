@@ -6,6 +6,7 @@ import Combobox from "../Combobox";
 interface GeneInputProps {
   id: string;
   label: string;
+  helpText?: any;
   isRequired?: boolean;
   referenceGenome: ReferenceGenome;
   onChange: (geneSymbol: string, geneId: string) => void;
@@ -45,7 +46,7 @@ const fetchGenes = (query: string, referenceGenome: ReferenceGenome) => {
 };
 
 const GeneInput = (props: GeneInputProps) => {
-  const { id, label, isRequired, referenceGenome, onChange } = props;
+  const { id, label, helpText, isRequired, referenceGenome, onChange } = props;
 
   const fetchItems = useCallback(
     (inputValue) => fetchGenes(inputValue, referenceGenome),
@@ -56,6 +57,7 @@ const GeneInput = (props: GeneInputProps) => {
     <Combobox<GeneSearchResult>
       id={id}
       label={label}
+      helpText={helpText || undefined}
       placeholder="PCSK9"
       isRequired={isRequired}
       fetchItems={fetchItems}

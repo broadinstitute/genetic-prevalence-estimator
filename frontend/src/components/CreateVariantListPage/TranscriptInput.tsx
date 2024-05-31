@@ -1,4 +1,5 @@
 import {
+  Box,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -8,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 
 import CancelablePromise from "../../CancelablePromise";
 import { ReferenceGenome } from "../../types";
+import HelpTextHover from "../HelpTextHover";
 
 interface Transcript {
   transcript_id: string;
@@ -109,6 +111,7 @@ const fetchTranscripts = (
 interface TranscriptInputProps {
   id: string;
   label: string;
+  helpText?: any;
   geneId: string;
   referenceGenome: ReferenceGenome;
   isRequired?: boolean;
@@ -121,6 +124,7 @@ const TranscriptInput = (props: TranscriptInputProps) => {
     id,
     label,
     geneId,
+    helpText,
     referenceGenome,
     isRequired = false,
     value,
@@ -157,7 +161,10 @@ const TranscriptInput = (props: TranscriptInputProps) => {
 
   return (
     <FormControl id={id} isRequired={isRequired}>
-      <FormLabel>{label}</FormLabel>
+      <Box display="flex">
+        <FormLabel>{label}</FormLabel>
+        {helpText && <HelpTextHover helpText={helpText} />}
+      </Box>
       <Select
         value={value}
         onChange={(e) => {
