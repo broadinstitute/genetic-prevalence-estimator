@@ -29,6 +29,7 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Text,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
@@ -45,7 +46,6 @@ import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
 import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
-import { returnDomainOrLink } from "../VariantListPage/VariantListMetadata";
 
 type DashboardList = {
   gene_id: string;
@@ -232,7 +232,11 @@ const BASE_COLUMNS: ColumnDef[] = [
       return (
         <Cell maxWidth={200}>
           <Tooltip hasArrow label={ownersArray[0]}>
-            {ownersArray[0]}
+            <Text color={"blue.700"}>
+              {ownersArray[0].length > 15
+                ? `${ownersArray[0].slice(0, 14)}...`
+                : ownersArray[0]}
+            </Text>
           </Tooltip>
         </Cell>
       );
@@ -257,10 +261,10 @@ const BASE_COLUMNS: ColumnDef[] = [
                 isExternal
                 target="_blank"
               >
-                {returnDomainOrLink(
+                {
                   dashboardList.representative_variant_list
                     .supporting_documents[0].title
-                )}
+                }
               </Link>
             )}
         </Cell>
