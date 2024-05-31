@@ -78,7 +78,7 @@ const VariantListReviewStatus = ({
   return (
     <Box mb={4}>
       <Heading as="h2" size="md" mb={2}>
-        Representivity
+        Dashboard
       </Heading>
       <Text mb={2}>
         {variantList.representative_status
