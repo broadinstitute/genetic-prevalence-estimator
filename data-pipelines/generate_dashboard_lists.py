@@ -92,7 +92,7 @@ def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_varia
 # Currently this is used on the first local run to create a checkointed file,
 #   if run in google cloud run, this would be run every time and checkointing wouldn't
 #   be needed
-def prepare_gene_models(gnomAD_gene_models_path):
+def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     ht = hl.read_table(gnomAD_gene_models_path)
 
     ht = ht.annotate(
@@ -119,7 +119,9 @@ def prepare_gene_models(gnomAD_gene_models_path):
 
     ht = ht.key_by("symbol")
 
-    ht.write("../data/reindexed_gene_models.ht", overwrite=True)
+    ht.write(
+        os.path.join(base_dir, "dashboard/reindexed_gene_models.ht"), overwrite=True
+    )
 
     return ht
 
@@ -142,7 +144,6 @@ def process_dashboard_list(
     gnomad_variants,
     clinvar_variants,
 ):
-    print("  REMOVE ME: running process_dashboard_list")
     contig = f"chr{chrom}"
 
     ht = hl.filter_intervals(
@@ -376,34 +377,32 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
     return merged_df
 
 
-def prepare_dashboard_lists(genes_fullpath):
+def prepare_dashboard_lists(genes_fullpath, base_dir):
     ds = hl.import_table(
         genes_fullpath,
         delimiter=",",
         quote='"',
         key="symbol",
         impute=True,
-        # genes_fullpath, delimiter=",", quote='"', key="GENE_SYMBOL", impute=True
     )
 
-    # Using checkpoint instead of function to speed up development, if first time running
-    #   this helper should be called to generate the checkoint
-    # ht_gnomad_gene_models = prepare_gene_models(GNOMAD_GRCH38_GENES_PATH)
-    # print(ht_gnomad_gene_models.describe())
+    gene_models_path = os.path.join(base_dir, "dashboard/reindexed_gene_models.ht")
+    if not os.path.exists(gene_models_path):
+        print(f"Path {gene_models_path} does not exist, creating ht.")
+        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
 
-    GNOMAD_CHECKPOINTED_GRCH38_GENES_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/reindexed_gene_models.ht"
-    ht_gnomad_gene_models = hl.read_table(GNOMAD_CHECKPOINTED_GRCH38_GENES_PATH)
+    ht_gnomad_gene_models = hl.read_table(gene_models_path)
 
     # annotate my list of gene symbols with gene model information
     ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
 
     # load gnomad and clinvar tables for use in main task
-    LOCAL_GNOMAD_V4_VARIANTS_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/gnomAD_v4.1.0_variants.ht"
-    ht_gnomad_variants = hl.read_table(LOCAL_GNOMAD_V4_VARIANTS_PATH)
+    GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+    ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
-    LOCAL_CLINVAR_GRCH38_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/ClinVar_GRCh38_variants.ht"
-    ht_clinvar_variants = hl.read_table(LOCAL_CLINVAR_GRCH38_PATH)
+    CLINVAR_GRCH38_PATH = os.path.join(base_dir, "ClinVar/ClinVar_GRCh38_variants.ht")
+    ht_clinvar_variants = hl.read_table(CLINVAR_GRCH38_PATH)
     metadata_clinvar_version = hl.eval(ht_clinvar_variants.globals.release_date)
 
     # iterate and perform the worker-esque task with pandas because hail does not like
@@ -419,10 +418,8 @@ def prepare_dashboard_lists(genes_fullpath):
     df["date_created"] = iso_8601_datetime
     df["variant_calculations"] = [{} for _ in range(len(df))]
 
-    # TODO: need to get orphanet data, create task to call and create its own CSV
-    LOCAL_ORPHANET_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/orphanet_prevalences.tsv"
-    df_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
-
+    ORPHANET_PATH = os.path.join(base_dir, "dashboard/orphanet_prevalences.tsv")
+    df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
     ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
@@ -431,8 +428,7 @@ def prepare_dashboard_lists(genes_fullpath):
     df["inheritance_type"] = ""
 
     for index, row in df.iterrows():
-        print(f"=== Processing row {index + 1} of {len(df)}")
-        print(f"  gene_id is: {row.gene_id}")
+        print(f"Processing row {index + 1} of {len(df)}")
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
         transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
@@ -483,9 +479,7 @@ def prepare_dashboard_lists(genes_fullpath):
             variants=recommended_variants,
         )
 
-    LOCAL_ORPHANET_PATH = "/Users/rgrant/dev/work-broad/genetic-prevalence-estimator/data/orphanet_prevalences.tsv"
-    ds_orphanet_prevalences = pd.read_csv(LOCAL_ORPHANET_PATH, sep="\t")
-    df = annotate_variants_with_orphanet_prevalences(df, ds_orphanet_prevalences)
+    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
 
     FINAL_COLUMNS = [
         "gene_id",
@@ -651,28 +645,35 @@ def prepare_dashboard_download(dataframe):
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--quiet", action="store_true")
-    parser.add_argument("--genes-file")
+    parser.add_argument("--quiet", action="store_true", required=False)
+    parser.add_argument("--directory-root", required=False)
+    parser.add_argument("--genes-file", required=False)
     args = parser.parse_args()
 
     hl.init(quiet=args.quiet)
 
-    csv_dir = os.path.join(os.path.dirname(__file__), "../data")
+    base_dir = os.path.join(os.path.dirname(__file__), "../data")
+    if args.directory_root:
+        base_dir = args.directory_root
 
-    genes_filename = "input/current_dashboard_ar_genes_plus_some.csv"
+    genes_filename = "all_genes.csv"
     if args.genes_file:
         genes_filename = args.genes_file
 
-    genes_fullpath = os.path.join(csv_dir, genes_filename)
+    genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
     print("Preparing dashboard list models ...")
-    df_dashboard_models = prepare_dashboard_lists(genes_fullpath)
-    df_dashboard_models.to_csv("data/dashboard_models.csv", index=False)
+    df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
+    df_dashboard_models.to_csv(
+        os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
+    )
     print("Wrote dashboard list models to file")
 
     print("Preparing dashboard downloads")
     df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
-    df_dashboard_download.to_csv("data/dashboard_download.csv", index=False)
+    df_dashboard_download.to_csv(
+        os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
+    )
     print("Wrote dashboard downloads to file")
 
 
