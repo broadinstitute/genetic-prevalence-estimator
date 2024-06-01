@@ -111,6 +111,7 @@ GOLD_STARS = hl.dict(
         "no interpretation for the single variant": 0,
         "no assertion provided": 0,
         "no classification provided": 0,
+        "no classifications from unflagged records": 0,
         "no classification for the single variant": 0,
         "no assertion criteria provided": 0,
         "criteria provided, single submitter": 1,
