@@ -508,96 +508,81 @@ def prepare_dashboard_lists(genes_fullpath):
 
 def prepare_dashboard_download(dataframe):
 
-    df_download = dataframe
+    download_data = []
 
-    for index, row in df_download.iterrows():
+    for _, row in dataframe.iterrows():
         metadata = json.loads(row["metadata"])
-
         top_ten_variants = json.loads(row["top_ten_variants"])
-
         calculations = json.loads(row["variant_calculations"])
         carrier_frequency = calculations["carrier_frequency"]
         prevalence = calculations["prevalence"]
 
-        # metadata ones
-        df_download.at[index, "gene_symbol"] = metadata["gene_symbol"]
-        df_download.at[index, "transcript_id"] = metadata["transcript_id"]
-        df_download.at[index, "gnomad_version"] = metadata["gnomad_version"]
-        df_download.at[index, "reference_genome"] = metadata["reference_genome"]
-        df_download.at[index, "gene_symbol"] = metadata["gene_symbol"]
-        df_download.at[index, "included_clinvar_variants"] = ", ".join(
-            metadata["include_clinvar_clinical_significance"]
-        )
-        df_download.at[index, "clinvar_version"] = metadata["clinvar_version"]
-
-        df_download.at[index, "date_created"] = row["date_created"]
-
-        # all the carrier and prevalence things
-        df_download.at[index, "carrier_frequency_global"] = carrier_frequency[0]
-        df_download.at[
-            index, "carrier_frequency_african_african_american"
-        ] = carrier_frequency[1]
-        df_download.at[index, "carrier_frequency_admixed_american"] = carrier_frequency[
-            2
-        ]
-        df_download.at[index, "carrier_frequency_ashkenazi_jewish"] = carrier_frequency[
-            3
-        ]
-        df_download.at[index, "carrier_frequency_east_asian"] = carrier_frequency[4]
-        df_download.at[index, "carrier_frequency_european_finnish"] = carrier_frequency[
-            5
-        ]
-        df_download.at[index, "carrier_frequency_middle_eastern"] = carrier_frequency[6]
-        df_download.at[
-            index, "carrier_frequency_european_non_finnish"
-        ] = carrier_frequency[7]
-        df_download.at[index, "carrier_frequency_remaining"] = carrier_frequency[8]
-        df_download.at[index, "carrier_frequency_south_asian"] = carrier_frequency[9]
-
-        df_download.at[index, "genetic_prevalence_global"] = prevalence[0]
-        df_download.at[
-            index, "genetic_prevalence_african_african_american"
-        ] = prevalence[1]
-        df_download.at[index, "genetic_prevalence_admixed_american"] = prevalence[2]
-        df_download.at[index, "genetic_prevalence_ashkenazi_jewish"] = prevalence[3]
-        df_download.at[index, "genetic_prevalence_east_asian"] = prevalence[4]
-        df_download.at[index, "genetic_prevalence_european_finnish"] = prevalence[5]
-        df_download.at[index, "genetic_prevalence_middle_eastern"] = prevalence[6]
-        df_download.at[index, "genetic_prevalence_european_non_finnish"] = prevalence[7]
-        df_download.at[index, "genetic_prevalence_remaining"] = prevalence[8]
-        df_download.at[index, "genetic_prevalence_south_asian"] = prevalence[9]
+        # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
+        row_data = {
+            "gene_symbol": metadata["gene_symbol"],
+            "transcript_id": metadata["transcript_id"],
+            "gnomad_version": metadata["gnomad_version"],
+            "reference_genome": metadata["reference_genome"],
+            "included_clinvar_variants": ", ".join(
+                metadata["include_clinvar_clinical_significance"]
+            ),
+            "clinvar_version": metadata["clinvar_version"],
+            "date_created": row["date_created"],
+            "carrier_frequency_global": carrier_frequency[0],
+            "carrier_frequency_african_african_american": carrier_frequency[1],
+            "carrier_frequency_admixed_american": carrier_frequency[2],
+            "carrier_frequency_ashkenazi_jewish": carrier_frequency[3],
+            "carrier_frequency_east_asian": carrier_frequency[4],
+            "carrier_frequency_european_finnish": carrier_frequency[5],
+            "carrier_frequency_middle_eastern": carrier_frequency[6],
+            "carrier_frequency_european_non_finnish": carrier_frequency[7],
+            "carrier_frequency_remaining": carrier_frequency[8],
+            "carrier_frequency_south_asian": carrier_frequency[9],
+            "genetic_prevalence_global": prevalence[0],
+            "genetic_prevalence_african_african_american": prevalence[1],
+            "genetic_prevalence_admixed_american": prevalence[2],
+            "genetic_prevalence_ashkenazi_jewish": prevalence[3],
+            "genetic_prevalence_east_asian": prevalence[4],
+            "genetic_prevalence_european_finnish": prevalence[5],
+            "genetic_prevalence_middle_eastern": prevalence[6],
+            "genetic_prevalence_european_non_finnish": prevalence[7],
+            "genetic_prevalence_remaining": prevalence[8],
+            "genetic_prevalence_south_asian": prevalence[9],
+        }
 
         for variant_index, variant in enumerate(top_ten_variants):
-
             prefix = f"variant_{variant_index + 1}"
             allele_count = variant["AC"][0]
             allele_number = variant["AN"][0]
 
-            df_download.at[index, f"{prefix}_gnomad_id"] = variant["id"]
-            df_download.at[index, f"{prefix}_vep_consequence"] = variant[
-                "major_consequence"
-            ]
-            df_download.at[index, f"{prefix}_hgvsc"] = variant["hgvsc"]
-            df_download.at[index, f"{prefix}_hgvsp"] = variant["hgvsp"]
-            df_download.at[index, f"{prefix}_loftee"] = variant["lof"]
-            df_download.at[index, f"{prefix}_clinvar_clinical_significance"] = (
-                None
-                if variant["clinical_significance"] == None
-                else variant["clinical_significance"][0]
-            )
-            df_download.at[index, f"{prefix}_clinvar_variation_id"] = variant[
-                "clinvar_variation_id"
-            ]
-            df_download.at[index, f"{prefix}_allele_count"] = int(allele_count)
-            df_download.at[index, f"{prefix}_allele_number"] = int(allele_number)
-            df_download.at[index, f"{prefix}_allele_frequency"] = (
-                0
-                if allele_count == 0
-                else "{:.2e}".format(allele_count / allele_number)
+            row_data.update(
+                {
+                    f"{prefix}_gnomad_id": variant["id"],
+                    f"{prefix}_vep_consequence": variant["major_consequence"],
+                    f"{prefix}_hgvsc": variant["hgvsc"],
+                    f"{prefix}_hgvsp": variant["hgvsp"],
+                    f"{prefix}_loftee": variant["lof"],
+                    f"{prefix}_clinvar_clinical_significance": (
+                        variant["clinical_significance"][0]
+                        if variant["clinical_significance"]
+                        else None
+                    ),
+                    f"{prefix}_clinvar_variation_id": variant["clinvar_variation_id"],
+                    f"{prefix}_allele_count": int(allele_count),
+                    f"{prefix}_allele_number": int(allele_number),
+                    f"{prefix}_allele_frequency": (
+                        0
+                        if allele_count == 0
+                        else "{:.2e}".format(allele_count / allele_number)
+                    ),
+                    f"{prefix}_source": ", ".join(variant["source"]),
+                    f"{prefix}_flags": ", ".join(variant["flags"]),
+                }
             )
 
-            df_download.at[index, f"{prefix}_source"] = ", ".join(variant["source"])
-            df_download.at[index, f"{prefix}_flags"] = ", ".join(variant["flags"])
+        download_data.append(row_data)
+
+    df_download = pd.DataFrame(download_data)
 
     def generate_variant_columns(number):
         variant_columns = []
