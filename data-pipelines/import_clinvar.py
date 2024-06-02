@@ -68,6 +68,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         },
         "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
         "other": {
+            None,
             "Affects",
             "association not found",
             "confers sensitivity",
@@ -75,6 +76,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "Established risk allele",
             "Likely risk allele",
             "low penetrance",
+            "low penetrance/Established risk allele",
             "not provided",
             "other",
             "Pathogenic/Likely risk allele",
@@ -109,6 +111,7 @@ CLINICAL_SIGNIFICANCE_CATEGORY_RANKING = hl.dict(
 
 GOLD_STARS = hl.dict(
     {
+        None: 0,
         "no interpretation for the single variant": 0,
         "no assertion provided": 0,
         "no classification provided": 0,
