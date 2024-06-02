@@ -146,17 +146,34 @@ def process_dashboard_list(
 ):
     contig = f"chr{chrom}"
 
-    ht = hl.filter_intervals(
-        gnomad_variants,
-        [
-            hl.interval(
-                hl.locus(contig, start, "GRCh38"),
-                hl.locus(contig, stop, "GRCh38"),
-                includes_start=True,
-                includes_end=True,
-            )
-        ],
-    )
+    if start is not None and stop is not None:
+        ht = hl.filter_intervals(
+            gnomad_variants,
+            [
+                hl.interval(
+                    hl.locus(contig, start, "GRCh38"),
+                    hl.locus(contig, stop, "GRCh38"),
+                    includes_start=True,
+                    includes_end=True,
+                )
+            ],
+        )
+
+    else:
+
+        ht = ht.filter(ht.locus.contig == contig)
+
+    # ht = hl.filter_intervals(
+    #     gnomad_variants,
+    #     [
+    #         hl.interval(
+    #             hl.locus(contig, start, "GRCh38"),
+    #             hl.locus(contig, stop, "GRCh38"),
+    #             includes_start=True,
+    #             includes_end=True,
+    #         )
+    #     ],
+    # )
 
     ht.transmute(
         freq=hl.struct(
@@ -267,6 +284,9 @@ def process_dashboard_list(
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
 
+    if len(variants) == 0:
+        print("For this gene, variants length is 0")
+
     # calculate sum of allele frequencies across all variants
     total_allele_frequencies = [0] * (len(populations) + 1)
     multiplied_allele_frequencies = [1] * (len(populations) + 1)
@@ -316,7 +336,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
     for ac_an in total_allele_counts_and_numbers:
         carrier_frequency_raw_numbers = {
             "total_ac": ac_an["AC"],
-            "average_an": ac_an["AN"] / length,
+            "average_an": (ac_an["AN"] / length) if length > 0 else 0,
         }
         carrier_frequency_raw_numbers_array.append(carrier_frequency_raw_numbers)
 
@@ -377,7 +397,7 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
     return merged_df
 
 
-def prepare_dashboard_lists(genes_fullpath, base_dir):
+def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     ds = hl.import_table(
         genes_fullpath,
         delimiter=",",
@@ -397,7 +417,10 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
     ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
 
     # load gnomad and clinvar tables for use in main task
-    GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+    # GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+    GNOMAD_V4_VARIANTS_PATH = (
+        "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
+    )
     ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
@@ -408,6 +431,23 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
     # iterate and perform the worker-esque task with pandas because hail does not like
     #   accessing values of rows while assigning them in a non hail expression way
     df = ds.to_pandas()
+
+    if stop != None:
+        df = df.iloc[start:stop]
+    else:
+        df = df.iloc[start:]
+
+    print(f"Old len dataframe is: {len(df)}")
+
+    missing_gene_id_rows = df[df["gene_id"].isna()]
+    print("Gene symbols with missing gene_id:")
+    print(missing_gene_id_rows["symbol"].tolist())
+
+    # Drop rows with missing "gene_id"
+    df = df.dropna(subset=["gene_id"])
+
+    print(f"New len dataframe is: {len(df)}")
+
     df["variants"] = [[] for _ in range(len(df))]
     df["top_ten_variants"] = [[] for _ in range(len(df))]
     df["label"] = ""
@@ -427,8 +467,13 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
 
     df["inheritance_type"] = ""
 
+    batch_i = 0
     for index, row in df.iterrows():
-        print(f"Processing row {index + 1} of {len(df)}")
+        batch_i += 1
+        print(
+            f"  -- Processing row {index + 1} [{row.symbol} - {row.gene_id}] ({batch_i} of {len(df)} in batch)"
+        )
+        # print(f"  ---- {row.gene_symbol}, {row.gene_id} ")
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
         transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
@@ -505,6 +550,9 @@ def prepare_dashboard_download(dataframe):
     download_data = []
 
     for _, row in dataframe.iterrows():
+
+        # print(f"  gene_id is: {row.gene_id}")
+
         metadata = json.loads(row["metadata"])
         top_ten_variants = json.loads(row["top_ten_variants"])
         calculations = json.loads(row["variant_calculations"])
@@ -644,13 +692,16 @@ def prepare_dashboard_download(dataframe):
 
 
 def main() -> None:
+
+    start_time = datetime.now()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--genes-file", required=False)
     args = parser.parse_args()
 
-    hl.init(quiet=args.quiet)
+    # hl.init(quiet=args.quiet)
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
     if args.directory_root:
@@ -662,19 +713,69 @@ def main() -> None:
 
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
-    print("Preparing dashboard list models ...")
-    df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
-    df_dashboard_models.to_csv(
-        os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
-    )
-    print("Wrote dashboard list models to file")
+    start = 750
+    batch_size = 50
+    stop = 2505
 
-    print("Preparing dashboard downloads")
-    df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
-    df_dashboard_download.to_csv(
-        os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
-    )
-    print("Wrote dashboard downloads to file")
+    for i in range(start, stop, batch_size):
+        hl.init(quiet=args.quiet)
+
+        batch_start_time = datetime.now()
+
+        batch_start = i
+        batch_stop = i + batch_size if i + batch_size < stop else None
+        batch_stop_print = i + batch_size if i + batch_size < stop else "end"
+
+        print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
+
+        print("Preparing dashboard list models ...")
+        df_dashboard_models = prepare_dashboard_lists(
+            genes_fullpath, base_dir, start=batch_start, stop=batch_stop
+        )
+        df_dashboard_models.to_csv(
+            os.path.join(
+                base_dir,
+                f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
+            ),
+            index=False,
+        )
+        print("Wrote dashboard list models to file")
+
+        print("Preparing dashboard downloads")
+        df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+        df_dashboard_download.to_csv(
+            os.path.join(
+                base_dir,
+                f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+            ),
+            index=False,
+        )
+        print("Wrote dashboard downloads to file")
+
+        batch_end_time = datetime.now()
+        print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+        hl.stop()
+
+    # print(f"Started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    # print("Preparing dashboard list models ...")
+    # df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
+    # df_dashboard_models.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
+    # )
+    # print("Wrote dashboard list models to file")
+
+    # print("Preparing dashboard downloads")
+    # df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+    # df_dashboard_download.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
+    # )
+    # print("Wrote dashboard downloads to file")
+
+    end_time = datetime.now()
+    print(f"Finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {end_time - start_time}")
 
 
 if __name__ == "__main__":
