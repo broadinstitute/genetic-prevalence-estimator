@@ -81,6 +81,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "protective",
             "Uncertain risk allele",
             "no classification for the single variant",
+            "no classifications from unflagged records",
         },
     }
 )
