@@ -134,6 +134,115 @@ def get_highest_frequency_variants(ds, num_to_keep):
     return ds
 
 
+# remappings = {
+#     "C12ORF57": {
+#         "transcript_id": "ENST00000229281",
+#         "gene_id": "ENSG00000111678",
+#         "chrom": 12,
+#         "start": 6942978,
+#         "stop": 6946003,
+#     },
+#     "C12ORF65": {
+#         "transcript_id": "ENST00000253233",
+#         "gene_id": "ENSG00000130921",
+#         "chrom": 12,
+#         "start": 123233385,
+#         "stop": 123258079,
+#     },
+#     "C15ORF41": {
+#         "transcript_id": "ENST00000566621",
+#         "gene_id": "ENSG00000186073",
+#         "chrom": 15,
+#         "start": 36579626,
+#         "stop": 36810248,
+#     },
+#     "C19ORF12": {
+#         "transcript_id": "ENST00000323670",
+#         "gene_id": "ENSG00000131943",
+#         "chrom": 19,
+#         "start": 29698937,
+#         "stop": 29715789,
+#     },
+#     "C8ORF37": {
+#         "transcript_id": "ENST00000286688",
+#         "gene_id": "ENSG00000156172",
+#         "chrom": 8,
+#         "start": 95244913,
+#         "stop": 95269201,
+#     },
+#     "CCDC114": {
+#         "transcript_id": "ENST00000674294",
+#         "gene_id": "ENSG00000105479",
+#         "chrom": 19,
+#         "start": 48296457,
+#         "stop": 48321971,
+#     },
+#     "CCDC151": {
+#         "transcript_id": "ENST00000356392",
+#         "gene_id": "ENSG00000198003",
+#         "chrom": 19,
+#         "start": 11420604,
+#         "stop": 11435782,
+#     },
+#     "CLAM": {
+#         "transcript_id": "ENST00000379756",
+#         "gene_id": "ENSG00000101222",
+#         "chrom": 20,
+#         "start": 3777504,
+#         "stop": 3781448,
+#     },
+#     "FAM126A": {
+#         "transcript_id": "ENST00000432176",
+#         "gene_id": "ENSG00000122591",
+#         "chrom": 7,
+#         "start": 22889371,
+#         "stop": 23014130,
+#     },
+#     "MAP11": {
+#         "transcript_id": "ENST00000316937",
+#         "gene_id": "ENSG00000146826",
+#         "chrom": 7,
+#         "start": 100154420,
+#         "stop": 100158723,
+#     },
+#     "SKIV2L": {
+#         "transcript_id": "ENST00000375394",
+#         "gene_id": "ENSG00000204351",
+#         "chrom": 6,
+#         "start": 31959117,
+#         "stop": 31969751,
+#     },
+#     "SPATA5": {
+#         "transcript_id": "ENST00000274008",
+#         "gene_id": "ENSG00000145375",
+#         "chrom": 4,
+#         "start": 122923070,
+#         "stop": 123319433,
+#     },
+#     "TCTEX1D2": {
+#         "transcript_id": "ENST00000325318",
+#         "gene_id": "ENSG00000213123",
+#         "chrom": 3,
+#         "start": 196291219,
+#         "stop": 196318299,
+#     },
+#     "TTC25": {
+#         "transcript_id": "ENST00000377540",
+#         "gene_id": "ENSG00000204815",
+#         "chrom": 17,
+#         "start": 41930617,
+#         "stop": 41966503,
+#     },
+#     "TTC37": {
+#         "transcript_id": "ENST00000358746",
+#         "gene_id": "ENSG00000198677",
+#         "chrom": 5,
+#         "start": 95461755,
+#         "stop": 95554977,
+#     },
+# }
+
+
 def process_dashboard_list(
     dataframe,
     index,
@@ -144,6 +253,15 @@ def process_dashboard_list(
     gnomad_variants,
     clinvar_variants,
 ):
+
+    # if gene_symbol in remappings:
+    #     print(f"Found remapping for {gene_symbol}, using those values ...")
+    #     object = remappings["gene_symbol"]
+    #     transcript_id = object["transcript_id"]
+    #     chrom = object["chrom"]
+    #     start = object["start"]
+    #     stop = object["stop"]
+
     contig = f"chr{chrom}"
 
     if start is not None and stop is not None:
@@ -439,6 +557,163 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
 
     print(f"Old len dataframe is: {len(df)}")
 
+    manual_gene_ids = {
+        "C12ORF57": {
+            "gene_id": "ENSG00000111678",
+            "gene_version": "11",
+            "transcript_id": "ENST00000229281",
+            "transcript_version": "6",
+            "chrom": 12,
+            "start": 6942978,
+            "stop": 6946003,
+        },
+        "C12ORF65": {
+            "gene_id": "ENSG00000130921",
+            "gene_version": "9",
+            "transcript_id": "ENST00000253233",
+            "transcript_version": "6",
+            "chrom": 12,
+            "start": 123233385,
+            "stop": 123258079,
+        },
+        "C15ORF41": {
+            "gene_id": "ENSG00000186073",
+            "gene_version": "14",
+            "transcript_id": "ENST00000566621",
+            "transcript_version": "6",
+            "chrom": 15,
+            "start": 36579626,
+            "stop": 36810248,
+        },
+        "C19ORF12": {
+            "gene_id": "ENSG00000131943",
+            "gene_version": "20",
+            "transcript_id": "ENST00000323670",
+            "transcript_version": "14",
+            "chrom": 19,
+            "start": 29698937,
+            "stop": 29715789,
+        },
+        "C8ORF37": {
+            "gene_id": "ENSG00000156172",
+            "gene_version": "6",
+            "transcript_id": "ENST00000286688",
+            "transcript_version": "6",
+            "chrom": 8,
+            "start": 95244913,
+            "stop": 95269201,
+        },
+        "CCDC114": {
+            "gene_id": "ENSG00000105479",
+            "gene_version": "16",
+            "transcript_id": "ENST00000674294",
+            "transcript_version": "1",
+            "chrom": 19,
+            "start": 48296457,
+            "stop": 48321971,
+        },
+        "CCDC151": {
+            "gene_id": "ENSG00000198003",
+            "gene_version": "12",
+            "transcript_id": "ENST00000356392",
+            "transcript_version": "9",
+            "chrom": 19,
+            "start": 11420604,
+            "stop": 11435782,
+        },
+        "CLAM": {
+            "gene_id": "ENSG00000101222",
+            "gene_version": "12",
+            "transcript_id": "ENST00000379756",
+            "transcript_version": "3",
+            "chrom": 20,
+            "start": 3777504,
+            "stop": 3781448,
+        },
+        "FAM126A": {
+            "gene_id": "ENSG00000122591",
+            "gene_version": "13",
+            "transcript_id": "ENST00000432176",
+            "transcript_version": "7",
+            "chrom": 7,
+            "start": 22889371,
+            "stop": 23014130,
+        },
+        "MAP11": {
+            "gene_id": "ENSG00000146826",
+            "gene_version": "17",
+            "transcript_id": "ENST00000316937",
+            "transcript_version": "8",
+            "chrom": 7,
+            "start": 100154420,
+            "stop": 100158723,
+        },
+        "SKIV2L": {
+            "gene_id": "ENSG00000204351",
+            "gene_version": "12",
+            "transcript_id": "ENST00000375394",
+            "transcript_version": "7",
+            "chrom": 6,
+            "start": 31959117,
+            "stop": 31969751,
+        },
+        "SPATA5": {
+            "gene_id": "ENSG00000145375",
+            "gene_version": "9",
+            "transcript_id": "ENST00000274008",
+            "transcript_version": "5",
+            "chrom": 4,
+            "start": 122923070,
+            "stop": 123319433,
+        },
+        "TCTEX1D2": {
+            "gene_id": "ENSG00000213123",
+            "gene_version": "11",
+            "transcript_id": "ENST00000325318",
+            "transcript_version": "10",
+            "chrom": 3,
+            "start": 196291219,
+            "stop": 196318299,
+        },
+        "TTC25": {
+            "gene_id": "ENSG00000204815",
+            "gene_version": "10",
+            "transcript_id": "ENST00000377540",
+            "transcript_version": "6",
+            "chrom": 17,
+            "start": 41930617,
+            "stop": 41966503,
+        },
+        "TTC37": {
+            "gene_id": "ENSG00000198677",
+            "gene_version": "12",
+            "transcript_id": "ENST00000358746",
+            "transcript_version": "7",
+            "chrom": 5,
+            "start": 95461755,
+            "stop": 95554977,
+        },
+    }
+
+    def stitch_values(row, manual_gene_ids):
+        symbol = row["symbol"]
+        if symbol in manual_gene_ids:
+            manual_entry = manual_gene_ids[symbol]
+            row["gene_id"] = manual_entry.get("gene_id", row["gene_id"])
+            row["gene_version"] = manual_entry.get("gene_version", row["gene_version"])
+            row["preferred_trancript_id"] = manual_entry.get(
+                "transcript_id", row["preferred_transcript_id"]
+            )
+            row["mane_select_transcript_ensemble_version"] = manual_entry.get(
+                "transcript_version", row["mane_select_transcript_ensemble_version"]
+            )
+            row["chrom"] = manual_entry.get("chrom", row["chrom"])
+            row["start"] = manual_entry.get("start", row["stop"])
+            row["stop"] = manual_entry.get("stop", row["stop"])
+        return row
+
+    df = df.apply(stitch_values, manual_gene_ids=manual_gene_ids, axis=1)
+
     missing_gene_id_rows = df[df["gene_id"].isna()]
     print("Gene symbols with missing gene_id:")
     print(missing_gene_id_rows["symbol"].tolist())
@@ -713,9 +988,9 @@ def main() -> None:
 
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
-    start = 750
-    batch_size = 50
-    stop = 2505
+    start = 0
+    batch_size = 49
+    stop = 48
 
     for i in range(start, stop, batch_size):
         hl.init(quiet=args.quiet)
