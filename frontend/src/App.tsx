@@ -138,7 +138,7 @@ const App = () => {
               {isSignedIn && (
                 <NavLink to="/variant-lists/">Variant lists</NavLink>
               )}
-              <NavLink to="/public-lists/">Public Lists</NavLink>
+              <NavLink to="/dashboard/">Dashboard</NavLink>
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
             </HStack>
@@ -171,8 +171,8 @@ const App = () => {
                         <MenuItem as={RRLink} to="/status/">
                           System status
                         </MenuItem>
-                        <MenuItem as={RRLink} to="/dashboard/">
-                          Dashboard
+                        <MenuItem as={RRLink} to="/public-lists/">
+                          Public Lists
                         </MenuItem>
                       </>
                     )}
