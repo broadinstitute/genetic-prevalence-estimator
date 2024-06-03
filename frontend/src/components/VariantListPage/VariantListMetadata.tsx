@@ -42,17 +42,18 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
 
   return (
     <DescriptionList mb={4}>
-      {variantList.supporting_documents.length > 0 && (
-        <DescriptionListItem label="Supporting document">
-          <Link
-            href={variantList.supporting_documents[0].url}
-            isExternal
-            target="_blank"
-          >
-            {variantList.supporting_documents[0].title}
-          </Link>
-        </DescriptionListItem>
-      )}
+      {variantList.supporting_documents &&
+        variantList.supporting_documents.length > 0 && (
+          <DescriptionListItem label="Supporting document">
+            <Link
+              href={variantList.supporting_documents[0].url}
+              isExternal
+              target="_blank"
+            >
+              {variantList.supporting_documents[0].title}
+            </Link>
+          </DescriptionListItem>
+        )}
       <DescriptionListItem label="Type">
         {formatVariantListType(variantList)}
       </DescriptionListItem>
