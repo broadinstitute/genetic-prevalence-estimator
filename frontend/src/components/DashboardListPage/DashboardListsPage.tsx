@@ -163,7 +163,8 @@ const BASE_COLUMNS: ColumnDef[] = [
 
   {
     key: "dashboard_estimate",
-    heading: "ClinVar LP/P and gnomaD LoF",
+    heading:
+      "Preliminary genetic prevalence estimates (ClinVar LP/P and gnomAD HC LoF)",
     width: 200,
     sortKey: (dashboardList) => {
       return dashboardList.estimates.genetic_prevalence[0] !== 0
@@ -224,6 +225,15 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "representative_contact",
     heading: "Contact for public estimate",
     width: 240,
+    sortKey: (dashboardList) => {
+      if (
+        dashboardList.representative_variant_list &&
+        dashboardList.representative_variant_list.owners
+      ) {
+        return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
+      }
+      return 0;
+    },
     render: (dashboardList) => {
       const ownersArray = dashboardList.representative_variant_list
         ? dashboardList.representative_variant_list.owners
@@ -247,6 +257,17 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "supporting_documents",
     heading: "Supporting document",
     width: 200,
+    sortKey: (dashboardList) => {
+      if (
+        dashboardList.representative_variant_list &&
+        dashboardList.representative_variant_list.supporting_documents
+      ) {
+        return dashboardList.representative_variant_list.supporting_documents[0]
+          ? 1
+          : 0;
+      }
+      return 0;
+    },
     render: (dashboardList) => {
       return (
         <Cell maxWidth={200}>
@@ -554,7 +575,7 @@ const DashboardLists = (props: {
               alignItems: "stretch",
               boxSizing: "border-box",
               borderBottom: "1px solid #e0e0e0",
-              height: `${ROW_HEIGHT}px`,
+              height: `${ROW_HEIGHT + 30}px`,
             }}
           >
             {columns.map((column) => {
