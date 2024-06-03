@@ -628,6 +628,12 @@ const DashboardLists = (props: {
         </Tbody>
       </Table>
 
+      <Box mt={4}>
+        <Link href="/dashboard-summary.csv" download>
+          Download CSV
+        </Link>
+      </Box>
+
       {userIsStaff && (
         <Box mt={6}>
           <Accordion allowToggle>
