@@ -97,7 +97,11 @@ const DashboardListPage = (props: DashboardListPageProps) => {
         refreshVariantList={refreshDashboardList}
       />
 
-      {dashboardList.notes && <Text mb={4}>{dashboardList.notes}</Text>}
+      {dashboardList.notes && (
+        <Text mb={4} maxWidth={"70%"}>
+          {`${dashboardList.notes}. This algorithm uses ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.`}
+        </Text>
+      )}
 
       <VariantListMetadata variantList={dashboardList} />
 
