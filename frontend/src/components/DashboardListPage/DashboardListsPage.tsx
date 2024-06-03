@@ -123,6 +123,7 @@ const orphanetPrevalencesRemappings: { [key: string]: string } = {
 interface ColumnDef {
   key: string;
   heading: string;
+  headingTooltip?: string;
   isNumeric?: boolean;
   width: number;
   sortKey?: (
@@ -165,6 +166,8 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "dashboard_estimate",
     heading:
       "Preliminary genetic prevalence estimates (ClinVar LP/P and gnomAD HC LoF)",
+    headingTooltip:
+      "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
     width: 200,
     sortKey: (dashboardList) => {
       return dashboardList.estimates.genetic_prevalence[0] !== 0
@@ -603,7 +606,13 @@ const DashboardLists = (props: {
                           setSortKey(column.key);
                         }}
                       >
-                        {column.heading}
+                        {column.headingTooltip ? (
+                          <Tooltip label={column.headingTooltip}>
+                            {column.heading}
+                          </Tooltip>
+                        ) : (
+                          column.heading
+                        )}
                       </button>
                       {column.key === sortColumn.key && (
                         <span
