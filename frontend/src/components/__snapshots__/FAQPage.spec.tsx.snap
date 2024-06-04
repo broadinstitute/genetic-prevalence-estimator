@@ -689,10 +689,161 @@ exports[`FAQPage has no unexpected changes 1`] = `
       class="chakra-accordion__item css-1fsnuue"
     >
       <button
-        aria-controls="accordion-panel-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
+        aria-controls="accordion-panel-what-are-the-possible-flags-in-genie"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
         data-index="8"
+        id="accordion-button-what-are-the-possible-flags-in-genie"
+        type="button"
+      >
+        <h2
+          class="chakra-heading css-acszkm"
+        >
+          What are the possible flags in GeniE?
+        </h2>
+        <svg
+          aria-hidden="true"
+          class="chakra-icon chakra-accordion__icon css-8o5ky2"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="chakra-collapse"
+        style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+      >
+        <div
+          aria-labelledby="accordion-button-what-are-the-possible-flags-in-genie"
+          class="chakra-accordion__panel css-142xu0k"
+          id="accordion-panel-what-are-the-possible-flags-in-genie"
+          role="region"
+        >
+          <p
+            class="chakra-text css-0"
+          >
+            GeniE provides flags to bring attention to certain aspects of variants in variant list, or genes on the dashboard. The possible flags are:
+          </p>
+          <p
+            class="chakra-text css-1fhgjcy"
+          >
+            <strong>
+              Variant
+            </strong>
+          </p>
+          <ul
+            class="css-2ufqlc"
+            role="list"
+          >
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                Not found
+              </span>
+              : The variant is not found in gnomAD
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                High AF
+              </span>
+              : The variant has a higher allele frequency than the most common ClinVar pathogenic/likely pathogenic variant. It is important to establish whether this variant is disease-causing. Please use caution when including this variant in genetic prevalence estimates.
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                Low AN
+              </span>
+              : The variant is covered in fewer than 50% of individuals in gnomAD. Allele frequency estimates may not be reliable.
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                Homozygotes
+              </span>
+              : The variant has homozygotes present in gnomAD. This flag displays the number of homozygotes.
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                Filtered
+              </span>
+              : For this variant, one or more samples failed quality control steps in gnomAD. This flag displays how many samples were filtered, and for what reason.
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                Genomes only
+              </span>
+              : The variant is found only in gnomAD genome samples.
+            </li>
+          </ul>
+          <p
+            class="chakra-text css-1fhgjcy"
+          >
+            <strong>
+              Gene
+            </strong>
+          </p>
+          <ul
+            class="css-ris7ro"
+            role="list"
+          >
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                I
+              </span>
+              : The gene is associated with multiple inheritance patterns.
+            </li>
+            <li
+              class="css-0"
+            >
+              <span
+                class="chakra-badge css-ifsvay"
+              >
+                D
+              </span>
+              : The gene is associated with multiple diseases.
+            </li>
+          </ul>
+          <p />
+        </div>
+      </div>
+    </div>
+    <div
+      class="chakra-accordion__item css-1fsnuue"
+    >
+      <button
+        aria-controls="accordion-panel-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
+        aria-expanded="false"
+        class="chakra-accordion__button css-9179w8"
+        data-index="9"
         id="accordion-button-why-is-this-calculator-not-suited-for-autosomal-dominant-and-xlinked-conditions"
         type="button"
       >
@@ -738,7 +889,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-what-version-of-gnomad-is-used-in-genie"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="9"
+        data-index="10"
         id="accordion-button-what-version-of-gnomad-is-used-in-genie"
         type="button"
       >
@@ -837,7 +988,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="10"
+        data-index="11"
         id="accordion-button-why-dont-i-see-all-the-genetic-ancestry-groups-in-gnomad-in-the-graphs"
         type="button"
       >
@@ -901,7 +1052,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="11"
+        data-index="12"
         id="accordion-button-why-do-i-not-see-all-known-pathogenic-variants-in-my-list"
         type="button"
       >
@@ -947,7 +1098,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-what-factors-should-i-consider-when-interpreting-these-results"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="12"
+        data-index="13"
         id="accordion-button-what-factors-should-i-consider-when-interpreting-these-results"
         type="button"
       >
@@ -1117,7 +1268,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="13"
+        data-index="14"
         id="accordion-button-what-are-gnomad-and-clinvar-and-why-do-you-use-these-databases-for-this-tool"
         type="button"
       >
@@ -1194,7 +1345,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="14"
+        data-index="15"
         id="accordion-button-can-genie-compute-genetic-prevalence-estimates-for-multiple-genes-at-one-time"
         type="button"
       >
@@ -1240,7 +1391,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-what-is-the-difference-between-each-of-the-roles-for-sharing"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="15"
+        data-index="16"
         id="accordion-button-what-is-the-difference-between-each-of-the-roles-for-sharing"
         type="button"
       >
@@ -1315,7 +1466,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-what-are-public-lists"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="16"
+        data-index="17"
         id="accordion-button-what-are-public-lists"
         type="button"
       >
@@ -1373,7 +1524,7 @@ exports[`FAQPage has no unexpected changes 1`] = `
         aria-controls="accordion-panel-how-to-handle-reduced-penetrance-variants"
         aria-expanded="false"
         class="chakra-accordion__button css-9179w8"
-        data-index="17"
+        data-index="18"
         id="accordion-button-how-to-handle-reduced-penetrance-variants"
         type="button"
       >

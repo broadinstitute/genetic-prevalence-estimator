@@ -347,7 +347,7 @@ const BASE_COLUMNS: ColumnDef[] = [
                 mr={2}
                 style={{ order: -1 }}
               >
-                Genomes-only
+                Genomes only
               </Badge>
             </Tooltip>
           )}
