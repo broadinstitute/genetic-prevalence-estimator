@@ -12,7 +12,6 @@ import {
   Flex,
   Heading,
   HStack,
-  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
@@ -48,20 +47,7 @@ import { initializeAuth, signOut } from "./auth";
 import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
 
-const banner = (
-  <Box px={4} mb={4}>
-    <Alert status="info">
-      <AlertIcon />
-      <span>
-        GeniE is currently available in beta. We appreciate any{" "}
-        <BaseLink href="https://forms.gle/4qyfUnVouE9PA4cV9" isExternal>
-          feedback
-        </BaseLink>{" "}
-        you can provide.
-      </span>
-    </Alert>
-  </Box>
-);
+const banner = undefined;
 
 const RequireSignIn: FC<{}> = ({ children }) => {
   const { isSignedIn, user } = useStore(authStore);
