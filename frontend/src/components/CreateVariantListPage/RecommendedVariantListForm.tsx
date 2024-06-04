@@ -228,6 +228,7 @@ const RecommendedVariantListForm = () => {
             Include variants based on clinical significance in ClinVar?
           </FormLabel>
           <RadioGroup
+            mb={2}
             value={includedClinvarClinicalSignificances.join("|")}
             onChange={(value) => {
               setIncludedClinvarClinicalSignificances(
@@ -250,7 +251,7 @@ const RecommendedVariantListForm = () => {
               </Radio>
             </VStack>
           </RadioGroup>
-          <Text mt={2}>
+          <Text as="i">
             * Where at least one of the conflicting classifications is
             pathogenic or likely pathogenic
           </Text>
@@ -262,9 +263,10 @@ const RecommendedVariantListForm = () => {
             isRequired
           >
             <FormLabel>
-              Include gnomAD varaints based on variant type?
+              Include gnomAD variants based on variant type?†
             </FormLabel>
             <RadioGroup
+              mb={2}
               value={
                 includeGnomadMissenseWithHighRevelScore
                   ? "include_missense_with_high_revel_score"
@@ -284,6 +286,10 @@ const RecommendedVariantListForm = () => {
                 </Radio>
               </VStack>
             </RadioGroup>
+            <Text as="i">
+              † Any gnomAD variant with a likely benign or benign classification
+              in ClinVar will NOT be included.
+            </Text>
           </FormControl>
         )}
 
