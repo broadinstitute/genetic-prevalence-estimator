@@ -13,6 +13,7 @@ import {
   ListItem,
   Text,
   UnorderedList,
+  Badge,
 } from "@chakra-ui/react";
 import { Link as RRLink, useLocation } from "react-router-dom";
 import Link from "./Link";
@@ -319,6 +320,63 @@ const faqs = [
         cannot be completely removed from the list after it is created, but can
         be excluded from the calculations by unchecking the box next to the
         gnomAD ID in the variant table.
+      </Text>
+    ),
+  },
+  {
+    title: "What are the possible flags in GeniE?",
+    answer: (
+      <Text>
+        GeniE provides flags to bring attention to certain aspects of variants
+        in variant list, or genes on the dashboard. The possible flags are:
+        <Text mt={4}>
+          <strong>Variant</strong>
+        </Text>
+        <UnorderedList listStyleType="none" mt={4} mb={4} spacing={2}>
+          <ListItem>
+            <Badge colorScheme="yellow">Not found</Badge>: The variant is not
+            found in gnomAD
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">High AF</Badge>: The variant has a
+            higher allele frequency than the most common ClinVar
+            pathogenic/likely pathogenic variant. It is important to establish
+            whether this variant is disease-causing. Please use caution when
+            including this variant in genetic prevalence estimates.
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">Low AN</Badge>: The variant is covered
+            in fewer than 50% of individuals in gnomAD. Allele frequency
+            estimates may not be reliable.
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">Homozygotes</Badge>: The variant has
+            homozygotes present in gnomAD. This flag displays the number of
+            homozygotes.
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">Filtered</Badge>: For this variant, one
+            or more samples failed quality control steps in gnomAD. This flag
+            displays how many samples were filtered, and for what reason.
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">Genomes only</Badge>: The variant is
+            found only in gnomAD genome samples.
+          </ListItem>
+        </UnorderedList>
+        <Text mt={4}>
+          <strong>Gene</strong>
+        </Text>
+        <UnorderedList listStyleType="none" mt={4} mb={4}>
+          <ListItem>
+            <Badge colorScheme="yellow">I</Badge>: The gene is associated with
+            multiple inheritance patterns.
+          </ListItem>
+          <ListItem>
+            <Badge colorScheme="yellow">D</Badge>: The gene is associated with
+            multiple diseases.
+          </ListItem>
+        </UnorderedList>
       </Text>
     ),
   },
