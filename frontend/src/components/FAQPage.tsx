@@ -205,7 +205,7 @@ const faqs = [
             AC = allele count of a particular variant
           </Text>
           This approach might be taken if there is concern that homozygous
-          variants seen in the general population as represented by gnomaD may
+          variants seen in the general population as represented by gnomAD may
           not be pathogenic. For some recessive conditions, there are
           hypomorphic or mild variants that can cause disease when in trans to a
           more severe variant but do not cause disease in the homozygous state.
@@ -266,7 +266,7 @@ const faqs = [
         </Text>
 
         <Text mt={4}>
-          Users can also compare the results by source (gnomaD vs ClinVar), and
+          Users can also compare the results by source (gnomAD vs ClinVar), and
           choose whether or not to include sub genetic ancestry group estimates
           (gnomAD v2.1.1 only)
         </Text>
