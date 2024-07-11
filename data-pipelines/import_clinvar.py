@@ -55,7 +55,6 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "Pathogenic/Likely pathogenic",
             "Pathogenic/Likely pathogenic/Likely risk allele",
             "Pathogenic/Likely pathogenic/Pathogenic",
-            "risk factor",
         },
         "conflicting_interpretations": {
             "conflicting data from submitters",
@@ -75,6 +74,7 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "drug response",
             "Established risk allele",
             "Likely risk allele",
+            "risk factor",
             "low penetrance",
             "low penetrance/Established risk allele",
             "not provided",
