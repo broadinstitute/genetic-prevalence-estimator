@@ -111,6 +111,7 @@ class TestGetUser:
             "username": user.username,
             "is_active": user.is_active,
             "is_staff": user.is_staff,
+            "date_joined": user.date_joined.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
         }
 
 

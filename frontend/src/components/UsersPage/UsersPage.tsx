@@ -20,6 +20,7 @@ import {
   MenuList,
   Spinner,
   Table,
+  Text,
   Thead,
   Tbody,
   Tr,
@@ -41,6 +42,7 @@ import { AddUserButton } from "./AddUser";
 
 interface User {
   id: number;
+  date_joined: string;
   username: string;
   is_active: boolean;
   is_staff: boolean;
@@ -115,12 +117,17 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
 
       <Divider mb={2} mt={2} />
 
+      <Text mb={2} mt={2}>
+        Total users: {users.length}
+      </Text>
+
       <Table variant="striped">
         <Thead>
           <Tr>
             <Th scope="col">{USERNAME_LABEL}</Th>
             <Th scope="col">Active</Th>
             <Th scope="col">Staff</Th>
+            <Th scope="col">Date joined</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -188,6 +195,13 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
                       </MenuItem>
                     </MenuList>
                   </Menu>
+                </Td>
+                <Td>
+                  {new Date(user.date_joined).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 </Td>
               </Tr>
             );
