@@ -7,7 +7,7 @@ from website.serializers import UserSerializer, NewUserSerializer
 
 
 class UsersList(ListCreateAPIView):
-    queryset = get_user_model().objects.all()
+    queryset = get_user_model().objects.all().order_by("-date_joined")
 
     permission_classes = (IsAuthenticated, IsAdminUser)
 
