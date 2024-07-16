@@ -244,6 +244,9 @@ def process_dashboard_list(
         )
     )
 
+    # TODO: move this logic further up?
+    ht = ht.filter(~ht.flags.contains("filtered"))
+
     # TODO: lof curation for v2, later for v4
 
     table_fields = set(ht.row)
@@ -420,7 +423,7 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
 
     ORPHANET_PATH = os.path.join(base_dir, "dashboard/orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
+    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
