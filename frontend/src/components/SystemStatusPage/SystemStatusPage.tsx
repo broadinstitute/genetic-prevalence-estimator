@@ -9,11 +9,18 @@ import {
   BreadcrumbLink,
   Center,
   Heading,
+  Link,
   Spinner,
   Stat,
   StatGroup,
   StatLabel,
   StatNumber,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
@@ -27,6 +34,7 @@ interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
   };
+  error_details: any;
 }
 
 interface SystemStatusViewProps {
@@ -53,6 +61,31 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           }
         )}
       </StatGroup>
+      <Box mt={12}>
+        <h1>Summary of errors</h1>
+        <Table variant="striped" mt={8}>
+          <Thead>
+            <Tr>
+              <Th scope="col">List label</Th>
+              <Th scope="col">Error</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {systemStatus.error_details.map((list: any) => {
+              return (
+                <Tr key={list.uuid}>
+                  <Td>
+                    <Link as={RRLink} to={`/variant-lists/${list.uuid}`}>
+                      {list.label}
+                    </Link>
+                  </Td>
+                  <Td>{list.error || "no error"}</Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </Box>
     </>
   );
 };
