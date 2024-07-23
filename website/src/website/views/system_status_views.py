@@ -21,8 +21,26 @@ def get_num_variant_lists_by_status():
     return num_variant_lists_by_status
 
 
+def get_error_details():
+    errored_variant_lists = VariantList.objects.filter(status=VariantList.Status.ERROR)
+    lists_with_errors = []
+    for vlist in errored_variant_lists:
+        error = vlist.error if vlist.error is not None else ""
+        lists_with_errors.append(
+            {
+                "error": error,
+                "uuid": vlist.uuid,
+                "label": vlist.label,
+            }
+        )
+    return lists_with_errors
+
+
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def system_status_view(request):  # pylint: disable=unused-argument
-    status = {"variant_lists": get_num_variant_lists_by_status()}
+    status = {
+        "variant_lists": get_num_variant_lists_by_status(),
+        "error_details": get_error_details(),
+    }
     return Response(status)
