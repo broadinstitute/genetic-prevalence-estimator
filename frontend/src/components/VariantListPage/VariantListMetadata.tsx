@@ -38,7 +38,7 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
   const majorVersion = gnomadVersion.split(".")[0];
   const referenceGenome = majorVersion === "2" ? "GRCh37" : "GRCh38";
   const gnomadDataset =
-    referenceGenome === "GRCh37" ? "gnomad_r2_1" : "gnomad_r3";
+    referenceGenome === "GRCh37" ? "gnomad_r2_1" : "gnomad_r4";
 
   return (
     <DescriptionList mb={4}>
