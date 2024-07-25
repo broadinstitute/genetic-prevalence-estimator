@@ -504,6 +504,7 @@ def _process_variant_list(variant_list):
     )
 
     max_an = ds.aggregate(hl.agg.max(ds.AN[0]))
+    max_an = max_an if max_an is not None else 0
 
     # if there are no clinvar path or likely path variants, the aggregation returns None
     # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
