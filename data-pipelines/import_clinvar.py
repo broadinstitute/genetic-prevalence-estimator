@@ -45,6 +45,7 @@ def download_clinvar_vcf(output_path, reference_genome):
 # in frontend/src/constants/clinvar.ts
 CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
     {
+        # these should be kept in sync with the classifications in generate_dashboard_lists
         "pathogenic_or_likely_pathogenic": {
             "association",
             "Likely pathogenic",

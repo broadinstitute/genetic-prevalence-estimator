@@ -181,14 +181,57 @@ def process_dashboard_list(
 
     ht = ht.annotate(include_from_gnomad=include_from_gnomad)
 
-    include_from_clinvar = (
+    # these should be kept in sync with the classifications in import_clinvar.py
+    PATHOGENIC_CLASSIFICATIONS = [
+        "association",
+        "Likely pathogenic",
+        "Likely pathogenic/Likely risk allele",
+        "Likely pathogenic/Pathogenic",
+        "Pathogenic",
+        "Pathogenic/Pathogenic",
+        "Pathogenic/Likely pathogenic",
+        "Pathogenic/Likely pathogenic/Likely risk allele",
+        "Pathogenic/Likely pathogenic/Pathogenic",
+    ]
+
+    pathogenic_significance = (
         clinvar_variants[ht.locus, ht.alleles].clinical_significance_category
         == "pathogenic_or_likely_pathogenic"
     )
 
+    pathogenic_classifications_set = hl.literal(PATHOGENIC_CLASSIFICATIONS)
+    primary_report_is_path = hl.if_else(
+        pathogenic_classifications_set.contains(
+            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
+        ),
+        True,
+        False,
+    )
+
+    include_from_clinvar = pathogenic_significance & primary_report_is_path
+
     ht = ht.annotate(include_from_clinvar=include_from_clinvar)
 
     ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
+
+    # these should be kept in sync with the classifications in import_clinvar.py
+    BENIGN_CLASSIFICATIONS = [
+        "Benign",
+        "Benign/Likely benign",
+        "Likely benign",
+    ]
+
+    benign_classifications_set = hl.literal(BENIGN_CLASSIFICATIONS)
+    primary_report_is_benign = hl.if_else(
+        benign_classifications_set.contains(
+            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
+        ),
+        True,
+        False,
+    )
+
+    ht = ht.annotate(disclude_because_benign=primary_report_is_benign)
+    ht = ht.filter(~ht.disclude_because_benign)
 
     ht = ht.transmute(
         source=hl.array(
