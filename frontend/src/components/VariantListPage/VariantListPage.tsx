@@ -134,6 +134,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     },
     includeHomozygotesInCalculations: true,
   });
+
+  const previousAnnotation = usePrevious(annotation);
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
 
@@ -274,14 +276,26 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
         // Hacky -- once the variantList updates and triggers a re-run of this function
         //   per a useEffect calling this, the annotations will not have been saved ever
-        //   so we mimic the old behavior by setting all variants as selected
-        if (annotation.selectedVariants.size === 0) {
-          annotation.selectedVariants = new Set([
-            ...variantList.variants.map((variant) => variant.id),
-            ...(variantList.structural_variants ?? []).map(
-              (structural_variant) => structural_variant.id
-            ),
-          ]);
+        //   so we mimic the old behavior by setting all variants as selected in the case
+        //   when the previous annotation's variants and the current selected variants
+        //   are 0.
+        //
+        // TODO: The state of previous annotation is likely undefined, in the case of
+        //   a user pulling up a page in GeniE for an already created list. However,
+        //   if they make a new list, then try and play with it, it will re-select all
+        //   variants if they try to unselect everything. This should be fixed.
+        if (
+          annotation.selectedVariants.size === 0 &&
+          previousAnnotation?.selectedVariants.size === 0
+        ) {
+          if (previousAnnotation?.selectedVariants.size === 0) {
+            annotation.selectedVariants = new Set([
+              ...variantList.variants.map((variant) => variant.id),
+              ...(variantList.structural_variants ?? []).map(
+                (structural_variant) => structural_variant.id
+              ),
+            ]);
+          }
         }
 
         const selectedVariants = annotation.selectedVariants
@@ -303,7 +317,10 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           variantList,
           annotation.includeHomozygotesInCalculations
         );
-        setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
+        setAnnotation((annotation) => ({
+          ...annotation,
+          variantCalculations,
+        }));
 
         patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
           selected_variants: Array.from(annotation.selectedVariants),
