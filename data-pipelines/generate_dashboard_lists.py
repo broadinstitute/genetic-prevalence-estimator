@@ -312,7 +312,6 @@ def process_dashboard_list(
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
-
     # calculate sum of allele frequencies across all variants
     total_allele_frequencies = [0] * (len(populations) + 1)
     multiplied_allele_frequencies = [1] * (len(populations) + 1)
@@ -344,7 +343,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         carrier_frequency_simplified = 2 * q
         carrier_frequency_simplified_array.append(carrier_frequency_simplified)
 
-        prevalence = q ** 2
+        prevalence = q**2
         prevalence_array.append(prevalence)
 
     # TODO: combine these two into one after tests pass?
@@ -466,7 +465,7 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
 
     ORPHANET_PATH = os.path.join(base_dir, "dashboard/orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
+    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
@@ -547,7 +546,6 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
 
 
 def prepare_dashboard_download(dataframe):
-
     download_data = []
 
     for _, row in dataframe.iterrows():
@@ -689,6 +687,8 @@ def prepare_dashboard_download(dataframe):
     return df_download
 
 
+# e.g.
+# python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
