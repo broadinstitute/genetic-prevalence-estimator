@@ -793,7 +793,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
                   height: "100%",
                 }}
               >
-                {console.log(column)}
                 {column.sortKey ? (
                   <>
                     <button
