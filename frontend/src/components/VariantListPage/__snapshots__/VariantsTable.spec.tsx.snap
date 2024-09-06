@@ -2,6 +2,13 @@
 
 exports[`Variant Table has no unexpected changes 1`] = `
 <DocumentFragment>
+  <div
+    style="position: relative; height: 699px; width: 100%; overflow: auto; will-change: transform; direction: ltr; overflow-x: hidden;"
+  >
+    <div
+      style="height: 350px; width: 100%;"
+    />
+  </div>
   <table
     class="chakra-table css-tl2dr7"
     role="table"
@@ -10,15 +17,17 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-0"
+        class="css-1xitbfa"
         role="row"
       >
         <th
           class="css-0"
           scope="col"
+          style="position: relative;"
         >
           <label
             class="chakra-checkbox css-1uiwwan"
+            style="height: 100%;"
           >
             <input
               class="chakra-checkbox__input"
@@ -62,14 +71,18 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 100px; height: 100%;"
         >
-          Note
+          <span
+            style="position: relative; top: 37px;"
+          >
+            Note
+          </span>
         </th>
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -80,7 +93,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -91,7 +104,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -102,7 +115,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -113,7 +126,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -124,7 +137,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -135,7 +148,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -146,7 +159,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -158,7 +171,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -170,7 +183,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -183,7 +196,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -208,7 +221,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
@@ -222,8 +235,9 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-0"
+        class="css-13m69l0"
         role="row"
+        style="position: absolute; left: 0px; top: 0px; height: 70px; width: 100%;"
       >
         <td
           class="css-0"
@@ -254,16 +268,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-1hv2cio"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-pi1na2"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -274,45 +287,45 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-567-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
@@ -325,29 +338,30 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </span>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           Custom
         </td>
       </tr>
       <tr
-        class="css-0"
+        class="css-rucckn"
         role="row"
+        style="position: absolute; left: 0px; top: 70px; height: 70px; width: 100%;"
       >
         <td
           class="css-0"
@@ -378,16 +392,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-1hv2cio"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-pi1na2"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -398,45 +411,45 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-456-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
@@ -449,29 +462,30 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </span>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           Custom
         </td>
       </tr>
       <tr
-        class="css-0"
+        class="css-13m69l0"
         role="row"
+        style="position: absolute; left: 0px; top: 140px; height: 70px; width: 100%;"
       >
         <td
           class="css-0"
@@ -502,16 +516,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-1hv2cio"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-pi1na2"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -522,45 +535,45 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-345-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
@@ -573,29 +586,30 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </span>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           Custom
         </td>
       </tr>
       <tr
-        class="css-0"
+        class="css-rucckn"
         role="row"
+        style="position: absolute; left: 0px; top: 210px; height: 70px; width: 100%;"
       >
         <td
           class="css-0"
@@ -643,16 +657,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-1hv2cio"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-pi1na2"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -663,45 +676,45 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-234-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
@@ -714,29 +727,30 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </span>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           Custom
         </td>
       </tr>
       <tr
-        class="css-0"
+        class="css-13m69l0"
         role="row"
+        style="position: absolute; left: 0px; top: 280px; height: 70px; width: 100%;"
       >
         <td
           class="css-0"
@@ -784,7 +798,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-1hv2cio"
           role="gridcell"
         >
           <button
@@ -813,13 +827,12 @@ exports[`Variant Table has no unexpected changes 1`] = `
             </svg>
           </button>
         </td>
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-pi1na2"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -830,45 +843,45 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-123-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           <span
-            style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
@@ -881,21 +894,21 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </span>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           data-is-numeric="true"
           role="gridcell"
         >
           0
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-pi1na2"
           role="gridcell"
         >
           Custom
