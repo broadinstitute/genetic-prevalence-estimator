@@ -154,7 +154,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "variant_id",
     heading: "Variant ID",
-    width: 200,
+    width: 190,
     sortKey: (variant) => {
       const [chrom, pos, ref, alt] = variant.id.split("-");
       return [chrom, Number(pos), ref, alt];
@@ -183,7 +183,7 @@ const BASE_COLUMNS: ColumnDef[] = [
         : variant.id;
 
       return (
-        <Cell maxWidth={130}>
+        <Cell maxWidth={190}>
           <Link
             href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${dataset}`}
             isExternal
@@ -198,7 +198,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "consequence",
     heading: "VEP consequence",
-    width: 200,
+    width: 190,
     sortKey: (variant) =>
       (variant.major_consequence &&
         VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)) ||
@@ -213,7 +213,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "loftee",
     heading: "LOFTEE",
-    width: 200,
+    width: 110,
     sortKey: (variant) => variant.lof || "",
     render: (variant) => {
       return variant.lof;
@@ -222,25 +222,25 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsc",
     heading: "HGVSc",
-    width: 200,
+    width: 110,
     sortKey: (variant) => variant.hgvsc || "",
     render: (variant) => {
-      return <Cell maxWidth={200}>{variant.hgvsc}</Cell>;
+      return <Cell maxWidth={110}>{variant.hgvsc}</Cell>;
     },
   },
   {
     key: "hgvsp",
     heading: "HGVSp",
-    width: 200,
+    width: 110,
     sortKey: (variant) => variant.hgvsp || "",
     render: (variant) => {
-      return <Cell maxWidth={200}>{variant.hgvsp}</Cell>;
+      return <Cell maxWidth={110}>{variant.hgvsp}</Cell>;
     },
   },
   {
     key: "clinical_significance",
     heading: "Clinical significance",
-    width: 200,
+    width: 150,
     sortKey: (variant) => sortBy(variant.clinical_significance),
     render: (variant) => {
       return (
@@ -267,12 +267,12 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "ac",
     heading: "Allele count",
     isNumeric: true,
-    width: 200,
+    width: 150,
     sortKey: (variant) => variantAC(variant),
     render: (variant) => {
       const ac = variantAC(variant);
       return (
-        <Flex as="span" justify="flex-end">
+        <Flex as="span" justify="flex-start" wrap="wrap">
           <span>{renderCount(ac)}</span>
           {variant.flags?.includes("not_found") && (
             <Tooltip hasArrow label="This variant is not found in gnomAD.">
@@ -368,7 +368,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "an",
     heading: "Allele number",
     isNumeric: true,
-    width: 200,
+    width: 150,
     sortKey: (variant) => variantAN(variant),
     render: (variant) => renderCount(variantAN(variant)),
   },
@@ -376,7 +376,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "af",
     heading: "Allele frequency",
     isNumeric: true,
-    width: 200,
+    width: 150,
     sortKey: (variant) => variantAF(variant),
     render: (variant) => renderAlleleFrequency(variantAF(variant)),
   },
@@ -385,7 +385,7 @@ const BASE_COLUMNS: ColumnDef[] = [
 const GENE_COLUMN: ColumnDef = {
   key: "gene",
   heading: "Gene",
-  width: 200,
+  width: 110,
   sortKey: (variant) => variant.gene_symbol || variant.gene_id || "",
   render: (variant) =>
     variant.gene_id && (
@@ -398,7 +398,7 @@ const GENE_COLUMN: ColumnDef = {
 const TRANSCRIPT_COLUMN: ColumnDef = {
   key: "transcript",
   heading: "Transcript",
-  width: 200,
+  width: 110,
   sortKey: (variant) => variant.transcript_id || "",
   render: (variant) => variant.transcript_id,
 };
@@ -406,7 +406,7 @@ const TRANSCRIPT_COLUMN: ColumnDef = {
 const LOF_CURATION_COLUMN: ColumnDef = {
   key: "lof_curation",
   heading: "LoF curation",
-  width: 200,
+  width: 110,
   sortKey: (variant) => variant.lof_curation?.verdict || "",
   render: (variant) => {
     if (!variant.lof_curation) {
@@ -433,7 +433,7 @@ const LOF_CURATION_COLUMN: ColumnDef = {
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
   heading: "Source",
-  width: 200,
+  width: 150,
   sortKey: (variant, variantList) => getVariantSources(variant, variantList),
   render: (variant, variantList) => {
     return getVariantSources(variant, variantList)
@@ -548,6 +548,7 @@ interface VariantsTableProps extends TableProps {
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
   includeNotesColumn?: boolean;
+  isTopTen?: boolean;
 }
 
 type SortOrder = "ascending" | "descending";
@@ -605,6 +606,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   onEditVariantNote,
   includeCheckboxColumn = true,
   includeNotesColumn = true,
+  isTopTen = false,
   ...tableProps
 }) => {
   const columns = [
@@ -653,7 +655,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
     sortedVariants.reverse();
   }
 
-  const ROW_HEIGHT = 70;
+  const ROW_HEIGHT = isTopTen ? 35 : 70;
+  const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
 
   const VariantRow = ({
     index: dataRowIndex,
@@ -675,15 +678,19 @@ const VariantsTable: FC<VariantsTableProps> = ({
         sx={{
           display: "flex",
           flexDirection: "row",
-          alignItems: "stretch",
           boxSizing: "border-box",
           height: `${ROW_HEIGHT}px`,
-          background: dataRowIndex % 2 === 1 ? "initial" : "#edf2f7",
+          background: "inital",
         }}
         style={style}
       >
         {includeCheckboxColumn && (
-          <Td>
+          <Td
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              alignContent: "center",
+            }}
+          >
             <Checkbox
               isChecked={selectedVariants.has(rowData.id)}
               onChange={(e) => {
@@ -717,6 +724,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
               width={`${column.width}px`}
               sx={{
                 height: `${ROW_HEIGHT}px`,
+                display: "flex",
+                alignItems: "center",
               }}
             >
               {column.render(
@@ -749,8 +758,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
             flexDirection: "row",
             alignItems: "stretch",
             boxSizing: "border-box",
-            borderBottom: "1px solid #e0e0e0",
-            height: `${ROW_HEIGHT + 30}px`,
+            height: `${ROW_HEIGHT}px`,
+            background: "initial",
           }}
         >
           {includeCheckboxColumn && (
@@ -803,7 +812,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
                         appearance: "none",
                         fontSize: "inherit",
                         fontWeight: "inherit",
-                        textAlign: "inherit",
+                        textAlign: "start",
                       }}
                       onClick={() => {
                         setSortKey(column.key);
@@ -830,8 +839,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
                 ) : (
                   <span
                     style={{
-                      position: "relative",
-                      top: "37px",
+                      position: "absolute",
+                      top: "calc(50% - 10px)",
                     }}
                   >
                     {column.heading}
@@ -844,7 +853,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
       </Thead>
       <Tbody>
         <FixedSizeList
-          height={10 * ROW_HEIGHT - 1}
+          height={ITEMS_DISPLAYED * ROW_HEIGHT - 1}
           itemCount={sortedVariants.length}
           itemSize={ROW_HEIGHT}
           width={"100%"}
