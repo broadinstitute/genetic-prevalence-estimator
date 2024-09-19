@@ -6,7 +6,7 @@ export const GNOMAD_POPULATION_NAMES: {
   global: "Global",
   afr: "African/African-American",
   ami: "Amish",
-  amr: "Latino/Admixed American",
+  amr: "Admixed American",
   asj: "Ashkenazi Jewish",
   eas: "East Asian",
   "eas/jpn": "Japanese",
