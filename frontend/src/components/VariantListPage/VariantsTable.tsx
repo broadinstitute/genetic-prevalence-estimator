@@ -198,7 +198,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "consequence",
     heading: "VEP consequence",
-    width: 190,
+    width: 170,
     sortKey: (variant) =>
       (variant.major_consequence &&
         VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)) ||
@@ -213,7 +213,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "loftee",
     heading: "LOFTEE",
-    width: 110,
+    width: 80,
     sortKey: (variant) => variant.lof || "",
     render: (variant) => {
       return variant.lof;
@@ -222,7 +222,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsc",
     heading: "HGVSc",
-    width: 110,
+    width: 140,
     sortKey: (variant) => variant.hgvsc || "",
     render: (variant) => {
       return <Cell maxWidth={110}>{variant.hgvsc}</Cell>;
@@ -231,7 +231,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsp",
     heading: "HGVSp",
-    width: 110,
+    width: 140,
     sortKey: (variant) => variant.hgvsp || "",
     render: (variant) => {
       return <Cell maxWidth={110}>{variant.hgvsp}</Cell>;
@@ -267,12 +267,12 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "ac",
     heading: "Allele count",
     isNumeric: true,
-    width: 150,
+    width: 130,
     sortKey: (variant) => variantAC(variant),
     render: (variant) => {
       const ac = variantAC(variant);
       return (
-        <Flex as="span" justify="flex-start" wrap="wrap">
+        <Flex ml="auto" wrap="wrap">
           <span>{renderCount(ac)}</span>
           {variant.flags?.includes("not_found") && (
             <Tooltip hasArrow label="This variant is not found in gnomAD.">
@@ -368,17 +368,21 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "an",
     heading: "Allele number",
     isNumeric: true,
-    width: 150,
+    width: 120,
     sortKey: (variant) => variantAN(variant),
-    render: (variant) => renderCount(variantAN(variant)),
+    render: (variant) => (
+      <Flex ml="auto">{renderCount(variantAN(variant))}</Flex>
+    ),
   },
   {
     key: "af",
     heading: "Allele frequency",
     isNumeric: true,
-    width: 150,
+    width: 140,
     sortKey: (variant) => variantAF(variant),
-    render: (variant) => renderAlleleFrequency(variantAF(variant)),
+    render: (variant) => (
+      <Flex ml="auto">{renderCount(variantAF(variant))}</Flex>
+    ),
   },
 ];
 
@@ -483,7 +487,7 @@ const SOURCE_COLUMN: ColumnDef = {
 const NOTES_COLUMN: ColumnDef = {
   key: "note",
   heading: "Note",
-  width: 100,
+  width: 60,
   render: (
     variant,
     variantList,

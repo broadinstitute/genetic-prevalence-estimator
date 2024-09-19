@@ -71,7 +71,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 100px; height: 100%;"
+          style="position: relative; width: 60px; height: 100%;"
         >
           <span
             style="position: absolute; top: calc(50% - 10px);"
@@ -115,7 +115,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 190px; height: 100%;"
+          style="position: relative; width: 170px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -126,7 +126,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 110px; height: 100%;"
+          style="position: relative; width: 80px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -137,7 +137,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 110px; height: 100%;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -148,7 +148,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 110px; height: 100%;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -171,7 +171,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative; width: 150px; height: 100%;"
+          style="position: relative; width: 130px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -183,7 +183,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative; width: 150px; height: 100%;"
+          style="position: relative; width: 120px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -196,7 +196,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative; width: 150px; height: 100%;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -268,7 +268,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-cwrdnw"
+          class="css-12lsreq"
           role="gridcell"
         />
         <td
@@ -297,15 +297,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1y7yn9h"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -313,7 +313,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -325,31 +325,39 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-cdmfs8"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-mlseai"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
           class="css-cdmfs8"
@@ -392,7 +400,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-cwrdnw"
+          class="css-12lsreq"
           role="gridcell"
         />
         <td
@@ -421,15 +429,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1y7yn9h"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -437,7 +445,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -449,31 +457,39 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-cdmfs8"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-mlseai"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
           class="css-cdmfs8"
@@ -516,7 +532,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-cwrdnw"
+          class="css-12lsreq"
           role="gridcell"
         />
         <td
@@ -545,15 +561,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1y7yn9h"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -561,7 +577,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -573,31 +589,39 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-cdmfs8"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-mlseai"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
           class="css-cdmfs8"
@@ -657,7 +681,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-cwrdnw"
+          class="css-12lsreq"
           role="gridcell"
         />
         <td
@@ -686,15 +710,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1y7yn9h"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -702,7 +726,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -714,31 +738,39 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-cdmfs8"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-mlseai"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
           class="css-cdmfs8"
@@ -798,7 +830,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-cwrdnw"
+          class="css-12lsreq"
           role="gridcell"
         >
           <button
@@ -853,15 +885,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1y7yn9h"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -869,7 +901,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1p7j3u3"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -881,31 +913,39 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-cdmfs8"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-mlseai"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-cdmfs8"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
           class="css-cdmfs8"
