@@ -381,7 +381,7 @@ const BASE_COLUMNS: ColumnDef[] = [
     width: 140,
     sortKey: (variant) => variantAF(variant),
     render: (variant) => (
-      <Flex ml="auto">{renderCount(variantAF(variant))}</Flex>
+      <Flex ml="auto">{renderAlleleFrequency(variantAF(variant))}</Flex>
     ),
   },
 ];
