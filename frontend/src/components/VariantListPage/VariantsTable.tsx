@@ -30,6 +30,7 @@ import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
 import { isStructuralVariantId } from "../identifiers";
+import { FixedSizeList } from "react-window";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -129,6 +130,7 @@ interface ColumnDef {
   key: string;
   heading: string;
   isNumeric?: boolean;
+  width: number;
   sortKey?: (
     variant: Variant,
     variantList: VariantList
@@ -152,6 +154,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "variant_id",
     heading: "Variant ID",
+    width: 190,
     sortKey: (variant) => {
       const [chrom, pos, ref, alt] = variant.id.split("-");
       return [chrom, Number(pos), ref, alt];
@@ -180,7 +183,7 @@ const BASE_COLUMNS: ColumnDef[] = [
         : variant.id;
 
       return (
-        <Cell maxWidth={160}>
+        <Cell maxWidth={190}>
           <Link
             href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${dataset}`}
             isExternal
@@ -195,6 +198,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "consequence",
     heading: "VEP consequence",
+    width: 170,
     sortKey: (variant) =>
       (variant.major_consequence &&
         VEP_CONSEQUENCE_LABELS.get(variant.major_consequence)) ||
@@ -209,6 +213,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "loftee",
     heading: "LOFTEE",
+    width: 80,
     sortKey: (variant) => variant.lof || "",
     render: (variant) => {
       return variant.lof;
@@ -217,6 +222,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsc",
     heading: "HGVSc",
+    width: 140,
     sortKey: (variant) => variant.hgvsc || "",
     render: (variant) => {
       return <Cell maxWidth={110}>{variant.hgvsc}</Cell>;
@@ -225,6 +231,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "hgvsp",
     heading: "HGVSp",
+    width: 140,
     sortKey: (variant) => variant.hgvsp || "",
     render: (variant) => {
       return <Cell maxWidth={110}>{variant.hgvsp}</Cell>;
@@ -233,6 +240,7 @@ const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "clinical_significance",
     heading: "Clinical significance",
+    width: 150,
     sortKey: (variant) => sortBy(variant.clinical_significance),
     render: (variant) => {
       return (
@@ -259,11 +267,12 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "ac",
     heading: "Allele count",
     isNumeric: true,
+    width: 130,
     sortKey: (variant) => variantAC(variant),
     render: (variant) => {
       const ac = variantAC(variant);
       return (
-        <Flex as="span" justify="flex-end">
+        <Flex ml="auto" wrap="wrap">
           <span>{renderCount(ac)}</span>
           {variant.flags?.includes("not_found") && (
             <Tooltip hasArrow label="This variant is not found in gnomAD.">
@@ -359,21 +368,28 @@ const BASE_COLUMNS: ColumnDef[] = [
     key: "an",
     heading: "Allele number",
     isNumeric: true,
+    width: 120,
     sortKey: (variant) => variantAN(variant),
-    render: (variant) => renderCount(variantAN(variant)),
+    render: (variant) => (
+      <Flex ml="auto">{renderCount(variantAN(variant))}</Flex>
+    ),
   },
   {
     key: "af",
     heading: "Allele frequency",
     isNumeric: true,
+    width: 140,
     sortKey: (variant) => variantAF(variant),
-    render: (variant) => renderAlleleFrequency(variantAF(variant)),
+    render: (variant) => (
+      <Flex ml="auto">{renderAlleleFrequency(variantAF(variant))}</Flex>
+    ),
   },
 ];
 
 const GENE_COLUMN: ColumnDef = {
   key: "gene",
   heading: "Gene",
+  width: 110,
   sortKey: (variant) => variant.gene_symbol || variant.gene_id || "",
   render: (variant) =>
     variant.gene_id && (
@@ -386,6 +402,7 @@ const GENE_COLUMN: ColumnDef = {
 const TRANSCRIPT_COLUMN: ColumnDef = {
   key: "transcript",
   heading: "Transcript",
+  width: 110,
   sortKey: (variant) => variant.transcript_id || "",
   render: (variant) => variant.transcript_id,
 };
@@ -393,6 +410,7 @@ const TRANSCRIPT_COLUMN: ColumnDef = {
 const LOF_CURATION_COLUMN: ColumnDef = {
   key: "lof_curation",
   heading: "LoF curation",
+  width: 110,
   sortKey: (variant) => variant.lof_curation?.verdict || "",
   render: (variant) => {
     if (!variant.lof_curation) {
@@ -419,6 +437,7 @@ const LOF_CURATION_COLUMN: ColumnDef = {
 const SOURCE_COLUMN: ColumnDef = {
   key: "source",
   heading: "Source",
+  width: 150,
   sortKey: (variant, variantList) => getVariantSources(variant, variantList),
   render: (variant, variantList) => {
     return getVariantSources(variant, variantList)
@@ -436,7 +455,7 @@ const SOURCE_COLUMN: ColumnDef = {
                       .join(" ")
                   )
                   .join(", ")}).`}
-                maxWidth="500px"
+                maxWidth="200px"
               >
                 ClinVar
               </Tooltip>
@@ -451,7 +470,7 @@ const SOURCE_COLUMN: ColumnDef = {
                     ? "This variant was included from gnomAD, where it is a missense variant with a REVEL score greater than or equal to 0.932"
                     : "This variant was included from gnomAD, where it is predicted loss of function with high confidence"
                 }`}
-                maxWidth="500px"
+                maxWidth="200px"
               >
                 gnomAD
               </Tooltip>
@@ -468,6 +487,7 @@ const SOURCE_COLUMN: ColumnDef = {
 const NOTES_COLUMN: ColumnDef = {
   key: "note",
   heading: "Note",
+  width: 60,
   render: (
     variant,
     variantList,
@@ -498,6 +518,7 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-ac`,
       heading: `Allele count (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      width: 200,
       sortKey: (variant) => variantAC(variant, popIndex),
       render: (variant) => renderCount(variantAC(variant, popIndex)),
     },
@@ -505,6 +526,7 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-an`,
       heading: `Allele number (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      width: 200,
       sortKey: (variant) => variantAN(variant, popIndex),
       render: (variant) => renderCount(variantAN(variant, popIndex)),
     },
@@ -512,6 +534,7 @@ const populationAlleleFrequencyColumns = (
       key: `pop-${popId}-af`,
       heading: `Allele frequency (${GNOMAD_POPULATION_NAMES[popId]})`,
       isNumeric: true,
+      width: 200,
       sortKey: (variant) => variantAF(variant, popIndex),
       render: (variant) => renderAlleleFrequency(variantAF(variant, popIndex)),
     },
@@ -529,6 +552,7 @@ interface VariantsTableProps extends TableProps {
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
   includeNotesColumn?: boolean;
+  isTopTen?: boolean;
 }
 
 type SortOrder = "ascending" | "descending";
@@ -586,6 +610,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   onEditVariantNote,
   includeCheckboxColumn = true,
   includeNotesColumn = true,
+  isTopTen = false,
   ...tableProps
 }) => {
   const columns = [
@@ -634,6 +659,92 @@ const VariantsTable: FC<VariantsTableProps> = ({
     sortedVariants.reverse();
   }
 
+  const ROW_HEIGHT = isTopTen ? 35 : 70;
+  const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
+
+  const VariantRow = ({
+    index: dataRowIndex,
+    data: { columns, data },
+    style,
+  }: {
+    index: number;
+    data: {
+      columns: ColumnDef[];
+      data: any;
+    };
+    style: any;
+  }) => {
+    const rowData = data[dataRowIndex];
+    const rowIndex = dataRowIndex + 1;
+    return (
+      <Tr
+        key={rowIndex}
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          boxSizing: "border-box",
+          height: `${ROW_HEIGHT}px`,
+          background: "inital",
+        }}
+        style={style}
+      >
+        {includeCheckboxColumn && (
+          <Td
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              alignContent: "center",
+            }}
+          >
+            <Checkbox
+              isChecked={selectedVariants.has(rowData.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  onChangeSelectedVariants(
+                    new Set([...selectedVariants, rowData.id])
+                  );
+                } else {
+                  onChangeSelectedVariants(
+                    new Set(
+                      [...selectedVariants].filter(
+                        (variantId) => variantId !== rowData.id
+                      )
+                    )
+                  );
+                }
+              }}
+            >
+              <VisuallyHidden>
+                Include this variant in calculations
+              </VisuallyHidden>
+            </Checkbox>
+          </Td>
+        )}
+        {columns.map((column: ColumnDef, columnIndex: number) => {
+          return (
+            <Td
+              key={column.key}
+              fontWeight="normal"
+              isNumeric={column.isNumeric}
+              width={`${column.width}px`}
+              sx={{
+                height: `${ROW_HEIGHT}px`,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {column.render(
+                rowData,
+                variantList,
+                variantNotes,
+                onEditVariantNote,
+                userCanEdit
+              )}
+            </Td>
+          );
+        })}
+      </Tr>
+    );
+  };
   return (
     <Table
       {...tableProps}
@@ -645,10 +756,20 @@ const VariantsTable: FC<VariantsTableProps> = ({
       }}
     >
       <Thead>
-        <Tr>
+        <Tr
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "stretch",
+            boxSizing: "border-box",
+            height: `${ROW_HEIGHT}px`,
+            background: "initial",
+          }}
+        >
           {includeCheckboxColumn && (
-            <Th scope="col">
+            <Th scope="col" style={{ position: "relative" }}>
               <Checkbox
+                style={{ height: "100%" }}
                 isChecked={selectedVariants.size === combinedVariants.length}
                 isIndeterminate={
                   selectedVariants.size > 0 &&
@@ -679,7 +800,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
                 aria-sort={
                   column.key === sortColumn.key ? sortOrder : undefined
                 }
-                style={{ position: "relative" }}
+                style={{
+                  position: "relative",
+                  width: `${column.width}px`,
+                  height: "100%",
+                }}
               >
                 {column.sortKey ? (
                   <>
@@ -691,7 +816,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
                         appearance: "none",
                         fontSize: "inherit",
                         fontWeight: "inherit",
-                        textAlign: "inherit",
+                        textAlign: "start",
                       }}
                       onClick={() => {
                         setSortKey(column.key);
@@ -716,7 +841,14 @@ const VariantsTable: FC<VariantsTableProps> = ({
                     )}
                   </>
                 ) : (
-                  column.heading
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "calc(50% - 10px)",
+                    }}
+                  >
+                    {column.heading}
+                  </span>
                 )}
               </Th>
             );
@@ -724,57 +856,22 @@ const VariantsTable: FC<VariantsTableProps> = ({
         </Tr>
       </Thead>
       <Tbody>
-        {sortedVariants.map((variant) => {
-          return (
-            <Tr key={variant.id}>
-              {includeCheckboxColumn && (
-                <Td>
-                  <Checkbox
-                    isChecked={selectedVariants.has(variant.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        onChangeSelectedVariants(
-                          new Set([...selectedVariants, variant.id])
-                        );
-                      } else {
-                        onChangeSelectedVariants(
-                          new Set(
-                            [...selectedVariants].filter(
-                              (variantId) => variantId !== variant.id
-                            )
-                          )
-                        );
-                      }
-                    }}
-                  >
-                    <VisuallyHidden>
-                      Include this variant in calculations
-                    </VisuallyHidden>
-                  </Checkbox>
-                </Td>
-              )}
-              {columns.map((column) => {
-                return (
-                  <Td
-                    key={column.key}
-                    as={column.key === "variant_id" ? "th" : undefined}
-                    scope={column.key === "variant_id" ? "row" : undefined}
-                    fontWeight="normal"
-                    isNumeric={column.isNumeric}
-                  >
-                    {column.render(
-                      variant,
-                      variantList,
-                      variantNotes,
-                      onEditVariantNote,
-                      userCanEdit
-                    )}
-                  </Td>
-                );
-              })}
-            </Tr>
-          );
-        })}
+        <FixedSizeList
+          height={ITEMS_DISPLAYED * ROW_HEIGHT - 1}
+          itemCount={sortedVariants.length}
+          itemSize={ROW_HEIGHT}
+          width={"100%"}
+          overscanCount={5}
+          itemData={{
+            columns,
+            data: sortedVariants,
+          }}
+          style={{
+            overflowX: "hidden",
+          }}
+        >
+          {VariantRow}
+        </FixedSizeList>
       </Tbody>
     </Table>
   );
