@@ -193,6 +193,7 @@ const DashboardListPage = (props: DashboardListPageProps) => {
           onEditVariantNote={() => {}}
           includeNotesColumn={false}
           includeCheckboxColumn={false}
+          isTopTen={true}
         />
       </Box>
 
