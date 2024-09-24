@@ -235,7 +235,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-1bxg22l"
+        class="css-t4dqdk"
         role="row"
         style="position: absolute; left: 0px; top: 0px; height: 70px; width: 100%;"
       >
@@ -365,9 +365,37 @@ exports[`Variant Table has no unexpected changes 1`] = `
         >
           Custom
         </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
       </tr>
       <tr
-        class="css-1bxg22l"
+        class="css-t4dqdk"
         role="row"
         style="position: absolute; left: 0px; top: 70px; height: 70px; width: 100%;"
       >
@@ -497,9 +525,37 @@ exports[`Variant Table has no unexpected changes 1`] = `
         >
           Custom
         </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
       </tr>
       <tr
-        class="css-1bxg22l"
+        class="css-t4dqdk"
         role="row"
         style="position: absolute; left: 0px; top: 140px; height: 70px; width: 100%;"
       >
@@ -629,9 +685,37 @@ exports[`Variant Table has no unexpected changes 1`] = `
         >
           Custom
         </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
       </tr>
       <tr
-        class="css-1bxg22l"
+        class="css-t4dqdk"
         role="row"
         style="position: absolute; left: 0px; top: 210px; height: 70px; width: 100%;"
       >
@@ -778,9 +862,37 @@ exports[`Variant Table has no unexpected changes 1`] = `
         >
           Custom
         </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
       </tr>
       <tr
-        class="css-1bxg22l"
+        class="css-t4dqdk"
         role="row"
         style="position: absolute; left: 0px; top: 280px; height: 70px; width: 100%;"
       >
@@ -952,6 +1064,34 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
         </td>
       </tr>
     </tbody>

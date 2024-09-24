@@ -546,9 +546,11 @@ interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  notIncludedVariants: Set<VariantId>;
   shouldShowVariant: (variant: Variant) => boolean;
   variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+  onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
   includeNotesColumn?: boolean;
@@ -604,9 +606,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
   selectedVariants,
+  notIncludedVariants,
   shouldShowVariant,
   variantNotes,
   onChangeSelectedVariants,
+  onChangeNotIncludedVariants,
   onEditVariantNote,
   includeCheckboxColumn = true,
   includeNotesColumn = true,
@@ -652,9 +656,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
   const visibleVariants = combinedVariants.filter((variant) =>
     shouldShowVariant(variant)
   );
-  const sortedVariants = sortBy(visibleVariants, (variant) =>
-    sortColumn.sortKey!(variant, variantList)
-  );
+
+  const sortedVariants = sortBy(visibleVariants, (variant) => [
+    notIncludedVariants && notIncludedVariants.has(variant.id) ? 0 : 1,
+    sortColumn.sortKey!(variant, variantList),
+  ]);
+
   if (sortOrder === "descending") {
     sortedVariants.reverse();
   }
@@ -672,45 +679,36 @@ const VariantsTable: FC<VariantsTableProps> = ({
       columns: ColumnDef[];
       data: any;
     };
-    style: any;
+    style: React.CSSProperties;
   }) => {
     const rowData = data[dataRowIndex];
-    const rowIndex = dataRowIndex + 1;
+    const isNotIncluded = notIncludedVariants.has(rowData.id);
+
     return (
       <Tr
-        key={rowIndex}
+        key={dataRowIndex}
         sx={{
           display: "flex",
           flexDirection: "row",
           boxSizing: "border-box",
           height: `${ROW_HEIGHT}px`,
-          background: "inital",
+          backgroundColor: isNotIncluded ? "#f0f0f0" : "transparent",
         }}
         style={style}
       >
         {includeCheckboxColumn && (
-          <Td
-            sx={{
-              height: `${ROW_HEIGHT}px`,
-              alignContent: "center",
-            }}
-          >
+          <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
             <Checkbox
               isChecked={selectedVariants.has(rowData.id)}
               onChange={(e) => {
-                if (e.target.checked) {
-                  onChangeSelectedVariants(
-                    new Set([...selectedVariants, rowData.id])
-                  );
+                const isChecked = e.target.checked;
+                const updatedSelected = new Set(selectedVariants);
+                if (isChecked) {
+                  updatedSelected.add(rowData.id);
                 } else {
-                  onChangeSelectedVariants(
-                    new Set(
-                      [...selectedVariants].filter(
-                        (variantId) => variantId !== rowData.id
-                      )
-                    )
-                  );
+                  updatedSelected.delete(rowData.id);
                 }
+                onChangeSelectedVariants(updatedSelected);
               }}
             >
               <VisuallyHidden>
@@ -719,32 +717,64 @@ const VariantsTable: FC<VariantsTableProps> = ({
             </Checkbox>
           </Td>
         )}
-        {columns.map((column: ColumnDef, columnIndex: number) => {
-          return (
-            <Td
-              key={column.key}
-              fontWeight="normal"
-              isNumeric={column.isNumeric}
-              width={`${column.width}px`}
-              sx={{
-                height: `${ROW_HEIGHT}px`,
-                display: "flex",
-                alignItems: "center",
+        {columns.map((column: ColumnDef) => (
+          <Td
+            key={column.key}
+            fontWeight="normal"
+            isNumeric={column.isNumeric}
+            width={`${column.width}px`}
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {column.render(
+              rowData,
+              variantList,
+              variantNotes,
+              onEditVariantNote,
+              userCanEdit
+            )}
+          </Td>
+        ))}
+        {includeCheckboxColumn && (
+          <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
+            <Checkbox
+              isChecked={isNotIncluded}
+              onChange={(e) => {
+                const isChecked = e.target.checked;
+                const updatedNotIncluded = new Set(notIncludedVariants);
+
+                if (isChecked) {
+                  updatedNotIncluded.add(rowData.id);
+                  onChangeNotIncludedVariants(updatedNotIncluded);
+
+                  if (selectedVariants.has(rowData.id)) {
+                    const updatedSelected = new Set(selectedVariants);
+                    updatedSelected.delete(rowData.id);
+                    onChangeSelectedVariants(updatedSelected);
+                  }
+                } else {
+                  updatedNotIncluded.delete(rowData.id);
+                  onChangeNotIncludedVariants(updatedNotIncluded);
+
+                  const updatedSelected = new Set(selectedVariants);
+                  updatedSelected.add(rowData.id);
+                  onChangeSelectedVariants(updatedSelected);
+                }
               }}
             >
-              {column.render(
-                rowData,
-                variantList,
-                variantNotes,
-                onEditVariantNote,
-                userCanEdit
-              )}
-            </Td>
-          );
-        })}
+              <VisuallyHidden>
+                Exclude this variant from calculations
+              </VisuallyHidden>
+            </Checkbox>
+          </Td>
+        )}
       </Tr>
     );
   };
+
   return (
     <Table
       {...tableProps}
