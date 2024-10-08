@@ -104,7 +104,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative; width: 110px; height: 100%;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
             style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
@@ -293,7 +293,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
@@ -425,7 +425,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
@@ -557,7 +557,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
@@ -706,7 +706,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
@@ -881,7 +881,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         />
         <td
-          class="css-1p7j3u3"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
