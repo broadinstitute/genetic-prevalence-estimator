@@ -402,7 +402,7 @@ const GENE_COLUMN: ColumnDef = {
 const TRANSCRIPT_COLUMN: ColumnDef = {
   key: "transcript",
   heading: "Transcript",
-  width: 110,
+  width: 200,
   sortKey: (variant) => variant.transcript_id || "",
   render: (variant) => variant.transcript_id,
 };
