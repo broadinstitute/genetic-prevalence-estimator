@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from "@chakra-ui/icons";
+import { ArrowDownIcon, ArrowUpIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Checkbox,
@@ -889,6 +889,41 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Th>
             );
           })}
+          {includeCheckboxColumn && (
+            <Th
+              key="Do Not Include"
+              scope="col"
+              isNumeric={false}
+              style={{
+                position: "relative",
+                width: "100px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                // padding: "0 10px",
+              }}
+            >
+              <span
+                style={{
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Exclude
+              </span>
+              <Tooltip
+                hasArrow
+                label={
+                  "Excluded variants will never be included in the calculations, " +
+                  "even when toggling the selection of all variants, and will appear " +
+                  "at the bottom of the variant list."
+                }
+                placement="top"
+              >
+                <QuestionIcon />
+              </Tooltip>
+            </Th>
+          )}
         </Tr>
       </Thead>
       <Tbody>
