@@ -30,6 +30,10 @@ class VariantListAnnotationSerializer(ModelSerializer):
         variant_list = self.instance.variant_list
         return variant_list.metadata["gnomad_version"]
 
+    def is_valid_tag(self, tag):
+        valid_tags = {"A", "B", "C", "D"}
+        return tag in valid_tags
+
     def validate_selected_variants(self, value):
         if not isinstance(value, list):
             raise serializers.ValidationError(
@@ -80,11 +84,36 @@ class VariantListAnnotationSerializer(ModelSerializer):
 
         return value
 
+    def validate_tagged_groups(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError(
+                "Tagged groups must contain a mapping of group to variant IDs."
+            )
+
+        if not all(self.is_valid_tag(group) for group in value.keys()):
+            raise serializers.ValidationError("Each group (tag) must be valid.")
+
+        for variant_ids in value.values():
+            print(variant_ids)
+            if not isinstance(variant_ids, (dict, list, set)):
+                print(type(value))
+                raise serializers.ValidationError(
+                    "Each group (tag) must map to a list or set of variant IDs."
+                )
+
+            if not all(is_variant_id(variant_id) for variant_id in variant_ids):
+                raise serializers.ValidationError(
+                    "Each group (tag) must map to valid variant IDs."
+                )
+
+        return value
+
     class Meta:
         model = VariantListAnnotation
 
         fields = [
             "selected_variants",
+            "tagged_groups",
             "variant_notes",
             "include_homozygotes_in_calculations",
             "variant_calculations",
