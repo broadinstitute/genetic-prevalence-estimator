@@ -235,7 +235,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-t4dqdk"
+        class="css-11ta1vk"
         role="row"
         style="position: absolute; left: 0px; top: 0px; height: 70px; width: 100%;"
       >
@@ -247,6 +247,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
               type="checkbox"
@@ -395,7 +396,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         </td>
       </tr>
       <tr
-        class="css-t4dqdk"
+        class="css-11ta1vk"
         role="row"
         style="position: absolute; left: 0px; top: 70px; height: 70px; width: 100%;"
       >
@@ -407,6 +408,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
               type="checkbox"
@@ -555,7 +557,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         </td>
       </tr>
       <tr
-        class="css-t4dqdk"
+        class="css-11ta1vk"
         role="row"
         style="position: absolute; left: 0px; top: 140px; height: 70px; width: 100%;"
       >
@@ -567,6 +569,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
               type="checkbox"
@@ -715,7 +718,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         </td>
       </tr>
       <tr
-        class="css-t4dqdk"
+        class="css-11ta1vk"
         role="row"
         style="position: absolute; left: 0px; top: 210px; height: 70px; width: 100%;"
       >
@@ -727,6 +730,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               checked=""
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
@@ -892,7 +896,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         </td>
       </tr>
       <tr
-        class="css-t4dqdk"
+        class="css-11ta1vk"
         role="row"
         style="position: absolute; left: 0px; top: 280px; height: 70px; width: 100%;"
       >
@@ -904,6 +908,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               checked=""
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"

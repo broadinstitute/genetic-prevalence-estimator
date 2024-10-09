@@ -692,6 +692,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
           flexDirection: "row",
           boxSizing: "border-box",
           height: `${ROW_HEIGHT}px`,
+          boxShadow:
+            "inset -0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9), inset 0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9)",
           backgroundColor: isNotIncluded ? "#f0f0f0" : "transparent",
         }}
         style={style}
@@ -699,8 +701,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
         {includeCheckboxColumn && (
           <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
             <Checkbox
-              isChecked={selectedVariants.has(rowData.id)}
+              isChecked={
+                isNotIncluded ? false : selectedVariants.has(rowData.id)
+              }
+              isDisabled={isNotIncluded}
               onChange={(e) => {
+                if (isNotIncluded) return;
                 const isChecked = e.target.checked;
                 const updatedSelected = new Set(selectedVariants);
                 if (isChecked) {
