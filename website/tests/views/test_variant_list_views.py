@@ -1141,6 +1141,7 @@ class TestGetVariantListAnnotation:
             user=editor,
             variant_list=list1,
             selected_variants=["1-55516888-G-A"],
+            not_included_variants=[],
             variant_notes={"1-55516888-G-A": "Test note"},
         )
 
@@ -1207,6 +1208,7 @@ class TestGetVariantListAnnotation:
         assert response == {
             "include_homozygotes_in_calculations": True,
             "selected_variants": [],
+            "not_included_variants": [],
             "variant_calculations": {},
             "variant_notes": {},
         }
@@ -1221,6 +1223,7 @@ class TestGetVariantListAnnotation:
         assert response == {
             "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-A"],
+            "not_included_variants": [],
             "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},
         }
@@ -1336,6 +1339,7 @@ class TestEditVariantListAnnotation:
         assert response.json() == {
             "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-GA"],
+            "not_included_variants": [],
             "variant_calculations": {},
             "variant_notes": {},
         }
@@ -1468,6 +1472,7 @@ class TestGetVariantListSharedAnnotation:
         assert response == {
             "include_homozygotes_in_calculations": True,
             "selected_variants": [],
+            "not_included_variants": [],
             "variant_calculations": {},
             "variant_notes": {},
         }
@@ -1482,6 +1487,7 @@ class TestGetVariantListSharedAnnotation:
         assert response == {
             "include_homozygotes_in_calculations": True,
             "selected_variants": ["1-55516888-G-A"],
+            "not_included_variants": [],
             "variant_calculations": {},
             "variant_notes": {"1-55516888-G-A": "Test note"},
         }
