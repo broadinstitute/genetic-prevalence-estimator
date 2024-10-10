@@ -65,10 +65,12 @@ interface VariantListVariantsProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
   taggedGroups: TaggedGroups;
+  notIncludedVariants: Set<VariantId>;
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
   userCanEdit: boolean;
   userIsStaff: boolean;
+  onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   onChangeTaggedGroups: (
@@ -81,11 +83,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
     selectedVariants,
     taggedGroups,
+    notIncludedVariants,
     selectionDisabled,
     variantList,
     variantNotes,
     userCanEdit,
     userIsStaff,
+    onChangeNotIncludedVariants,
     onChangeSelectedVariants,
     onChangeTaggedGroups,
     onEditVariantNote,
@@ -137,7 +141,10 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
-
+      <Text mb={2}>
+        {notIncludedVariants.size} variant
+        {notIncludedVariants.size !== 1 ? "s" : ""} are not included.
+      </Text>
       <Box mb={4}>
         <Text>Tagged Groups</Text>
         <Text>
@@ -253,12 +260,14 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               variantList={variantList}
               selectedVariants={selectedVariants}
               taggedGroups={taggedGroups}
+              notIncludedVariants={notIncludedVariants}
               shouldShowVariant={
                 includeAC0Variants
                   ? () => true
                   : (variant) => (variant.AC || [])[0] > 0
               }
               variantNotes={variantNotes}
+              onChangeNotIncludedVariants={onChangeNotIncludedVariants}
               onChangeSelectedVariants={onChangeSelectedVariants}
               onChangeTaggedGroups={onChangeTaggedGroups}
               onEditVariantNote={onEditVariantNote}

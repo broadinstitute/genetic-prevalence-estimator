@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from "@chakra-ui/icons";
+import { ArrowDownIcon, ArrowUpIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Button,
@@ -404,7 +404,7 @@ const GENE_COLUMN: ColumnDef = {
 const TRANSCRIPT_COLUMN: ColumnDef = {
   key: "transcript",
   heading: "Transcript",
-  width: 110,
+  width: 200,
   sortKey: (variant) => variant.transcript_id || "",
   render: (variant) => variant.transcript_id,
 };
@@ -549,6 +549,7 @@ interface VariantsTableProps extends TableProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
   taggedGroups: TaggedGroups;
+  notIncludedVariants: Set<VariantId>;
   shouldShowVariant: (variant: Variant) => boolean;
   variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
@@ -556,6 +557,7 @@ interface VariantsTableProps extends TableProps {
     variantId: VariantId,
     taggedGroups: TaggedGroups
   ) => void;
+  onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
   includeTagColumn?: boolean;
@@ -613,10 +615,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
   variantList,
   selectedVariants,
   taggedGroups,
+  notIncludedVariants,
   shouldShowVariant,
   variantNotes,
   onChangeSelectedVariants,
   onChangeTaggedGroups,
+  onChangeNotIncludedVariants,
   onEditVariantNote,
   includeCheckboxColumn = true,
   includeTagColumn = true,
@@ -678,9 +682,12 @@ const VariantsTable: FC<VariantsTableProps> = ({
   const visibleVariants = combinedVariants.filter((variant) =>
     shouldShowVariant(variant)
   );
-  const sortedVariants = sortBy(visibleVariants, (variant) =>
-    sortColumn.sortKey!(variant, variantList)
-  );
+
+  const sortedVariants = sortBy(visibleVariants, (variant) => [
+    notIncludedVariants && notIncludedVariants.has(variant.id) ? 0 : 1,
+    sortColumn.sortKey!(variant, variantList),
+  ]);
+
   if (sortOrder === "descending") {
     sortedVariants.reverse();
   }
@@ -698,45 +705,42 @@ const VariantsTable: FC<VariantsTableProps> = ({
       columns: ColumnDef[];
       data: any;
     };
-    style: any;
+    style: React.CSSProperties;
   }) => {
     const rowData = data[dataRowIndex];
-    const rowIndex = dataRowIndex + 1;
+    const isNotIncluded = notIncludedVariants.has(rowData.id);
+
     return (
       <Tr
-        key={rowIndex}
+        key={dataRowIndex}
         sx={{
           display: "flex",
           flexDirection: "row",
           boxSizing: "border-box",
           height: `${ROW_HEIGHT}px`,
-          background: "inital",
+          boxShadow:
+            "inset -0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9), inset 0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9)",
+          backgroundColor: isNotIncluded ? "#f0f0f0" : "transparent",
         }}
         style={style}
       >
         {includeCheckboxColumn && (
-          <Td
-            sx={{
-              height: `${ROW_HEIGHT}px`,
-              alignContent: "center",
-            }}
-          >
+          <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
             <Checkbox
-              isChecked={selectedVariants.has(rowData.id)}
+              isChecked={
+                isNotIncluded ? false : selectedVariants.has(rowData.id)
+              }
+              isDisabled={isNotIncluded}
               onChange={(e) => {
-                if (e.target.checked) {
-                  onChangeSelectedVariants(
-                    new Set([...selectedVariants, rowData.id])
-                  );
+                if (isNotIncluded) return;
+                const isChecked = e.target.checked;
+                const updatedSelected = new Set(selectedVariants);
+                if (isChecked) {
+                  updatedSelected.add(rowData.id);
                 } else {
-                  onChangeSelectedVariants(
-                    new Set(
-                      [...selectedVariants].filter(
-                        (variantId) => variantId !== rowData.id
-                      )
-                    )
-                  );
+                  updatedSelected.delete(rowData.id);
                 }
+                onChangeSelectedVariants(updatedSelected);
               }}
             >
               <VisuallyHidden>
@@ -781,32 +785,64 @@ const VariantsTable: FC<VariantsTableProps> = ({
             </Checkbox>
           </Td>
         )}
-        {columns.map((column: ColumnDef, columnIndex: number) => {
-          return (
-            <Td
-              key={column.key}
-              fontWeight="normal"
-              isNumeric={column.isNumeric}
-              width={`${column.width}px`}
-              sx={{
-                height: `${ROW_HEIGHT}px`,
-                display: "flex",
-                alignItems: "center",
+        {columns.map((column: ColumnDef) => (
+          <Td
+            key={column.key}
+            fontWeight="normal"
+            isNumeric={column.isNumeric}
+            width={`${column.width}px`}
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {column.render(
+              rowData,
+              variantList,
+              variantNotes,
+              onEditVariantNote,
+              userCanEdit
+            )}
+          </Td>
+        ))}
+        {includeCheckboxColumn && (
+          <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
+            <Checkbox
+              isChecked={isNotIncluded}
+              onChange={(e) => {
+                const isChecked = e.target.checked;
+                const updatedNotIncluded = new Set(notIncludedVariants);
+
+                if (isChecked) {
+                  updatedNotIncluded.add(rowData.id);
+                  onChangeNotIncludedVariants(updatedNotIncluded);
+
+                  if (selectedVariants.has(rowData.id)) {
+                    const updatedSelected = new Set(selectedVariants);
+                    updatedSelected.delete(rowData.id);
+                    onChangeSelectedVariants(updatedSelected);
+                  }
+                } else {
+                  updatedNotIncluded.delete(rowData.id);
+                  onChangeNotIncludedVariants(updatedNotIncluded);
+
+                  const updatedSelected = new Set(selectedVariants);
+                  updatedSelected.add(rowData.id);
+                  onChangeSelectedVariants(updatedSelected);
+                }
               }}
             >
-              {column.render(
-                rowData,
-                variantList,
-                variantNotes,
-                onEditVariantNote,
-                userCanEdit
-              )}
-            </Td>
-          );
-        })}
+              <VisuallyHidden>
+                Exclude this variant from calculations
+              </VisuallyHidden>
+            </Checkbox>
+          </Td>
+        )}
       </Tr>
     );
   };
+
   return (
     <Table
       {...tableProps}
@@ -927,6 +963,40 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Th>
             );
           })}
+          {includeCheckboxColumn && (
+            <Th
+              key="Do Not Include"
+              scope="col"
+              isNumeric={false}
+              style={{
+                position: "relative",
+                width: "100px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <span
+                style={{
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Exclude
+              </span>
+              <Tooltip
+                hasArrow
+                label={
+                  "Excluded variants will never be included in the calculations, " +
+                  "even when toggling the selection of all variants, and will appear " +
+                  "at the bottom of the variant list."
+                }
+                placement="top"
+              >
+                <QuestionIcon />
+              </Tooltip>
+            </Th>
+          )}
         </Tr>
       </Thead>
       <Tbody>

@@ -195,10 +195,12 @@ const DashboardListPage = (props: DashboardListPageProps) => {
           }}
           selectedVariants={blankSet}
           taggedGroups={blankTaggedGroups}
+          notIncludedVariants={blankSet}
           shouldShowVariant={() => {
             return true;
           }}
           variantNotes={{}}
+          onChangeNotIncludedVariants={() => {}}
           onChangeSelectedVariants={() => {}}
           onChangeTaggedGroups={() => {}}
           onEditVariantNote={() => {}}
