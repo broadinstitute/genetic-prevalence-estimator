@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("calculator", "0013_variantlist_support_documents"),
+        ("calculator", "0014_add_not_included_variants"),
     ]
 
     operations = [
