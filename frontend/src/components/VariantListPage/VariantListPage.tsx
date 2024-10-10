@@ -110,6 +110,7 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
 
 type VariantListAnnotation = {
   selectedVariants: Set<string>;
+  notIncludedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
   variantCalculations: VariantListCalculations;
   includeHomozygotesInCalculations: boolean;
@@ -118,6 +119,7 @@ type VariantListAnnotation = {
 const useVariantListAnnotation = (variantList: VariantList) => {
   const [annotation, setAnnotation] = useState<VariantListAnnotation>({
     selectedVariants: new Set<VariantId>([]),
+    notIncludedVariants: new Set<VariantId>([]),
     variantNotes: {},
     variantCalculations: {
       prevalence: {},
@@ -173,11 +175,13 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       .then(
         (annotation: {
           selected_variants: Set<string>;
+          not_included_variants: Set<string>;
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
           include_homozygotes_in_calculations: boolean;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
+          const notIncludedVariants = new Set(annotation.not_included_variants);
 
           // An update to the appliation moved to the model of calculating storing
           //   the calculated values in the database, to allow for viewing
@@ -213,6 +217,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
           setAnnotation({
             selectedVariants: selectedVariants,
+            notIncludedVariants: notIncludedVariants,
             variantNotes: annotation.variant_notes,
             variantCalculations: variantCalculations,
             includeHomozygotesInCalculations:
@@ -299,15 +304,19 @@ const useVariantListAnnotation = (variantList: VariantList) => {
         }
 
         const selectedVariants = annotation.selectedVariants
-          ? variantList.variants.filter((variant) =>
-              annotation.selectedVariants.has(variant.id)
+          ? variantList.variants.filter(
+              (variant) =>
+                annotation.selectedVariants.has(variant.id) &&
+                !annotation.notIncludedVariants.has(variant.id)
             )
           : variantList.variants;
 
         const selectedStructuralVariants = variantList.structural_variants
           ? annotation.selectedVariants
-            ? variantList.structural_variants.filter((structural_variant) =>
-                annotation.selectedVariants.has(structural_variant.id)
+            ? variantList.structural_variants.filter(
+                (structural_variant) =>
+                  annotation.selectedVariants.has(structural_variant.id) &&
+                  !annotation.notIncludedVariants.has(structural_variant.id)
               )
             : variantList.structural_variants
           : [];
@@ -324,6 +333,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
         patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
           selected_variants: Array.from(annotation.selectedVariants),
+          not_included_variants: Array.from(annotation.notIncludedVariants),
           variant_calculations: variantCalculations,
           include_homozygotes_in_calculations:
             annotation.includeHomozygotesInCalculations,
@@ -353,6 +363,15 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const setSelectedVariants = useCallback(
     (selectedVariants: VariantListAnnotation["selectedVariants"]) => {
       setAnnotation((annotation) => ({ ...annotation, selectedVariants }));
+      saveSelectedVariants();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
+  const setNotIncludedVariants = useCallback(
+    (notIncludedVariants: VariantListAnnotation["notIncludedVariants"]) => {
+      setAnnotation((annotation) => ({ ...annotation, notIncludedVariants }));
       saveSelectedVariants();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -432,6 +451,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   return {
     loading,
     selectedVariants: annotation.selectedVariants,
+    notIncludedVariants: annotation.notIncludedVariants,
+    setNotIncludedVariants,
     setSelectedVariants,
     variantNotes: annotation.variantNotes,
     setVariantNote,
@@ -466,6 +487,8 @@ const VariantListPage = (props: VariantListPageProps) => {
   const {
     loading: loadingAnnotation,
     selectedVariants,
+    notIncludedVariants,
+    setNotIncludedVariants,
     setSelectedVariants,
     variantNotes,
     setVariantNote,
@@ -687,11 +710,13 @@ const VariantListPage = (props: VariantListPageProps) => {
 
         <VariantListVariants
           selectedVariants={selectedVariants}
+          notIncludedVariants={notIncludedVariants}
           selectionDisabled={loadingAnnotation}
           variantList={variantList}
           variantNotes={variantNotes}
           userCanEdit={userCanEdit}
           userIsStaff={userIsStaff}
+          onChangeNotIncludedVariants={setNotIncludedVariants}
           onChangeSelectedVariants={setSelectedVariants}
           onEditVariantNote={setVariantNote}
         />

@@ -185,10 +185,12 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             variants: dashboardList.top_ten_variants,
           }}
           selectedVariants={blankSet}
+          notIncludedVariants={blankSet}
           shouldShowVariant={() => {
             return true;
           }}
           variantNotes={{}}
+          onChangeNotIncludedVariants={() => {}}
           onChangeSelectedVariants={() => {}}
           onEditVariantNote={() => {}}
           includeNotesColumn={false}

@@ -64,10 +64,12 @@ export const combineVariants = (
 interface VariantListVariantsProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  notIncludedVariants: Set<VariantId>;
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
   userCanEdit: boolean;
   userIsStaff: boolean;
+  onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
 }
@@ -75,11 +77,13 @@ interface VariantListVariantsProps {
 const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
     selectedVariants,
+    notIncludedVariants,
     selectionDisabled,
     variantList,
     variantNotes,
     userCanEdit,
     userIsStaff,
+    onChangeNotIncludedVariants,
     onChangeSelectedVariants,
     onEditVariantNote,
   } = props;
@@ -123,7 +127,10 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
-
+      <Text mb={2}>
+        {notIncludedVariants.size} variant
+        {notIncludedVariants.size !== 1 ? "s" : ""} are not included.
+      </Text>
       {variantList.status === "Ready" ? (
         <>
           <Box mb={4}>
@@ -218,12 +225,14 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}
+              notIncludedVariants={notIncludedVariants}
               shouldShowVariant={
                 includeAC0Variants
                   ? () => true
                   : (variant) => (variant.AC || [])[0] > 0
               }
               variantNotes={variantNotes}
+              onChangeNotIncludedVariants={onChangeNotIncludedVariants}
               onChangeSelectedVariants={onChangeSelectedVariants}
               onEditVariantNote={onEditVariantNote}
             />
