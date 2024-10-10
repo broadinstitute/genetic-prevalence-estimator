@@ -901,7 +901,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                // padding: "0 10px",
               }}
             >
               <span
