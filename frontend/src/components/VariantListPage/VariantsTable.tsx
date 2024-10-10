@@ -1,6 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from "@chakra-ui/icons";
 import {
   Badge,
+  Button,
+  ButtonGroup,
   Checkbox,
   Flex,
   Link,
@@ -16,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { difference, intersection, sortBy } from "lodash";
 import { FC, useCallback, useState } from "react";
-
+import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
 import {
@@ -546,11 +548,17 @@ interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  taggedGroups: TaggedGroups;
   shouldShowVariant: (variant: Variant) => boolean;
   variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+  onChangeTaggedGroups: (
+    variantId: VariantId,
+    taggedGroups: TaggedGroups
+  ) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
+  includeTagColumn?: boolean;
   includeNotesColumn?: boolean;
   isTopTen?: boolean;
 }
@@ -604,11 +612,14 @@ const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
   selectedVariants,
+  taggedGroups,
   shouldShowVariant,
   variantNotes,
   onChangeSelectedVariants,
+  onChangeTaggedGroups,
   onEditVariantNote,
   includeCheckboxColumn = true,
+  includeTagColumn = true,
   includeNotesColumn = true,
   isTopTen = false,
   ...tableProps
@@ -630,6 +641,21 @@ const VariantsTable: FC<VariantsTableProps> = ({
       TRANSCRIPT_COLUMN
     );
   }
+
+  const toggleTagGroup = (tagKey: keyof TaggedGroups, rowDataId: VariantId) => {
+    let updatedTagGroup = new Set(taggedGroups[tagKey] || []);
+
+    if (taggedGroups[tagKey]?.has(rowDataId)) {
+      updatedTagGroup.delete(rowDataId);
+    } else {
+      updatedTagGroup.add(rowDataId);
+    }
+
+    onChangeTaggedGroups(rowDataId, {
+      ...taggedGroups,
+      [tagKey]: updatedTagGroup,
+    });
+  };
 
   const combinedVariants = !variantList.structural_variants
     ? variantList.variants
@@ -719,6 +745,42 @@ const VariantsTable: FC<VariantsTableProps> = ({
             </Checkbox>
           </Td>
         )}
+        {includeTagColumn && (
+          <Td
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              alignContent: "center",
+            }}
+          >
+            <Checkbox
+              isChecked={taggedGroups.A?.has(rowData.id)}
+              onChange={() => toggleTagGroup("A", rowData.id)}
+            >
+              A
+            </Checkbox>
+
+            <Checkbox
+              isChecked={taggedGroups.B?.has(rowData.id)}
+              onChange={() => toggleTagGroup("B", rowData.id)}
+            >
+              B
+            </Checkbox>
+
+            <Checkbox
+              isChecked={taggedGroups.C?.has(rowData.id)}
+              onChange={() => toggleTagGroup("C", rowData.id)}
+            >
+              C
+            </Checkbox>
+
+            <Checkbox
+              isChecked={taggedGroups.D?.has(rowData.id)}
+              onChange={() => toggleTagGroup("D", rowData.id)}
+            >
+              D
+            </Checkbox>
+          </Td>
+        )}
         {columns.map((column: ColumnDef, columnIndex: number) => {
           return (
             <Td
@@ -789,6 +851,18 @@ const VariantsTable: FC<VariantsTableProps> = ({
                   Include variants in calculations
                 </VisuallyHidden>
               </Checkbox>
+            </Th>
+          )}
+          {includeTagColumn && (
+            <Th
+              scope="col"
+              style={{
+                position: "relative",
+                paddingTop: "25px",
+                width: "170px",
+              }}
+            >
+              Tags
             </Th>
           )}
           {columns.map((column) => {

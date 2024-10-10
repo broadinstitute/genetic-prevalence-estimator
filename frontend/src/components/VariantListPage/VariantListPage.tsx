@@ -108,11 +108,19 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
   return useCallback(() => ref.current!, []);
 };
 
+export type TaggedGroups = {
+  A?: Set<VariantId>;
+  B?: Set<VariantId>;
+  C?: Set<VariantId>;
+  D?: Set<VariantId>;
+};
+
 type VariantListAnnotation = {
   selectedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
   variantCalculations: VariantListCalculations;
   includeHomozygotesInCalculations: boolean;
+  taggedGroups: TaggedGroups;
 };
 
 const useVariantListAnnotation = (variantList: VariantList) => {
@@ -133,6 +141,12 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       plofOnlyCarrierFrequencyRawNumbers: null,
     },
     includeHomozygotesInCalculations: true,
+    taggedGroups: {
+      A: new Set<VariantId>([]),
+      B: new Set<VariantId>([]),
+      C: new Set<VariantId>([]),
+      D: new Set<VariantId>([]),
+    },
   });
 
   const previousAnnotation = usePrevious(annotation);
@@ -176,8 +190,20 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
           include_homozygotes_in_calculations: boolean;
+          taggedGroups: TaggedGroups;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
+          const taggedGroups: {
+            A: Set<VariantId>;
+            B: Set<VariantId>;
+            C: Set<VariantId>;
+            D: Set<VariantId>;
+          } = {
+            A: new Set<VariantId>([]),
+            B: new Set<VariantId>([]),
+            C: new Set<VariantId>([]),
+            D: new Set<VariantId>([]),
+          };
 
           // An update to the appliation moved to the model of calculating storing
           //   the calculated values in the database, to allow for viewing
@@ -217,6 +243,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             variantCalculations: variantCalculations,
             includeHomozygotesInCalculations:
               annotation.include_homozygotes_in_calculations,
+            taggedGroups: taggedGroups,
           });
         }
       )
@@ -359,6 +386,51 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     [variantList]
   );
 
+  const saveTaggedGroups = useCallback(
+    (taggedGroups) => {
+      patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+        tagged_groups: {
+          A: Array.from(taggedGroups.A),
+          B: Array.from(taggedGroups.B),
+          C: Array.from(taggedGroups.C),
+          D: Array.from(taggedGroups.D),
+        },
+      })
+        .then(() => {
+          toast({
+            title: "Saved groups",
+            status: "success",
+            duration: 1000,
+            isClosable: true,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Unable to save groups",
+            description: renderErrorDescription(error),
+            status: "error",
+            duration: 10000,
+            isClosable: true,
+          });
+        });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList.uuid]
+  );
+
+  const setTaggedGroups = useCallback(
+    (
+      variantId: VariantId,
+      taggedGroups: VariantListAnnotation["taggedGroups"]
+    ) => {
+      setAnnotation((annotation) => ({ ...annotation, taggedGroups }));
+      console.log("setTaggedGroups", taggedGroups);
+      saveTaggedGroups(taggedGroups);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
   const setIncludeHomozygotesInCalculations = useCallback(
     (includeHomozygotesInCalculations: boolean) => {
       setAnnotation((annotation) => ({
@@ -435,6 +507,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     setSelectedVariants,
     variantNotes: annotation.variantNotes,
     setVariantNote,
+    taggedGroups: annotation.taggedGroups,
+    setTaggedGroups,
     variantCalculations: annotation.variantCalculations,
     includeHomozygotesInCalculations:
       annotation.includeHomozygotesInCalculations,
@@ -467,6 +541,8 @@ const VariantListPage = (props: VariantListPageProps) => {
     loading: loadingAnnotation,
     selectedVariants,
     setSelectedVariants,
+    taggedGroups,
+    setTaggedGroups,
     variantNotes,
     setVariantNote,
     variantCalculations,
@@ -687,12 +763,14 @@ const VariantListPage = (props: VariantListPageProps) => {
 
         <VariantListVariants
           selectedVariants={selectedVariants}
+          taggedGroups={taggedGroups}
           selectionDisabled={loadingAnnotation}
           variantList={variantList}
           variantNotes={variantNotes}
           userCanEdit={userCanEdit}
           userIsStaff={userIsStaff}
           onChangeSelectedVariants={setSelectedVariants}
+          onChangeTaggedGroups={setTaggedGroups}
           onEditVariantNote={setVariantNote}
         />
       </Box>

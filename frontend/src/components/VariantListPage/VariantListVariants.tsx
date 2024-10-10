@@ -10,7 +10,7 @@ import {
   UnorderedList,
 } from "@chakra-ui/react";
 import { useState } from "react";
-
+import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
   GnomadPopulationId,
@@ -64,23 +64,30 @@ export const combineVariants = (
 interface VariantListVariantsProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  taggedGroups: TaggedGroups;
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
   userCanEdit: boolean;
   userIsStaff: boolean;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
+  onChangeTaggedGroups: (
+    variantId: VariantId,
+    taggedGroups: TaggedGroups
+  ) => void;
 }
 
 const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
     selectedVariants,
+    taggedGroups,
     selectionDisabled,
     variantList,
     variantNotes,
     userCanEdit,
     userIsStaff,
     onChangeSelectedVariants,
+    onChangeTaggedGroups,
     onEditVariantNote,
   } = props;
 
@@ -95,6 +102,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
   const renderedVariants = !structural_variants
     ? variants
     : combineVariants(variants, structural_variants);
+
+  const tagCounts = {
+    A: taggedGroups.A ? taggedGroups.A.size : 0,
+    B: taggedGroups.B ? taggedGroups.B.size : 0,
+    C: taggedGroups.C ? taggedGroups.C.size : 0,
+    D: taggedGroups.D ? taggedGroups.D.size : 0,
+  };
 
   if (variants.length === 0) {
     if (
@@ -123,6 +137,26 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
+
+      <Box mb={4}>
+        <Text>Tagged Groups</Text>
+        <Text>
+          This variant list contains {tagCounts.A} variant
+          {tagCounts.A !== 1 ? "s" : ""} tagged A.
+        </Text>
+        <Text>
+          This variant list contains {tagCounts.B} variant
+          {tagCounts.B !== 1 ? "s" : ""} tagged B.
+        </Text>
+        <Text>
+          This variant list contains {tagCounts.C} variant
+          {tagCounts.C !== 1 ? "s" : ""} tagged C.
+        </Text>
+        <Text>
+          This variant list contains {tagCounts.D} variant
+          {tagCounts.D !== 1 ? "s" : ""} tagged D.
+        </Text>
+      </Box>
 
       {variantList.status === "Ready" ? (
         <>
@@ -218,6 +252,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}
+              taggedGroups={taggedGroups}
               shouldShowVariant={
                 includeAC0Variants
                   ? () => true
@@ -225,6 +260,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               }
               variantNotes={variantNotes}
               onChangeSelectedVariants={onChangeSelectedVariants}
+              onChangeTaggedGroups={onChangeTaggedGroups}
               onEditVariantNote={onEditVariantNote}
             />
           </div>
