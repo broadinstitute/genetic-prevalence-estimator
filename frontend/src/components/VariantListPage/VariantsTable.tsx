@@ -657,14 +657,17 @@ const VariantsTable: FC<VariantsTableProps> = ({
     shouldShowVariant(variant)
   );
 
-  const sortedVariants = sortBy(visibleVariants, (variant) => [
-    notIncludedVariants && notIncludedVariants.has(variant.id) ? 0 : 1,
-    sortColumn.sortKey!(variant, variantList),
-  ]);
+  const intermediateSortedVariants = sortBy(visibleVariants, (variant) =>
+    sortColumn.sortKey!(variant, variantList)
+  );
 
   if (sortOrder === "descending") {
-    sortedVariants.reverse();
+    intermediateSortedVariants.reverse();
   }
+
+  const sortedVariants = sortBy(intermediateSortedVariants, (variant) =>
+    notIncludedVariants && notIncludedVariants.has(variant.id) ? 1 : 0
+  );
 
   const ROW_HEIGHT = isTopTen ? 35 : 70;
   const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
