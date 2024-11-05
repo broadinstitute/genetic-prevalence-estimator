@@ -8,6 +8,16 @@ import {
   Text,
   Tooltip,
   UnorderedList,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Input,
+  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { TaggedGroups } from "./VariantListPage";
@@ -95,6 +105,8 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     onEditVariantNote,
   } = props;
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [
     populationsDisplayedInTable,
     setPopulationsDisplayedInTable,
@@ -107,11 +119,44 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     ? variants
     : combineVariants(variants, structural_variants);
 
+  type DisplayNames = {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+
+  const handleEditTags = () => {
+    onOpen();
+  };
+
+  const handleSaveDisplayNames = () => {
+    const updatedGroups = { ...taggedGroups };
+
+    (Object.keys(editDisplayNames) as Array<keyof DisplayNames>).forEach(
+      (key) => {
+        if (key in updatedGroups) {
+          updatedGroups[key].displayName = editDisplayNames[key];
+        }
+      }
+    );
+
+    onChangeTaggedGroups("", updatedGroups);
+    onClose();
+  };
+
+  const [editDisplayNames, setEditDisplayNames] = useState<DisplayNames>({
+    A: taggedGroups.A.displayName,
+    B: taggedGroups.B.displayName,
+    C: taggedGroups.C.displayName,
+    D: taggedGroups.D.displayName,
+  });
+
   const tagCounts = {
-    A: taggedGroups.A ? taggedGroups.A.size : 0,
-    B: taggedGroups.B ? taggedGroups.B.size : 0,
-    C: taggedGroups.C ? taggedGroups.C.size : 0,
-    D: taggedGroups.D ? taggedGroups.D.size : 0,
+    A: taggedGroups.A.variantList ? taggedGroups.A.variantList.size : 0,
+    B: taggedGroups.B.variantList ? taggedGroups.B.variantList.size : 0,
+    C: taggedGroups.C.variantList ? taggedGroups.C.variantList.size : 0,
+    D: taggedGroups.D.variantList ? taggedGroups.D.variantList.size : 0,
   };
 
   if (variants.length === 0) {
@@ -149,19 +194,19 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         <Text>Tagged Groups</Text>
         <Text>
           This variant list contains {tagCounts.A} variant
-          {tagCounts.A !== 1 ? "s" : ""} tagged A.
+          {tagCounts.A !== 1 ? "s" : ""} tagged {taggedGroups.A.displayName}.
         </Text>
         <Text>
           This variant list contains {tagCounts.B} variant
-          {tagCounts.B !== 1 ? "s" : ""} tagged B.
+          {tagCounts.B !== 1 ? "s" : ""} tagged {taggedGroups.B.displayName}.
         </Text>
         <Text>
           This variant list contains {tagCounts.C} variant
-          {tagCounts.C !== 1 ? "s" : ""} tagged C.
+          {tagCounts.C !== 1 ? "s" : ""} tagged {taggedGroups.C.displayName}.
         </Text>
         <Text>
           This variant list contains {tagCounts.D} variant
-          {tagCounts.D !== 1 ? "s" : ""} tagged D.
+          {tagCounts.D !== 1 ? "s" : ""} tagged {taggedGroups.D.displayName}.
         </Text>
       </Box>
 
@@ -230,6 +275,40 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               </Tooltip>
             </Box>
           )}
+
+          <Box mb={4}>
+            <Button onClick={handleEditTags}>
+              Edit Tags for Selected Variants
+            </Button>
+          </Box>
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Edit Tags</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4} align="flex-start">
+                  {Object.keys(editDisplayNames).map((key) => (
+                    <Input
+                      key={key}
+                      placeholder={`{key}`}
+                      value={editDisplayNames[key as keyof DisplayNames]}
+                      onChange={(e) =>
+                        setEditDisplayNames({
+                          ...editDisplayNames,
+                          [key as keyof DisplayNames]: e.target.value,
+                        })
+                      }
+                    />
+                  ))}
+                  <Button onClick={handleSaveDisplayNames} colorScheme="blue">
+                    Save
+                  </Button>
+                </VStack>
+              </ModalBody>
+              <ModalFooter></ModalFooter>
+            </ModalContent>
+          </Modal>
 
           <Box display="flex" mb={4}>
             <Box>
