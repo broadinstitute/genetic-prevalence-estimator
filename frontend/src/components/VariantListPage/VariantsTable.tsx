@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
   Badge,
-  Select,
   Checkbox,
   Flex,
   Link,
