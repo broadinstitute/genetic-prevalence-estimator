@@ -82,10 +82,10 @@ const DashboardListPage = (props: DashboardListPageProps) => {
   const blankSet: Set<string> = new Set<string>();
 
   const blankTaggedGroups: TaggedGroups = {
-    A: new Set<VariantId>(),
-    B: new Set<VariantId>(),
-    C: new Set<VariantId>(),
-    D: new Set<VariantId>(),
+    A: { displayName: "", variantList: new Set<VariantId>() },
+    B: { displayName: "", variantList: new Set<VariantId>() },
+    C: { displayName: "", variantList: new Set<VariantId>() },
+    D: { displayName: "", variantList: new Set<VariantId>() },
   };
 
   return (
