@@ -87,23 +87,33 @@ class VariantListAnnotationSerializer(ModelSerializer):
     def validate_tagged_groups(self, value):
         if not isinstance(value, dict):
             raise serializers.ValidationError(
-                "Tagged groups must contain a mapping of group to variant IDs."
+                "Tagged groups must contain a mapping of group to values."
             )
 
-        if not all(self.is_valid_tag(group) for group in value.keys()):
-            raise serializers.ValidationError("Each group (tag) must be valid.")
+        for group, properties in value.items():
+            if not self.is_valid_tag(group):
+                raise serializers.ValidationError("Each group (tag) must be valid.")
 
-        for variant_ids in value.values():
-            print(variant_ids)
-            if not isinstance(variant_ids, (dict, list, set)):
-                print(type(value))
+            if not isinstance(properties, dict):
                 raise serializers.ValidationError(
-                    "Each group (tag) must map to a list or set of variant IDs."
+                    "Properties for group must be a dictionary"
                 )
 
-            if not all(is_variant_id(variant_id) for variant_id in variant_ids):
+            if not isinstance(properties.get("displayname", ""), str):
                 raise serializers.ValidationError(
-                    "Each group (tag) must map to valid variant IDs."
+                    "Group must have a 'displayname' of type string."
+                )
+
+            if not isinstance(properties.get("variantList", ""), (list, set)):
+                raise serializers.ValidationError(
+                    "Group must have a 'variantList' that is a list or set of variant IDs."
+                )
+
+            if not all(
+                is_variant_id(variant_id) for variant_id in properties["variantList"]
+            ):
+                raise serializers.ValidationError(
+                    "Group must map to valid variant IDs in 'variantList'."
                 )
 
         return value
