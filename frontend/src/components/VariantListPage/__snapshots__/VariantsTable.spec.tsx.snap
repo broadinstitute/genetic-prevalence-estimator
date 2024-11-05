@@ -71,6 +71,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
+          style="position: relative; padding-top: 25px; width: 170px;"
+        >
+          Tags
+        </th>
+        <th
+          class="css-0"
+          scope="col"
           style="position: relative; width: 60px; height: 100%;"
         >
           <span
@@ -291,6 +298,49 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <div>
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
           class="css-12lsreq"
           role="gridcell"
         />
@@ -452,6 +502,49 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <div>
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
           class="css-12lsreq"
           role="gridcell"
         />
@@ -611,6 +704,49 @@ exports[`Variant Table has no unexpected changes 1`] = `
               </span>
             </span>
           </label>
+        </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <div>
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-12lsreq"
@@ -791,6 +927,49 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <div>
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
           class="css-12lsreq"
           role="gridcell"
         />
@@ -967,6 +1146,49 @@ exports[`Variant Table has no unexpected changes 1`] = `
               </span>
             </span>
           </label>
+        </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <div>
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-12lsreq"
