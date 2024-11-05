@@ -277,9 +277,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
           )}
 
           <Box mb={4}>
-            <Button onClick={handleEditTags}>
-              Edit Tags for Selected Variants
-            </Button>
+            <Button onClick={handleEditTags}>Edit Tags</Button>
           </Box>
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
