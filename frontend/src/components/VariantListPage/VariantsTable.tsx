@@ -1,8 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon, QuestionIcon } from "@chakra-ui/icons";
 import {
   Badge,
-  Button,
-  ButtonGroup,
+  Select,
   Checkbox,
   Flex,
   Link,
@@ -18,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { difference, intersection, sortBy } from "lodash";
 import { FC, useCallback, useState } from "react";
+import { TagMultiSelect } from "./TagMultiSelect";
 import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
@@ -27,7 +27,6 @@ import {
   VariantId,
   VariantList,
 } from "../../types";
-
 import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
@@ -646,21 +645,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
     );
   }
 
-  const toggleTagGroup = (tagKey: keyof TaggedGroups, rowDataId: VariantId) => {
-    let updatedTagGroup = new Set(taggedGroups[tagKey] || []);
-
-    if (taggedGroups[tagKey]?.has(rowDataId)) {
-      updatedTagGroup.delete(rowDataId);
-    } else {
-      updatedTagGroup.add(rowDataId);
-    }
-
-    onChangeTaggedGroups(rowDataId, {
-      ...taggedGroups,
-      [tagKey]: updatedTagGroup,
-    });
-  };
-
   const combinedVariants = !variantList.structural_variants
     ? variantList.variants
     : combineVariants(variantList.variants, variantList.structural_variants);
@@ -756,33 +740,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
               alignContent: "center",
             }}
           >
-            <Checkbox
-              isChecked={taggedGroups.A?.has(rowData.id)}
-              onChange={() => toggleTagGroup("A", rowData.id)}
-            >
-              A
-            </Checkbox>
-
-            <Checkbox
-              isChecked={taggedGroups.B?.has(rowData.id)}
-              onChange={() => toggleTagGroup("B", rowData.id)}
-            >
-              B
-            </Checkbox>
-
-            <Checkbox
-              isChecked={taggedGroups.C?.has(rowData.id)}
-              onChange={() => toggleTagGroup("C", rowData.id)}
-            >
-              C
-            </Checkbox>
-
-            <Checkbox
-              isChecked={taggedGroups.D?.has(rowData.id)}
-              onChange={() => toggleTagGroup("D", rowData.id)}
-            >
-              D
-            </Checkbox>
+            <TagMultiSelect
+              taggedGroups={taggedGroups}
+              rowDataId={rowData.id}
+              onChangeTaggedGroups={onChangeTaggedGroups}
+            />
           </Td>
         )}
         {columns.map((column: ColumnDef) => (
