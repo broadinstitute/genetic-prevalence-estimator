@@ -108,8 +108,10 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
   return useCallback(() => ref.current!, []);
 };
 
+export type TagKey = "A" | "B" | "C" | "D";
+
 export type TaggedGroups = {
-  [key: string]: {
+  [K in TagKey]: {
     displayName: string;
     variantList: Set<VariantId>;
   };
@@ -193,19 +195,26 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
           include_homozygotes_in_calculations: boolean;
-          taggedGroups: TaggedGroups;
+          tagged_groups: TaggedGroups;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
-          const taggedGroups: {
-            A: { displayName: string; variantList: Set<VariantId> };
-            B: { displayName: string; variantList: Set<VariantId> };
-            C: { displayName: string; variantList: Set<VariantId> };
-            D: { displayName: string; variantList: Set<VariantId> };
-          } = {
-            A: { displayName: "Group A", variantList: new Set<VariantId>([]) },
-            B: { displayName: "Group B", variantList: new Set<VariantId>([]) },
-            C: { displayName: "Group C", variantList: new Set<VariantId>([]) },
-            D: { displayName: "Group D", variantList: new Set<VariantId>([]) },
+          const taggedGroups = {
+            A: {
+              displayName: String(annotation.tagged_groups.A.displayName),
+              variantList: new Set(annotation.tagged_groups.A.variantList),
+            },
+            B: {
+              displayName: String(annotation.tagged_groups.B.displayName),
+              variantList: new Set(annotation.tagged_groups.B.variantList),
+            },
+            C: {
+              displayName: String(annotation.tagged_groups.C.displayName),
+              variantList: new Set(annotation.tagged_groups.C.variantList),
+            },
+            D: {
+              displayName: String(annotation.tagged_groups.D.displayName),
+              variantList: new Set(annotation.tagged_groups.D.variantList),
+            },
           };
           const notIncludedVariants = new Set(annotation.not_included_variants);
 
@@ -397,26 +406,15 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   );
 
   const saveTaggedGroups = useCallback(
-    (taggedGroups) => {
+    debounce((taggedGroups) => {
       patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
-        tagged_groups: {
-          A: {
-            displayName: String(taggedGroups.A.displayName),
-            variantList: Array.from(taggedGroups.A.variantList),
-          },
-          B: {
-            displayName: String(taggedGroups.B.displayName),
-            variantList: Array.from(taggedGroups.B.variantList),
-          },
-          C: {
-            displayName: String(taggedGroups.C.displayName),
-            variantList: Array.from(taggedGroups.C.variantList),
-          },
-          D: {
-            displayName: String(taggedGroups.D.displayName),
-            variantList: Array.from(taggedGroups.D.variantList),
-          },
-        },
+        tagged_groups: Object.keys(taggedGroups).reduce((acc, key) => {
+          acc[key] = {
+            displayName: String(taggedGroups[key].displayName),
+            variantList: Array.from(taggedGroups[key].variantList),
+          };
+          return acc;
+        }, {} as Record<string, { displayName: string; variantList: string[] }>),
       })
         .then(() => {
           toast({
@@ -435,7 +433,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             isClosable: true,
           });
         });
-    },
+    }, 2_000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [variantList.uuid]
   );
