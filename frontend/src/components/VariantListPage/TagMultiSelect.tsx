@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { MultiSelect } from "react-multi-select-component";
-import { TaggedGroups } from "./VariantListPage";
+import { TaggedGroups, TagKey } from "./VariantListPage";
 import { VariantId } from "../../types";
-
-type TagKey = "A" | "B" | "C" | "D";
 
 type TagMultiSelectProps = {
   taggedGroups: TaggedGroups;
@@ -31,15 +29,12 @@ export const TagMultiSelect = (props: TagMultiSelectProps) => {
   );
 
   const handleSelectChange = (
-    selectedOptions: { label: string; value: string }[]
+    selectedOptions: { label: string; value: TagKey }[]
   ) => {
     const newTaggedGroups = { ...taggedGroups };
-    const selectedTags = selectedOptions.map(
-      (option) => option.value as TagKey
-    );
+    const selectedTags = selectedOptions.map((option) => option.value);
 
-    Object.keys(taggedGroups).forEach((key) => {
-      const tagKey = key as TagKey;
+    (Object.keys(taggedGroups) as TagKey[]).forEach((tagKey) => {
       const updatedTagGroup = {
         ...newTaggedGroups[tagKey],
         variantList: new Set(taggedGroups[tagKey]?.variantList || []),
@@ -68,7 +63,9 @@ export const TagMultiSelect = (props: TagMultiSelectProps) => {
   };
 
   return (
-    <div>
+    <div
+      style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start" }}
+    >
       <MultiSelect
         options={options}
         value={selected}
