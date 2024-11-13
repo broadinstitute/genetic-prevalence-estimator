@@ -732,20 +732,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
             </Checkbox>
           </Td>
         )}
-        {includeTagColumn && (
-          <Td
-            sx={{
-              height: `${ROW_HEIGHT}px`,
-              alignContent: "center",
-            }}
-          >
-            <TagMultiSelect
-              taggedGroups={taggedGroups}
-              rowDataId={rowData.id}
-              onChangeTaggedGroups={onChangeTaggedGroups}
-            />
-          </Td>
-        )}
         {columns.map((column: ColumnDef) => (
           <Td
             key={column.key}
@@ -767,6 +753,21 @@ const VariantsTable: FC<VariantsTableProps> = ({
             )}
           </Td>
         ))}
+        {includeTagColumn && (
+          <Td
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              alignContent: "center",
+              width: "260px",
+            }}
+          >
+            <TagMultiSelect
+              taggedGroups={taggedGroups}
+              rowDataId={rowData.id}
+              onChangeTaggedGroups={onChangeTaggedGroups}
+            />
+          </Td>
+        )}
         {includeCheckboxColumn && (
           <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
             <Checkbox
@@ -850,18 +851,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Checkbox>
             </Th>
           )}
-          {includeTagColumn && (
-            <Th
-              scope="col"
-              style={{
-                position: "relative",
-                paddingTop: "25px",
-                width: "170px",
-              }}
-            >
-              Tags
-            </Th>
-          )}
           {columns.map((column) => {
             return (
               <Th
@@ -924,6 +913,18 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Th>
             );
           })}
+          {includeTagColumn && (
+            <Th
+              scope="col"
+              style={{
+                position: "relative",
+                paddingTop: "25px",
+                width: "260px",
+              }}
+            >
+              Tags
+            </Th>
+          )}
           {includeCheckboxColumn && (
             <Th
               key="Do Not Include"
