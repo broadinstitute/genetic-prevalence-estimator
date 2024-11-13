@@ -405,6 +405,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     [variantList]
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const saveTaggedGroups = useCallback(
     debounce((taggedGroups) => {
       patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
