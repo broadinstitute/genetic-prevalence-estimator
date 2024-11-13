@@ -20,7 +20,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { TaggedGroups } from "./VariantListPage";
+import { TaggedGroups, TagKey } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
   GnomadPopulationId,
@@ -192,22 +192,17 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
       </Text>
       <Box mb={4}>
         <Text>Tagged Groups</Text>
-        <Text>
-          This variant list contains {tagCounts.A} variant
-          {tagCounts.A !== 1 ? "s" : ""} tagged {taggedGroups.A.displayName}.
-        </Text>
-        <Text>
-          This variant list contains {tagCounts.B} variant
-          {tagCounts.B !== 1 ? "s" : ""} tagged {taggedGroups.B.displayName}.
-        </Text>
-        <Text>
-          This variant list contains {tagCounts.C} variant
-          {tagCounts.C !== 1 ? "s" : ""} tagged {taggedGroups.C.displayName}.
-        </Text>
-        <Text>
-          This variant list contains {tagCounts.D} variant
-          {tagCounts.D !== 1 ? "s" : ""} tagged {taggedGroups.D.displayName}.
-        </Text>
+        {Object.keys(taggedGroups).map((key) => {
+          const tagKey = key as TagKey;
+          const count = tagCounts[tagKey];
+          return (
+            <Text key={tagKey}>
+              This variant list contains {count} variant
+              {count !== 1 ? "s" : ""} tagged {taggedGroups[tagKey].displayName}
+              .
+            </Text>
+          );
+        })}
       </Box>
 
       {variantList.status === "Ready" ? (
