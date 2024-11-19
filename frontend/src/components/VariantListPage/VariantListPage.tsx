@@ -108,12 +108,22 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
   return useCallback(() => ref.current!, []);
 };
 
+export type TagKey = "A" | "B" | "C" | "D";
+
+export type TaggedGroups = {
+  [K in TagKey]: {
+    displayName: string;
+    variantList: Set<VariantId>;
+  };
+};
+
 type VariantListAnnotation = {
   selectedVariants: Set<string>;
   notIncludedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
   variantCalculations: VariantListCalculations;
   includeHomozygotesInCalculations: boolean;
+  taggedGroups: TaggedGroups;
 };
 
 const useVariantListAnnotation = (variantList: VariantList) => {
@@ -135,6 +145,12 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       plofOnlyCarrierFrequencyRawNumbers: null,
     },
     includeHomozygotesInCalculations: true,
+    taggedGroups: {
+      A: { displayName: "Group A", variantList: new Set<VariantId>([]) },
+      B: { displayName: "Group B", variantList: new Set<VariantId>([]) },
+      C: { displayName: "Group C", variantList: new Set<VariantId>([]) },
+      D: { displayName: "Group D", variantList: new Set<VariantId>([]) },
+    },
   });
 
   const previousAnnotation = usePrevious(annotation);
@@ -179,8 +195,27 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
           include_homozygotes_in_calculations: boolean;
+          tagged_groups: TaggedGroups;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
+          const taggedGroups = {
+            A: {
+              displayName: String(annotation.tagged_groups.A.displayName),
+              variantList: new Set(annotation.tagged_groups.A.variantList),
+            },
+            B: {
+              displayName: String(annotation.tagged_groups.B.displayName),
+              variantList: new Set(annotation.tagged_groups.B.variantList),
+            },
+            C: {
+              displayName: String(annotation.tagged_groups.C.displayName),
+              variantList: new Set(annotation.tagged_groups.C.variantList),
+            },
+            D: {
+              displayName: String(annotation.tagged_groups.D.displayName),
+              variantList: new Set(annotation.tagged_groups.D.variantList),
+            },
+          };
           const notIncludedVariants = new Set(annotation.not_included_variants);
 
           // An update to the appliation moved to the model of calculating storing
@@ -222,6 +257,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             variantCalculations: variantCalculations,
             includeHomozygotesInCalculations:
               annotation.include_homozygotes_in_calculations,
+            taggedGroups: taggedGroups,
           });
         }
       )
@@ -369,6 +405,52 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     [variantList]
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const saveTaggedGroups = useCallback(
+    debounce((taggedGroups) => {
+      patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+        tagged_groups: Object.keys(taggedGroups).reduce((acc, key) => {
+          acc[key] = {
+            displayName: String(taggedGroups[key].displayName),
+            variantList: Array.from(taggedGroups[key].variantList),
+          };
+          return acc;
+        }, {} as Record<string, { displayName: string; variantList: string[] }>),
+      })
+        .then(() => {
+          toast({
+            title: "Saved tags",
+            status: "success",
+            duration: 1000,
+            isClosable: true,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Unable to save groups",
+            description: renderErrorDescription(error),
+            status: "error",
+            duration: 10000,
+            isClosable: true,
+          });
+        });
+    }, 2_000),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList.uuid]
+  );
+
+  const setTaggedGroups = useCallback(
+    (
+      variantId: VariantId,
+      taggedGroups: VariantListAnnotation["taggedGroups"]
+    ) => {
+      setAnnotation((annotation) => ({ ...annotation, taggedGroups }));
+      saveTaggedGroups(taggedGroups);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
   const setNotIncludedVariants = useCallback(
     (notIncludedVariants: VariantListAnnotation["notIncludedVariants"]) => {
       setAnnotation((annotation) => ({ ...annotation, notIncludedVariants }));
@@ -456,6 +538,8 @@ const useVariantListAnnotation = (variantList: VariantList) => {
     setSelectedVariants,
     variantNotes: annotation.variantNotes,
     setVariantNote,
+    taggedGroups: annotation.taggedGroups,
+    setTaggedGroups,
     variantCalculations: annotation.variantCalculations,
     includeHomozygotesInCalculations:
       annotation.includeHomozygotesInCalculations,
@@ -490,6 +574,8 @@ const VariantListPage = (props: VariantListPageProps) => {
     notIncludedVariants,
     setNotIncludedVariants,
     setSelectedVariants,
+    taggedGroups,
+    setTaggedGroups,
     variantNotes,
     setVariantNote,
     variantCalculations,
@@ -710,6 +796,7 @@ const VariantListPage = (props: VariantListPageProps) => {
 
         <VariantListVariants
           selectedVariants={selectedVariants}
+          taggedGroups={taggedGroups}
           notIncludedVariants={notIncludedVariants}
           selectionDisabled={loadingAnnotation}
           variantList={variantList}
@@ -718,6 +805,7 @@ const VariantListPage = (props: VariantListPageProps) => {
           userIsStaff={userIsStaff}
           onChangeNotIncludedVariants={setNotIncludedVariants}
           onChangeSelectedVariants={setSelectedVariants}
+          onChangeTaggedGroups={setTaggedGroups}
           onEditVariantNote={setVariantNote}
         />
       </Box>

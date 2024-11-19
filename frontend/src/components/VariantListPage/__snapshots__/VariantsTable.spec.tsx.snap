@@ -231,6 +231,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
         </th>
         <th
           class="css-0"
+          scope="col"
+          style="position: relative; padding-top: 25px; width: 260px;"
+        >
+          Tags
+        </th>
+        <th
+          class="css-0"
           data-is-numeric="false"
           scope="col"
           style="position: relative; width: 100px; height: 100%; display: flex; align-items: center; justify-content: space-between;"
@@ -387,6 +394,51 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-i7qwz0"
@@ -550,6 +602,51 @@ exports[`Variant Table has no unexpected changes 1`] = `
           Custom
         </td>
         <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
           class="css-i7qwz0"
           role="gridcell"
         >
@@ -709,6 +806,51 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-i7qwz0"
@@ -887,6 +1029,51 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-i7qwz0"
@@ -1091,6 +1278,51 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
         <td
           class="css-i7qwz0"

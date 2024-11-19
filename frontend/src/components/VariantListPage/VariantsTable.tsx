@@ -16,7 +16,8 @@ import {
 } from "@chakra-ui/react";
 import { difference, intersection, sortBy } from "lodash";
 import { FC, useCallback, useState } from "react";
-
+import { TagMultiSelect } from "./TagMultiSelect";
+import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import { VEP_CONSEQUENCE_LABELS } from "../../constants/vepConsequences";
 import {
@@ -25,7 +26,6 @@ import {
   VariantId,
   VariantList,
 } from "../../types";
-
 import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
@@ -546,13 +546,19 @@ interface VariantsTableProps extends TableProps {
   includePopulationFrequencies: GnomadPopulationId[];
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  taggedGroups: TaggedGroups;
   notIncludedVariants: Set<VariantId>;
   shouldShowVariant: (variant: Variant) => boolean;
   variantNotes: Record<VariantId, string>;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
+  onChangeTaggedGroups: (
+    variantId: VariantId,
+    taggedGroups: TaggedGroups
+  ) => void;
   onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
   includeCheckboxColumn?: boolean;
+  includeTagColumn?: boolean;
   includeNotesColumn?: boolean;
   isTopTen?: boolean;
 }
@@ -606,13 +612,16 @@ const VariantsTable: FC<VariantsTableProps> = ({
   includePopulationFrequencies,
   variantList,
   selectedVariants,
+  taggedGroups,
   notIncludedVariants,
   shouldShowVariant,
   variantNotes,
   onChangeSelectedVariants,
+  onChangeTaggedGroups,
   onChangeNotIncludedVariants,
   onEditVariantNote,
   includeCheckboxColumn = true,
+  includeTagColumn = true,
   includeNotesColumn = true,
   isTopTen = false,
   ...tableProps
@@ -747,6 +756,21 @@ const VariantsTable: FC<VariantsTableProps> = ({
             )}
           </Td>
         ))}
+        {includeTagColumn && (
+          <Td
+            sx={{
+              height: `${ROW_HEIGHT}px`,
+              alignContent: "center",
+              width: "260px",
+            }}
+          >
+            <TagMultiSelect
+              taggedGroups={taggedGroups}
+              rowDataId={rowData.id}
+              onChangeTaggedGroups={onChangeTaggedGroups}
+            />
+          </Td>
+        )}
         {includeCheckboxColumn && (
           <Td sx={{ height: `${ROW_HEIGHT}px`, alignContent: "center" }}>
             <Checkbox
@@ -892,6 +916,18 @@ const VariantsTable: FC<VariantsTableProps> = ({
               </Th>
             );
           })}
+          {includeTagColumn && (
+            <Th
+              scope="col"
+              style={{
+                position: "relative",
+                paddingTop: "25px",
+                width: "260px",
+              }}
+            >
+              Tags
+            </Th>
+          )}
           {includeCheckboxColumn && (
             <Th
               key="Do Not Include"

@@ -35,6 +35,8 @@ import VariantListMetadata from "../VariantListPage/VariantListMetadata";
 import VariantListStatus from "../VariantListPage/VariantListStatus";
 
 import VariantsTable from "../VariantListPage/VariantsTable";
+import { TaggedGroups } from "../VariantListPage/VariantListPage";
+import { VariantId } from "../../types";
 
 const deleteDashboardList = (uuid: string): Promise<void> => {
   return del(`/dashboard-lists/${uuid}/`);
@@ -78,6 +80,13 @@ const DashboardListPage = (props: DashboardListPageProps) => {
   const userIsStaff = user?.is_staff ? true : false;
 
   const blankSet: Set<string> = new Set<string>();
+
+  const blankTaggedGroups: TaggedGroups = {
+    A: { displayName: "", variantList: new Set<VariantId>() },
+    B: { displayName: "", variantList: new Set<VariantId>() },
+    C: { displayName: "", variantList: new Set<VariantId>() },
+    D: { displayName: "", variantList: new Set<VariantId>() },
+  };
 
   return (
     <>
@@ -185,6 +194,7 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             variants: dashboardList.top_ten_variants,
           }}
           selectedVariants={blankSet}
+          taggedGroups={blankTaggedGroups}
           notIncludedVariants={blankSet}
           shouldShowVariant={() => {
             return true;
@@ -192,9 +202,11 @@ const DashboardListPage = (props: DashboardListPageProps) => {
           variantNotes={{}}
           onChangeNotIncludedVariants={() => {}}
           onChangeSelectedVariants={() => {}}
+          onChangeTaggedGroups={() => {}}
           onEditVariantNote={() => {}}
           includeNotesColumn={false}
           includeCheckboxColumn={false}
+          includeTagColumn={false}
           isTopTen={true}
         />
       </Box>

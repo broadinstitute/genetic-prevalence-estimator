@@ -8,9 +8,19 @@ import {
   Text,
   Tooltip,
   UnorderedList,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Input,
+  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
-
+import { TaggedGroups, TagKey } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
   GnomadPopulationId,
@@ -64,6 +74,7 @@ export const combineVariants = (
 interface VariantListVariantsProps {
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
+  taggedGroups: TaggedGroups;
   notIncludedVariants: Set<VariantId>;
   selectionDisabled: boolean;
   variantNotes: Record<VariantId, string>;
@@ -72,11 +83,16 @@ interface VariantListVariantsProps {
   onChangeNotIncludedVariants: (notIncludedVariants: Set<VariantId>) => void;
   onChangeSelectedVariants: (selectedVariants: Set<VariantId>) => void;
   onEditVariantNote: (variantId: VariantId, note: string) => void;
+  onChangeTaggedGroups: (
+    variantId: VariantId,
+    taggedGroups: TaggedGroups
+  ) => void;
 }
 
 const VariantListVariants = (props: VariantListVariantsProps) => {
   const {
     selectedVariants,
+    taggedGroups,
     notIncludedVariants,
     selectionDisabled,
     variantList,
@@ -85,8 +101,11 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     userIsStaff,
     onChangeNotIncludedVariants,
     onChangeSelectedVariants,
+    onChangeTaggedGroups,
     onEditVariantNote,
   } = props;
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [
     populationsDisplayedInTable,
@@ -99,6 +118,46 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
   const renderedVariants = !structural_variants
     ? variants
     : combineVariants(variants, structural_variants);
+
+  type DisplayNames = {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+
+  const handleEditTags = () => {
+    onOpen();
+  };
+
+  const handleSaveDisplayNames = () => {
+    const updatedGroups = { ...taggedGroups };
+
+    (Object.keys(editDisplayNames) as Array<keyof DisplayNames>).forEach(
+      (key) => {
+        if (key in updatedGroups) {
+          updatedGroups[key].displayName = editDisplayNames[key];
+        }
+      }
+    );
+
+    onChangeTaggedGroups("", updatedGroups);
+    onClose();
+  };
+
+  const [editDisplayNames, setEditDisplayNames] = useState<DisplayNames>({
+    A: taggedGroups.A.displayName,
+    B: taggedGroups.B.displayName,
+    C: taggedGroups.C.displayName,
+    D: taggedGroups.D.displayName,
+  });
+
+  const tagCounts = {
+    A: taggedGroups.A.variantList ? taggedGroups.A.variantList.size : 0,
+    B: taggedGroups.B.variantList ? taggedGroups.B.variantList.size : 0,
+    C: taggedGroups.C.variantList ? taggedGroups.C.variantList.size : 0,
+    D: taggedGroups.D.variantList ? taggedGroups.D.variantList.size : 0,
+  };
 
   if (variants.length === 0) {
     if (
@@ -131,6 +190,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         {notIncludedVariants.size} variant
         {notIncludedVariants.size !== 1 ? "s" : ""} are not included.
       </Text>
+
       {variantList.status === "Ready" ? (
         <>
           <Box mb={4}>
@@ -196,6 +256,57 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               </Tooltip>
             </Box>
           )}
+          <Box mb={4}>
+            <Button onClick={handleEditTags}>Edit Tags</Button>
+          </Box>
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Edit Tag Name</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4} align="flex-start" width="100%">
+                  {Object.keys(editDisplayNames).map((key) => {
+                    const tagKey = key as TagKey;
+                    const count = tagCounts[tagKey];
+                    const displayName =
+                      editDisplayNames[tagKey as keyof DisplayNames] ||
+                      taggedGroups[tagKey].displayName;
+
+                    return (
+                      <Box key={tagKey} width="100%">
+                        {count > 0 ? (
+                          <Text>
+                            {count} variant{count !== 1 ? "s" : ""} are tagged{" "}
+                            <strong>{displayName}</strong>
+                          </Text>
+                        ) : (
+                          <Text>
+                            No variants are tagged{" "}
+                            <strong>{displayName}</strong>
+                          </Text>
+                        )}
+                        <Input
+                          placeholder={`${key}`}
+                          value={editDisplayNames[key as keyof DisplayNames]}
+                          onChange={(e) =>
+                            setEditDisplayNames({
+                              ...editDisplayNames,
+                              [key as keyof DisplayNames]: e.target.value,
+                            })
+                          }
+                        />
+                      </Box>
+                    );
+                  })}
+                  <Button onClick={handleSaveDisplayNames} colorScheme="blue">
+                    Save
+                  </Button>
+                </VStack>
+              </ModalBody>
+              <ModalFooter></ModalFooter>
+            </ModalContent>
+          </Modal>
 
           <Box display="flex" mb={4}>
             <Box>
@@ -225,6 +336,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               includePopulationFrequencies={populationsDisplayedInTable}
               variantList={variantList}
               selectedVariants={selectedVariants}
+              taggedGroups={taggedGroups}
               notIncludedVariants={notIncludedVariants}
               shouldShowVariant={
                 includeAC0Variants
@@ -234,6 +346,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               variantNotes={variantNotes}
               onChangeNotIncludedVariants={onChangeNotIncludedVariants}
               onChangeSelectedVariants={onChangeSelectedVariants}
+              onChangeTaggedGroups={onChangeTaggedGroups}
               onEditVariantNote={onEditVariantNote}
             />
           </div>
