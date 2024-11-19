@@ -198,24 +198,23 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           tagged_groups: TaggedGroups;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
-          const taggedGroups = {
-            A: {
-              displayName: String(annotation.tagged_groups.A.displayName),
-              variantList: new Set(annotation.tagged_groups.A.variantList),
-            },
-            B: {
-              displayName: String(annotation.tagged_groups.B.displayName),
-              variantList: new Set(annotation.tagged_groups.B.variantList),
-            },
-            C: {
-              displayName: String(annotation.tagged_groups.C.displayName),
-              variantList: new Set(annotation.tagged_groups.C.variantList),
-            },
-            D: {
-              displayName: String(annotation.tagged_groups.D.displayName),
-              variantList: new Set(annotation.tagged_groups.D.variantList),
-            },
-          };
+
+          const taggedGroups = (["A", "B", "C", "D"] as TagKey[]).reduce(
+            (acc, group) => ({
+              ...acc,
+              [group]: {
+                displayName: String(
+                  annotation.tagged_groups[group]?.displayName ??
+                    `Group ${group}`
+                ),
+                variantList: new Set(
+                  annotation.tagged_groups[group]?.variantList ?? []
+                ),
+              },
+            }),
+            {} as TaggedGroups
+          );
+
           const notIncludedVariants = new Set(annotation.not_included_variants);
 
           // An update to the appliation moved to the model of calculating storing
