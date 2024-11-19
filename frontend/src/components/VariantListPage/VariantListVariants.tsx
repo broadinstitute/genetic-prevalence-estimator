@@ -190,20 +190,6 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
         {notIncludedVariants.size} variant
         {notIncludedVariants.size !== 1 ? "s" : ""} are not included.
       </Text>
-      <Box mb={4}>
-        <Text>Tagged Groups</Text>
-        {Object.keys(taggedGroups).map((key) => {
-          const tagKey = key as TagKey;
-          const count = tagCounts[tagKey];
-          return (
-            <Text key={tagKey}>
-              This variant list contains {count} variant
-              {count !== 1 ? "s" : ""} tagged {taggedGroups[tagKey].displayName}
-              .
-            </Text>
-          );
-        })}
-      </Box>
 
       {variantList.status === "Ready" ? (
         <>
@@ -270,30 +256,49 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               </Tooltip>
             </Box>
           )}
-
           <Box mb={4}>
             <Button onClick={handleEditTags}>Edit Tags</Button>
           </Box>
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Edit Tags</ModalHeader>
+              <ModalHeader>Edit Tag Name</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
-                <VStack spacing={4} align="flex-start">
-                  {Object.keys(editDisplayNames).map((key) => (
-                    <Input
-                      key={key}
-                      placeholder={`{key}`}
-                      value={editDisplayNames[key as keyof DisplayNames]}
-                      onChange={(e) =>
-                        setEditDisplayNames({
-                          ...editDisplayNames,
-                          [key as keyof DisplayNames]: e.target.value,
-                        })
-                      }
-                    />
-                  ))}
+                <VStack spacing={4} align="flex-start" width="100%">
+                  {Object.keys(editDisplayNames).map((key) => {
+                    const tagKey = key as TagKey;
+                    const count = tagCounts[tagKey];
+                    const displayName =
+                      editDisplayNames[tagKey as keyof DisplayNames] ||
+                      taggedGroups[tagKey].displayName;
+
+                    return (
+                      <Box key={tagKey} width="100%">
+                        {count > 0 ? (
+                          <Text>
+                            {count} variant{count !== 1 ? "s" : ""} are tagged{" "}
+                            <strong>{displayName}</strong>
+                          </Text>
+                        ) : (
+                          <Text>
+                            No variants are tagged{" "}
+                            <strong>{displayName}</strong>
+                          </Text>
+                        )}
+                        <Input
+                          placeholder={`${key}`}
+                          value={editDisplayNames[key as keyof DisplayNames]}
+                          onChange={(e) =>
+                            setEditDisplayNames({
+                              ...editDisplayNames,
+                              [key as keyof DisplayNames]: e.target.value,
+                            })
+                          }
+                        />
+                      </Box>
+                    );
+                  })}
                   <Button onClick={handleSaveDisplayNames} colorScheme="blue">
                     Save
                   </Button>
