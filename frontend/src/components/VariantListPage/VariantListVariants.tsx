@@ -19,7 +19,7 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { TaggedGroups, TagKey } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
@@ -30,7 +30,7 @@ import {
 } from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
-
+import Highlighter from "react-highlight-words";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
@@ -112,12 +112,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     setPopulationsDisplayedInTable,
   ] = useState<GnomadPopulationId[]>([]);
   const [includeAC0Variants, setIncludeAC0Variants] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const { variants, structural_variants } = variantList;
 
-  const renderedVariants = !structural_variants
-    ? variants
-    : combineVariants(variants, structural_variants);
+  const renderedVariants = useMemo(() => {
+    return combineVariants(variants, structural_variants);
+  }, [variants, structural_variants]);
 
   type DisplayNames = {
     A: string;
@@ -182,6 +183,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
 
   return (
     <>
+      <Box mb={4}>
+        <Input
+          placeholder="Search variants"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </Box>
       <Text mb={2}>
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
@@ -334,6 +342,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             <VariantsTable
               userCanEdit={userCanEdit || userIsStaff}
               includePopulationFrequencies={populationsDisplayedInTable}
+              searchText={searchText}
               variantList={variantList}
               selectedVariants={selectedVariants}
               taggedGroups={taggedGroups}

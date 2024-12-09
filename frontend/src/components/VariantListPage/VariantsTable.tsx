@@ -31,6 +31,7 @@ import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
 import { isStructuralVariantId } from "../identifiers";
 import { FixedSizeList } from "react-window";
+import Highlighter from "react-highlight-words";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -544,6 +545,7 @@ const populationAlleleFrequencyColumns = (
 interface VariantsTableProps extends TableProps {
   userCanEdit: boolean;
   includePopulationFrequencies: GnomadPopulationId[];
+  searchText: string;
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
   taggedGroups: TaggedGroups;
@@ -611,6 +613,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   userCanEdit,
   includePopulationFrequencies,
   variantList,
+  searchText,
   selectedVariants,
   taggedGroups,
   notIncludedVariants,
@@ -683,13 +686,14 @@ const VariantsTable: FC<VariantsTableProps> = ({
 
   const VariantRow = ({
     index: dataRowIndex,
-    data: { columns, data },
+    data: { columns, data, searchText },
     style,
   }: {
     index: number;
     data: {
       columns: ColumnDef[];
       data: any;
+      searchText: string;
     };
     style: React.CSSProperties;
   }) => {
@@ -747,12 +751,21 @@ const VariantsTable: FC<VariantsTableProps> = ({
               alignItems: "center",
             }}
           >
-            {column.render(
-              rowData,
-              variantList,
-              variantNotes,
-              onEditVariantNote,
-              userCanEdit
+            {column.key === "variant_id" ? (
+              <Highlighter
+                highlightClassName="highlight"
+                searchWords={[searchText]}
+                autoEscape
+                textToHighlight={rowData.id}
+              />
+            ) : (
+              column.render(
+                rowData,
+                variantList,
+                variantNotes,
+                onEditVariantNote,
+                userCanEdit
+              )
             )}
           </Td>
         ))}
@@ -974,6 +987,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
           itemData={{
             columns,
             data: sortedVariants,
+            searchText,
           }}
           style={{
             overflowX: "hidden",
