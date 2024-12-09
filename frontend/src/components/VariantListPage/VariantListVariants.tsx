@@ -30,14 +30,16 @@ import {
 } from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
-
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
 export const combineVariants = (
   variants: Variant[],
-  structuralVariants: any[]
+  structuralVariants: any[] | null
 ) => {
+  if (!structuralVariants || structuralVariants.length === 0) {
+    return variants;
+  }
   const reshapedStructuralVariants = structuralVariants.map((sv: any) => {
     return {
       id: sv.id,
@@ -112,12 +114,11 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     setPopulationsDisplayedInTable,
   ] = useState<GnomadPopulationId[]>([]);
   const [includeAC0Variants, setIncludeAC0Variants] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const { variants, structural_variants } = variantList;
 
-  const renderedVariants = !structural_variants
-    ? variants
-    : combineVariants(variants, structural_variants);
+  const renderedVariants = combineVariants(variants, structural_variants);
 
   type DisplayNames = {
     A: string;
@@ -318,7 +319,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               </DownloadVariantListLink>
             </Box>
           </Box>
-
+          <Box mb={4}>
+            <Input
+              placeholder="Search variants"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </Box>
           <div
             style={{
               width: "100%",
@@ -334,6 +341,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
             <VariantsTable
               userCanEdit={userCanEdit || userIsStaff}
               includePopulationFrequencies={populationsDisplayedInTable}
+              searchText={searchText}
               variantList={variantList}
               selectedVariants={selectedVariants}
               taggedGroups={taggedGroups}

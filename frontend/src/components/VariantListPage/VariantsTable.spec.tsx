@@ -14,9 +14,11 @@ describe("Variant Table", () => {
       C: { displayName: "", variantList: new Set<VariantId>() },
       D: { displayName: "", variantList: new Set<VariantId>() },
     };
+    const testSearchText = testVariantList.uuid;
     const result = render(
       <VariantsTable
         includePopulationFrequencies={[]}
+        searchText={testSearchText}
         variantList={testVariantList}
         notIncludedVariants={blankSet}
         selectedVariants={new Set(["12-123-A-C", "12-234-A-C"])}
