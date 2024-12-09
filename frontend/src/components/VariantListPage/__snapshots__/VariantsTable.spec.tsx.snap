@@ -314,7 +314,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
               rel="noopener noreferrer"
               target="_blank"
             >
-              12-567-A-C
+              <span>
+                <span
+                  class=""
+                >
+                  12-567-A-C
+                </span>
+              </span>
             </a>
           </span>
         </td>
@@ -520,7 +526,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
               rel="noopener noreferrer"
               target="_blank"
             >
-              12-456-A-C
+              <span>
+                <span
+                  class=""
+                >
+                  12-456-A-C
+                </span>
+              </span>
             </a>
           </span>
         </td>
@@ -726,7 +738,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
               rel="noopener noreferrer"
               target="_blank"
             >
-              12-345-A-C
+              <span>
+                <span
+                  class=""
+                >
+                  12-345-A-C
+                </span>
+              </span>
             </a>
           </span>
         </td>
@@ -949,7 +967,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
               rel="noopener noreferrer"
               target="_blank"
             >
-              12-234-A-C
+              <span>
+                <span
+                  class=""
+                >
+                  12-234-A-C
+                </span>
+              </span>
             </a>
           </span>
         </td>
@@ -1198,7 +1222,13 @@ exports[`Variant Table has no unexpected changes 1`] = `
               rel="noopener noreferrer"
               target="_blank"
             >
-              12-123-A-C
+              <span>
+                <span
+                  class=""
+                >
+                  12-123-A-C
+                </span>
+              </span>
             </a>
           </span>
         </td>
