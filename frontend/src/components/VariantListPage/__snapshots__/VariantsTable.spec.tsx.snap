@@ -309,8 +309,14 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <span
               class=""
             >
-              12-567-A-C
-            </span>
+              <span>
+                <span
+                  class=""
+                >
+                  12-567-A-C
+                </span>
+              </span>
+            </a>
           </span>
         </td>
         <td
@@ -506,12 +512,23 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-1y7yn9h"
           role="gridcell"
         >
-          <span>
-            <span
-              class=""
+          <span
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          >
+            <a
+              class="chakra-link css-0"
+              href="https://gnomad.broadinstitute.org/variant/12-456-A-C?dataset=gnomad_r2_1"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              12-456-A-C
-            </span>
+              <span>
+                <span
+                  class=""
+                >
+                  12-456-A-C
+                </span>
+              </span>
+            </a>
           </span>
         </td>
         <td
@@ -707,12 +724,23 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-1y7yn9h"
           role="gridcell"
         >
-          <span>
-            <span
-              class=""
+          <span
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          >
+            <a
+              class="chakra-link css-0"
+              href="https://gnomad.broadinstitute.org/variant/12-345-A-C?dataset=gnomad_r2_1"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              12-345-A-C
-            </span>
+              <span>
+                <span
+                  class=""
+                >
+                  12-345-A-C
+                </span>
+              </span>
+            </a>
           </span>
         </td>
         <td
@@ -925,12 +953,23 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-1y7yn9h"
           role="gridcell"
         >
-          <span>
-            <span
-              class=""
+          <span
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          >
+            <a
+              class="chakra-link css-0"
+              href="https://gnomad.broadinstitute.org/variant/12-234-A-C?dataset=gnomad_r2_1"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              12-234-A-C
-            </span>
+              <span>
+                <span
+                  class=""
+                >
+                  12-234-A-C
+                </span>
+              </span>
+            </a>
           </span>
         </td>
         <td
@@ -1169,12 +1208,23 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-1y7yn9h"
           role="gridcell"
         >
-          <span>
-            <span
-              class=""
+          <span
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          >
+            <a
+              class="chakra-link css-0"
+              href="https://gnomad.broadinstitute.org/variant/12-123-A-C?dataset=gnomad_r2_1"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              12-123-A-C
-            </span>
+              <span>
+                <span
+                  class=""
+                >
+                  12-123-A-C
+                </span>
+              </span>
+            </a>
           </span>
         </td>
         <td
