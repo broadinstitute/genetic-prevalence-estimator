@@ -182,13 +182,6 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
 
   return (
     <>
-      <Box mb={4}>
-        <Input
-          placeholder="Search variants"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-      </Box>
       <Text mb={2}>
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
@@ -325,7 +318,13 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
               </DownloadVariantListLink>
             </Box>
           </Box>
-
+          <Box mb={4}>
+            <Input
+              placeholder="Search variants"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </Box>
           <div
             style={{
               width: "100%",
