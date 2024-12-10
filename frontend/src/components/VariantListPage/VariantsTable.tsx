@@ -15,7 +15,7 @@ import {
   VisuallyHidden,
 } from "@chakra-ui/react";
 import { difference, intersection, sortBy } from "lodash";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useState, useRef, useEffect } from "react";
 import { TagMultiSelect } from "./TagMultiSelect";
 import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
@@ -681,6 +681,20 @@ const VariantsTable: FC<VariantsTableProps> = ({
     notIncludedVariants && notIncludedVariants.has(variant.id) ? 1 : 0
   );
 
+  const listRef = useRef<FixedSizeList | null>(null);
+
+  useEffect(() => {
+    if (searchText) {
+      const matchIndex = sortedVariants.findIndex((variant) =>
+        variant.id.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      if (matchIndex !== -1 && listRef.current) {
+        listRef.current.scrollToItem(matchIndex, "start");
+      }
+    }
+  }, [searchText, sortedVariants]);
+
   const ROW_HEIGHT = isTopTen ? 35 : 70;
   const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
 
@@ -992,6 +1006,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
           style={{
             overflowX: "hidden",
           }}
+          ref={listRef}
         >
           {VariantRow}
         </FixedSizeList>
