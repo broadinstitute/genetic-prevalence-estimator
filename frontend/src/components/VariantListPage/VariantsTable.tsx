@@ -15,7 +15,7 @@ import {
   VisuallyHidden,
 } from "@chakra-ui/react";
 import { difference, intersection, sortBy } from "lodash";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useState, useRef, useEffect } from "react";
 import { TagMultiSelect } from "./TagMultiSelect";
 import { TaggedGroups } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
@@ -31,6 +31,7 @@ import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
 import { isStructuralVariantId } from "../identifiers";
 import { FixedSizeList } from "react-window";
+import Highlighter from "react-highlight-words";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -544,6 +545,7 @@ const populationAlleleFrequencyColumns = (
 interface VariantsTableProps extends TableProps {
   userCanEdit: boolean;
   includePopulationFrequencies: GnomadPopulationId[];
+  searchText: string;
   variantList: VariantList;
   selectedVariants: Set<VariantId>;
   taggedGroups: TaggedGroups;
@@ -611,6 +613,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   userCanEdit,
   includePopulationFrequencies,
   variantList,
+  searchText,
   selectedVariants,
   taggedGroups,
   notIncludedVariants,
@@ -677,6 +680,20 @@ const VariantsTable: FC<VariantsTableProps> = ({
   const sortedVariants = sortBy(intermediateSortedVariants, (variant) =>
     notIncludedVariants && notIncludedVariants.has(variant.id) ? 1 : 0
   );
+
+  const listRef = useRef<FixedSizeList | null>(null);
+
+  useEffect(() => {
+    if (searchText) {
+      const matchIndex = sortedVariants.findIndex((variant) =>
+        variant.id.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      if (matchIndex !== -1 && listRef.current) {
+        listRef.current.scrollToItem(matchIndex, "start");
+      }
+    }
+  }, [searchText, sortedVariants]);
 
   const ROW_HEIGHT = isTopTen ? 35 : 70;
   const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
@@ -747,12 +764,21 @@ const VariantsTable: FC<VariantsTableProps> = ({
               alignItems: "center",
             }}
           >
-            {column.render(
-              rowData,
-              variantList,
-              variantNotes,
-              onEditVariantNote,
-              userCanEdit
+            {column.key === "variant_id" ? (
+              <Highlighter
+                highlightClassName="highlight"
+                searchWords={[searchText]}
+                autoEscape
+                textToHighlight={rowData.id}
+              />
+            ) : (
+              column.render(
+                rowData,
+                variantList,
+                variantNotes,
+                onEditVariantNote,
+                userCanEdit
+              )
             )}
           </Td>
         ))}
@@ -978,6 +1004,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
           style={{
             overflowX: "hidden",
           }}
+          ref={listRef}
         >
           {VariantRow}
         </FixedSizeList>
