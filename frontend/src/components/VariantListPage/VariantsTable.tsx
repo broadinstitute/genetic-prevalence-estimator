@@ -700,14 +700,13 @@ const VariantsTable: FC<VariantsTableProps> = ({
 
   const VariantRow = ({
     index: dataRowIndex,
-    data: { columns, data, searchText },
+    data: { columns, data },
     style,
   }: {
     index: number;
     data: {
       columns: ColumnDef[];
       data: any;
-      searchText: string;
     };
     style: React.CSSProperties;
   }) => {
@@ -1001,7 +1000,6 @@ const VariantsTable: FC<VariantsTableProps> = ({
           itemData={{
             columns,
             data: sortedVariants,
-            searchText,
           }}
           style={{
             overflowX: "hidden",
