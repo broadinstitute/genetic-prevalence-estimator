@@ -30,7 +30,6 @@ import {
 } from "../../types";
 
 import MultipleSelect from "../MultipleSelect";
-import Highlighter from "react-highlight-words";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
 
