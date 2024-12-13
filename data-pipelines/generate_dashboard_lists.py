@@ -253,7 +253,6 @@ def process_dashboard_list(
     gnomad_variants,
     clinvar_variants,
 ):
-
     # if gene_symbol in remappings:
     #     print(f"Found remapping for {gene_symbol}, using those values ...")
     #     object = remappings["gene_symbol"]
@@ -278,7 +277,6 @@ def process_dashboard_list(
         )
 
     else:
-
         ht = ht.filter(ht.locus.contig == contig)
 
     # ht = hl.filter_intervals(
@@ -318,7 +316,6 @@ def process_dashboard_list(
 
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
-        "association",
         "Likely pathogenic",
         "Likely pathogenic/Likely risk allele",
         "Likely pathogenic/Pathogenic",
@@ -447,7 +444,6 @@ def process_dashboard_list(
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
-
     if len(variants) == 0:
         print("For this gene, variants length is 0")
 
@@ -870,7 +866,6 @@ def prepare_dashboard_download(dataframe):
     download_data = []
 
     for _, row in dataframe.iterrows():
-
         # print(f"  gene_id is: {row.gene_id}")
 
         metadata = json.loads(row["metadata"])
@@ -1014,7 +1009,6 @@ def prepare_dashboard_download(dataframe):
 # e.g.
 # python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
-
     start_time = datetime.now()
 
     parser = argparse.ArgumentParser()
