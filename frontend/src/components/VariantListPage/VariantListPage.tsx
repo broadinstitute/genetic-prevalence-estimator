@@ -108,16 +108,28 @@ const useCurrentValue = <T,>(value: T): (() => T) => {
   return useCallback(() => ref.current!, []);
 };
 
+export type TagKey = "A" | "B" | "C" | "D";
+
+export type TaggedGroups = {
+  [K in TagKey]: {
+    displayName: string;
+    variantList: Set<VariantId>;
+  };
+};
+
 type VariantListAnnotation = {
   selectedVariants: Set<string>;
+  notIncludedVariants: Set<string>;
   variantNotes: Record<VariantId, string>;
   variantCalculations: VariantListCalculations;
   includeHomozygotesInCalculations: boolean;
+  taggedGroups: TaggedGroups;
 };
 
 const useVariantListAnnotation = (variantList: VariantList) => {
   const [annotation, setAnnotation] = useState<VariantListAnnotation>({
     selectedVariants: new Set<VariantId>([]),
+    notIncludedVariants: new Set<VariantId>([]),
     variantNotes: {},
     variantCalculations: {
       prevalence: {},
@@ -133,7 +145,15 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       plofOnlyCarrierFrequencyRawNumbers: null,
     },
     includeHomozygotesInCalculations: true,
+    taggedGroups: {
+      A: { displayName: "Group A", variantList: new Set<VariantId>([]) },
+      B: { displayName: "Group B", variantList: new Set<VariantId>([]) },
+      C: { displayName: "Group C", variantList: new Set<VariantId>([]) },
+      D: { displayName: "Group D", variantList: new Set<VariantId>([]) },
+    },
   });
+
+  const previousAnnotation = usePrevious(annotation);
   const getCurrentAnnotation = useCurrentValue(annotation);
   const [loading, setLoading] = useState(true);
 
@@ -171,11 +191,31 @@ const useVariantListAnnotation = (variantList: VariantList) => {
       .then(
         (annotation: {
           selected_variants: Set<string>;
+          not_included_variants: Set<string>;
           variant_notes: Record<VariantId, string>;
           variant_calculations: VariantListCalculations;
           include_homozygotes_in_calculations: boolean;
+          tagged_groups: TaggedGroups;
         }) => {
           const selectedVariants = new Set(annotation.selected_variants);
+
+          const taggedGroups = (["A", "B", "C", "D"] as TagKey[]).reduce(
+            (acc, group) => ({
+              ...acc,
+              [group]: {
+                displayName: String(
+                  annotation.tagged_groups[group]?.displayName ??
+                    `Group ${group}`
+                ),
+                variantList: new Set(
+                  annotation.tagged_groups[group]?.variantList ?? []
+                ),
+              },
+            }),
+            {} as TaggedGroups
+          );
+
+          const notIncludedVariants = new Set(annotation.not_included_variants);
 
           // An update to the appliation moved to the model of calculating storing
           //   the calculated values in the database, to allow for viewing
@@ -211,10 +251,12 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
           setAnnotation({
             selectedVariants: selectedVariants,
+            notIncludedVariants: notIncludedVariants,
             variantNotes: annotation.variant_notes,
             variantCalculations: variantCalculations,
             includeHomozygotesInCalculations:
               annotation.include_homozygotes_in_calculations,
+            taggedGroups: taggedGroups,
           });
         }
       )
@@ -274,26 +316,42 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
         // Hacky -- once the variantList updates and triggers a re-run of this function
         //   per a useEffect calling this, the annotations will not have been saved ever
-        //   so we mimic the old behavior by setting all variants as selected
-        if (annotation.selectedVariants.size === 0) {
-          annotation.selectedVariants = new Set([
-            ...variantList.variants.map((variant) => variant.id),
-            ...(variantList.structural_variants ?? []).map(
-              (structural_variant) => structural_variant.id
-            ),
-          ]);
+        //   so we mimic the old behavior by setting all variants as selected in the case
+        //   when the previous annotation's variants and the current selected variants
+        //   are 0.
+        //
+        // TODO: The state of previous annotation is likely undefined, in the case of
+        //   a user pulling up a page in GeniE for an already created list. However,
+        //   if they make a new list, then try and play with it, it will re-select all
+        //   variants if they try to unselect everything. This should be fixed.
+        if (
+          annotation.selectedVariants.size === 0 &&
+          previousAnnotation?.selectedVariants.size === 0
+        ) {
+          if (previousAnnotation?.selectedVariants.size === 0) {
+            annotation.selectedVariants = new Set([
+              ...variantList.variants.map((variant) => variant.id),
+              ...(variantList.structural_variants ?? []).map(
+                (structural_variant) => structural_variant.id
+              ),
+            ]);
+          }
         }
 
         const selectedVariants = annotation.selectedVariants
-          ? variantList.variants.filter((variant) =>
-              annotation.selectedVariants.has(variant.id)
+          ? variantList.variants.filter(
+              (variant) =>
+                annotation.selectedVariants.has(variant.id) &&
+                !annotation.notIncludedVariants.has(variant.id)
             )
           : variantList.variants;
 
         const selectedStructuralVariants = variantList.structural_variants
           ? annotation.selectedVariants
-            ? variantList.structural_variants.filter((structural_variant) =>
-                annotation.selectedVariants.has(structural_variant.id)
+            ? variantList.structural_variants.filter(
+                (structural_variant) =>
+                  annotation.selectedVariants.has(structural_variant.id) &&
+                  !annotation.notIncludedVariants.has(structural_variant.id)
               )
             : variantList.structural_variants
           : [];
@@ -303,10 +361,14 @@ const useVariantListAnnotation = (variantList: VariantList) => {
           variantList,
           annotation.includeHomozygotesInCalculations
         );
-        setAnnotation((annotation) => ({ ...annotation, variantCalculations }));
+        setAnnotation((annotation) => ({
+          ...annotation,
+          variantCalculations,
+        }));
 
         patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
           selected_variants: Array.from(annotation.selectedVariants),
+          not_included_variants: Array.from(annotation.notIncludedVariants),
           variant_calculations: variantCalculations,
           include_homozygotes_in_calculations:
             annotation.includeHomozygotesInCalculations,
@@ -336,6 +398,61 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const setSelectedVariants = useCallback(
     (selectedVariants: VariantListAnnotation["selectedVariants"]) => {
       setAnnotation((annotation) => ({ ...annotation, selectedVariants }));
+      saveSelectedVariants();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const saveTaggedGroups = useCallback(
+    debounce((taggedGroups) => {
+      patch(`/variant-lists/${variantList.uuid}/shared-annotation/`, {
+        tagged_groups: Object.keys(taggedGroups).reduce((acc, key) => {
+          acc[key] = {
+            displayName: String(taggedGroups[key].displayName),
+            variantList: Array.from(taggedGroups[key].variantList),
+          };
+          return acc;
+        }, {} as Record<string, { displayName: string; variantList: string[] }>),
+      })
+        .then(() => {
+          toast({
+            title: "Saved tags",
+            status: "success",
+            duration: 1000,
+            isClosable: true,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Unable to save groups",
+            description: renderErrorDescription(error),
+            status: "error",
+            duration: 10000,
+            isClosable: true,
+          });
+        });
+    }, 2_000),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList.uuid]
+  );
+
+  const setTaggedGroups = useCallback(
+    (
+      variantId: VariantId,
+      taggedGroups: VariantListAnnotation["taggedGroups"]
+    ) => {
+      setAnnotation((annotation) => ({ ...annotation, taggedGroups }));
+      saveTaggedGroups(taggedGroups);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variantList]
+  );
+
+  const setNotIncludedVariants = useCallback(
+    (notIncludedVariants: VariantListAnnotation["notIncludedVariants"]) => {
+      setAnnotation((annotation) => ({ ...annotation, notIncludedVariants }));
       saveSelectedVariants();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -415,9 +532,13 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   return {
     loading,
     selectedVariants: annotation.selectedVariants,
+    notIncludedVariants: annotation.notIncludedVariants,
+    setNotIncludedVariants,
     setSelectedVariants,
     variantNotes: annotation.variantNotes,
     setVariantNote,
+    taggedGroups: annotation.taggedGroups,
+    setTaggedGroups,
     variantCalculations: annotation.variantCalculations,
     includeHomozygotesInCalculations:
       annotation.includeHomozygotesInCalculations,
@@ -449,7 +570,11 @@ const VariantListPage = (props: VariantListPageProps) => {
   const {
     loading: loadingAnnotation,
     selectedVariants,
+    notIncludedVariants,
+    setNotIncludedVariants,
     setSelectedVariants,
+    taggedGroups,
+    setTaggedGroups,
     variantNotes,
     setVariantNote,
     variantCalculations,
@@ -670,12 +795,16 @@ const VariantListPage = (props: VariantListPageProps) => {
 
         <VariantListVariants
           selectedVariants={selectedVariants}
+          taggedGroups={taggedGroups}
+          notIncludedVariants={notIncludedVariants}
           selectionDisabled={loadingAnnotation}
           variantList={variantList}
           variantNotes={variantNotes}
           userCanEdit={userCanEdit}
           userIsStaff={userIsStaff}
+          onChangeNotIncludedVariants={setNotIncludedVariants}
           onChangeSelectedVariants={setSelectedVariants}
+          onChangeTaggedGroups={setTaggedGroups}
           onEditVariantNote={setVariantNote}
         />
       </Box>

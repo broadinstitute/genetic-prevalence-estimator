@@ -1,4 +1,4 @@
-black
+black==23.12.1
 nox
 pip-tools
 pre-commit

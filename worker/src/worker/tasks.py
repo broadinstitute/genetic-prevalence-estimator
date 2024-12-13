@@ -353,6 +353,20 @@ def get_recommended_variants(metadata, transcript):
 
     ds = ds.filter(ds.include_from_gnomad | ds.include_from_clinvar)
 
+    # filter out any variant included from gnomAD that has a B/LB classification from ClinVar
+    ds = ds.annotate(
+        has_benign_or_likely_benign_classification_in_clinvar=hl.if_else(
+            hl.is_defined(clinvar[ds.locus, ds.alleles])
+            & (
+                clinvar[ds.locus, ds.alleles].clinical_significance_category
+                == "benign_or_likely_benign"
+            ),
+            True,
+            False,
+        )
+    )
+    ds = ds.filter(ds.has_benign_or_likely_benign_classification_in_clinvar, keep=False)
+
     ds = ds.transmute(
         source=hl.array(
             [
@@ -490,6 +504,7 @@ def _process_variant_list(variant_list):
     )
 
     max_an = ds.aggregate(hl.agg.max(ds.AN[0]))
+    max_an = max_an if max_an is not None else 0
 
     # if there are no clinvar path or likely path variants, the aggregation returns None
     # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag

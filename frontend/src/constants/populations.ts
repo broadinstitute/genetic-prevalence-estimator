@@ -3,10 +3,10 @@ import { GnomadPopulationId } from "../types";
 export const GNOMAD_POPULATION_NAMES: {
   [key in GnomadPopulationId]: string;
 } = {
-  global: "Global",
+  global: "Total",
   afr: "African/African-American",
   ami: "Amish",
-  amr: "Latino/Admixed American",
+  amr: "Admixed American",
   asj: "Ashkenazi Jewish",
   eas: "East Asian",
   "eas/jpn": "Japanese",

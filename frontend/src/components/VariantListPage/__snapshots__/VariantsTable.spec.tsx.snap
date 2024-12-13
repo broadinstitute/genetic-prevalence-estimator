@@ -2,6 +2,13 @@
 
 exports[`Variant Table has no unexpected changes 1`] = `
 <DocumentFragment>
+  <div
+    style="position: relative; height: 1049px; width: 100%; overflow: auto; will-change: transform; direction: ltr; overflow-x: hidden;"
+  >
+    <div
+      style="height: 350px; width: 100%;"
+    />
+  </div>
   <table
     class="chakra-table css-tl2dr7"
     role="table"
@@ -10,15 +17,17 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-0"
+        class="css-rucckn"
         role="row"
       >
         <th
           class="css-0"
           scope="col"
+          style="position: relative;"
         >
           <label
             class="chakra-checkbox css-1uiwwan"
+            style="height: 100%;"
           >
             <input
               class="chakra-checkbox__input"
@@ -62,17 +71,21 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 60px; height: 100%;"
         >
-          Note
+          <span
+            style="position: absolute; top: calc(50% - 10px);"
+          >
+            Note
+          </span>
         </th>
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 190px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Variant ID
           </button>
@@ -80,10 +93,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 110px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Gene
           </button>
@@ -91,10 +104,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 200px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Transcript
           </button>
@@ -102,10 +115,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 170px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             VEP consequence
           </button>
@@ -113,10 +126,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 80px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             LOFTEE
           </button>
@@ -124,10 +137,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             HGVSc
           </button>
@@ -135,10 +148,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             HGVSp
           </button>
@@ -146,10 +159,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 150px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Clinical significance
           </button>
@@ -158,10 +171,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 130px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Allele count
           </button>
@@ -170,10 +183,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 120px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Allele number
           </button>
@@ -183,10 +196,10 @@ exports[`Variant Table has no unexpected changes 1`] = `
           class="css-0"
           data-is-numeric="true"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 140px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Allele frequency
           </button>
@@ -208,13 +221,42 @@ exports[`Variant Table has no unexpected changes 1`] = `
         <th
           class="css-0"
           scope="col"
-          style="position: relative;"
+          style="position: relative; width: 150px; height: 100%;"
         >
           <button
-            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: inherit;"
+            style="display: block; width: 100%; height: 100%; appearance: none; font-weight: inherit; text-align: start;"
           >
             Source
           </button>
+        </th>
+        <th
+          class="css-0"
+          scope="col"
+          style="position: relative; padding-top: 25px; width: 260px;"
+        >
+          Tags
+        </th>
+        <th
+          class="css-0"
+          data-is-numeric="false"
+          scope="col"
+          style="position: relative; width: 100px; height: 100%; display: flex; align-items: center; justify-content: space-between;"
+        >
+          <span
+            style="white-space: nowrap;"
+          >
+            Exclude
+          </span>
+          <svg
+            class="chakra-icon css-onkibi"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.917,1,1,0,1,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.255a1,1,0,1,1-2,0,4,4,0,1,1,5.6,3.666Z"
+              fill="currentColor"
+            />
+          </svg>
         </th>
       </tr>
     </thead>
@@ -222,17 +264,19 @@ exports[`Variant Table has no unexpected changes 1`] = `
       class="css-0"
     >
       <tr
-        class="css-0"
+        class="css-11ta1vk"
         role="row"
+        style="position: absolute; left: 0px; top: 0px; height: 70px; width: 100%;"
       >
         <td
-          class="css-0"
+          class="css-i7qwz0"
           role="gridcell"
         >
           <label
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              aria-disabled="false"
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
               type="checkbox"
@@ -254,16 +298,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-12lsreq"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-1y7yn9h"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -274,25 +317,25 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-567-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-1p7j3u3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -300,7 +343,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -308,49 +351,97 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-1bvc4cc"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         >
           Custom
         </td>
-      </tr>
-      <tr
-        class="css-0"
-        role="row"
-      >
         <td
-          class="css-0"
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
+          class="css-i7qwz0"
           role="gridcell"
         >
           <label
@@ -372,22 +463,56 @@ exports[`Variant Table has no unexpected changes 1`] = `
               <span
                 class="css-f8n5zr"
               >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
+      </tr>
+      <tr
+        class="css-11ta1vk"
+        role="row"
+        style="position: absolute; left: 0px; top: 70px; height: 70px; width: 100%;"
+      >
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              aria-disabled="false"
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
                 Include this variant in calculations
               </span>
             </span>
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-12lsreq"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-1y7yn9h"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -398,25 +523,25 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-456-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-1p7j3u3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -424,7 +549,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -432,49 +557,97 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-1bvc4cc"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         >
           Custom
         </td>
-      </tr>
-      <tr
-        class="css-0"
-        role="row"
-      >
         <td
-          class="css-0"
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
+          class="css-i7qwz0"
           role="gridcell"
         >
           <label
@@ -496,22 +669,56 @@ exports[`Variant Table has no unexpected changes 1`] = `
               <span
                 class="css-f8n5zr"
               >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
+      </tr>
+      <tr
+        class="css-11ta1vk"
+        role="row"
+        style="position: absolute; left: 0px; top: 140px; height: 70px; width: 100%;"
+      >
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              aria-disabled="false"
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
                 Include this variant in calculations
               </span>
             </span>
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-12lsreq"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-1y7yn9h"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -522,25 +729,25 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-345-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-1p7j3u3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -548,7 +755,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -556,55 +763,138 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-1bvc4cc"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         >
           Custom
         </td>
-      </tr>
-      <tr
-        class="css-0"
-        role="row"
-      >
         <td
-          class="css-0"
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
+          class="css-i7qwz0"
           role="gridcell"
         >
           <label
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
+      </tr>
+      <tr
+        class="css-11ta1vk"
+        role="row"
+        style="position: absolute; left: 0px; top: 210px; height: 70px; width: 100%;"
+      >
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              aria-disabled="false"
               checked=""
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
@@ -643,16 +933,15 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-12lsreq"
           role="gridcell"
         />
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-1y7yn9h"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -663,25 +952,25 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-234-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-1p7j3u3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -689,7 +978,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -697,55 +986,138 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-1bvc4cc"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         >
           Custom
         </td>
-      </tr>
-      <tr
-        class="css-0"
-        role="row"
-      >
         <td
-          class="css-0"
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
+          class="css-i7qwz0"
           role="gridcell"
         >
           <label
             class="chakra-checkbox css-1uiwwan"
           >
             <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
+        </td>
+      </tr>
+      <tr
+        class="css-11ta1vk"
+        role="row"
+        style="position: absolute; left: 0px; top: 280px; height: 70px; width: 100%;"
+      >
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              aria-disabled="false"
               checked=""
               class="chakra-checkbox__input"
               style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
@@ -784,7 +1156,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           </label>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-12lsreq"
           role="gridcell"
         >
           <button
@@ -813,13 +1185,12 @@ exports[`Variant Table has no unexpected changes 1`] = `
             </svg>
           </button>
         </td>
-        <th
-          class="css-1l7mgse"
+        <td
+          class="css-1y7yn9h"
           role="gridcell"
-          scope="row"
         >
           <span
-            style="display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            style="display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
           >
             <a
               class="chakra-link css-0"
@@ -830,25 +1201,25 @@ exports[`Variant Table has no unexpected changes 1`] = `
               12-123-A-C
             </a>
           </span>
-        </th>
+        </td>
         <td
-          class="css-1l7mgse"
+          class="css-1p7j3u3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-qedcb3"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-grmld7"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-b9nz67"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -856,7 +1227,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           role="gridcell"
         >
           <span
@@ -864,41 +1235,122 @@ exports[`Variant Table has no unexpected changes 1`] = `
           />
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         />
         <td
-          class="css-1l7mgse"
+          class="css-1y5g8v1"
           data-is-numeric="true"
           role="gridcell"
         >
-          <span
-            class="css-1bvc4cc"
+          <div
+            class="css-afqgfm"
           >
             <span>
               0
             </span>
-          </span>
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-q6ncm1"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-5gkx6n"
           data-is-numeric="true"
           role="gridcell"
         >
-          0
+          <div
+            class="css-1y4kgfw"
+          >
+            0
+          </div>
         </td>
         <td
-          class="css-1l7mgse"
+          class="css-cdmfs8"
           role="gridcell"
         >
           Custom
+        </td>
+        <td
+          class="css-jdn053"
+          role="gridcell"
+        >
+          <div
+            style="display: flex; flex-wrap: wrap; align-items: flex-start;"
+          >
+            <div
+              class="rmsc multi-select"
+            >
+              <div
+                aria-labelledby="Select Tags"
+                aria-readonly="true"
+                class="dropdown-container"
+                tabindex="0"
+              >
+                <div
+                  class="dropdown-heading"
+                >
+                  <div
+                    class="dropdown-heading-value"
+                  >
+                    <span
+                      class="gray"
+                    >
+                      Select tags...
+                    </span>
+                  </div>
+                  <svg
+                    class="dropdown-heading-dropdown-arrow gray"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="24"
+                  >
+                    <path
+                      d="M6 9L12 15 18 9"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td
+          class="css-i7qwz0"
+          role="gridcell"
+        >
+          <label
+            class="chakra-checkbox css-1uiwwan"
+          >
+            <input
+              class="chakra-checkbox__input"
+              style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;"
+              type="checkbox"
+              value=""
+            />
+            <span
+              aria-hidden="true"
+              class="chakra-checkbox__control css-dnty2r"
+            />
+            <span
+              class="chakra-checkbox__label css-1oeb2oe"
+            >
+              <span
+                class="css-f8n5zr"
+              >
+                Exclude this variant from calculations
+              </span>
+            </span>
+          </label>
         </td>
       </tr>
     </tbody>

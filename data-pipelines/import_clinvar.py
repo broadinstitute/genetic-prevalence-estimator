@@ -45,6 +45,7 @@ def download_clinvar_vcf(output_path, reference_genome):
 # in frontend/src/constants/clinvar.ts
 CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
     {
+        # these should be kept in sync with the classifications in generate_dashboard_lists
         "pathogenic_or_likely_pathogenic": {
             "association",
             "Likely pathogenic",
@@ -55,7 +56,6 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "Pathogenic/Likely pathogenic",
             "Pathogenic/Likely pathogenic/Likely risk allele",
             "Pathogenic/Likely pathogenic/Pathogenic",
-            "risk factor",
         },
         "conflicting_interpretations": {
             "conflicting data from submitters",
@@ -68,13 +68,16 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         },
         "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
         "other": {
+            None,
             "Affects",
             "association not found",
             "confers sensitivity",
             "drug response",
             "Established risk allele",
             "Likely risk allele",
+            "risk factor",
             "low penetrance",
+            "low penetrance/Established risk allele",
             "not provided",
             "other",
             "Pathogenic/Likely risk allele",
@@ -109,6 +112,7 @@ CLINICAL_SIGNIFICANCE_CATEGORY_RANKING = hl.dict(
 
 GOLD_STARS = hl.dict(
     {
+        None: 0,
         "no interpretation for the single variant": 0,
         "no assertion provided": 0,
         "no classification provided": 0,

@@ -12,7 +12,6 @@ import {
   Flex,
   Heading,
   HStack,
-  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
@@ -47,6 +46,8 @@ import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
+
+const banner = undefined;
 
 const RequireSignIn: FC<{}> = ({ children }) => {
   const { isSignedIn, user } = useStore(authStore);
@@ -138,7 +139,7 @@ const App = () => {
               {isSignedIn && (
                 <NavLink to="/variant-lists/">Variant lists</NavLink>
               )}
-              <NavLink to="/public-lists/">Public Lists</NavLink>
+              <NavLink to="/dashboard/">Dashboard</NavLink>
               <NavLink to="/about/">About</NavLink>
               <NavLink to="/faq/">FAQ</NavLink>
             </HStack>
@@ -171,8 +172,8 @@ const App = () => {
                         <MenuItem as={RRLink} to="/status/">
                           System status
                         </MenuItem>
-                        <MenuItem as={RRLink} to="/dashboard/">
-                          Dashboard
+                        <MenuItem as={RRLink} to="/public-lists/">
+                          Public Lists
                         </MenuItem>
                       </>
                     )}
@@ -183,18 +184,7 @@ const App = () => {
           </Flex>
         </Container>
       </Box>
-      <Box px={4} mb={4}>
-        <Alert status="info">
-          <AlertIcon />
-          <span>
-            GeniE is currently available in beta. We appreciate any{" "}
-            <BaseLink href="https://forms.gle/4qyfUnVouE9PA4cV9" isExternal>
-              feedback
-            </BaseLink>{" "}
-            you can provide.
-          </span>
-        </Alert>
-      </Box>
+      {banner}
 
       <Container pb={4} maxW="1400px">
         <Switch>

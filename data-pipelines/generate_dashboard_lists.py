@@ -243,6 +243,115 @@ def get_highest_frequency_variants(ds, num_to_keep):
 # }
 
 
+# remappings = {
+#     "C12ORF57": {
+#         "transcript_id": "ENST00000229281",
+#         "gene_id": "ENSG00000111678",
+#         "chrom": 12,
+#         "start": 6942978,
+#         "stop": 6946003,
+#     },
+#     "C12ORF65": {
+#         "transcript_id": "ENST00000253233",
+#         "gene_id": "ENSG00000130921",
+#         "chrom": 12,
+#         "start": 123233385,
+#         "stop": 123258079,
+#     },
+#     "C15ORF41": {
+#         "transcript_id": "ENST00000566621",
+#         "gene_id": "ENSG00000186073",
+#         "chrom": 15,
+#         "start": 36579626,
+#         "stop": 36810248,
+#     },
+#     "C19ORF12": {
+#         "transcript_id": "ENST00000323670",
+#         "gene_id": "ENSG00000131943",
+#         "chrom": 19,
+#         "start": 29698937,
+#         "stop": 29715789,
+#     },
+#     "C8ORF37": {
+#         "transcript_id": "ENST00000286688",
+#         "gene_id": "ENSG00000156172",
+#         "chrom": 8,
+#         "start": 95244913,
+#         "stop": 95269201,
+#     },
+#     "CCDC114": {
+#         "transcript_id": "ENST00000674294",
+#         "gene_id": "ENSG00000105479",
+#         "chrom": 19,
+#         "start": 48296457,
+#         "stop": 48321971,
+#     },
+#     "CCDC151": {
+#         "transcript_id": "ENST00000356392",
+#         "gene_id": "ENSG00000198003",
+#         "chrom": 19,
+#         "start": 11420604,
+#         "stop": 11435782,
+#     },
+#     "CLAM": {
+#         "transcript_id": "ENST00000379756",
+#         "gene_id": "ENSG00000101222",
+#         "chrom": 20,
+#         "start": 3777504,
+#         "stop": 3781448,
+#     },
+#     "FAM126A": {
+#         "transcript_id": "ENST00000432176",
+#         "gene_id": "ENSG00000122591",
+#         "chrom": 7,
+#         "start": 22889371,
+#         "stop": 23014130,
+#     },
+#     "MAP11": {
+#         "transcript_id": "ENST00000316937",
+#         "gene_id": "ENSG00000146826",
+#         "chrom": 7,
+#         "start": 100154420,
+#         "stop": 100158723,
+#     },
+#     "SKIV2L": {
+#         "transcript_id": "ENST00000375394",
+#         "gene_id": "ENSG00000204351",
+#         "chrom": 6,
+#         "start": 31959117,
+#         "stop": 31969751,
+#     },
+#     "SPATA5": {
+#         "transcript_id": "ENST00000274008",
+#         "gene_id": "ENSG00000145375",
+#         "chrom": 4,
+#         "start": 122923070,
+#         "stop": 123319433,
+#     },
+#     "TCTEX1D2": {
+#         "transcript_id": "ENST00000325318",
+#         "gene_id": "ENSG00000213123",
+#         "chrom": 3,
+#         "start": 196291219,
+#         "stop": 196318299,
+#     },
+#     "TTC25": {
+#         "transcript_id": "ENST00000377540",
+#         "gene_id": "ENSG00000204815",
+#         "chrom": 17,
+#         "start": 41930617,
+#         "stop": 41966503,
+#     },
+#     "TTC37": {
+#         "transcript_id": "ENST00000358746",
+#         "gene_id": "ENSG00000198677",
+#         "chrom": 5,
+#         "start": 95461755,
+#         "stop": 95554977,
+#     },
+# }
+
+
 def process_dashboard_list(
     dataframe,
     index,
@@ -253,7 +362,6 @@ def process_dashboard_list(
     gnomad_variants,
     clinvar_variants,
 ):
-
     # if gene_symbol in remappings:
     #     print(f"Found remapping for {gene_symbol}, using those values ...")
     #     object = remappings["gene_symbol"]
@@ -278,7 +386,6 @@ def process_dashboard_list(
         )
 
     else:
-
         ht = ht.filter(ht.locus.contig == contig)
 
     # ht = hl.filter_intervals(
@@ -316,14 +423,56 @@ def process_dashboard_list(
 
     ht = ht.annotate(include_from_gnomad=include_from_gnomad)
 
-    include_from_clinvar = (
+    # these should be kept in sync with the classifications in import_clinvar.py
+    PATHOGENIC_CLASSIFICATIONS = [
+        "Likely pathogenic",
+        "Likely pathogenic/Likely risk allele",
+        "Likely pathogenic/Pathogenic",
+        "Pathogenic",
+        "Pathogenic/Pathogenic",
+        "Pathogenic/Likely pathogenic",
+        "Pathogenic/Likely pathogenic/Likely risk allele",
+        "Pathogenic/Likely pathogenic/Pathogenic",
+    ]
+
+    pathogenic_significance = (
         clinvar_variants[ht.locus, ht.alleles].clinical_significance_category
         == "pathogenic_or_likely_pathogenic"
     )
 
+    pathogenic_classifications_set = hl.literal(PATHOGENIC_CLASSIFICATIONS)
+    primary_report_is_path = hl.if_else(
+        pathogenic_classifications_set.contains(
+            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
+        ),
+        True,
+        False,
+    )
+
+    include_from_clinvar = pathogenic_significance & primary_report_is_path
+
     ht = ht.annotate(include_from_clinvar=include_from_clinvar)
 
     ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
+
+    # these should be kept in sync with the classifications in import_clinvar.py
+    BENIGN_CLASSIFICATIONS = [
+        "Benign",
+        "Benign/Likely benign",
+        "Likely benign",
+    ]
+
+    benign_classifications_set = hl.literal(BENIGN_CLASSIFICATIONS)
+    primary_report_is_benign = hl.if_else(
+        benign_classifications_set.contains(
+            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
+        ),
+        True,
+        False,
+    )
+
+    ht = ht.annotate(disclude_because_benign=primary_report_is_benign)
+    ht = ht.filter(~ht.disclude_because_benign)
 
     ht = ht.transmute(
         source=hl.array(
@@ -379,6 +528,9 @@ def process_dashboard_list(
         )
     )
 
+    # TODO: move this logic further up?
+    ht = ht.filter(~ht.flags.contains("filtered"))
+
     # TODO: lof curation for v2, later for v4
 
     table_fields = set(ht.row)
@@ -401,6 +553,8 @@ def process_dashboard_list(
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
+    if len(variants) == 0:
+        print("For this gene, variants length is 0")
 
     if len(variants) == 0:
         print("For this gene, variants length is 0")
@@ -436,7 +590,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         carrier_frequency_simplified = 2 * q
         carrier_frequency_simplified_array.append(carrier_frequency_simplified)
 
-        prevalence = q ** 2
+        prevalence = q**2
         prevalence_array.append(prevalence)
 
     # TODO: combine these two into one after tests pass?
@@ -821,11 +975,9 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
 
 
 def prepare_dashboard_download(dataframe):
-
     download_data = []
 
     for _, row in dataframe.iterrows():
-
         # print(f"  gene_id is: {row.gene_id}")
 
         metadata = json.loads(row["metadata"])
@@ -966,26 +1118,51 @@ def prepare_dashboard_download(dataframe):
     return df_download
 
 
+# e.g.
+# python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
-
     start_time = datetime.now()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--genes-file", required=False)
+    parser.add_argument("--quiet", action="store_true", required=False)
+    parser.add_argument("--directory-root", required=False)
+    parser.add_argument("--genes-file", required=False)
     args = parser.parse_args()
 
+    # hl.init(quiet=args.quiet)
     # hl.init(quiet=args.quiet)
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
     if args.directory_root:
         base_dir = args.directory_root
+    base_dir = os.path.join(os.path.dirname(__file__), "../data")
+    if args.directory_root:
+        base_dir = args.directory_root
 
+    genes_filename = "all_genes.csv"
     genes_filename = "all_genes.csv"
     if args.genes_file:
         genes_filename = args.genes_file
 
+    genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
+
+    start = 0
+    batch_size = 49
+    stop = 48
+
+    for i in range(start, stop, batch_size):
+        hl.init(quiet=args.quiet)
+
+        batch_start_time = datetime.now()
+
+        batch_start = i
+        batch_stop = i + batch_size if i + batch_size < stop else None
+        batch_stop_print = i + batch_size if i + batch_size < stop else "end"
+
+        print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
     start = 0
@@ -1015,7 +1192,29 @@ def main() -> None:
             index=False,
         )
         print("Wrote dashboard list models to file")
+        print("Preparing dashboard list models ...")
+        df_dashboard_models = prepare_dashboard_lists(
+            genes_fullpath, base_dir, start=batch_start, stop=batch_stop
+        )
+        df_dashboard_models.to_csv(
+            os.path.join(
+                base_dir,
+                f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
+            ),
+            index=False,
+        )
+        print("Wrote dashboard list models to file")
 
+        print("Preparing dashboard downloads")
+        df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+        df_dashboard_download.to_csv(
+            os.path.join(
+                base_dir,
+                f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+            ),
+            index=False,
+        )
+        print("Wrote dashboard downloads to file")
         print("Preparing dashboard downloads")
         df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
         df_dashboard_download.to_csv(
@@ -1032,6 +1231,31 @@ def main() -> None:
         print(f"It took: {batch_end_time - batch_start_time}\n\n")
 
         hl.stop()
+
+    # print(f"Started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    # print("Preparing dashboard list models ...")
+    # df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
+    # df_dashboard_models.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
+    # )
+    # print("Wrote dashboard list models to file")
+
+    # print("Preparing dashboard downloads")
+    # df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+    # df_dashboard_download.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
+    # )
+    # print("Wrote dashboard downloads to file")
+
+    end_time = datetime.now()
+    print(f"Finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {end_time - start_time}")
+
+    batch_end_time = datetime.now()
+    print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+    hl.stop()
 
     # print(f"Started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     # print("Preparing dashboard list models ...")

@@ -8,12 +8,12 @@ repos:
       - id: trailing-whitespace
         exclude: \.snap$
   - repo: https://github.com/psf/black
-    rev: 21.4b2
+    rev: 23.12.1
     hooks:
       - id: black
         language_version: python3
         additional_dependencies:
-          - click==8.0.4
+          - click==8.1.7
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.2.1
     hooks:

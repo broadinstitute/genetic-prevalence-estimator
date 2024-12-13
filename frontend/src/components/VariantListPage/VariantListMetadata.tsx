@@ -38,21 +38,22 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
   const majorVersion = gnomadVersion.split(".")[0];
   const referenceGenome = majorVersion === "2" ? "GRCh37" : "GRCh38";
   const gnomadDataset =
-    referenceGenome === "GRCh37" ? "gnomad_r2_1" : "gnomad_r3";
+    referenceGenome === "GRCh37" ? "gnomad_r2_1" : "gnomad_r4";
 
   return (
     <DescriptionList mb={4}>
-      {variantList.supporting_documents.length > 0 && (
-        <DescriptionListItem label="Supporting document">
-          <Link
-            href={variantList.supporting_documents[0].url}
-            isExternal
-            target="_blank"
-          >
-            {variantList.supporting_documents[0].title}
-          </Link>
-        </DescriptionListItem>
-      )}
+      {variantList.supporting_documents &&
+        variantList.supporting_documents.length > 0 && (
+          <DescriptionListItem label="Supporting document">
+            <Link
+              href={variantList.supporting_documents[0].url}
+              isExternal
+              target="_blank"
+            >
+              {variantList.supporting_documents[0].title}
+            </Link>
+          </DescriptionListItem>
+        )}
       <DescriptionListItem label="Type">
         {formatVariantListType(variantList)}
       </DescriptionListItem>

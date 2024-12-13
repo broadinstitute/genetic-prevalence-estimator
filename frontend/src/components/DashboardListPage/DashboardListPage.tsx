@@ -35,6 +35,8 @@ import VariantListMetadata from "../VariantListPage/VariantListMetadata";
 import VariantListStatus from "../VariantListPage/VariantListStatus";
 
 import VariantsTable from "../VariantListPage/VariantsTable";
+import { TaggedGroups } from "../VariantListPage/VariantListPage";
+import { VariantId } from "../../types";
 
 const deleteDashboardList = (uuid: string): Promise<void> => {
   return del(`/dashboard-lists/${uuid}/`);
@@ -79,6 +81,13 @@ const DashboardListPage = (props: DashboardListPageProps) => {
 
   const blankSet: Set<string> = new Set<string>();
 
+  const blankTaggedGroups: TaggedGroups = {
+    A: { displayName: "", variantList: new Set<VariantId>() },
+    B: { displayName: "", variantList: new Set<VariantId>() },
+    C: { displayName: "", variantList: new Set<VariantId>() },
+    D: { displayName: "", variantList: new Set<VariantId>() },
+  };
+
   return (
     <>
       <Box mb={4} sx={printOnly}>
@@ -97,7 +106,11 @@ const DashboardListPage = (props: DashboardListPageProps) => {
         refreshVariantList={refreshDashboardList}
       />
 
-      {dashboardList.notes && <Text mb={4}>{dashboardList.notes}</Text>}
+      {dashboardList.notes && (
+        <Text mb={4} maxWidth={"70%"}>
+          {`${dashboardList.notes}. This algorithm uses ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.`}
+        </Text>
+      )}
 
       <VariantListMetadata variantList={dashboardList} />
 
@@ -181,14 +194,20 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             variants: dashboardList.top_ten_variants,
           }}
           selectedVariants={blankSet}
+          taggedGroups={blankTaggedGroups}
+          notIncludedVariants={blankSet}
           shouldShowVariant={() => {
             return true;
           }}
           variantNotes={{}}
+          onChangeNotIncludedVariants={() => {}}
           onChangeSelectedVariants={() => {}}
+          onChangeTaggedGroups={() => {}}
           onEditVariantNote={() => {}}
           includeNotesColumn={false}
           includeCheckboxColumn={false}
+          includeTagColumn={false}
+          isTopTen={true}
         />
       </Box>
 

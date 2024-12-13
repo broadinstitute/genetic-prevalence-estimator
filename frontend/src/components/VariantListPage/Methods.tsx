@@ -28,12 +28,12 @@ const VariantListCreationMethod: FC<{ variantList: VariantList }> = ({
           The initial list of variants was created by collecting all ClinVar
           pathogenic and likely pathogenic variants in gnomAD for the gene and
           transcript specified by the user (see details above). The initial list
-          also included all high confidence loss of function variants from
-          gnomAD in the selected transcript. High confidence loss of function
-          variants are defined as passing QC and the transcript consequences are
-          in the set ("stop_gained", "frameshift_variant",
-          "splice_acceptor_variant", "splice_donor_variant",
-          "transcript_ablation").
+          also included any high confidence loss of function variants from
+          gnomAD in the selected transcript that are no tclassified as likely
+          benign or benign in ClinVar. High confidence loss of function variants
+          are defined as passing QC and the transcript consequences are in the
+          set ("stop_gained", "frameshift_variant", "splice_acceptor_variant",
+          "splice_donor_variant", "transcript_ablation").
         </Text>
 
         <Text mb={2}>
