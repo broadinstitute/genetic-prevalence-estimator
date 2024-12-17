@@ -193,6 +193,7 @@ const DashboardListPage = (props: DashboardListPageProps) => {
             ...dashboardList,
             variants: dashboardList.top_ten_variants,
           }}
+          searchText={""}
           selectedVariants={blankSet}
           taggedGroups={blankTaggedGroups}
           notIncludedVariants={blankSet}
