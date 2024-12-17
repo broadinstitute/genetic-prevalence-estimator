@@ -35,8 +35,11 @@ import VariantsTable from "./VariantsTable";
 
 export const combineVariants = (
   variants: Variant[],
-  structuralVariants: any[]
+  structuralVariants: any[] | null
 ) => {
+  if (!structuralVariants || structuralVariants.length === 0) {
+    return variants;
+  }
   const reshapedStructuralVariants = structuralVariants.map((sv: any) => {
     return {
       id: sv.id,
@@ -115,9 +118,7 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
 
   const { variants, structural_variants } = variantList;
 
-  const renderedVariants = useMemo(() => {
-    return combineVariants(variants, structural_variants);
-  }, [variants, structural_variants]);
+  const renderedVariants = combineVariants(variants, structural_variants);
 
   type DisplayNames = {
     A: string;

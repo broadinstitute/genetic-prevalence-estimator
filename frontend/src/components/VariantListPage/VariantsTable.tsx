@@ -141,14 +141,16 @@ interface ColumnDef {
     variantList: VariantList,
     variantNotes: Record<VariantId, string>,
     onEditVariantNote: (variantId: VariantId, note: string) => void,
-    userCanEdit: boolean
+    userCanEdit: boolean,
+    searchText: string
   ) =>
     | JSX.Element
     | string
     | (JSX.Element | string)[]
     | null
     | undefined
-    | false;
+    | false
+    | "";
 }
 
 const BASE_COLUMNS: ColumnDef[] = [
@@ -160,7 +162,14 @@ const BASE_COLUMNS: ColumnDef[] = [
       const [chrom, pos, ref, alt] = variant.id.split("-");
       return [chrom, Number(pos), ref, alt];
     },
-    render: (variant, variantList) => {
+    render: (
+      variant,
+      variantList,
+      _variantNotes,
+      _onEditVariantNotes,
+      _userCanEdit,
+      searchText
+    ) => {
       const gnomadVersion = variantList.metadata.gnomad_version;
       const gnomadDataset = {
         "2.1.1": "gnomad_r2_1",
@@ -168,21 +177,18 @@ const BASE_COLUMNS: ColumnDef[] = [
         "4.0.0": "gnomad_r4",
         "4.1.0": "gnomad_r4",
       }[gnomadVersion];
-
       const gnomadSVDataset = {
         "2.1.1": "gnomad_sv_r2_1",
         "3.1.2": "gnomad_sv_r4",
         "4.0.0": "gnomad_sv_r4",
         "4.1.0": "gnomad_sv_r4",
       }[gnomadVersion];
-
       const dataset = isStructuralVariantId(variant.id, gnomadVersion)
         ? gnomadSVDataset
         : gnomadDataset;
       const variantId = isStructuralVariantId(variant.id, gnomadVersion)
         ? variant.id.toUpperCase()
         : variant.id;
-
       return (
         <Cell maxWidth={190}>
           <Link
@@ -190,7 +196,12 @@ const BASE_COLUMNS: ColumnDef[] = [
             isExternal
             target="_blank"
           >
-            {variant.id}
+            <Highlighter
+              highlightClassName="highlight"
+              searchWords={[searchText]}
+              autoEscape
+              textToHighlight={variant.id}
+            />
           </Link>
         </Cell>
       );
@@ -690,7 +701,8 @@ const VariantsTable: FC<VariantsTableProps> = ({
       );
 
       if (matchIndex !== -1 && listRef.current) {
-        listRef.current.scrollToItem(matchIndex, "start");
+        const topPadding = Math.min(3, matchIndex);
+        listRef.current.scrollToItem(matchIndex - topPadding, "start");
       }
     }
   }, [searchText, sortedVariants]);
@@ -764,21 +776,13 @@ const VariantsTable: FC<VariantsTableProps> = ({
               alignItems: "center",
             }}
           >
-            {column.key === "variant_id" ? (
-              <Highlighter
-                highlightClassName="highlight"
-                searchWords={[searchText]}
-                autoEscape
-                textToHighlight={rowData.id}
-              />
-            ) : (
-              column.render(
-                rowData,
-                variantList,
-                variantNotes,
-                onEditVariantNote,
-                userCanEdit
-              )
+            {column.render(
+              rowData,
+              variantList,
+              variantNotes,
+              onEditVariantNote,
+              userCanEdit,
+              searchText
             )}
           </Td>
         ))}
