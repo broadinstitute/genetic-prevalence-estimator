@@ -19,7 +19,7 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { TaggedGroups, TagKey } from "./VariantListPage";
 import { GNOMAD_POPULATION_NAMES } from "../../constants/populations";
 import {
