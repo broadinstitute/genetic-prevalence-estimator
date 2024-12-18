@@ -678,7 +678,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
     notIncludedVariants && notIncludedVariants.has(variant.id) ? 1 : 0
   );
 
-  const ROW_HEIGHT = isTopTen ? 35 : 70;
+  const ROW_HEIGHT = isTopTen ? 60 : 70;
   const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
 
   const VariantRow = ({
