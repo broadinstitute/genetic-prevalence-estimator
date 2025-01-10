@@ -187,7 +187,6 @@ def process_dashboard_list(
 
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
-        "association",
         "Likely pathogenic",
         "Likely pathogenic/Likely risk allele",
         "Likely pathogenic/Pathogenic",
