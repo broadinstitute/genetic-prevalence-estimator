@@ -32,11 +32,9 @@ csv.field_size_limit(512 * 1024)  # 512 KB in bytes
 
 
 class DashboardListsLoadView(CreateAPIView):
-
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
-
         csv_file = request.FILES.get("csv_file")
 
         if not csv_file:
@@ -50,7 +48,6 @@ class DashboardListsLoadView(CreateAPIView):
             next(reader)  # ignore the header row
 
             for row in reader:
-
                 gene_id = row[0]
 
                 metadata = json.loads(row[4])
@@ -74,11 +71,6 @@ class DashboardListsLoadView(CreateAPIView):
                 if DashboardList.objects.filter(gene_id=gene_id).count() > 0:
                     instance = DashboardList.objects.filter(gene_id=gene_id).first()
                     row_dict.pop("gene_id")
-
-                    # pylint: disable=fixme
-                    # TODO: cannot update metadata, due to serializer method
-                    #  fields, popping it for now but find a workaround?
-                    row_dict.pop("metadata")
                     serializer = DashboardListSerializer(instance, data=row_dict)
                 else:
                     serializer = NewDashboardListSerializer(data=row_dict)
