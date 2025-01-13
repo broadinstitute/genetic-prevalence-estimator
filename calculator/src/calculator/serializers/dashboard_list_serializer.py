@@ -156,15 +156,26 @@ class DashboardListDashboardSerializer(ModelSerializer):
 class DashboardListSerializer(ModelSerializer):
     notes = serializers.CharField(allow_blank=True, required=False)
     status = ChoiceField(choices=DashboardList.Status.choices, read_only=True)
-    metadata = serializers.SerializerMethodField()
+    metadata = serializers.JSONField()
 
     representative_variant_list = VariantListSerializer(many=False, read_only=True)
 
-    def get_metadata(self, obj):
+    def validate_metadata(self, value):
+        if not value:
+            raise serializers.ValidationError("This field is required.")
+
+        metadata_serializer = DashboardListMetadataSerializer(data=value)
+        if not metadata_serializer.is_valid():
+            raise serializers.ValidationError(metadata_serializer.errors)
+
+        return metadata_serializer.validated_data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
         metadata_serializer = DashboardListMetadataSerializer(
-            obj.metadata, context={"dashboard_list": obj}
+            instance.metadata, context={"dashboard_list": instance}
         )
-        data = metadata_serializer.data
+        data["metadata"] = metadata_serializer.data
         return data
 
     class Meta:
