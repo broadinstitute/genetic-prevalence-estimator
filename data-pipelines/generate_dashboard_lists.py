@@ -2,6 +2,8 @@ import argparse
 import json
 import os
 import ast
+import time
+import signal
 
 from datetime import datetime
 import hail as hl
@@ -1006,6 +1008,83 @@ def prepare_dashboard_download(dataframe):
     return df_download
 
 
+# def safe_cleanup():
+#     try:
+#         # Stop Hail first
+#         hl.stop()
+#         # Get Spark context and stop it
+#         sc = hl.spark_context()
+#         sc.stop()
+#         # Give it a moment to clean up
+#         time.sleep(2)
+#     except Exception as e:
+#         print(f"Cleanup error (safe to ignore): {e}")
+
+
+# def safe_cleanup():
+#     try:
+#         # Stop Hail first
+#         hl.stop()
+#
+#         # Get and stop Spark context
+#         try:
+#             sc = hl.spark_context()
+#             sc.stop()
+#         except:
+#             pass
+#
+#         # Give it a moment to clean up
+#         time.sleep(2)
+#
+#         # More aggressive cleanup if needed
+#         try:
+#             # Try to find and kill any lingering Spark processes
+#             os.system("jps | grep 'SparkSubmit' | awk '{print $1}' | xargs kill -15")
+#             time.sleep(1)
+#         except:
+#             pass
+#
+#     except Exception as e:
+#         print(f"Cleanup error (safe to ignore): {e}")
+
+
+def safe_cleanup():
+    try:
+        # stop hail first
+        try:
+            hl.stop()
+        except:
+            pass
+        time.sleep(1)
+
+        # clean up spark resources
+        try:
+            cmds = [
+                "jps | grep 'SparkSubmit' | awk '{print $1}'",
+                "ps aux | grep '[S]parkSubmit' | awk '{print $2}'",
+                "ps aux | grep '[h]ail' | awk '{print $2}'",
+            ]
+            for cmd in cmds:
+                try:
+                    pids = subprocess.check_output(cmd, shell=True).decode().strip()
+                    if pids:
+                        for pid in pids.split("\n"):
+                            os.kill(int(pid), signal.SIGKILL)
+                except:
+                    pass
+
+            os.system("rm -rf /tmp/hail*")
+            os.system("rm -rf /tmp/spark*")
+
+        except Exception as e:
+            print(f"Process cleanup error (safe to ignore): {e}")
+
+        time.sleep(3)
+
+    except Exception as e:
+        print(f"Cleanup error (safe to ignore): {e}")
+
+
 # e.g.
 # python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
@@ -1017,8 +1096,6 @@ def main() -> None:
     parser.add_argument("--genes-file", required=False)
     args = parser.parse_args()
 
-    # hl.init(quiet=args.quiet)
-
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
     if args.directory_root:
         base_dir = args.directory_root
@@ -1029,50 +1106,75 @@ def main() -> None:
 
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
-    start = 0
-    batch_size = 49
-    stop = 48
+    start = 1950
+    batch_size = 50
+    stop = 2501
 
     for i in range(start, stop, batch_size):
-        hl.init(quiet=args.quiet)
+        try:
+            print("starting cleanup")
+            safe_cleanup()
 
-        batch_start_time = datetime.now()
+            print("initializing hail")
+            hl.init(
+                quiet=args.quiet,
+                master="local[8]",
+                spark_conf={
+                    "spark.driver.memory": "8g",
+                    "spark.executor.memory": "8g",
+                    "spark.driver.maxResultSize": "4g",
+                    "spark.memory.fraction": "0.8",
+                    "spark.memory.storageFraction": "0.3",
+                    "spark.local.dir": "/tmp",
+                    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+                    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+                    "spark.network.timeout": "800s",
+                    "spark.executor.heartbeatInterval": "400s",
+                    "spark.default.parallelism": "8",
+                    "spark.sql.shuffle.partitions": "8",
+                    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+                    "spark.kryoserializer.buffer.max": "1g",
+                },
+            )
 
-        batch_start = i
-        batch_stop = i + batch_size if i + batch_size < stop else None
-        batch_stop_print = i + batch_size if i + batch_size < stop else "end"
+            batch_start_time = datetime.now()
 
-        print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
+            batch_start = i
+            batch_stop = i + batch_size if i + batch_size < stop else None
+            batch_stop_print = i + batch_size if i + batch_size < stop else "end"
 
-        print("Preparing dashboard list models ...")
-        df_dashboard_models = prepare_dashboard_lists(
-            genes_fullpath, base_dir, start=batch_start, stop=batch_stop
-        )
-        df_dashboard_models.to_csv(
-            os.path.join(
-                base_dir,
-                f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
-            ),
-            index=False,
-        )
-        print("Wrote dashboard list models to file")
+            print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
 
-        print("Preparing dashboard downloads")
-        df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
-        df_dashboard_download.to_csv(
-            os.path.join(
-                base_dir,
-                f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
-            ),
-            index=False,
-        )
-        print("Wrote dashboard downloads to file")
+            print("Preparing dashboard list models ...")
+            df_dashboard_models = prepare_dashboard_lists(
+                genes_fullpath, base_dir, start=batch_start, stop=batch_stop
+            )
+            df_dashboard_models.to_csv(
+                os.path.join(
+                    base_dir,
+                    f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
+                ),
+                index=False,
+            )
+            print("Wrote dashboard list models to file")
 
-        batch_end_time = datetime.now()
-        print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"It took: {batch_end_time - batch_start_time}\n\n")
+            print("Preparing dashboard downloads")
+            df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+            df_dashboard_download.to_csv(
+                os.path.join(
+                    base_dir,
+                    f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+                ),
+                index=False,
+            )
+            print("Wrote dashboard downloads to file")
 
-        hl.stop()
+            batch_end_time = datetime.now()
+            print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+        finally:
+            safe_cleanup()
 
     # print(f"Started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     # print("Preparing dashboard list models ...")
