@@ -2,6 +2,8 @@ import argparse
 import json
 import os
 import ast
+import time
+import signal
 
 from datetime import datetime
 import hail as hl
@@ -134,6 +136,115 @@ def get_highest_frequency_variants(ds, num_to_keep):
     return ds
 
 
+# remappings = {
+#     "C12ORF57": {
+#         "transcript_id": "ENST00000229281",
+#         "gene_id": "ENSG00000111678",
+#         "chrom": 12,
+#         "start": 6942978,
+#         "stop": 6946003,
+#     },
+#     "C12ORF65": {
+#         "transcript_id": "ENST00000253233",
+#         "gene_id": "ENSG00000130921",
+#         "chrom": 12,
+#         "start": 123233385,
+#         "stop": 123258079,
+#     },
+#     "C15ORF41": {
+#         "transcript_id": "ENST00000566621",
+#         "gene_id": "ENSG00000186073",
+#         "chrom": 15,
+#         "start": 36579626,
+#         "stop": 36810248,
+#     },
+#     "C19ORF12": {
+#         "transcript_id": "ENST00000323670",
+#         "gene_id": "ENSG00000131943",
+#         "chrom": 19,
+#         "start": 29698937,
+#         "stop": 29715789,
+#     },
+#     "C8ORF37": {
+#         "transcript_id": "ENST00000286688",
+#         "gene_id": "ENSG00000156172",
+#         "chrom": 8,
+#         "start": 95244913,
+#         "stop": 95269201,
+#     },
+#     "CCDC114": {
+#         "transcript_id": "ENST00000674294",
+#         "gene_id": "ENSG00000105479",
+#         "chrom": 19,
+#         "start": 48296457,
+#         "stop": 48321971,
+#     },
+#     "CCDC151": {
+#         "transcript_id": "ENST00000356392",
+#         "gene_id": "ENSG00000198003",
+#         "chrom": 19,
+#         "start": 11420604,
+#         "stop": 11435782,
+#     },
+#     "CLAM": {
+#         "transcript_id": "ENST00000379756",
+#         "gene_id": "ENSG00000101222",
+#         "chrom": 20,
+#         "start": 3777504,
+#         "stop": 3781448,
+#     },
+#     "FAM126A": {
+#         "transcript_id": "ENST00000432176",
+#         "gene_id": "ENSG00000122591",
+#         "chrom": 7,
+#         "start": 22889371,
+#         "stop": 23014130,
+#     },
+#     "MAP11": {
+#         "transcript_id": "ENST00000316937",
+#         "gene_id": "ENSG00000146826",
+#         "chrom": 7,
+#         "start": 100154420,
+#         "stop": 100158723,
+#     },
+#     "SKIV2L": {
+#         "transcript_id": "ENST00000375394",
+#         "gene_id": "ENSG00000204351",
+#         "chrom": 6,
+#         "start": 31959117,
+#         "stop": 31969751,
+#     },
+#     "SPATA5": {
+#         "transcript_id": "ENST00000274008",
+#         "gene_id": "ENSG00000145375",
+#         "chrom": 4,
+#         "start": 122923070,
+#         "stop": 123319433,
+#     },
+#     "TCTEX1D2": {
+#         "transcript_id": "ENST00000325318",
+#         "gene_id": "ENSG00000213123",
+#         "chrom": 3,
+#         "start": 196291219,
+#         "stop": 196318299,
+#     },
+#     "TTC25": {
+#         "transcript_id": "ENST00000377540",
+#         "gene_id": "ENSG00000204815",
+#         "chrom": 17,
+#         "start": 41930617,
+#         "stop": 41966503,
+#     },
+#     "TTC37": {
+#         "transcript_id": "ENST00000358746",
+#         "gene_id": "ENSG00000198677",
+#         "chrom": 5,
+#         "start": 95461755,
+#         "stop": 95554977,
+#     },
+# }
+
+
 def process_dashboard_list(
     dataframe,
     index,
@@ -144,19 +255,43 @@ def process_dashboard_list(
     gnomad_variants,
     clinvar_variants,
 ):
+    # if gene_symbol in remappings:
+    #     print(f"Found remapping for {gene_symbol}, using those values ...")
+    #     object = remappings["gene_symbol"]
+    #     transcript_id = object["transcript_id"]
+    #     chrom = object["chrom"]
+    #     start = object["start"]
+    #     stop = object["stop"]
+
     contig = f"chr{chrom}"
 
-    ht = hl.filter_intervals(
-        gnomad_variants,
-        [
-            hl.interval(
-                hl.locus(contig, start, "GRCh38"),
-                hl.locus(contig, stop, "GRCh38"),
-                includes_start=True,
-                includes_end=True,
-            )
-        ],
-    )
+    if start is not None and stop is not None:
+        ht = hl.filter_intervals(
+            gnomad_variants,
+            [
+                hl.interval(
+                    hl.locus(contig, start, "GRCh38"),
+                    hl.locus(contig, stop, "GRCh38"),
+                    includes_start=True,
+                    includes_end=True,
+                )
+            ],
+        )
+
+    else:
+        ht = ht.filter(ht.locus.contig == contig)
+
+    # ht = hl.filter_intervals(
+    #     gnomad_variants,
+    #     [
+    #         hl.interval(
+    #             hl.locus(contig, start, "GRCh38"),
+    #             hl.locus(contig, stop, "GRCh38"),
+    #             includes_start=True,
+    #             includes_end=True,
+    #         )
+    #     ],
+    # )
 
     ht.transmute(
         freq=hl.struct(
@@ -183,7 +318,6 @@ def process_dashboard_list(
 
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
-        "association",
         "Likely pathogenic",
         "Likely pathogenic/Likely risk allele",
         "Likely pathogenic/Pathogenic",
@@ -312,6 +446,9 @@ def process_dashboard_list(
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
+    if len(variants) == 0:
+        print("For this gene, variants length is 0")
+
     # calculate sum of allele frequencies across all variants
     total_allele_frequencies = [0] * (len(populations) + 1)
     multiplied_allele_frequencies = [1] * (len(populations) + 1)
@@ -361,7 +498,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
     for ac_an in total_allele_counts_and_numbers:
         carrier_frequency_raw_numbers = {
             "total_ac": ac_an["AC"],
-            "average_an": ac_an["AN"] / length,
+            "average_an": (ac_an["AN"] / length) if length > 0 else 0,
         }
         carrier_frequency_raw_numbers_array.append(carrier_frequency_raw_numbers)
 
@@ -422,7 +559,7 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
     return merged_df
 
 
-def prepare_dashboard_lists(genes_fullpath, base_dir):
+def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     ds = hl.import_table(
         genes_fullpath,
         delimiter=",",
@@ -442,7 +579,10 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
     ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
 
     # load gnomad and clinvar tables for use in main task
-    GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+    # GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+    GNOMAD_V4_VARIANTS_PATH = (
+        "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
+    )
     ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
@@ -453,6 +593,180 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
     # iterate and perform the worker-esque task with pandas because hail does not like
     #   accessing values of rows while assigning them in a non hail expression way
     df = ds.to_pandas()
+
+    if stop != None:
+        df = df.iloc[start:stop]
+    else:
+        df = df.iloc[start:]
+
+    print(f"Old len dataframe is: {len(df)}")
+
+    manual_gene_ids = {
+        "C12ORF57": {
+            "gene_id": "ENSG00000111678",
+            "gene_version": "11",
+            "transcript_id": "ENST00000229281",
+            "transcript_version": "6",
+            "chrom": 12,
+            "start": 6942978,
+            "stop": 6946003,
+        },
+        "C12ORF65": {
+            "gene_id": "ENSG00000130921",
+            "gene_version": "9",
+            "transcript_id": "ENST00000253233",
+            "transcript_version": "6",
+            "chrom": 12,
+            "start": 123233385,
+            "stop": 123258079,
+        },
+        "C15ORF41": {
+            "gene_id": "ENSG00000186073",
+            "gene_version": "14",
+            "transcript_id": "ENST00000566621",
+            "transcript_version": "6",
+            "chrom": 15,
+            "start": 36579626,
+            "stop": 36810248,
+        },
+        "C19ORF12": {
+            "gene_id": "ENSG00000131943",
+            "gene_version": "20",
+            "transcript_id": "ENST00000323670",
+            "transcript_version": "14",
+            "chrom": 19,
+            "start": 29698937,
+            "stop": 29715789,
+        },
+        "C8ORF37": {
+            "gene_id": "ENSG00000156172",
+            "gene_version": "6",
+            "transcript_id": "ENST00000286688",
+            "transcript_version": "6",
+            "chrom": 8,
+            "start": 95244913,
+            "stop": 95269201,
+        },
+        "CCDC114": {
+            "gene_id": "ENSG00000105479",
+            "gene_version": "16",
+            "transcript_id": "ENST00000674294",
+            "transcript_version": "1",
+            "chrom": 19,
+            "start": 48296457,
+            "stop": 48321971,
+        },
+        "CCDC151": {
+            "gene_id": "ENSG00000198003",
+            "gene_version": "12",
+            "transcript_id": "ENST00000356392",
+            "transcript_version": "9",
+            "chrom": 19,
+            "start": 11420604,
+            "stop": 11435782,
+        },
+        "CLAM": {
+            "gene_id": "ENSG00000101222",
+            "gene_version": "12",
+            "transcript_id": "ENST00000379756",
+            "transcript_version": "3",
+            "chrom": 20,
+            "start": 3777504,
+            "stop": 3781448,
+        },
+        "FAM126A": {
+            "gene_id": "ENSG00000122591",
+            "gene_version": "13",
+            "transcript_id": "ENST00000432176",
+            "transcript_version": "7",
+            "chrom": 7,
+            "start": 22889371,
+            "stop": 23014130,
+        },
+        "MAP11": {
+            "gene_id": "ENSG00000146826",
+            "gene_version": "17",
+            "transcript_id": "ENST00000316937",
+            "transcript_version": "8",
+            "chrom": 7,
+            "start": 100154420,
+            "stop": 100158723,
+        },
+        "SKIV2L": {
+            "gene_id": "ENSG00000204351",
+            "gene_version": "12",
+            "transcript_id": "ENST00000375394",
+            "transcript_version": "7",
+            "chrom": 6,
+            "start": 31959117,
+            "stop": 31969751,
+        },
+        "SPATA5": {
+            "gene_id": "ENSG00000145375",
+            "gene_version": "9",
+            "transcript_id": "ENST00000274008",
+            "transcript_version": "5",
+            "chrom": 4,
+            "start": 122923070,
+            "stop": 123319433,
+        },
+        "TCTEX1D2": {
+            "gene_id": "ENSG00000213123",
+            "gene_version": "11",
+            "transcript_id": "ENST00000325318",
+            "transcript_version": "10",
+            "chrom": 3,
+            "start": 196291219,
+            "stop": 196318299,
+        },
+        "TTC25": {
+            "gene_id": "ENSG00000204815",
+            "gene_version": "10",
+            "transcript_id": "ENST00000377540",
+            "transcript_version": "6",
+            "chrom": 17,
+            "start": 41930617,
+            "stop": 41966503,
+        },
+        "TTC37": {
+            "gene_id": "ENSG00000198677",
+            "gene_version": "12",
+            "transcript_id": "ENST00000358746",
+            "transcript_version": "7",
+            "chrom": 5,
+            "start": 95461755,
+            "stop": 95554977,
+        },
+    }
+
+    def stitch_values(row, manual_gene_ids):
+        symbol = row["symbol"]
+        if symbol in manual_gene_ids:
+            manual_entry = manual_gene_ids[symbol]
+            row["gene_id"] = manual_entry.get("gene_id", row["gene_id"])
+            row["gene_version"] = manual_entry.get("gene_version", row["gene_version"])
+            row["preferred_trancript_id"] = manual_entry.get(
+                "transcript_id", row["preferred_transcript_id"]
+            )
+            row["mane_select_transcript_ensemble_version"] = manual_entry.get(
+                "transcript_version", row["mane_select_transcript_ensemble_version"]
+            )
+            row["chrom"] = manual_entry.get("chrom", row["chrom"])
+            row["start"] = manual_entry.get("start", row["stop"])
+            row["stop"] = manual_entry.get("stop", row["stop"])
+        return row
+
+    df = df.apply(stitch_values, manual_gene_ids=manual_gene_ids, axis=1)
+
+    missing_gene_id_rows = df[df["gene_id"].isna()]
+    print("Gene symbols with missing gene_id:")
+    print(missing_gene_id_rows["symbol"].tolist())
+
+    # Drop rows with missing "gene_id"
+    df = df.dropna(subset=["gene_id"])
+
+    print(f"New len dataframe is: {len(df)}")
+
     df["variants"] = [[] for _ in range(len(df))]
     df["top_ten_variants"] = [[] for _ in range(len(df))]
     df["label"] = ""
@@ -472,8 +786,13 @@ def prepare_dashboard_lists(genes_fullpath, base_dir):
 
     df["inheritance_type"] = ""
 
+    batch_i = 0
     for index, row in df.iterrows():
-        print(f"Processing row {index + 1} of {len(df)}")
+        batch_i += 1
+        print(
+            f"  -- Processing row {index + 1} [{row.symbol} - {row.gene_id}] ({batch_i} of {len(df)} in batch)"
+        )
+        # print(f"  ---- {row.gene_symbol}, {row.gene_id} ")
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
         transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
@@ -549,6 +868,8 @@ def prepare_dashboard_download(dataframe):
     download_data = []
 
     for _, row in dataframe.iterrows():
+        # print(f"  gene_id is: {row.gene_id}")
+
         metadata = json.loads(row["metadata"])
         top_ten_variants = json.loads(row["top_ten_variants"])
         calculations = json.loads(row["variant_calculations"])
@@ -687,16 +1008,93 @@ def prepare_dashboard_download(dataframe):
     return df_download
 
 
+# def safe_cleanup():
+#     try:
+#         # Stop Hail first
+#         hl.stop()
+#         # Get Spark context and stop it
+#         sc = hl.spark_context()
+#         sc.stop()
+#         # Give it a moment to clean up
+#         time.sleep(2)
+#     except Exception as e:
+#         print(f"Cleanup error (safe to ignore): {e}")
+
+
+# def safe_cleanup():
+#     try:
+#         # Stop Hail first
+#         hl.stop()
+#
+#         # Get and stop Spark context
+#         try:
+#             sc = hl.spark_context()
+#             sc.stop()
+#         except:
+#             pass
+#
+#         # Give it a moment to clean up
+#         time.sleep(2)
+#
+#         # More aggressive cleanup if needed
+#         try:
+#             # Try to find and kill any lingering Spark processes
+#             os.system("jps | grep 'SparkSubmit' | awk '{print $1}' | xargs kill -15")
+#             time.sleep(1)
+#         except:
+#             pass
+#
+#     except Exception as e:
+#         print(f"Cleanup error (safe to ignore): {e}")
+
+
+def safe_cleanup():
+    try:
+        # stop hail first
+        try:
+            hl.stop()
+        except:
+            pass
+        time.sleep(1)
+
+        # clean up spark resources
+        try:
+            cmds = [
+                "jps | grep 'SparkSubmit' | awk '{print $1}'",
+                "ps aux | grep '[S]parkSubmit' | awk '{print $2}'",
+                "ps aux | grep '[h]ail' | awk '{print $2}'",
+            ]
+            for cmd in cmds:
+                try:
+                    pids = subprocess.check_output(cmd, shell=True).decode().strip()
+                    if pids:
+                        for pid in pids.split("\n"):
+                            os.kill(int(pid), signal.SIGKILL)
+                except:
+                    pass
+
+            os.system("rm -rf /tmp/hail*")
+            os.system("rm -rf /tmp/spark*")
+
+        except Exception as e:
+            print(f"Process cleanup error (safe to ignore): {e}")
+
+        time.sleep(3)
+
+    except Exception as e:
+        print(f"Cleanup error (safe to ignore): {e}")
+
+
 # e.g.
 # python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
+    start_time = datetime.now()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--genes-file", required=False)
     args = parser.parse_args()
-
-    hl.init(quiet=args.quiet)
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
     if args.directory_root:
@@ -708,19 +1106,94 @@ def main() -> None:
 
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
-    print("Preparing dashboard list models ...")
-    df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
-    df_dashboard_models.to_csv(
-        os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
-    )
-    print("Wrote dashboard list models to file")
+    start = 1950
+    batch_size = 50
+    stop = 2501
 
-    print("Preparing dashboard downloads")
-    df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
-    df_dashboard_download.to_csv(
-        os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
-    )
-    print("Wrote dashboard downloads to file")
+    for i in range(start, stop, batch_size):
+        try:
+            print("starting cleanup")
+            safe_cleanup()
+
+            print("initializing hail")
+            hl.init(
+                quiet=args.quiet,
+                master="local[8]",
+                spark_conf={
+                    "spark.driver.memory": "8g",
+                    "spark.executor.memory": "8g",
+                    "spark.driver.maxResultSize": "4g",
+                    "spark.memory.fraction": "0.8",
+                    "spark.memory.storageFraction": "0.3",
+                    "spark.local.dir": "/tmp",
+                    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+                    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+                    "spark.network.timeout": "800s",
+                    "spark.executor.heartbeatInterval": "400s",
+                    "spark.default.parallelism": "8",
+                    "spark.sql.shuffle.partitions": "8",
+                    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+                    "spark.kryoserializer.buffer.max": "1g",
+                },
+            )
+
+            batch_start_time = datetime.now()
+
+            batch_start = i
+            batch_stop = i + batch_size if i + batch_size < stop else None
+            batch_stop_print = i + batch_size if i + batch_size < stop else "end"
+
+            print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
+
+            print("Preparing dashboard list models ...")
+            df_dashboard_models = prepare_dashboard_lists(
+                genes_fullpath, base_dir, start=batch_start, stop=batch_stop
+            )
+            df_dashboard_models.to_csv(
+                os.path.join(
+                    base_dir,
+                    f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
+                ),
+                index=False,
+            )
+            print("Wrote dashboard list models to file")
+
+            print("Preparing dashboard downloads")
+            df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+            df_dashboard_download.to_csv(
+                os.path.join(
+                    base_dir,
+                    f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+                ),
+                index=False,
+            )
+            print("Wrote dashboard downloads to file")
+
+            batch_end_time = datetime.now()
+            print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+        finally:
+            safe_cleanup()
+
+    # print(f"Started at: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    # print("Preparing dashboard list models ...")
+    # df_dashboard_models = prepare_dashboard_lists(genes_fullpath, base_dir)
+    # df_dashboard_models.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_models.csv"), index=False
+    # )
+    # print("Wrote dashboard list models to file")
+
+    # print("Preparing dashboard downloads")
+    # df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+    # df_dashboard_download.to_csv(
+    #     os.path.join(base_dir, "dashboard/dashboard_download.csv"), index=False
+    # )
+    # print("Wrote dashboard downloads to file")
+
+    end_time = datetime.now()
+    print(f"Finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {end_time - start_time}")
 
 
 if __name__ == "__main__":
