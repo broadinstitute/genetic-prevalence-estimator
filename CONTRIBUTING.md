@@ -52,9 +52,9 @@ python data-pipelines/import_clinvar.py --reference-genome GRCh38 --intervals ch
 
 As a shortcut, to prepare data for variants in PCSK9, run `./scripts/prepare_test_data.sh`.
 
-## Running in Docker
+## Running in Podman
 
-This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) is enabled.
+This assumes that [Podman](https://podman.io/), and the [compose](https://github.com/containers/podman-compose) plugin, are installed.
 
 - Configure app. Create a `.env` file and fill in values for environment variables.
 
@@ -77,14 +77,14 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 - On first run, start database and apply migrations.
 
   ```
-  docker compose up database
-  docker compose run --rm website django-admin migrate
+  podman-compose up database
+  podman-compose run --rm website django-admin migrate
   ```
 
 - Start all services.
 
   ```
-  docker compose up
+  podman compose up
   ```
 
 - On first run, create a user.
@@ -94,7 +94,7 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
   - Start a REPL.
 
     ```
-    docker compose exec website django-admin shell
+    podman-compose exec website django-admin shell
     ```
 
   - Create a user or activate an existing user.
