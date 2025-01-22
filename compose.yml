@@ -20,6 +20,8 @@ services:
   pubsub:
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
     command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    ports:
+      - "8085:8085"
     environment:
       - PUBSUB_PROJECT_ID=${GCP_PROJECT}
     volumes:
@@ -29,15 +31,21 @@ services:
     build:
       context: .
       dockerfile: pubsub/pubsub.dockerfile
-    command: python setup_subscription.py
+    command: >
+      sh -c "
+      echo 'Waiting for pubsub to be ready...' &&
+      sleep 5 &&
+      python setup_subscription.py"
     environment:
       - PUBSUB_EMULATOR_HOST=pubsub:8085
-      - GCP_PROJECT
+      - GCP_PROJECT=${GCP_PROJECT}
     volumes:
       - ./pubsub/setup_subscription.py:/setup_subscription.py
     depends_on:
-      - pubsub
-      - worker
+      pubsub:
+        condition: service_healthy
+      worker:
+        condition: service_started
   website:
     build:
       context: .
@@ -45,18 +53,18 @@ services:
     command: django-admin runserver website:8080
     environment:
       - DJANGO_SETTINGS_MODULE=website.settings.development
-      - SECRET_KEY
+      - SECRET_KEY=${SECRET_KEY}
       - DB_ENGINE=django.db.backends.postgresql
       - DB_HOST=database
       - DB_PORT=5432
-      - DB_DATABASE
-      - DB_USER
-      - DB_PASSWORD
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
       - ALLOWED_HOSTS=localhost,website
       - PORT=8080
       - PUBSUB_EMULATOR_HOST=pubsub:8085
-      - GCP_PROJECT
-      - GOOGLE_AUTH_CLIENT_ID
+      - GCP_PROJECT=${GCP_PROJECT}
+      - GOOGLE_AUTH_CLIENT_ID=${GOOGLE_AUTH_CLIENT_ID}
     ports:
       - 127.0.0.1:8080:8080
     volumes:
@@ -75,13 +83,13 @@ services:
     command: django-admin runserver worker:8080
     environment:
       - DJANGO_SETTINGS_MODULE=worker.settings.development
-      - SECRET_KEY
+      - SECRET_KEY=${SECRET_KEY}
       - DB_ENGINE=django.db.backends.postgresql
       - DB_HOST=database
       - DB_PORT=5432
-      - DB_DATABASE
-      - DB_USER
-      - DB_PASSWORD
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
       - ALLOWED_HOSTS=localhost,worker
       - PORT=8080
       - GNOMAD_DATA_PATH=/mnt/data
