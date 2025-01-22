@@ -1,7 +1,7 @@
 ###############################################################################
 # Base image
 ###############################################################################
-FROM python:3.9-slim as base
+FROM --platform=linux/amd64 python:3.9-slim as base
 
 RUN useradd --create-home app
 

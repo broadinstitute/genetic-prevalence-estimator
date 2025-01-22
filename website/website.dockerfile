@@ -1,7 +1,7 @@
 ###############################################################################
 # Frontend build
 ###############################################################################
-FROM node:14.16.1 as frontend
+FROM --platform=linux/amd64 node:14.16.1 as frontend
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN npm run build
 ###############################################################################
 # Base image
 ###############################################################################
-FROM python:3.9-slim as base
+FROM --platform=linux/amd64 python:3.9-slim as base
 
 RUN useradd --create-home app
 
