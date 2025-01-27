@@ -103,10 +103,11 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
     from django.contrib.auth import get_user_model
     User = get_user_model()
 
-    User.objects.create(username="new_user")
-
-    User.objects.filter(username="existing_user").update(is_active=True)
+    User.objects.create(username="<YOUR_USERNAME>")
+    User.objects.filter(username="<YOUR_USERNAME>").update(is_active=True, is_staff=True)
     ```
+
+    Where `<YOUR_USERNAME>` is the google email you're going to sign in with e.g. myname@broadinstitute.org
 
 ## Running development tasks
 
