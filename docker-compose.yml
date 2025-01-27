@@ -25,6 +25,13 @@ services:
     volumes:
       - cloud_sdk_config:/root/.config
       - cloud_sdk_kube:/root/.kube
+    healthcheck:
+      test: "curl -f http://localhost:8085"
+      start_period: 30s
+      start_interval: 5s
+      interval: 90s
+      timeout: 10s
+      retries: 3
   setup-subscriber:
     build:
       context: .
@@ -36,8 +43,10 @@ services:
     volumes:
       - ./pubsub/setup_subscription.py:/setup_subscription.py
     depends_on:
-      - pubsub
-      - worker
+      pubsub:
+        condition: service_healthy
+      worker:
+        condition: service_started
   website:
     build:
       context: .
