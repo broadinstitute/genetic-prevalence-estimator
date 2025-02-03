@@ -57,14 +57,14 @@ class VariantListsView(ListCreateAPIView):
 
         return VariantListSerializer
 
-    def perform_create(self, serializer):
-        if (
-            self.request.user.created_variant_lists.count()
-            >= settings.MAX_VARIANT_LISTS_PER_USER
-        ):
+    def check_list_limit(self, user):
+        if not user.is_staff and user.created_variant_lists.count() >= settings.MAX_VARIANT_LISTS_PER_USER:
             raise ValidationError(
                 "You have created the maximum number of variant lists. Delete one to create another."
             )
+
+    def perform_create(self, serializer):
+        self.check_list_limit(self.request.user)
 
         variants = serializer.validated_data.get("variants", [])
         for variant in variants:
