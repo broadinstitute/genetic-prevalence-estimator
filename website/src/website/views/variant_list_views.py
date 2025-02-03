@@ -1,3 +1,6 @@
+import os
+import requests
+from requests.exceptions import RequestException
 from django.conf import settings
 from django.db.models import Q
 from django.core.validators import URLValidator
@@ -144,6 +147,8 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
+        previous_publicity_status = instance.is_public
+
         if (
             not self.request.user.has_perm("calculator.change_variantlist", instance)
             or "representative_status" in request.data
@@ -160,7 +165,33 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
                     "The supporting document must have a valid URL"
                 ) from exc
 
+        current_publicity_status = request.data.get("is_public")
+        if current_publicity_status is True and previous_publicity_status is False:
+            self.send_slack_notification(instance.label, self.request.user)
+
         return self.partial_update(request, *args, **kwargs)
+
+    def send_slack_notification(self, label, user):
+        webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+        if not webhook_url:
+            raise RuntimeError("Slack Webhook URL is not configured in settings.")
+
+        message = {
+            "attachments": [
+                {
+                    "pretext": f"Approval needed for public status of the list '{label}' submitted by user {user}.",
+                }
+            ]
+        }
+
+        print(f"Slack message: {message}")
+
+        try:
+            response = requests.post(webhook_url, json=message, timeout=5)
+            response.raise_for_status()
+            print("Slack notification sent successfully.")
+        except RequestException as e:
+            print(f"Failed to send Slack notification. Error: {e}")
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
