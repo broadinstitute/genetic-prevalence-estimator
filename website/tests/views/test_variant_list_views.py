@@ -220,13 +220,13 @@ class TestCreateVariantList:
         )
 
     @pytest.mark.django_db
-    @override_settings(MAX_VARIANT_LISTS_PER_USER=5)
+    @override_settings(MAX_VARIANT_LISTS_PER_USER=3)
     def test_user_is_allowed_a_limited_number_of_variant_lists(self):
         client = APIClient()
         testuser = User.objects.get(username="testuser")
         client.force_authenticate(testuser)
 
-        for _ in range(5):
+        for _ in range(3):
             response = client.post(
                 "/api/variant-lists/",
                 {
@@ -241,7 +241,7 @@ class TestCreateVariantList:
 
             assert response.status_code == 201
 
-        assert VariantList.objects.count() == 5
+        assert VariantList.objects.count() == 3
 
         response = client.post(
             "/api/variant-lists/",
@@ -256,7 +256,46 @@ class TestCreateVariantList:
         )
 
         assert response.status_code == 400
-        assert VariantList.objects.count() == 5
+        assert VariantList.objects.count() == 3
+
+    @pytest.mark.django_db
+    @override_settings(MAX_VARIANT_LISTS_PER_USER=3)
+    def test_staff_user_is_allowed_an_unlimited_number_of_variant_lists(self):
+        client = APIClient()
+        staffuser = User.objects.create(username="staffuser", is_staff=True)
+        client.force_authenticate(staffuser)
+
+        for _ in range(3):
+            response = client.post(
+                "/api/variant-lists/",
+                {
+                    "label": "A variant list",
+                    "type": VariantList.Type.CUSTOM,
+                    "metadata": {
+                        "gnomad_version": "2.1.1",
+                    },
+                    "variants": [{"id": "1-55516888-G-GA"}],
+                },
+            )
+
+            assert response.status_code == 201
+
+        assert VariantList.objects.count() == 3
+
+        response = client.post(
+            "/api/variant-lists/",
+            {
+                "label": "A variant list",
+                "type": VariantList.Type.CUSTOM,
+                "metadata": {
+                    "gnomad_version": "2.1.1",
+                },
+                "variants": [{"id": "1-55516888-G-GA"}],
+            },
+        )
+
+        assert response.status_code == 201
+        assert VariantList.objects.count() == 4
 
 
 @pytest.mark.django_db
