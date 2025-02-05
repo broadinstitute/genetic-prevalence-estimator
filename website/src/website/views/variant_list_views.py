@@ -58,7 +58,11 @@ class VariantListsView(ListCreateAPIView):
         return VariantListSerializer
 
     def check_list_limit(self, user):
-        if not user.is_staff and user.created_variant_lists.count() >= settings.MAX_VARIANT_LISTS_PER_USER:
+        if (
+            not user.is_staff
+            and user.created_variant_lists.count()
+            >= settings.MAX_VARIANT_LISTS_PER_USER
+        ):
             raise ValidationError(
                 "You have created the maximum number of variant lists. Delete one to create another."
             )
@@ -173,13 +177,15 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
     def send_slack_notification(self, label, user):
         webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+        slack_user_id = os.getenv("SLACK_USER_ID")
+
         if not webhook_url:
             raise RuntimeError("Slack Webhook URL is not configured in settings.")
 
         message = {
             "attachments": [
                 {
-                    "pretext": f"Approval needed for public status of the list '{label}' submitted by user {user}.",
+                    "pretext": f"<@{slack_user_id}> Approval needed for public status of the list '{label}' submitted by user {user}.",
                 }
             ]
         }
