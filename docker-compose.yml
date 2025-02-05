@@ -58,6 +58,7 @@ services:
       - GCP_PROJECT
       - GOOGLE_AUTH_CLIENT_ID
       - SLACK_WEBHOOK_URL
+      - SLACK_USER_ID
     ports:
       - 127.0.0.1:8080:8080
     volumes:
