@@ -512,6 +512,7 @@ def _process_variant_list(variant_list):
         )
     )
 
+    logger.info("  Annotating with flags at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
     max_af_of_clinvar_path_or_likely_path_variants = ds.aggregate(
         hl.agg.filter(
             ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
@@ -539,6 +540,10 @@ def _process_variant_list(variant_list):
     )
 
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
+        logger.info(
+            "  Annotating with LoF Curation results at: %s",
+            time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
         gene_id, gene_version = metadata["gene_id"].split(".")
 
         lof_curation_results = hl.read_table(
@@ -551,15 +556,26 @@ def _process_variant_list(variant_list):
             ].select("verdict", "flags", "project")
         )
 
+    logger.info(
+        "  Trimming HT to final shape at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
+    )
     table_fields = set(ds.row)
     select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
     ds = ds.select(*select_fields)
 
+    logger.info(
+        "  Turning HT to json and loading into DB at: %s",
+        time.strftime("%Y-%m-%d %H:%M:%S"),
+    )
     variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
     variant_list.variants = variants
     variant_list.save()
+    logger.info(
+        "  Finished loading short variants at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
+    )
 
     if gnomad_version in ("2.1.1", "4.1.0") and variant_list.structural_variants:
+        logger.info("  Adding SVs at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
         structural_variants = get_structural_variants(
             variant_list.structural_variants, metadata, gnomad_version
         )
@@ -569,6 +585,7 @@ def _process_variant_list(variant_list):
         ]
         variant_list.structural_variants = structural_variants
         variant_list.save()
+        logger.info("  Finished loading SVs at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 def annotate_structural_variants_with_flags(ds):
