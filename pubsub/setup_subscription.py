@@ -30,6 +30,7 @@ def main():
                     "name": subscription_path,
                     "topic": topic_path,
                     "push_config": push_config,
+                    "ack_deadline_seconds": 180,  # 3 minute ack deadline in local dev
                 }
             )
             print("Created subscription", subscription)
