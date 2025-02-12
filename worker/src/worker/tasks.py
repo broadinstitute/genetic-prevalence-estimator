@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import time
 import traceback
 import uuid
 
@@ -382,6 +383,8 @@ def get_recommended_variants(metadata, transcript):
 
 
 def _process_variant_list(variant_list):
+    start_time = time.time()
+
     # Serialize variant list to normalize different versions of metadata
     serializer = VariantListSerializer(variant_list)
     metadata = serializer.data["metadata"]
@@ -395,6 +398,10 @@ def _process_variant_list(variant_list):
         "4.1.0",
     ), f"Invalid gnomAD version '{gnomad_version}'"
 
+    logger.info(
+        "  Starting metadata serialization list at: %s",
+        time.strftime("%Y-%m-%d %H:%M:%S"),
+    )
     if metadata.get("include_gnomad_plof") or metadata.get(
         "include_clinvar_clinical_significance"
     ):
@@ -430,6 +437,9 @@ def _process_variant_list(variant_list):
     # Import existing variants into a Hail Table
     ds = None
     if variant_list.variants:
+        logger.info(
+            "  Importing existing variants at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
+        )
         chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
         variant_ids = [
             f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
@@ -445,6 +455,10 @@ def _process_variant_list(variant_list):
     if metadata.get("include_gnomad_plof") or metadata.get(
         "include_clinvar_clinical_significance"
     ):
+        logger.info(
+            "  Adding recommended variants variants at: %s",
+            time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
         recommended_variants = get_recommended_variants(metadata, transcript)
         if ds:
             ds = ds.join(recommended_variants, how="outer")
@@ -454,6 +468,7 @@ def _process_variant_list(variant_list):
     # Annotate variants
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
+    logger.info("  Annotating with gnomAD at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
     gnomad = hl.read_table(
         f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
     )
@@ -482,6 +497,7 @@ def _process_variant_list(variant_list):
             )
         )
 
+    logger.info("  Annotating with ClinVar at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
     clinvar = hl.read_table(
         f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
     )
@@ -612,7 +628,10 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
 
 
 def process_variant_list(uid):
-    logger.info("Processing new variant list %s", uid)
+    start_time = time.time()
+    logger.info(
+        "Processing new variant list %s at: %s", uid, time.strftime("%Y-%m-%d %H:%M:%S")
+    )
 
     variant_list = VariantList.objects.get(uuid=uid)
     variant_list.status = VariantList.Status.PROCESSING
@@ -632,7 +651,14 @@ def process_variant_list(uid):
         variant_list.save()
 
     else:
-        logger.info("Done processing new variant list %s", uid)
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.info(
+            "Done processing variant list %s at: %s, took %.2f seconds",
+            uid,
+            time.strftime("%Y-%m-%d %H:%M:%S"),
+            duration,
+        )
 
         variant_list.status = VariantList.Status.READY
 
