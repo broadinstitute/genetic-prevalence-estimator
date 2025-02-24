@@ -171,32 +171,6 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
     )
 
 
-def annotate_variants_with_flags(
-    ds, max_af_of_clinvar_path_or_likely_path_variants, max_an
-):
-    return hl.array(
-        [
-            hl.or_missing(hl.is_missing(ds.freq), "not_found"),
-            hl.or_missing(
-                hl.len(
-                    hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
-                        hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
-                    )
-                )
-                > 0,
-                "filtered",
-            ),
-            hl.or_missing(
-                (ds.AC[0] / ds.AN[0] > max_af_of_clinvar_path_or_likely_path_variants)
-                & (hl.is_missing(ds.clinvar_variation_id)),
-                "high_AF",
-            ),
-            hl.or_missing((ds.AN[0]) < (max_an / 2), "low_AN"),
-            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
-        ]
-    ).filter(hl.is_defined)
-
-
 def fetch_transcript(transcript_id, gnomad_version):
     query = """
     query Transcript($transcript_id: String!, $reference_genome: ReferenceGenomeId!) {
@@ -382,6 +356,135 @@ def get_recommended_variants(metadata, transcript):
     return ds
 
 
+def _import_existing_variants(variant_list, gnomad_version, reference_genome):
+    logger.info(
+        "  Importing existing variants at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
+    )
+    chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
+    variant_ids = [
+        f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
+    ]
+    ds = hl.Table.parallelize(
+        [{"id": variant_id} for variant_id in variant_ids], hl.tstruct(id=hl.tstr)
+    )
+    ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
+    ds = ds.key_by("locus", "alleles")
+    ds = ds.select(source=["Custom"])
+    return ds
+
+
+def _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata):
+    gnomad = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
+    )
+
+    ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
+
+    if metadata.get("transcript_id"):
+        ds = ds.transmute(
+            transcript_consequence=ds.transcript_consequences.find(
+                lambda csq: csq.transcript_id == metadata["transcript_id"]
+            )
+        )
+    else:
+        ds = ds.transmute(transcript_consequence=ds.transcript_consequences.first())
+
+    ds = ds.transmute(**ds.transcript_consequence)
+
+    populations = hl.eval(gnomad.globals.populations)
+    variant_list.metadata["populations"] = populations
+
+    if gnomad_version == "4.1.0":
+        ds = ds.annotate(**ds.freq.joint)
+    else:
+        ds = ds.annotate(
+            **combined_freq(
+                ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
+            )
+        )
+
+    return ds
+
+
+def _annotate_variants_with_ClinVar(ds, variant_list, reference_genome):
+    clinvar = hl.read_table(
+        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+    )
+
+    variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
+
+    ds = ds.annotate(
+        **clinvar[ds.locus, ds.alleles].select(
+            "clinvar_variation_id",
+            "clinical_significance",
+            "clinical_significance_category",
+            "gold_stars",
+        )
+    )
+
+    return ds
+
+
+def _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version):
+    gene_id, gene_version = metadata["gene_id"].split(".")
+
+    lof_curation_results = hl.read_table(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht"
+    )
+
+    ds = ds.annotate(
+        lof_curation=lof_curation_results[ds.locus, ds.alleles, hl.str(gene_id)].select(
+            "verdict", "flags", "project"
+        )
+    )
+
+    return ds
+
+
+def _annotate_variants_with_flags(ds):
+    # Pre-compute aggregation values in a single pass
+    agg_stats = ds.aggregate(
+        hl.struct(
+            max_an=hl.agg.max(ds.AN[0]),
+            max_path_af=hl.agg.filter(
+                ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
+                hl.agg.max(ds.AC[0] / ds.AN[0]),
+            ),
+        )
+    )
+
+    # Handle edge case where no pathogenic variants exist
+    max_af = hl.float(
+        agg_stats.max_path_af if agg_stats.max_path_af is not None else 1.1
+    )
+    max_an = agg_stats.max_an if agg_stats.max_an is not None else 0
+
+    # Calculate all flags in a single annotation step
+    return ds.annotate(
+        flags=hl.array(
+            [
+                hl.or_missing(hl.is_missing(ds.freq), "not_found"),
+                hl.or_missing(
+                    hl.len(
+                        hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
+                            hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
+                        )
+                    )
+                    > 0,
+                    "filtered",
+                ),
+                hl.or_missing(
+                    (ds.AC[0] / ds.AN[0] > max_af)
+                    & hl.is_missing(ds.clinvar_variation_id),
+                    "high_AF",
+                ),
+                hl.or_missing(ds.AN[0] < (max_an / 2), "low_AN"),
+                hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
+            ]
+        ).filter(hl.is_defined)
+    )
+
+
 def _process_variant_list(variant_list):
     start_time = time.time()
 
@@ -434,29 +537,17 @@ def _process_variant_list(variant_list):
 
     reference_genome = metadata["reference_genome"]
 
-    # Import existing variants into a Hail Table
     ds = None
+
     if variant_list.variants:
-        logger.info(
-            "  Importing existing variants at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
-        )
-        chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
-        variant_ids = [
-            f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
-        ]
-        ds = hl.Table.parallelize(
-            [{"id": variant_id} for variant_id in variant_ids], hl.tstruct(id=hl.tstr)
-        )
-        ds = ds.annotate(**parse_variant_id(ds.id, reference_genome))
-        ds = ds.key_by("locus", "alleles")
-        ds = ds.select(source=["Custom"])
+        ds = _import_existing_variants(variant_list, gnomad_version, reference_genome)
 
     # Add recommended variants
     if metadata.get("include_gnomad_plof") or metadata.get(
         "include_clinvar_clinical_significance"
     ):
         logger.info(
-            "  Adding recommended variants variants at: %s",
+            "  Adding recommended variants at: %s",
             time.strftime("%Y-%m-%d %H:%M:%S"),
         )
         recommended_variants = get_recommended_variants(metadata, transcript)
@@ -465,96 +556,26 @@ def _process_variant_list(variant_list):
         else:
             ds = recommended_variants
 
-    # Annotate variants
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
     logger.info("  Annotating with gnomAD at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
-    gnomad = hl.read_table(
-        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
-    )
-    ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
-
-    if metadata.get("transcript_id"):
-        ds = ds.transmute(
-            transcript_consequence=ds.transcript_consequences.find(
-                lambda csq: csq.transcript_id == metadata["transcript_id"]
-            )
-        )
-    else:
-        ds = ds.transmute(transcript_consequence=ds.transcript_consequences.first())
-
-    ds = ds.transmute(**ds.transcript_consequence)
-
-    populations = hl.eval(gnomad.globals.populations)
-    variant_list.metadata["populations"] = populations
-
-    if gnomad_version == "4.1.0":
-        ds = ds.annotate(**ds.freq.joint)
-    else:
-        ds = ds.annotate(
-            **combined_freq(
-                ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
-            )
-        )
+    ds = _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata)
 
     logger.info("  Annotating with ClinVar at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
-    clinvar = hl.read_table(
-        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
-    )
-    variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
+    ds = _annotate_variants_with_ClinVar(ds, variant_list, reference_genome)
 
-    ds = ds.annotate(
-        **clinvar[ds.locus, ds.alleles].select(
-            "clinvar_variation_id",
-            "clinical_significance",
-            "clinical_significance_category",
-            "gold_stars",
-        )
+    logger.info(
+        "  Handing off to annotate with flags helper at: %s",
+        time.strftime("%Y-%m-%d %H:%M:%S"),
     )
-
-    logger.info("  Annotating with flags at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
-    max_af_of_clinvar_path_or_likely_path_variants = ds.aggregate(
-        hl.agg.filter(
-            ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
-            hl.agg.max(ds.AC[0] / ds.AN[0]),
-        )
-    )
-
-    max_an = ds.aggregate(hl.agg.max(ds.AN[0]))
-    max_an = max_an if max_an is not None else 0
-
-    # if there are no clinvar path or likely path variants, the aggregation returns None
-    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
-    max_af_of_clinvar_path_or_likely_path_variants = (
-        max_af_of_clinvar_path_or_likely_path_variants
-        if max_af_of_clinvar_path_or_likely_path_variants is not None
-        else hl.int(1.1)
-    )
-
-    ds = ds.annotate(
-        flags=annotate_variants_with_flags(
-            ds,
-            max_af_of_clinvar_path_or_likely_path_variants,
-            max_an,
-        )
-    )
+    ds = _annotate_variants_with_flags(ds)
 
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
         logger.info(
             "  Annotating with LoF Curation results at: %s",
             time.strftime("%Y-%m-%d %H:%M:%S"),
         )
-        gene_id, gene_version = metadata["gene_id"].split(".")
-
-        lof_curation_results = hl.read_table(
-            f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht"
-        )
-
-        ds = ds.annotate(
-            lof_curation=lof_curation_results[
-                ds.locus, ds.alleles, hl.str(gene_id)
-            ].select("verdict", "flags", "project")
-        )
+        ds = _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version)
 
     logger.info(
         "  Trimming HT to final shape at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
