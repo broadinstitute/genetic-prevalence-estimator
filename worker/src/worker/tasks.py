@@ -140,35 +140,59 @@ def parse_variant_id(variant_id_str, reference_genome):
 def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
     zeroes = hl.range(1 + n_populations).map(lambda _: 0)
 
-    datasets_to_use = ("joint",) if gnomad_version == "4.1.0" else ("exome", "genome")
-
-    return hl.struct(
-        **{
-            field: hl.zip(
-                *(
-                    hl.if_else(
-                        hl.is_defined(ds.freq[sample_set])
-                        & (
-                            hl.literal(True)
-                            if include_filtered
-                            else (
-                                hl.len(
-                                    hl.or_else(
-                                        ds.filters[sample_set], hl.empty_set(hl.tstr)
-                                    )
+    if gnomad_version == "4.1.0":
+        sample_set = "joint"
+        return hl.struct(
+            **{
+                field: hl.if_else(
+                    hl.is_defined(ds.freq[sample_set])
+                    & (
+                        hl.literal(True)
+                        if include_filtered
+                        else (
+                            hl.len(
+                                hl.or_else(
+                                    ds.filters[sample_set], hl.empty_set(hl.tstr)
                                 )
-                                == 0
                             )
-                        ),
-                        ds.freq[sample_set].get(field, zeroes),
-                        zeroes,
-                    )
-                    for sample_set in datasets_to_use
+                            == 0
+                        )
+                    ),
+                    ds.freq[sample_set].get(field, zeroes),
+                    zeroes,
                 )
-            ).map(lambda f: f[0] + f[1])
-            for field in ("AC", "AN", "homozygote_count")
-        }
-    )
+                for field in ("AC", "AN", "homozygote_count")
+            }
+        )
+    else:
+        return hl.struct(
+            **{
+                field: hl.zip(
+                    *(
+                        hl.if_else(
+                            hl.is_defined(ds.freq[sample_set])
+                            & (
+                                hl.literal(True)
+                                if include_filtered
+                                else (
+                                    hl.len(
+                                        hl.or_else(
+                                            ds.filters[sample_set],
+                                            hl.empty_set(hl.tstr),
+                                        )
+                                    )
+                                    == 0
+                                )
+                            ),
+                            ds.freq[sample_set].get(field, zeroes),
+                            zeroes,
+                        )
+                        for sample_set in ("exome", "genome")
+                    )
+                ).map(lambda f: f[0] + f[1])
+                for field in ("AC", "AN", "homozygote_count")
+            }
+        )
 
 
 def fetch_transcript(transcript_id, gnomad_version):
@@ -394,14 +418,11 @@ def _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata):
     populations = hl.eval(gnomad.globals.populations)
     variant_list.metadata["populations"] = populations
 
-    if gnomad_version == "4.1.0":
-        ds = ds.annotate(**ds.freq.joint)
-    else:
-        ds = ds.annotate(
-            **combined_freq(
-                ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
-            )
+    ds = ds.annotate(
+        **combined_freq(
+            ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
         )
+    )
 
     return ds
 
