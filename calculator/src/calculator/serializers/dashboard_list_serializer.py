@@ -8,6 +8,10 @@ from calculator.serializers.serializer import ModelSerializer
 from calculator.serializers.variant_list_serializer import VariantListSerializer
 from calculator.serializers.serializer_fields import ChoiceField
 
+from calculator.serializers.dominant_dashboard_list_serializer import (
+    DominantDashboardListSerializer,
+)
+
 
 def is_gene_id(maybe_gene_id):
     return bool(re.fullmatch(r"ENSG\d{11}\.\d+", maybe_gene_id))
@@ -59,6 +63,7 @@ class DashboardListMetadataSerializer(
 
     def validate_gene_id(self, value):
         if value and not is_gene_id(value):
+            print(value)
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
         return value
 
@@ -127,6 +132,9 @@ class DashboardListDashboardSerializer(ModelSerializer):
     # pylint: disable=fixme
     # TODO: use a reduced serializer here?
     representative_variant_list = VariantListSerializer(many=False, read_only=True)
+    dominant_dashboard_list = DominantDashboardListSerializer(
+        many=False, read_only=True
+    )
 
     estimates = serializers.SerializerMethodField()
 
@@ -143,6 +151,8 @@ class DashboardListDashboardSerializer(ModelSerializer):
             "label",
             "metadata",
             "representative_variant_list",
+            "variant_calculations",
+            "dominant_dashboard_list",
             "estimates",
             "genetic_prevalence_orphanet",
             "genetic_prevalence_genereviews",
@@ -159,6 +169,10 @@ class DashboardListSerializer(ModelSerializer):
     metadata = serializers.JSONField()
 
     representative_variant_list = VariantListSerializer(many=False, read_only=True)
+    # grabs foreign key
+    dominant_dashboard_list = DominantDashboardListSerializer(
+        many=False, read_only=True
+    )
 
     def validate_metadata(self, value):
         if not value:
@@ -195,6 +209,7 @@ class DashboardListSerializer(ModelSerializer):
             "top_ten_variants",
             "inheritance_type",
             "representative_variant_list",
+            "dominant_dashboard_list",
             "status",
             "error",
         ]

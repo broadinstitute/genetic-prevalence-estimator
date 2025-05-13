@@ -84,6 +84,23 @@ class VariantList(models.Model):
         ]
 
 
+class DominantDashboardList(models.Model):
+    gene_id = models.CharField(max_length=100, unique=True)
+
+    de_novo_variant_calculations = models.JSONField(default=dict)
+
+    date_created = models.DateTimeField()
+
+    metadata = models.JSONField()
+
+    inheritance_type = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=("gene_id",)),
+        ]
+
+
 class DashboardList(models.Model):
     gene_id = models.CharField(max_length=100, unique=True)
     label = models.CharField(max_length=1000)
@@ -100,7 +117,7 @@ class DashboardList(models.Model):
     genetic_prevalence_other = models.CharField(max_length=100, blank=True)
     genetic_incidence_other = models.CharField(max_length=100, blank=True)
 
-    inheritance_type = models.CharField(max_length=50, blank=True)
+    inheritance_type = models.CharField(max_length=150, blank=True)
 
     top_ten_variants = models.JSONField(default=list)
 
@@ -110,6 +127,14 @@ class DashboardList(models.Model):
         on_delete=models.SET_NULL,
         related_name="representative_variant_list",
         related_query_name="representative_variant_list",
+    )
+
+    dominant_dashboard_list = models.ForeignKey(
+        DominantDashboardList,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="dominant_dashboard_list",
+        related_query_name="dominant_dashboard_list",
     )
 
     class Status(models.TextChoices):
