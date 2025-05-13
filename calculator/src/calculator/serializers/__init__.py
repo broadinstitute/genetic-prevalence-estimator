@@ -18,3 +18,9 @@ from calculator.serializers.dashboard_list_serializer import (
     DashboardListSerializer,
     DashboardListDashboardSerializer,
 )
+
+from calculator.serializers.dominant_dashboard_list_serializer import (
+    NewDominantDashboardListSerializer,
+    DominantDashboardListSerializer,
+    DominantDashboardListDashboardSerializer,
+)
