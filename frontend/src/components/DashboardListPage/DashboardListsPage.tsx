@@ -170,6 +170,7 @@ interface ColumnDef {
     | false;
 }
 
+<<<<<<< HEAD
 const BASE_COLUMNS: ColumnDef[] = [
   {
     key: "gene_symbol",
@@ -234,217 +235,293 @@ const BASE_COLUMNS: ColumnDef[] = [
     sortKey: (dashboardList) => {
       const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
       return cf && !isNaN(cf) && cf !== 0 ? Math.round(1 / cf) : 0;
+=======
+const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
+  const columns: ColumnDef[] = [
+    {
+      key: "gene_symbol",
+      heading: "Gene Symbol",
+      width: 200,
+      sortKey: (dashboardList) => {
+        return dashboardList.gene_symbol;
+      },
+      render: (dashboardList) => {
+        return (
+          <Cell maxWidth={130}>
+            {dashboardList.gene_symbol}
+            {dashboardList.inheritance_type.includes("/") && (
+              <MultipleInheritanceFlag />
+            )}
+            {dashboardList.genetic_prevalence_orphanet ===
+              "multiple_prevalences" && <MultipleDiseaseFlag />}
+          </Cell>
+        );
+      },
+>>>>>>> f9138fc (temp(frontend): conditionally render de novo column for demo)
     },
 
-    render: (dashboardList) => {
-      const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
-      const isValid = typeof cf === "number" && !isNaN(cf) && cf > 0;
-
-      return isValid ? (
-        <Cell maxWidth={130}>{renderFrequencyFraction(cf)}</Cell>
-      ) : null;
+    {
+      key: "inheritance_type",
+      heading: "Mode of Inheritance",
+      width: 200,
+      sortKey: (dashboardList) => {
+        {
+          console.log(dashboardList);
+        }
+        return dashboardList.inheritance_type;
+      },
+      render: (dashboardList) => {
+        return <Cell maxWidth={130}>{dashboardList.inheritance_type}</Cell>;
+      },
     },
-  },
 
-  {
-    key: "dashboard_estimate",
-    heading:
-      "Estimated biallelic frequency (Preliminary genetic prevalence) - AR ONLY",
-    headingTooltip:
-      "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
-    width: 200,
-    sortKey: (dashboardList) => {
-      const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
-      return gp && !isNaN(gp) && gp !== 0 ? Math.round(1 / gp) : 0;
-    },
-    render: (dashboardList) => {
-      const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
-      const isValid = typeof gp === "number" && !isNaN(gp) && gp > 0;
-
-      if (dashboardList?.inheritance_type === "AD") {
-        return <Cell maxWidth={200}>N/A - Dominant disease</Cell>;
-      }
-
-      return isValid ? (
-        <Cell maxWidth={200}>
-          <Link as={RRLink} to={`/dashboard/${dashboardList.gene_id}`}>
-            {renderFrequencyFraction(gp)}
-          </Link>
-        </Cell>
-      ) : null;
-    },
-  },
-
-  {
-    key: "de_novo_dashboard_estimate",
-    heading: "Estimated incidence of de novo variation (per 100,000)",
-    // TODO: UPDATE TOOLTIPS
-    headingTooltip: "Estimated incidence of de novo variation (per 100,000)",
-    width: 200,
-    sortKey: (dashboardList) => {
-      const incidence =
-        dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
-          ?.total_de_novo_incidence;
-
-      return incidence ?? 0;
-    },
-    render: (dashboardList) => {
-      const incidence =
-        dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
-          ?.total_de_novo_incidence;
-
-      if (incidence === undefined || incidence === null) return null;
-
-      const per100k = (incidence * 100_000).toFixed(3);
-
-      return (
-        <Cell maxWidth={200}>
-          <Link
-            as={RRLink}
-            to={`/dashboard-incidence/${dashboardList.gene_id}`}
-          >
-            {per100k}
-          </Link>
-        </Cell>
-      );
-    },
-  },
-
-  {
-    key: "representative_estimate",
-    heading: "Curated Estimates Public on GeniE",
-    width: 200,
-    sortKey: (dashboardList) => {
-      if (dashboardList.representative_variant_list) {
-        return dashboardList.representative_variant_list.estimates
-          .genetic_prevalence.global !== 0
-          ? Math.round(
-              1 /
-                dashboardList.representative_variant_list.estimates
-                  .genetic_prevalence.global
-            )
+    {
+      key: "aggregate_allele_freq_lp_p",
+      heading: "Aggregate allele frequency for LP/P variants",
+      width: 200,
+      sortKey: (dashboardList) => {
+        const carrierFreq =
+          dashboardList?.variant_calculations?.carrier_frequency;
+        return carrierFreq && carrierFreq.length > 0
+          ? Math.round(1 / (carrierFreq[0] / 2))
           : 0;
-      }
-      return 0;
+      },
+      render: (dashboardList) => {
+        const carrierFreq =
+          dashboardList?.variant_calculations?.carrier_frequency;
+        return carrierFreq && carrierFreq.length > 0 ? (
+          <Cell maxWidth={130}>
+            {renderFrequencyFraction(carrierFreq[0] / 2)}
+          </Cell>
+        ) : null;
+      },
     },
-    render: (dashboardList) => {
-      return (
-        <Cell maxWidth={200}>
-          {dashboardList.representative_variant_list && (
+
+    {
+      key: "est_heterozygous_freq",
+      heading: "Estimated heterozygous frequency (carrier frequency)",
+      width: 200,
+
+      sortKey: (dashboardList) => {
+        const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
+        return cf && !isNaN(cf) && cf !== 0 ? Math.round(1 / cf) : 0;
+      },
+
+      render: (dashboardList) => {
+        const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
+        const isValid = typeof cf === "number" && !isNaN(cf) && cf > 0;
+
+        return isValid ? (
+          <Cell maxWidth={130}>{renderFrequencyFraction(cf)}</Cell>
+        ) : null;
+      },
+    },
+
+    {
+      key: "dashboard_estimate",
+      heading:
+        "Estimated biallelic frequency (Preliminary genetic prevalence) - AR ONLY",
+      headingTooltip:
+        "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
+      width: 200,
+      sortKey: (dashboardList) => {
+        const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
+        return gp && !isNaN(gp) && gp !== 0 ? Math.round(1 / gp) : 0;
+      },
+      render: (dashboardList) => {
+        const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
+        const isValid = typeof gp === "number" && !isNaN(gp) && gp > 0;
+
+        if (dashboardList?.inheritance_type === "AD") {
+          return <Cell maxWidth={200}>N/A - Dominant disease</Cell>;
+        }
+
+        return isValid ? (
+          <Cell maxWidth={200}>
+            <Link as={RRLink} to={`/dashboard/${dashboardList.gene_id}`}>
+              {renderFrequencyFraction(gp)}
+            </Link>
+          </Cell>
+        ) : null;
+      },
+    },
+  ];
+
+  if (userIsStaff) {
+    columns.push({
+      key: "de_novo_dashboard_estimate",
+      heading: "Estimated incidence of de novo variation (per 100,000)",
+      headingTooltip: "Estimated incidence of de novo variation (per 100,000)",
+      width: 200,
+      sortKey: (dashboardList) => {
+        const incidence =
+          dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
+            ?.total_de_novo_incidence;
+
+        return incidence ?? 0;
+      },
+      render: (dashboardList) => {
+        const incidence =
+          dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
+            ?.total_de_novo_incidence;
+
+        if (incidence === undefined || incidence === null) return null;
+
+        const per100k = (incidence * 100_000).toFixed(3);
+
+        return (
+          <Cell maxWidth={200}>
             <Link
               as={RRLink}
-              to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
+              to={`/dashboard-incidence/${dashboardList.gene_id}`}
             >
-              {renderFrequencyFraction(
-                dashboardList.representative_variant_list.estimates
-                  .genetic_prevalence.global
-              )}
+              {per100k}
             </Link>
-          )}
-          {!dashboardList.representative_variant_list && ""}
-        </Cell>
-      );
-    },
-  },
+          </Cell>
+        );
+      },
+    });
+  }
 
-  {
-    key: "representative_contact",
-    heading: "Contact for public estimate",
-    width: 240,
-    sortKey: (dashboardList) => {
-      if (
-        dashboardList.representative_variant_list &&
-        dashboardList.representative_variant_list.owners
-      ) {
-        return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
-      }
-      return 0;
-    },
-    render: (dashboardList) => {
-      const ownersArray = dashboardList.representative_variant_list
-        ? dashboardList.representative_variant_list.owners
-        : [""];
-
-      return (
-        <Cell maxWidth={200}>
-          <Tooltip hasArrow label={ownersArray[0]}>
-            <Text color={"blue.700"}>
-              {ownersArray[0].length > 15
-                ? `${ownersArray[0].slice(0, 14)}...`
-                : ownersArray[0]}
-            </Text>
-          </Tooltip>
-        </Cell>
-      );
-    },
-  },
-
-  {
-    key: "supporting_documents",
-    heading: "Supporting document",
-    width: 200,
-    sortKey: (dashboardList) => {
-      if (
-        dashboardList.representative_variant_list &&
-        dashboardList.representative_variant_list.supporting_documents
-      ) {
-        return dashboardList.representative_variant_list.supporting_documents[0]
-          ? 1
-          : 0;
-      }
-      return 0;
-    },
-    render: (dashboardList) => {
-      return (
-        <Cell maxWidth={200}>
-          {dashboardList.representative_variant_list &&
-            dashboardList.representative_variant_list.supporting_documents
-              .length > 0 && (
+  columns.push(
+    {
+      key: "representative_estimate",
+      heading: "Curated Estimates Public on GeniE",
+      width: 200,
+      sortKey: (dashboardList) => {
+        if (dashboardList.representative_variant_list) {
+          return dashboardList.representative_variant_list.estimates
+            .genetic_prevalence.global !== 0
+            ? Math.round(
+                1 /
+                  dashboardList.representative_variant_list.estimates
+                    .genetic_prevalence.global
+              )
+            : 0;
+        }
+        return 0;
+      },
+      render: (dashboardList) => {
+        return (
+          <Cell maxWidth={200}>
+            {dashboardList.representative_variant_list && (
               <Link
-                href={
-                  dashboardList.representative_variant_list
-                    .supporting_documents[0].url
-                }
-                isExternal
-                target="_blank"
+                as={RRLink}
+                to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
               >
-                {
-                  dashboardList.representative_variant_list
-                    .supporting_documents[0].title
-                }
+                {renderFrequencyFraction(
+                  dashboardList.representative_variant_list.estimates
+                    .genetic_prevalence.global
+                )}
               </Link>
             )}
-        </Cell>
-      );
+            {!dashboardList.representative_variant_list && ""}
+          </Cell>
+        );
+      },
     },
-  },
 
-  {
-    key: "prevalence_orphanet",
-    heading: "Prevalence orphanet",
-    width: 200,
-    sortKey: (dashboardList) => {
-      return dashboardList.genetic_prevalence_orphanet;
-    },
-    render: (dashboardList) => {
-      const orphanetPrevalence = dashboardList.genetic_prevalence_orphanet;
+    {
+      key: "representative_contact",
+      heading: "Contact for public estimate",
+      width: 240,
+      sortKey: (dashboardList) => {
+        if (
+          dashboardList.representative_variant_list &&
+          dashboardList.representative_variant_list.owners
+        ) {
+          return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
+        }
+        return 0;
+      },
+      render: (dashboardList) => {
+        const ownersArray = dashboardList.representative_variant_list
+          ? dashboardList.representative_variant_list.owners
+          : [""];
 
-      return (
-        <Cell maxWidth={200}>
-          <Link
-            href={`https://www.orpha.net/en/disease/gene/${dashboardList.gene_symbol.toUpperCase()}?name=${dashboardList.gene_symbol.toLocaleLowerCase()}&mode=gene`}
-            isExternal
-            target="_blank"
-          >
-            {orphanetPrevalence in orphanetPrevalencesRemappings
-              ? orphanetPrevalencesRemappings[orphanetPrevalence]
-              : orphanetPrevalence}
-          </Link>
-        </Cell>
-      );
+        return (
+          <Cell maxWidth={200}>
+            <Tooltip hasArrow label={ownersArray[0]}>
+              <Text color={"blue.700"}>
+                {ownersArray[0].length > 15
+                  ? `${ownersArray[0].slice(0, 14)}...`
+                  : ownersArray[0]}
+              </Text>
+            </Tooltip>
+          </Cell>
+        );
+      },
     },
-  },
-];
+
+    {
+      key: "supporting_documents",
+      heading: "Supporting document",
+      width: 200,
+      sortKey: (dashboardList) => {
+        if (
+          dashboardList.representative_variant_list &&
+          dashboardList.representative_variant_list.supporting_documents
+        ) {
+          return dashboardList.representative_variant_list
+            .supporting_documents[0]
+            ? 1
+            : 0;
+        }
+        return 0;
+      },
+      render: (dashboardList) => {
+        return (
+          <Cell maxWidth={200}>
+            {dashboardList.representative_variant_list &&
+              dashboardList.representative_variant_list.supporting_documents
+                .length > 0 && (
+                <Link
+                  href={
+                    dashboardList.representative_variant_list
+                      .supporting_documents[0].url
+                  }
+                  isExternal
+                  target="_blank"
+                >
+                  {
+                    dashboardList.representative_variant_list
+                      .supporting_documents[0].title
+                  }
+                </Link>
+              )}
+          </Cell>
+        );
+      },
+    },
+
+    {
+      key: "prevalence_orphanet",
+      heading: "Prevalence orphanet",
+      width: 200,
+      sortKey: (dashboardList) => {
+        return dashboardList.genetic_prevalence_orphanet;
+      },
+      render: (dashboardList) => {
+        const orphanetPrevalence = dashboardList.genetic_prevalence_orphanet;
+
+        return (
+          <Cell maxWidth={200}>
+            <Link
+              href={`https://www.orpha.net/en/disease/gene/${dashboardList.gene_symbol.toUpperCase()}?name=${dashboardList.gene_symbol.toLocaleLowerCase()}&mode=gene`}
+              isExternal
+              target="_blank"
+            >
+              {orphanetPrevalence in orphanetPrevalencesRemappings
+                ? orphanetPrevalencesRemappings[orphanetPrevalence]
+                : orphanetPrevalence}
+            </Link>
+          </Cell>
+        );
+      },
+    }
+  );
+  return columns;
+};
 
 type SortOrder = "ascending" | "descending";
 interface SortState {
@@ -581,7 +658,7 @@ const DashboardLists = (props: {
   ];
 
   const columns = [
-    ...BASE_COLUMNS,
+    ...getBaseColumns(userIsStaff),
     ...(userIsStaff ? STAFF_COLUMNS : ([] as ColumnDef[])),
   ];
 
