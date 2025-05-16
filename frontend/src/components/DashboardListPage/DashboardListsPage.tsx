@@ -45,11 +45,7 @@ import { VariantList } from "../../types";
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 
-import {
-  renderFrequencyFraction,
-  calculateFrequencyFractionOver100000,
-  renderFrequencyFractionOver100000,
-} from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
+import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
 
 type DashboardList = {
   gene_id: string;
@@ -196,20 +192,17 @@ const BASE_COLUMNS: ColumnDef[] = [
     },
   },
 
-  {
-    key: "inheritance_type",
-    heading: "Mode of Inheritance",
-    width: 200,
-    sortKey: (dashboardList) => {
-      {
-        console.log(dashboardList);
-      }
-      return dashboardList.inheritance_type;
+    {
+      key: "inheritance_type",
+      heading: "Mode of Inheritance",
+      width: 200,
+      sortKey: (dashboardList) => {
+        return dashboardList.inheritance_type;
+      },
+      render: (dashboardList) => {
+        return <Cell maxWidth={130}>{dashboardList.inheritance_type}</Cell>;
+      },
     },
-    render: (dashboardList) => {
-      return <Cell maxWidth={130}>{dashboardList.inheritance_type}</Cell>;
-    },
-  },
 
   {
     key: "aggregate_allele_freq_lp_p",
