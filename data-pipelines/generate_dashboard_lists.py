@@ -317,7 +317,8 @@ def process_dashboard_list(
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
-    if len(variants) == 0:
+    variant_count = len(variants)
+    if variant_count == 0:
         print("For this gene, variants length is 0")
 
     # calculate sum of allele frequencies across all variants
@@ -379,6 +380,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         prevalence_bayesian_array.append(prevalence_bayesian)
 
     calculations_object = {
+        "variant_count": variant_count,
         "prevalence": prevalence_array,
         "prevalence_bayesian": prevalence_bayesian_array,
         "carrier_frequency": carrier_frequency_array,
@@ -741,6 +743,7 @@ def prepare_dashboard_download(dataframe):
         metadata = json.loads(row["metadata"])
         top_ten_variants = json.loads(row["top_ten_variants"])
         calculations = json.loads(row["variant_calculations"])
+        variant_count = calculations.get("variant_count")
         carrier_frequency = calculations["carrier_frequency"]
         prevalence = calculations["prevalence"]
 
@@ -750,6 +753,7 @@ def prepare_dashboard_download(dataframe):
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
+            "variant_count": variant_count,
             "included_clinvar_variants": ", ".join(
                 metadata["include_clinvar_clinical_significance"]
             ),
@@ -841,6 +845,7 @@ def prepare_dashboard_download(dataframe):
         "gnomad_version",
         "reference_genome",
         "included_clinvar_variants",
+        "variant_count",
         "clinvar_version",
         "date_created",
         # TODO: could use a helper if I wanted
