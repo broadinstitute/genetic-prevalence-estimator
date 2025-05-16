@@ -41,6 +41,8 @@ import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
 import DashboardListPage from "./components/DashboardListPage/DashboardListPage";
+import IncidencePage from "./components/DashboardListPage/IncidencePage";
+
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
@@ -228,7 +230,11 @@ const App = () => {
               <DashboardListPage uuid={match.params.uuid} />
             )}
           />
-
+          <Route
+            exact
+            path="/dashboard-incidence/:uuid/"
+            render={({ match }) => <IncidencePage uuid={match.params.uuid} />}
+          />
           {user?.is_staff && [
             <Route
               key="/status/"
