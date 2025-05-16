@@ -114,3 +114,26 @@ export const DisplayFormatInput = ({
     </FormControl>
   );
 };
+
+export const DisplayFormatInputIncidence = ({
+  value,
+  onChange,
+}: DisplayFormatInputProps) => {
+  return (
+    <FormControl id="calculations-display-format" as="fieldset">
+      <FormLabel as="legend">Display format</FormLabel>
+      <RadioGroup
+        value={value}
+        onChange={(value) => {
+          onChange(value as DisplayFormat);
+        }}
+      >
+        <HStack spacing="24px">
+          <Radio value="fraction_of_100000">Per 100,000</Radio>
+          <Radio value="fraction">Fraction</Radio>
+          <Radio value="scientific">Scientific notation</Radio>
+        </HStack>
+      </RadioGroup>
+    </FormControl>
+  );
+};
