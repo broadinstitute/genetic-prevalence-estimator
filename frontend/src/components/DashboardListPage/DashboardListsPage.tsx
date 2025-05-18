@@ -170,72 +170,6 @@ interface ColumnDef {
     | false;
 }
 
-<<<<<<< HEAD
-const BASE_COLUMNS: ColumnDef[] = [
-  {
-    key: "gene_symbol",
-    heading: "Gene Symbol",
-    width: 200,
-    sortKey: (dashboardList) => {
-      return dashboardList.gene_symbol;
-    },
-    render: (dashboardList) => {
-      return (
-        <Cell maxWidth={130}>
-          {dashboardList.gene_symbol}
-          {dashboardList.inheritance_type.includes("/") && (
-            <MultipleInheritanceFlag />
-          )}
-          {dashboardList.genetic_prevalence_orphanet ===
-            "multiple_prevalences" && <MultipleDiseaseFlag />}
-        </Cell>
-      );
-    },
-  },
-
-    {
-      key: "inheritance_type",
-      heading: "Mode of Inheritance",
-      width: 200,
-      sortKey: (dashboardList) => {
-        return dashboardList.inheritance_type;
-      },
-      render: (dashboardList) => {
-        return <Cell maxWidth={130}>{dashboardList.inheritance_type}</Cell>;
-      },
-    },
-
-  {
-    key: "aggregate_allele_freq_lp_p",
-    heading: "Aggregate allele frequency for LP/P variants",
-    width: 200,
-    sortKey: (dashboardList) => {
-      const carrierFreq =
-        dashboardList?.variant_calculations?.carrier_frequency;
-      return carrierFreq && carrierFreq.length > 0
-        ? Math.round(1 / (carrierFreq[0] / 2))
-        : 0;
-    },
-    render: (dashboardList) => {
-      const carrierFreq =
-        dashboardList?.variant_calculations?.carrier_frequency;
-      return carrierFreq && carrierFreq.length > 0 ? (
-        <Cell maxWidth={130}>
-          {renderFrequencyFraction(carrierFreq[0] / 2)}
-        </Cell>
-      ) : null;
-    },
-  },
-
-  {
-    key: "est_heterozygous_freq",
-    heading: "Estimated heterozygous frequency (carrier frequency)",
-    width: 200,
-
-    sortKey: (dashboardList) => {
-      const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
-      return cf && !isNaN(cf) && cf !== 0 ? Math.round(1 / cf) : 0;
-=======
 const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
   const columns: ColumnDef[] = [
     {
@@ -257,7 +191,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           </Cell>
         );
       },
->>>>>>> f9138fc (temp(frontend): conditionally render de novo column for demo)
     },
 
     {
