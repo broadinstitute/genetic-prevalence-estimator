@@ -198,9 +198,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       heading: "Mode of Inheritance",
       width: 200,
       sortKey: (dashboardList) => {
-        {
-          console.log(dashboardList);
-        }
         return dashboardList.inheritance_type;
       },
       render: (dashboardList) => {
