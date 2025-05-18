@@ -36,6 +36,7 @@ VARIANT_FIELDS = [
     # Frequency
     "AC",
     "AN",
+    "homozygote_count",
     # ClinVar
     "clinvar_variation_id",
     "clinical_significance",
@@ -87,6 +88,8 @@ def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_varia
                 & (hl.is_missing(ds.clinvar_variation_id)),
                 "high_AF",
             ),
+            # TODO: add "low_AN" flag?
+            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
         ]
     ).filter(hl.is_defined)
 
