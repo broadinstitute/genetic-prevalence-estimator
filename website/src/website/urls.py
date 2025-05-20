@@ -25,6 +25,11 @@ from website.views.variant_list_access_views import (
     VariantListAccessDetail,
 )
 
+from website.views.dominant_dashboard_list_views import (
+    DominantDashboardListsLoadView,
+    DominantDashboardListView,
+)
+
 html = FrontendView.as_view()
 
 
@@ -35,6 +40,8 @@ ui_views = [
     ("variant-lists/new/", "new-variant-list"),
     ("dashboard/", "dashboard"),
     ("dashboard/<str:gene_id>/", "dashboard-list"),
+    ("dominant-dashboard/", "dominant-dashboard"),
+    ("dominant-dashboard/<str:gene_id>/", "dominant-dashboard-list"),
     ("public-lists/", "public-lists"),
     ("status/", "status"),
     ("users/", "users"),
@@ -75,6 +82,16 @@ urlpatterns = [
         "api/dashboard-lists/<str:gene_id>/",
         DashboardListView.as_view(),
         name="dashboard-list-detail;",
+    ),
+    path(
+        "api/dashboard-incidence/<str:gene_id>/",
+        DominantDashboardListView.as_view(),
+        name="dominant-list-detail",
+    ),
+    path(
+        "api/dominant-dashboard-lists/load",
+        DominantDashboardListsLoadView.as_view(),
+        name="load-dominant-dashboard-lists",
     ),
     path(
         "api/variant-lists/<uuid:uuid>/shared-annotation/",
