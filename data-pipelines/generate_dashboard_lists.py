@@ -435,6 +435,149 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
     return merged_df
 
 
+def write_recommended_variants_to_csv(
+    base_dir, gene_symbol, gene_id, recommended_variants
+):
+    # print("In write_recommended_variants_to_csv")
+
+    # print(f"Type of recommended variants is: {type(recommended_variants)}")
+
+    # print("Length of list is:")
+    # print(len(recommended_variants))
+
+    # print("First item in list:")
+    # print(recommended_variants[0])
+
+    # print(f"Gene symbol: {gene_symbol}")
+    # print(f"Gene ID: {gene_id}")
+
+    filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}.csv"
+    # print(f"Filename: {filename}")
+
+    # so what I want is:
+    # - gnomad_id
+    # - vep_consequence
+    # - hgvsc
+    # - hgvsp
+    # - loftee
+    # - clinvar_clinical_significan
+    # - clinvar_variation_id
+    # - allele_count
+    # - allele_number
+    # - allele_frequency
+    # - homozygote_count
+    # - source
+    # - flags
+
+    def format_dict(title, list):
+        ancestry_groups = [
+            "global",
+            "african_african_american",
+            "admixed_american",
+            "ashkenazi_jewish",
+            "east_asian",
+            "european_finnish",
+            "remaining",
+            "south_asian",
+        ]
+
+        obj = {}
+        for i, ancestry_group in enumerate(ancestry_groups):
+            name = f"{title}_{ancestry_group}"
+            value = list[i]
+            obj[name] = value
+
+        # print(obj)
+        return obj
+
+    def format_af_dict(title, list1, list2):
+        ancestry_groups = [
+            "global",
+            "african_african_american",
+            "admixed_american",
+            "ashkenazi_jewish",
+            "east_asian",
+            "european_finnish",
+            "remaining",
+            "south_asian",
+        ]
+
+        obj = {}
+        for i, ancestry_group in enumerate(ancestry_groups):
+            name = f"{title}_{ancestry_group}"
+            ac = list1[i]
+            an = list2[i]
+            value = ac / an
+            obj[name] = value
+
+        # print(obj)
+        return obj
+
+    formatted_variants = []
+    for variant in recommended_variants:
+        formatted_variants.append(
+            {
+                "gene_symbol": gene_symbol,
+                "gene_id": gene_id,
+                "variant_gnomad_id": variant["id"],
+                #
+                "vep_consequence": variant["major_consequence"],
+                "hgvsc": variant["hgvsc"],
+                "hgvsp": variant["hgvsp"],
+                "loftee": variant["lof"],
+                "clinvar_clinical_significance": variant["clinical_significance"][0]
+                if variant["clinical_significance"]
+                else None,
+                "clinvar_variation_id": variant["clinvar_variation_id"],
+                #
+                "allele_count": variant["AC"][0] if variant["AC"] else None,
+                "allele_number": variant["AN"][0] if variant["AN"] else None,
+                "allele_frequency": (variant["AC"][0] / variant["AN"][0])
+                if (variant["AC"] and variant["AN"])
+                else None,
+                "homozygote_count": variant["homozygote_count"][0]
+                if variant["homozygote_count"]
+                else None,
+                #
+                "flags": "|".join(variant["flags"]),
+                "source": "|".join(variant["source"]),
+                #
+                "allele_count_per_ancestry": format_dict("allele_count", variant["AC"])
+                if variant["AC"]
+                else None,
+                "allele_number_per_ancestry": format_dict(
+                    "allele_number", variant["AN"]
+                )
+                if variant["AN"]
+                else None,
+                "allele_frequency_per_ancestry": format_af_dict(
+                    "allele_frequency", variant["AC"], variant["AN"]
+                )
+                if (variant["AC"] and variant["AN"])
+                else None,
+                "homozygote_count_per_ancestry": format_dict(
+                    "homozygote_count", variant["homozygote_count"]
+                )
+                if variant["homozygote_count"]
+                else None,
+            }
+        )
+
+    df = pd.DataFrame(formatted_variants)
+
+    filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}"
+    # print(f"Filename: {filename}")
+    output_dir = os.path.join(
+        base_dir, f"dashboard/individual_gene_files/{filename}.csv"
+    )
+    # print(f"Output dir is: {output_dir}")
+
+    df.to_csv(output_dir, index=False)
+    print(f"    - Gene-variant CSV file written to ...{filename}")
+
+    # exit(0)
+
+
 def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     ds = hl.import_table(
         genes_fullpath,
@@ -709,6 +852,11 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
             chrom=row.chrom,
             gnomad_variants=ht_gnomad_variants,
             clinvar_variants=ht_clinvar_variants,
+        )
+
+        # TODO: right here, call a helper to create a .csv for this variant
+        write_recommended_variants_to_csv(
+            base_dir, row.symbol, row.gene_id, recommended_variants
         )
 
         calculate_stats(
