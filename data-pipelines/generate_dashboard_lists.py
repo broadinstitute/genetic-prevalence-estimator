@@ -97,7 +97,7 @@ def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_varia
 # Currently this is used on the first local run to create a checkointed file,
 #   if run in google cloud run, this would be run every time and checkointing wouldn't
 #   be needed
-def prepare_gene_models(gnomAD_gene_models_path, base_dir):
+def prepare_gene_models(gnomAD_gene_models_path, base_dir, subdir_name):
     ht = hl.read_table(gnomAD_gene_models_path)
 
     ht = ht.annotate(
@@ -125,7 +125,8 @@ def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     ht = ht.key_by("symbol")
 
     ht.write(
-        os.path.join(base_dir, "dashboard/reindexed_gene_models.ht"), overwrite=True
+        os.path.join(base_dir, f"{subdir_name}/reindexed_gene_models.ht"),
+        overwrite=True,
     )
 
     return ht
@@ -590,7 +591,7 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     gene_models_path = os.path.join(base_dir, "dashboard/reindexed_gene_models.ht")
     if not os.path.exists(gene_models_path):
         print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
+        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir, "dashboard")
 
     ht_gnomad_gene_models = hl.read_table(gene_models_path)
 

@@ -20,6 +20,7 @@ from rest_framework.response import Response
 from calculator.models import (
     DashboardList,
     VariantList,
+    DominantDashboardList,
 )
 from calculator.serializers import (
     NewDashboardListSerializer,
@@ -99,6 +100,22 @@ class DashboardListsLoadView(CreateAPIView):
 
                     dashboard_list = serializer.save(
                         representative_variant_list=representative_variant_list
+                    )
+
+                    dominant_dashboard_list = None
+                    dominant_dashboard_list_with_same_gene_id = (
+                        DominantDashboardList.objects.filter(
+                            metadata__gene_id__startswith=gene_id_with_decimal,
+                        )
+                    )
+
+                    if dominant_dashboard_list_with_same_gene_id.count() > 0:
+                        dominant_dashboard_list = (
+                            dominant_dashboard_list_with_same_gene_id[0]
+                        )
+
+                    dashboard_list = serializer.save(
+                        dominant_dashboard_list=dominant_dashboard_list
                     )
 
                     # pylint: disable=fixme

@@ -41,6 +41,8 @@ import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
 import DashboardListPage from "./components/DashboardListPage/DashboardListPage";
+import IncidencePage from "./components/DashboardListPage/IncidencePage";
+
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import VariantListsPage from "./components/VariantListsPage";
 import { initializeAuth, signOut } from "./auth";
@@ -227,6 +229,25 @@ const App = () => {
             render={({ match }) => (
               <DashboardListPage uuid={match.params.uuid} />
             )}
+          />
+          <Route
+            exact
+            path="/dashboard-incidence/:uuid/"
+            render={({ match }) =>
+              isSignedIn && user?.is_staff ? (
+                <RequireSignIn>
+                  <IncidencePage uuid={match.params.uuid} />
+                </RequireSignIn>
+              ) : (
+                <RequireSignIn>
+                  <Box mt={8}>
+                    <Heading as="h2" size="md">
+                      This page is not accessible to non-staff users.
+                    </Heading>
+                  </Box>
+                </RequireSignIn>
+              )
+            }
           />
 
           {user?.is_staff && [
