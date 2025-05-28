@@ -37,7 +37,6 @@ csv.field_size_limit(512 * 1024)  # 512 KB in bytes
 
 class DominantDashboardListsLoadView(CreateAPIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
-    # serializer_class = NewDominantDashboardListSerializer
 
     def get_serializer_class(self):
         return NewDominantDashboardListSerializer

@@ -233,8 +233,23 @@ const App = () => {
           <Route
             exact
             path="/dashboard-incidence/:uuid/"
-            render={({ match }) => <IncidencePage uuid={match.params.uuid} />}
+            render={({ match }) =>
+              isSignedIn && user?.is_staff ? (
+                <RequireSignIn>
+                  <IncidencePage uuid={match.params.uuid} />
+                </RequireSignIn>
+              ) : (
+                <RequireSignIn>
+                  <Box mt={8}>
+                    <Heading as="h2" size="md">
+                      This page is not accessible to non-staff users.
+                    </Heading>
+                  </Box>
+                </RequireSignIn>
+              )
+            }
           />
+
           {user?.is_staff && [
             <Route
               key="/status/"

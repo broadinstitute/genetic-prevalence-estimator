@@ -18,6 +18,3 @@ hail-*.log
 
 # dev data
 /data
-
-# dev cleaning
-/data-pipelines/cleaning
