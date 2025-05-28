@@ -8,51 +8,7 @@ import ast
 
 from datetime import datetime
 
-GNOMAD_GRCH38_GENES_PATH = "data/gnomAD/gnomAD_browser_genes_grch38_annotated_6.ht"
-
-AD_PATH = "data/dominant-dashboard/clean_incidence_table.csv"
-
-INHERITANCE_PATH = (
-    "data/dominant-dashboard/AD_tables_for_genie.xlsx - Incidence table.csv"
-)
-
-OE_MISSENSE_PRIOR = 0.904
-OE_LOF_PRIOR = 0.679
-
-
-def prepare_gene_models(gnomAD_gene_models_path, base_dir):
-    ht = hl.read_table(gnomAD_gene_models_path)
-
-    ht = ht.annotate(
-        mane_select_transcript_ensemble_version=ht.mane_select_transcript.ensembl_version
-    )
-
-    ht = ht.select(
-        #    "gene_id",  we get this for free since the .ht is keyed by it
-        "gene_version",
-        "interval",
-        "chrom",
-        "strand",
-        "start",
-        "stop",
-        "xstart",
-        "xstop",
-        "symbol",
-        "name",
-        "alias_symbols",
-        "symbol_upper_case",
-        "preferred_transcript_id",
-        "mane_select_transcript_ensemble_version",
-    )
-
-    ht = ht.key_by("symbol")
-
-    ht.write(
-        os.path.join(base_dir, "dominant-dashboard/reindexed_gene_models.ht"),
-        overwrite=True,
-    )
-
-    return ht
+from generate_dashboard_lists import prepare_gene_models
 
 
 def calculate_carrier_frequency_and_prevalence(
@@ -134,8 +90,6 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
 
     pd.set_option("display.max_columns", None)
 
-    print(variants.columns, orphanet.columns)
-
     merged_df = pd.merge(variants, orphanet, on="gene_id", how="left")
     return merged_df
 
@@ -150,9 +104,13 @@ def prepare_dominant_dashboard_lists(input_path, base_dir):
     )
 
     gene_models_path = os.path.join(base_dir, "dashboard/reindexed_gene_models.ht")
+    gnomad_grch38_genes_path = os.path.join(
+        base_dir, "gnomAD", "gnomAD_browser_genes_grch38_annotated_6.ht"
+    )
+
     if not os.path.exists(gene_models_path):
         print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
+        prepare_gene_models(gnomad_grch38_genes_path, base_dir, "dominant-dashboard")
 
     ht_gnomad_gene_models = hl.read_table(gene_models_path)
 
@@ -192,7 +150,6 @@ def prepare_dominant_dashboard_lists(input_path, base_dir):
             row.get("mane_select_transcript_ensemble_version"),
         ]
 
-        # TODO: Come back to this
         if any(pd.isna(field) or field in ("", "<NA>") for field in required_metadata):
             print(f"Skipping {row.symbol} due to missing metadata")
             continue
@@ -216,7 +173,6 @@ def prepare_dominant_dashboard_lists(input_path, base_dir):
 
         df.at[index, "metadata"] = json.dumps(metadata)
 
-        # TODO: Come back to this
         if pd.isna(row.start) or pd.isna(row.stop) or pd.isna(row.chrom):
             continue
 

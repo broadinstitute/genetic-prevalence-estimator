@@ -63,7 +63,6 @@ class DashboardListMetadataSerializer(
 
     def validate_gene_id(self, value):
         if value and not is_gene_id(value):
-            print(value)
             raise serializers.ValidationError(f"'{value}' is not a valid gene ID.")
         return value
 
