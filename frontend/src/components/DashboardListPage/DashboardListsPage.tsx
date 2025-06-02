@@ -175,7 +175,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "gene_symbol",
       heading: "Gene Symbol",
-      width: 200,
+      width: 175,
       sortKey: (dashboardList) => {
         return dashboardList.gene_symbol;
       },
@@ -196,7 +196,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "inheritance_type",
       heading: "Mode of Inheritance",
-      width: 200,
+      width: 120,
       sortKey: (dashboardList) => {
         return dashboardList.inheritance_type;
       },
@@ -208,7 +208,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "aggregate_allele_freq_lp_p",
       heading: "Aggregate allele frequency for LP/P variants",
-      width: 200,
+      width: 175,
       sortKey: (dashboardList) => {
         const carrierFreq =
           dashboardList?.variant_calculations?.carrier_frequency;
@@ -230,7 +230,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "est_heterozygous_freq",
       heading: "Estimated heterozygous frequency (carrier frequency)",
-      width: 200,
+      width: 175,
 
       sortKey: (dashboardList) => {
         const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
@@ -253,7 +253,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         "Estimated biallelic frequency (Preliminary genetic prevalence) - AR ONLY",
       headingTooltip:
         "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
-      width: 200,
+      width: 175,
       sortKey: (dashboardList) => {
         const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
         return gp && !isNaN(gp) && gp !== 0 ? Math.round(1 / gp) : 0;
@@ -282,7 +282,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "de_novo_dashboard_estimate",
       heading: "Estimated incidence of de novo variation (per 100,000)",
       headingTooltip: "Estimated incidence of de novo variation (per 100,000)",
-      width: 200,
+      width: 175,
       sortKey: (dashboardList) => {
         const incidence =
           dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
@@ -317,7 +317,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "representative_estimate",
       heading: "Curated Estimates Public on GeniE",
-      width: 200,
+      width: 150,
       sortKey: (dashboardList) => {
         if (dashboardList.representative_variant_list) {
           return dashboardList.representative_variant_list.estimates
@@ -354,7 +354,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "representative_contact",
       heading: "Contact for public estimate",
-      width: 240,
+      width: 150,
       sortKey: (dashboardList) => {
         if (
           dashboardList.representative_variant_list &&
@@ -386,7 +386,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "supporting_documents",
       heading: "Supporting document",
-      width: 200,
+      width: 150,
       sortKey: (dashboardList) => {
         if (
           dashboardList.representative_variant_list &&
