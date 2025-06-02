@@ -707,7 +707,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
     }
   }, [searchText, sortedVariants]);
 
-  const ROW_HEIGHT = isTopTen ? 35 : 70;
+  const ROW_HEIGHT = isTopTen ? 60 : 70;
   const ITEMS_DISPLAYED = isTopTen ? 10 : 15;
 
   const VariantRow = ({
