@@ -17,6 +17,9 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
+from django.views.decorators.cache import cache_control
+from django.utils.decorators import method_decorator
+
 from calculator.models import (
     DashboardList,
     VariantList,
@@ -30,6 +33,8 @@ from calculator.serializers import (
 
 # set csv field size limit to half of a megabyte
 csv.field_size_limit(512 * 1024)  # 512 KB in bytes
+
+THREE_DAYS_IN_SECONDS = 60 * 60 * 24 * 3
 
 
 class DashboardListsLoadView(CreateAPIView):
@@ -138,6 +143,9 @@ class DashboardListsLoadView(CreateAPIView):
             )
 
 
+@method_decorator(
+    cache_control(public=True, max_age=THREE_DAYS_IN_SECONDS), name="dispatch"
+)
 class DashboardListsView(ListAPIView):
     def get_queryset(self):
         return DashboardList.objects.all()
