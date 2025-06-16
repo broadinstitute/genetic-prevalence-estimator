@@ -1067,6 +1067,7 @@ def main() -> None:
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--genes-file", required=False)
+    parser.add_argument("--test", action="store_true", required=False)
     args = parser.parse_args()
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
@@ -1082,6 +1083,11 @@ def main() -> None:
     start = 0
     batch_size = 100
     stop = 3999
+
+    if args.test:
+        start = 0
+        batch_size = 5
+        stop = None
 
     for i in range(start, stop, batch_size):
         try:
@@ -1145,6 +1151,9 @@ def main() -> None:
             batch_end_time = datetime.now()
             print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+            if args.test:
+                break
 
         finally:
             safe_cleanup()
