@@ -1,3 +1,4 @@
+import argparse
 import csv
 import os
 import pandas as pd
@@ -6,22 +7,30 @@ import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-current_dir = os.getcwd()
-XML_PATH = os.path.join(current_dir, "../data/input/en_product6.xml")
+base_dir = os.path.join(os.path.dirname(__file__), "../data")
+
+# Orphanet XML releases from:  https://github.com/Orphanet/Orphadata_aggregated
+XML_PATH = os.path.join(base_dir, "input", "2024-12_orphanet-release_en-product6.xml")
+
 INPUT_GENES_CSV_PATH = os.path.join(
-    current_dir, "../data/input/20240506_genie_genes_input.csv"
+    base_dir, "input", "2025-05-02_genie-dashboard-genelist-ar-and-ad.csv"
 )
 
 
-def getListOfGenesToKeep():
+def get_gene_symbols_from_csv(num_rows=None):
+    symbols = []
     with open(INPUT_GENES_CSV_PATH, "r", newline="") as inputCSV:
         csv_reader = csv.reader(inputCSV)
         next(csv_reader)
-        symbols = [row[0] for row in csv_reader]
+
+        for i, row in enumerate(csv_reader):
+            if num_rows is not None and i >= num_rows:
+                break
+            symbols.append(row[0])
     return symbols
 
 
-def parseXML(gene_symbols_to_keep):
+def parse_orphanet_xml(gene_symbols_to_keep):
     with open(XML_PATH, "r", encoding="latin-1") as input:
         xml_input = input.read()
 
@@ -55,7 +64,7 @@ def parseXML(gene_symbols_to_keep):
     return filtered_gene_info
 
 
-def scrape_orphanet(orpha_code):
+def scrape_orphanet_for_genetic_prevalence(orpha_code):
     url = f"https://www.orpha.net/en/disease/detail/{orpha_code}?name={orpha_code}&mode=orpha"
     response = requests.get(url)
     if response.status_code == 200:
@@ -71,18 +80,17 @@ def scrape_orphanet(orpha_code):
     return ""
 
 
-def get_genetic_prevalences(genes_orphacode_dict):
+def scrape_orphanet_for_genetic_prevalences(genes_orphacode_dict):
     local_dict = genes_orphacode_dict
     length = len(genes_orphacode_dict)
     i = 1
 
     for gene_symbol, gene_data in genes_orphacode_dict.items():
-        print(f"\nRunning, {i} / {length}")
-        print(f"  Gene Symbol: {gene_symbol}")
+        print(f"  -- Gene Symbol {gene_symbol} ({i} / {length})")
         orpha_prevalence_array = []
 
         for orpha_code in gene_data["OrphaCodes"]:
-            prevalence = scrape_orphanet(orpha_code)
+            prevalence = scrape_orphanet_for_genetic_prevalence(orpha_code)
             orpha_prevalence_array.append(f"{orpha_code}:{prevalence}")
 
         local_dict[gene_symbol]["OrphaPrevalence"] = orpha_prevalence_array
@@ -91,10 +99,14 @@ def get_genetic_prevalences(genes_orphacode_dict):
     return local_dict
 
 
-def convert_to_pandas(dict):
+def convert_to_pandas(filename, dict):
     df = pd.DataFrame.from_dict(dict, orient="index")
-    filename = "orphanet_prevalences.tsv"
-    df.to_csv(f"./data/{filename}", mode="w", sep="\t", index_label="GeneSymbol")
+    df.to_csv(
+        f"./data/processed_data/{filename}",
+        mode="w",
+        sep="\t",
+        index_label="GeneSymbol",
+    )
     print(f"\nTSV file saved: {filename}")
 
 
@@ -105,12 +117,31 @@ def print_time(message):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--test", action="store_true", required=False)
+    args = parser.parse_args()
+
     print_time("Getting Orphanet prevalences ...")
-    list_of_genes_to_keep = getListOfGenesToKeep()
-    genes_orphacode_dict = parseXML(list_of_genes_to_keep)
-    genes_orphacode_prevalence_dict = get_genetic_prevalences(genes_orphacode_dict)
-    convert_to_pandas(genes_orphacode_prevalence_dict)
+
+    num_genes = None
+    output_filename = "orphanet_prevalences.tsv"
+    if args.test:
+        print("... running with 10 genes as a test")
+        num_genes = 10
+        output_filename = "test_orphanet_prevalences.tsv"
+
+    csv_genelist = get_gene_symbols_from_csv(num_genes)
+
+    genes_orphacode_dict = parse_orphanet_xml(csv_genelist)
+
+    genes_orphacode_prevalence_dict = scrape_orphanet_for_genetic_prevalences(
+        genes_orphacode_dict
+    )
+
+    convert_to_pandas(output_filename, genes_orphacode_prevalence_dict)
+
     print_time("Finished getting Orphanet prevalences!")
 
 
-main()
+if __name__ == "__main__":
+    main()
