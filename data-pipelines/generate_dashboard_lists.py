@@ -440,36 +440,7 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
 def write_recommended_variants_to_csv(
     base_dir, gene_symbol, gene_id, recommended_variants
 ):
-    # print("In write_recommended_variants_to_csv")
-
-    # print(f"Type of recommended variants is: {type(recommended_variants)}")
-
-    # print("Length of list is:")
-    # print(len(recommended_variants))
-
-    # print("First item in list:")
-    # print(recommended_variants[0])
-
-    # print(f"Gene symbol: {gene_symbol}")
-    # print(f"Gene ID: {gene_id}")
-
     filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}.csv"
-    # print(f"Filename: {filename}")
-
-    # so what I want is:
-    # - gnomad_id
-    # - vep_consequence
-    # - hgvsc
-    # - hgvsp
-    # - loftee
-    # - clinvar_clinical_significan
-    # - clinvar_variation_id
-    # - allele_count
-    # - allele_number
-    # - allele_frequency
-    # - homozygote_count
-    # - source
-    # - flags
 
     def format_dict(title, list):
         ancestry_groups = [
@@ -489,7 +460,6 @@ def write_recommended_variants_to_csv(
             value = list[i]
             obj[name] = value
 
-        # print(obj)
         return obj
 
     def format_af_dict(title, list1, list2):
@@ -512,7 +482,6 @@ def write_recommended_variants_to_csv(
             value = ac / an
             obj[name] = value
 
-        # print(obj)
         return obj
 
     formatted_variants = []
@@ -568,16 +537,12 @@ def write_recommended_variants_to_csv(
     df = pd.DataFrame(formatted_variants)
 
     filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}"
-    # print(f"Filename: {filename}")
     output_dir = os.path.join(
         base_dir, f"dashboard/individual_gene_files/{filename}.csv"
     )
-    # print(f"Output dir is: {output_dir}")
 
     df.to_csv(output_dir, index=False)
     print(f"    - Gene-variant CSV file written to ...{filename}")
-
-    # exit(0)
 
 
 def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
