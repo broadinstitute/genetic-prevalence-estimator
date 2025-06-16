@@ -97,7 +97,7 @@ def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_varia
 # Currently this is used on the first local run to create a checkointed file,
 #   if run in google cloud run, this would be run every time and checkointing wouldn't
 #   be needed
-def prepare_gene_models(gnomAD_gene_models_path, base_dir, subdir_name):
+def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     ht = hl.read_table(gnomAD_gene_models_path)
 
     ht = ht.annotate(
@@ -125,7 +125,7 @@ def prepare_gene_models(gnomAD_gene_models_path, base_dir, subdir_name):
     ht = ht.key_by("symbol")
 
     ht.write(
-        os.path.join(base_dir, f"{subdir_name}/reindexed_gene_models.ht"),
+        os.path.join(base_dir, "processed_data", "reindexed_gene_models.ht"),
         overwrite=True,
     )
 
@@ -536,12 +536,17 @@ def write_recommended_variants_to_csv(
 
     df = pd.DataFrame(formatted_variants)
 
-    filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}"
+    filename = f"GeniE_dashboard_variants-{gene_symbol}-{gene_id}.csv"
     output_dir = os.path.join(
-        base_dir, f"dashboard/individual_gene_files/{filename}.csv"
+        base_dir,
+        "output",
+        "dashboard",
+        "individual_gene_files",
     )
+    full_output_path = os.path.join(output_dir, filename)
 
-    df.to_csv(output_dir, index=False)
+    os.makedirs(output_dir, exist_ok=True)
+    df.to_csv(full_output_path, index=False)
     print(f"    - Gene-variant CSV file written to ...{filename}")
 
 
@@ -554,10 +559,12 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
         impute=True,
     )
 
-    gene_models_path = os.path.join(base_dir, "dashboard/reindexed_gene_models.ht")
+    gene_models_path = os.path.join(
+        base_dir, "processed_data", "reindexed_gene_models.ht"
+    )
     if not os.path.exists(gene_models_path):
         print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir, "dashboard")
+        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
 
     ht_gnomad_gene_models = hl.read_table(gene_models_path)
 
@@ -572,7 +579,9 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
-    CLINVAR_GRCH38_PATH = os.path.join(base_dir, "ClinVar/ClinVar_GRCh38_variants.ht")
+    CLINVAR_GRCH38_PATH = os.path.join(
+        base_dir, "processed_data", "ClinVar", "ClinVar_GRCh38_variants.ht"
+    )
     ht_clinvar_variants = hl.read_table(CLINVAR_GRCH38_PATH)
     metadata_clinvar_version = hl.eval(ht_clinvar_variants.globals.release_date)
 
@@ -763,7 +772,7 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     df["date_created"] = iso_8601_datetime
     df["variant_calculations"] = [{} for _ in range(len(df))]
 
-    ORPHANET_PATH = os.path.join(base_dir, "dashboard/orphanet_prevalences.tsv")
+    ORPHANET_PATH = os.path.join(base_dir, "processed_data", "orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
     ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
@@ -1074,20 +1083,23 @@ def main() -> None:
     if args.directory_root:
         base_dir = args.directory_root
 
-    genes_filename = "all_genes.csv"
+    input_genes_filename = "all_genes.csv"
     if args.genes_file:
-        genes_filename = args.genes_file
+        input_genes_filename = args.genes_file
 
-    genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
+    input_genes_fullpath = os.path.join(base_dir, "input", input_genes_filename)
 
     start = 0
     batch_size = 100
     stop = 3999
 
+    file_prefix = ""
+
     if args.test:
         start = 0
         batch_size = 5
-        stop = None
+        stop = 6
+        file_prefix = "test_"
 
     for i in range(start, stop, batch_size):
         try:
@@ -1126,12 +1138,15 @@ def main() -> None:
 
             print("Preparing dashboard list models ...")
             df_dashboard_models = prepare_dashboard_lists(
-                genes_fullpath, base_dir, start=batch_start, stop=batch_stop
+                input_genes_fullpath, base_dir, start=batch_start, stop=batch_stop
             )
             df_dashboard_models.to_csv(
                 os.path.join(
                     base_dir,
-                    f"dashboard/dashboard_models_{batch_start}-{batch_stop_print}.csv",
+                    "output",
+                    "dashboard",
+                    "models",
+                    f"{file_prefix}dashboard_models_{batch_start}-{batch_stop_print}.csv",
                 ),
                 index=False,
             )
@@ -1142,7 +1157,10 @@ def main() -> None:
             df_dashboard_download.to_csv(
                 os.path.join(
                     base_dir,
-                    f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+                    "output",
+                    "dashboard",
+                    "downloads",
+                    f"{file_prefix}dashboard_download_{batch_start}-{batch_stop_print}.csv",
                 ),
                 index=False,
             )
