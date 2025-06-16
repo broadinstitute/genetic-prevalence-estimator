@@ -104,7 +104,7 @@ const DominantListCharts = (props: DominantListChartsProps) => {
             <Flex alignItems="center" mb={2}>
               <Tooltip
                 hasArrow
-                label="((oe_mis_prior − oe_mis) × mu_mis + (oe_lof_prior − oe_lof) × mu_lof) × 2"
+                label="([(oe_mis_prior − oe_mis) × mu_mis]+ [(oe_lof_prior − oe_lof) × mu_lof])× 2"
                 placement="auto-end"
               >
                 <Text fontStyle="italic" fontWeight="bold">
