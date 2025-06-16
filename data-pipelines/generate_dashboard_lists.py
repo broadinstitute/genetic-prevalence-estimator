@@ -387,6 +387,7 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         "variant_count": variant_count,
         "prevalence": prevalence_array,
         "prevalence_bayesian": prevalence_bayesian_array,
+        "total_allele_frequency": total_allele_frequencies,
         "carrier_frequency": carrier_frequency_array,
         "carrier_frequency_simplified": carrier_frequency_simplified_array,
         "carrier_frequency_raw_numbers": carrier_frequency_raw_numbers_array,
@@ -896,6 +897,7 @@ def prepare_dashboard_download(dataframe):
         top_ten_variants = json.loads(row["top_ten_variants"])
         calculations = json.loads(row["variant_calculations"])
         variant_count = calculations.get("variant_count")
+        total_allele_frequency = calculations["total_allele_frequency"]
         carrier_frequency = calculations["carrier_frequency"]
         prevalence = calculations["prevalence"]
 
@@ -905,13 +907,24 @@ def prepare_dashboard_download(dataframe):
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
-            "variant_count": variant_count,
+            # "variant_count": variant_count,
+            "# of P, LP and HC pLoF variants in gnomAD": variant_count,
             "included_clinvar_variants": ", ".join(
                 metadata["include_clinvar_clinical_significance"]
             ),
             "clinvar_version": metadata["clinvar_version"],
             "date_created": row["date_created"],
-            "carrier_frequency_global": carrier_frequency[0],
+            "allele_frequency_total": total_allele_frequency[0],
+            "allele_frequency_african_african_american": total_allele_frequency[1],
+            "allele_frequency_admixed_american": total_allele_frequency[2],
+            "allele_frequency_ashkenazi_jewish": total_allele_frequency[3],
+            "allele_frequency_east_asian": total_allele_frequency[4],
+            "allele_frequency_european_finnish": total_allele_frequency[5],
+            "allele_frequency_middle_eastern": total_allele_frequency[6],
+            "allele_frequency_european_non_finnish": total_allele_frequency[7],
+            "allele_frequency_remaining": total_allele_frequency[8],
+            "allele_frequency_south_asian": total_allele_frequency[9],
+            "carrier_frequency_total": carrier_frequency[0],
             "carrier_frequency_african_african_american": carrier_frequency[1],
             "carrier_frequency_admixed_american": carrier_frequency[2],
             "carrier_frequency_ashkenazi_jewish": carrier_frequency[3],
@@ -921,7 +934,7 @@ def prepare_dashboard_download(dataframe):
             "carrier_frequency_european_non_finnish": carrier_frequency[7],
             "carrier_frequency_remaining": carrier_frequency[8],
             "carrier_frequency_south_asian": carrier_frequency[9],
-            "genetic_prevalence_global": prevalence[0],
+            "genetic_prevalence_total": prevalence[0],
             "genetic_prevalence_african_african_american": prevalence[1],
             "genetic_prevalence_admixed_american": prevalence[2],
             "genetic_prevalence_ashkenazi_jewish": prevalence[3],
@@ -997,11 +1010,23 @@ def prepare_dashboard_download(dataframe):
         "gnomad_version",
         "reference_genome",
         "included_clinvar_variants",
-        "variant_count",
+        # "variant_count",
+        "# of P, LP and HC pLoF variants in gnomAD",
         "clinvar_version",
         "date_created",
+        #
+        "allele_frequency_total",
+        "allele_frequency_african_african_american",
+        "allele_frequency_admixed_american",
+        "allele_frequency_ashkenazi_jewish",
+        "allele_frequency_east_asian",
+        "allele_frequency_european_finnish",
+        "allele_frequency_middle_eastern",
+        "allele_frequency_european_non_finnish",
+        "allele_frequency_remaining",
+        "allele_frequency_south_asian",
         # TODO: could use a helper if I wanted
-        "carrier_frequency_global",
+        "carrier_frequency_total",
         "carrier_frequency_african_african_american",
         "carrier_frequency_admixed_american",
         "carrier_frequency_ashkenazi_jewish",
@@ -1012,7 +1037,7 @@ def prepare_dashboard_download(dataframe):
         "carrier_frequency_remaining",
         "carrier_frequency_south_asian",
         # could also here
-        "genetic_prevalence_global",
+        "genetic_prevalence_total",
         "genetic_prevalence_african_african_american",
         "genetic_prevalence_admixed_american",
         "genetic_prevalence_ashkenazi_jewish",
