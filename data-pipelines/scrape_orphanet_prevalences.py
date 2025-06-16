@@ -70,7 +70,7 @@ def scrape_orphanet_for_genetic_prevalence(orpha_code):
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
         prevalence_leader_text = soup.find(
-            "strong", text=lambda t: "prevalence" in t.lower()
+            "strong", string=lambda t: "prevalence" in t.lower()
         )
         if prevalence_leader_text:
             prevalence_number = prevalence_leader_text.find_next_sibling("span")
@@ -121,12 +121,12 @@ def main():
     parser.add_argument("--test", action="store_true", required=False)
     args = parser.parse_args()
 
-    print_time("Getting Orphanet prevalences ...")
+    print_time("\nGetting Orphanet prevalences ...")
 
     num_genes = None
     output_filename = "orphanet_prevalences.tsv"
     if args.test:
-        print("... running with 10 genes as a test")
+        print("  ... running with 10 genes as a test")
         num_genes = 10
         output_filename = "test_orphanet_prevalences.tsv"
 
