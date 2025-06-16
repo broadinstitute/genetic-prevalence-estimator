@@ -863,30 +863,82 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     return df
 
 
-def prepare_dashboard_download(dataframe):
+def safe_json_load(val, fallback=None):
+    if isinstance(val, dict):
+        return val
+    try:
+        return json.loads(val)
+    except:
+        return fallback if fallback is not None else {}
+
+
+def prepare_dashboard_download(base_dir, df_recessive):
     download_data = []
 
-    for _, row in dataframe.iterrows():
-        metadata = json.loads(row["metadata"])
-        top_ten_variants = json.loads(row["top_ten_variants"])
-        calculations = json.loads(row["variant_calculations"])
+    dominant_models_filepath = os.path.join(
+        base_dir, "output", "dashboard", "dominant_dashboard-models.csv"
+    )
+
+    df_dominant = pd.read_csv(dominant_models_filepath)
+
+    df_dominant["de_novo_variant_calculations"] = df_dominant[
+        "de_novo_variant_calculations"
+    ].apply(json.loads)
+
+    df_dominant["gene_id_base"] = df_dominant["gene_id"]
+
+    df_recessive["gene_id_base"] = df_recessive["metadata"].apply(
+        lambda dictionary: json.loads(dictionary)["gene_id"].split(".")[0]
+    )
+
+    df_merged = pd.merge(
+        df_dominant,
+        df_recessive,
+        on="gene_id_base",
+        how="right",
+        suffixes=("_dominant", ""),
+    )
+
+    df_dominant = df_dominant.set_index("gene_id")
+
+    for _, row in df_merged.iterrows():
+        metadata = safe_json_load(
+            row.get("metadata"), safe_json_load(row.get("metadata_dominant"), {})
+        )
+
+        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
+        calculations = safe_json_load(row.get("variant_calculations"), {})
+
         variant_count = calculations.get("variant_count")
-        total_allele_frequency = calculations["total_allele_frequency"]
-        carrier_frequency = calculations["carrier_frequency"]
-        prevalence = calculations["prevalence"]
+
+        total_allele_frequency = calculations.get("total_allele_frequency", [0] * 10)
+        carrier_frequency = calculations.get("carrier_frequency", [0] * 10)
+        prevalence = calculations.get("prevalence", [0] * 10)
+
+        de_novo_data = row.get("de_novo_variant_calculations", {})
+        de_novo_inputs = (
+            de_novo_data.get("inputs", {}) if isinstance(de_novo_data, dict) else {}
+        )
+
+        total_de_novo_incidence = de_novo_data.get("total_de_novo_incidence", "")
+        de_novo_estimated_per_100k = (
+            float(total_de_novo_incidence) * 100000
+            if total_de_novo_incidence not in ("", None)
+            else ""
+        )
 
         # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
-            "gene_symbol": metadata["gene_symbol"],
+            "gene_symbol": metadata.get("gene_symbol", row.get("gene_id_base")),
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
             # "variant_count": variant_count,
             "# of P, LP and HC pLoF variants in gnomAD": variant_count,
             "included_clinvar_variants": ", ".join(
-                metadata["include_clinvar_clinical_significance"]
+                metadata.get("include_clinvar_clinical_significance", [])
             ),
-            "clinvar_version": metadata["clinvar_version"],
+            "clinvar_version": metadata.get("clinvar_version", ""),
             "date_created": row["date_created"],
             "allele_frequency_total": total_allele_frequency[0],
             "allele_frequency_african_african_american": total_allele_frequency[1],
@@ -918,6 +970,15 @@ def prepare_dashboard_download(dataframe):
             "genetic_prevalence_european_non_finnish": prevalence[7],
             "genetic_prevalence_remaining": prevalence[8],
             "genetic_prevalence_south_asian": prevalence[9],
+            #
+            "oe_missense_prior": de_novo_inputs.get("oe_mis_prior", ""),
+            "oe_missense_gene": de_novo_inputs.get("oe_mis_capped", ""),
+            "MU_mis": de_novo_inputs.get("mu_mis", ""),
+            "oe_lof_prior": de_novo_inputs.get("oe_lof_prior", ""),
+            "oe_lof_gene": de_novo_inputs.get("oe_lof_capped", ""),
+            "MU_lof": de_novo_inputs.get("mu_lof", ""),
+            "Estimated incidence of de novo variation": total_de_novo_incidence,
+            "Estimated incidence of de novo variation (per 100,000)": de_novo_estimated_per_100k,
         }
 
         for variant_index, variant in enumerate(top_ten_variants):
@@ -984,10 +1045,17 @@ def prepare_dashboard_download(dataframe):
         "gnomad_version",
         "reference_genome",
         "included_clinvar_variants",
-        # "variant_count",
-        "# of P, LP and HC pLoF variants in gnomAD",
         "clinvar_version",
         "date_created",
+        "oe_missense_prior",
+        "oe_missense_gene",
+        "MU_mis",
+        "oe_lof_prior",
+        "oe_lof_gene",
+        "MU_lof",
+        "Estimated incidence of de novo variation",
+        "Estimated incidence of de novo variation (per 100,000)",
+        "# of P, LP and HC pLoF variants in gnomAD",
         #
         "allele_frequency_total",
         "allele_frequency_african_african_american",
@@ -1026,6 +1094,10 @@ def prepare_dashboard_download(dataframe):
     for number in range(1, 11):
         variant_columns = generate_variant_columns(number)
         FINAL_COLUMNS = FINAL_COLUMNS + variant_columns
+
+    for col in FINAL_COLUMNS:
+        if col not in df_download.columns:
+            df_download[col] = None
 
     df_download = df_download[FINAL_COLUMNS]
 
@@ -1153,7 +1225,9 @@ def main() -> None:
             print("Wrote dashboard list models to file")
 
             print("Preparing dashboard downloads")
-            df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
+            df_dashboard_download = prepare_dashboard_download(
+                base_dir, df_dashboard_models
+            )
             df_dashboard_download.to_csv(
                 os.path.join(
                     base_dir,
