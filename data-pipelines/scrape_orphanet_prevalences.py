@@ -86,7 +86,7 @@ def scrape_orphanet_for_genetic_prevalences(genes_orphacode_dict):
     i = 1
 
     for gene_symbol, gene_data in genes_orphacode_dict.items():
-        print(f"  -- Gene Symbol {gene_symbol} ({i} / {length})")
+        print(f"  - Gene Symbol {gene_symbol} ({i} / {length})")
         orpha_prevalence_array = []
 
         for orpha_code in gene_data["OrphaCodes"]:
@@ -110,23 +110,19 @@ def convert_to_pandas(filename, dict):
     print(f"\nTSV file saved: {filename}")
 
 
-def print_time(message):
-    now = datetime.now()
-    formatted_time = now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-2]
-    print(f"{message}: {formatted_time}")
-
-
 def main():
+    start_time = datetime.now()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true", required=False)
     args = parser.parse_args()
 
-    print_time("\nGetting Orphanet prevalences ...")
+    print("\nGetting Orphanet prevalences ...")
 
     num_genes = None
     output_filename = "orphanet_prevalences.tsv"
     if args.test:
-        print("  ... running with 10 genes as a test")
+        print("- running with 10 genes as a test")
         num_genes = 10
         output_filename = "test_orphanet_prevalences.tsv"
 
@@ -140,7 +136,9 @@ def main():
 
     convert_to_pandas(output_filename, genes_orphacode_prevalence_dict)
 
-    print_time("Finished getting Orphanet prevalences!")
+    end_time = datetime.now()
+    print(f"Finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {end_time - start_time}")
 
 
 if __name__ == "__main__":
