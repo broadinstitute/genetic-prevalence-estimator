@@ -390,12 +390,15 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
         "carrier_frequency": carrier_frequency_array,
         "carrier_frequency_simplified": carrier_frequency_simplified_array,
         "carrier_frequency_raw_numbers": carrier_frequency_raw_numbers_array,
+        "allele_frequency": total_allele_frequencies,
     }
 
     return calculations_object
 
 
 def calculate_stats(dataframe, index, variants, populations):
+    if not variants:
+        return
     stats_dict = calculate_carrier_frequency_and_prevalence(variants, populations)
     dataframe.at[index, "variant_calculations"] = json.dumps(stats_dict)
 
@@ -472,7 +475,7 @@ def write_recommended_variants_to_csv(
 
     def format_dict(title, list):
         ancestry_groups = [
-            "global",
+            "total",
             "african_african_american",
             "admixed_american",
             "ashkenazi_jewish",
@@ -493,7 +496,7 @@ def write_recommended_variants_to_csv(
 
     def format_af_dict(title, list1, list2):
         ancestry_groups = [
-            "global",
+            "total",
             "african_african_american",
             "admixed_american",
             "ashkenazi_jewish",
@@ -888,30 +891,76 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     return df
 
 
+# Handles loading JSON strings or dicts with a fallback
+def safe_json_load(val, fallback=None):
+    if isinstance(val, dict):
+        return val
+    try:
+        return json.loads(val)
+    except:
+        return fallback if fallback is not None else {}
+
+
 def prepare_dashboard_download(dataframe):
     download_data = []
 
-    for _, row in dataframe.iterrows():
-        metadata = json.loads(row["metadata"])
-        top_ten_variants = json.loads(row["top_ten_variants"])
-        calculations = json.loads(row["variant_calculations"])
+    # load dominant dashboard model CSV
+    dominant_path = os.path.join(
+        os.path.dirname(__file__),
+        "../data/dominant-dashboard/dominant-dashboard_models.csv",
+    )
+    dominant_df = pd.read_csv(dominant_path)
+    dominant_df["de_novo_variant_calculations"] = dominant_df[
+        "de_novo_variant_calculations"
+    ].apply(json.loads)
+    dominant_df["gene_id_base"] = dominant_df["gene_id"]
+
+    dataframe["gene_id_base"] = dataframe["metadata"].apply(
+        lambda x: json.loads(x)["gene_id"].split(".")[0]
+    )
+
+    merged_df = pd.merge(
+        dominant_df,
+        dataframe,
+        on="gene_id_base",
+        how="left",
+        suffixes=("_dominant", ""),
+    )
+    print(merged_df)
+    dominant_df = dominant_df.set_index("gene_id")
+    for _, row in merged_df.iterrows():
+        metadata = safe_json_load(
+            row.get("metadata"), safe_json_load(row.get("metadata_dominant"), {})
+        )
+        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
+        calculations = safe_json_load(row.get("variant_calculations"), {})
         variant_count = calculations.get("variant_count")
-        carrier_frequency = calculations["carrier_frequency"]
-        prevalence = calculations["prevalence"]
+        carrier_frequency = calculations.get("carrier_frequency", [0] * 10)
+        allele_frequency = calculations.get("allele_frequency", [0] * 10)
+        prevalence = calculations.get("prevalence", [0] * 10)
+
+        dnv = row.get("de_novo_variant_calculations", {})
+        dnv_inputs = dnv.get("inputs", {}) if isinstance(dnv, dict) else {}
+
+        total_dnv_incidence = dnv.get("total_de_novo_incidence", "")
+        estimated_per_100k = (
+            float(total_dnv_incidence) * 100000
+            if total_dnv_incidence not in ("", None)
+            else ""
+        )
 
         # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
-            "gene_symbol": metadata["gene_symbol"],
+            "gene_symbol": metadata.get("gene_symbol", row.get("gene_id_base")),
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
-            "variant_count": variant_count,
             "included_clinvar_variants": ", ".join(
-                metadata["include_clinvar_clinical_significance"]
+                metadata.get("include_clinvar_clinical_significance", [])
             ),
-            "clinvar_version": metadata["clinvar_version"],
+            "clinvar_version": metadata.get("clinvar_version", ""),
             "date_created": row["date_created"],
-            "carrier_frequency_global": carrier_frequency[0],
+            "carrier_frequency_total": carrier_frequency[0],
             "carrier_frequency_african_african_american": carrier_frequency[1],
             "carrier_frequency_admixed_american": carrier_frequency[2],
             "carrier_frequency_ashkenazi_jewish": carrier_frequency[3],
@@ -921,7 +970,7 @@ def prepare_dashboard_download(dataframe):
             "carrier_frequency_european_non_finnish": carrier_frequency[7],
             "carrier_frequency_remaining": carrier_frequency[8],
             "carrier_frequency_south_asian": carrier_frequency[9],
-            "genetic_prevalence_global": prevalence[0],
+            "genetic_prevalence_total": prevalence[0],
             "genetic_prevalence_african_african_american": prevalence[1],
             "genetic_prevalence_admixed_american": prevalence[2],
             "genetic_prevalence_ashkenazi_jewish": prevalence[3],
@@ -931,6 +980,25 @@ def prepare_dashboard_download(dataframe):
             "genetic_prevalence_european_non_finnish": prevalence[7],
             "genetic_prevalence_remaining": prevalence[8],
             "genetic_prevalence_south_asian": prevalence[9],
+            "oe_missense_prior": dnv_inputs.get("oe_mis_prior", ""),
+            "oe_missense_gene": dnv_inputs.get("oe_mis_capped", ""),
+            "MU_mis": dnv_inputs.get("mu_mis", ""),
+            "oe_lof_prior": dnv_inputs.get("oe_lof_prior", ""),
+            "oe_lof_gene": dnv_inputs.get("oe_lof_capped", ""),
+            "MU_lof": dnv_inputs.get("mu_lof", ""),
+            "Estimated incidence of de novo variation": total_dnv_incidence,
+            "Estimated incidence of de novo variation (per 100,000)": estimated_per_100k,
+            "# of LP, P and HC pLoF variants in gnomAD": variant_count,
+            "allele_frequency_total": allele_frequency[0],
+            "allele_frequency_african_african_american": allele_frequency[1],
+            "allele_frequency_admixed_american": allele_frequency[2],
+            "allele_frequency_ashkenazi_jewish": allele_frequency[3],
+            "allele_frequency_east_asian": allele_frequency[4],
+            "allele_frequency_european_finnish": allele_frequency[5],
+            "allele_frequency_middle_eastern": allele_frequency[6],
+            "allele_frequency_european_non_finnish": allele_frequency[7],
+            "allele_frequency_remaining": allele_frequency[8],
+            "allele_frequency_south_asian": allele_frequency[9],
         }
 
         for variant_index, variant in enumerate(top_ten_variants):
@@ -997,11 +1065,28 @@ def prepare_dashboard_download(dataframe):
         "gnomad_version",
         "reference_genome",
         "included_clinvar_variants",
-        "variant_count",
         "clinvar_version",
         "date_created",
-        # TODO: could use a helper if I wanted
-        "carrier_frequency_global",
+        "oe_missense_prior",
+        "oe_missense_gene",
+        "MU_mis",
+        "oe_lof_prior",
+        "oe_lof_gene",
+        "MU_lof",
+        "Estimated incidence of de novo variation",
+        "Estimated incidence of de novo variation (per 100,000)",
+        "# of LP, P and HC pLoF variants in gnomAD",
+        "allele_frequency_total",
+        "allele_frequency_african_african_american",
+        "allele_frequency_admixed_american",
+        "allele_frequency_ashkenazi_jewish",
+        "allele_frequency_east_asian",
+        "allele_frequency_european_finnish",
+        "allele_frequency_middle_eastern",
+        "allele_frequency_european_non_finnish",
+        "allele_frequency_remaining",
+        "allele_frequency_south_asian",
+        "carrier_frequency_total",
         "carrier_frequency_african_african_american",
         "carrier_frequency_admixed_american",
         "carrier_frequency_ashkenazi_jewish",
@@ -1012,7 +1097,7 @@ def prepare_dashboard_download(dataframe):
         "carrier_frequency_remaining",
         "carrier_frequency_south_asian",
         # could also here
-        "genetic_prevalence_global",
+        "genetic_prevalence_total",
         "genetic_prevalence_african_african_american",
         "genetic_prevalence_admixed_american",
         "genetic_prevalence_ashkenazi_jewish",
@@ -1027,6 +1112,11 @@ def prepare_dashboard_download(dataframe):
     for number in range(1, 11):
         variant_columns = generate_variant_columns(number)
         FINAL_COLUMNS = FINAL_COLUMNS + variant_columns
+
+    # Make sure all expected columns exist
+    for col in FINAL_COLUMNS:
+        if col not in df_download.columns:
+            df_download[col] = None
 
     df_download = df_download[FINAL_COLUMNS]
 
@@ -1090,7 +1180,7 @@ def main() -> None:
     genes_fullpath = os.path.join(base_dir, "dashboard", genes_filename)
 
     start = 0
-    batch_size = 100
+    batch_size = 10
     stop = 3999
 
     for i in range(start, stop, batch_size):
@@ -1140,13 +1230,17 @@ def main() -> None:
                 index=False,
             )
             print("Wrote dashboard list models to file")
+            models_filename = "combine_models.csv"
+            models_path = os.path.join(base_dir, "dashboard", models_filename)
+
+            df_dashboard_models = pd.read_csv(models_path)
 
             print("Preparing dashboard downloads")
             df_dashboard_download = prepare_dashboard_download(df_dashboard_models)
             df_dashboard_download.to_csv(
                 os.path.join(
                     base_dir,
-                    f"dashboard/dashboard_download_{batch_start}-{batch_stop_print}.csv",
+                    f"dashboard/dashboard_download_COMBINEATTEMPT.csv",
                 ),
                 index=False,
             )
