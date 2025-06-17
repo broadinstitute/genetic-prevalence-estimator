@@ -916,6 +916,8 @@ def prepare_dashboard_download(base_dir, df_recessive):
         prevalence = calculations.get("prevalence", [0] * 10)
 
         de_novo_data = row.get("de_novo_variant_calculations", {})
+        de_novo_data = de_novo_data if isinstance(de_novo_data, dict) else {}
+
         de_novo_inputs = (
             de_novo_data.get("inputs", {}) if isinstance(de_novo_data, dict) else {}
         )
