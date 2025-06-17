@@ -873,6 +873,139 @@ def safe_json_load(val, fallback=None):
 
 
 def prepare_dashboard_download(base_dir, df_recessive):
+    V4_ANCESTRY_GROUPS = [
+        "total",
+        "african_african_american",
+        "admixed_american",
+        "ashkenazi_jewish",
+        "east_asian",
+        "european_finnish",
+        "middle_eastern",
+        "european_non_finnish",
+        "remaining",
+        "south_asian",
+    ]
+
+    GRP_STRATIFIED_FIELDS = [
+        {
+            "calculations_dict_name": "total_allele_frequency",
+            "downloads_column_name": "allele_frequency",
+        },
+        {
+            "calculations_dict_name": "carrier_frequency",
+            "downloads_column_name": "carrier_frequency",
+        },
+        {
+            "calculations_dict_name": "prevalence",
+            "downloads_column_name": "genetic_prevalence",
+        },
+    ]
+
+    def generate_ancestry_columns(fields_to_stratify, ancestry_groups):
+        return [
+            f"{field['downloads_column_name']}_{ancestry}"
+            for field in fields_to_stratify
+            for ancestry in ancestry_groups
+        ]
+
+    TOP_TEN_VARIANT_COLUMNS = [
+        "gnomad_id",
+        "vep_consequence",
+        "hgvsc",
+        "hgvsp",
+        "loftee",
+        "clinvar_clinical_significance",
+        "clinvar_variation_id",
+        "allele_count",
+        "allele_number",
+        "allele_frequency",
+        "source",
+        "flags",
+    ]
+
+    def generate_top_ten_variant_columns(top_ten_variant_fields):
+        return [
+            f"variant_{i+1}_{field}"
+            for i in range(10)
+            for field in top_ten_variant_fields
+        ]
+
+    def stratify_fields_by_ancestry(calculations, fields_with_ancestries):
+        result = {}
+        for field in fields_with_ancestries:
+            values = calculations.get(
+                field["calculations_dict_name"], [0] * len(V4_ANCESTRY_GROUPS)
+            )
+            for i, ancestry in enumerate(V4_ANCESTRY_GROUPS):
+                result[f"{field['downloads_column_name']}_{ancestry}"] = values[i]
+        return result
+
+    def build_top_ten_variant_data(top_ten_variants):
+        top_ten_variant_data = {}
+
+        for i, variant in enumerate(top_ten_variants):
+            prefix = f"variant_{i + 1}"
+            allele_count = variant["AC"][0]
+            allele_number = variant["AN"][0]
+
+            formatted_variant_data = {
+                f"{prefix}_gnomad_id": variant["id"],
+                f"{prefix}_vep_consequence": variant["major_consequence"],
+                f"{prefix}_hgvsc": variant["hgvsc"],
+                f"{prefix}_hgvsp": variant["hgvsp"],
+                f"{prefix}_loftee": variant["lof"],
+                f"{prefix}_clinvar_clinical_significance": (
+                    variant["clinical_significance"][0]
+                    if variant["clinical_significance"]
+                    else None
+                ),
+                f"{prefix}_clinvar_variation_id": variant["clinvar_variation_id"],
+                f"{prefix}_allele_count": int(allele_count),
+                f"{prefix}_allele_number": int(allele_number),
+                f"{prefix}_allele_frequency": (
+                    0
+                    if allele_count == 0
+                    else "{:.2e}".format(allele_count / allele_number)
+                ),
+                f"{prefix}_source": ", ".join(variant["source"]),
+                f"{prefix}_flags": ", ".join(variant["flags"]),
+            }
+
+            top_ten_variant_data.update(formatted_variant_data)
+
+        return top_ten_variant_data
+
+    def build_base_columns():
+        base_columns = [
+            "gene_symbol",
+            "transcript_id",
+            "gnomad_version",
+            "reference_genome",
+            "included_clinvar_variants",
+            "clinvar_version",
+            "date_created",
+            "oe_missense_prior",
+            "oe_missense_gene",
+            "MU_mis",
+            "oe_lof_prior",
+            "oe_lof_gene",
+            "MU_lof",
+            "Estimated incidence of de novo variation",
+            "Estimated incidence of de novo variation (per 100,000)",
+            "# of P, LP and HC pLoF variants in gnomAD",
+        ]
+
+        ancestry_stratified_columns = generate_ancestry_columns(
+            GRP_STRATIFIED_FIELDS, V4_ANCESTRY_GROUPS
+        )
+        top_ten_variant_columns = generate_top_ten_variant_columns(
+            TOP_TEN_VARIANT_COLUMNS
+        )
+
+        return base_columns + ancestry_stratified_columns + top_ten_variant_columns
+
+    # ---
+
     download_data = []
 
     dominant_models_filepath = os.path.join(
@@ -906,22 +1039,13 @@ def prepare_dashboard_download(base_dir, df_recessive):
             row.get("metadata"), safe_json_load(row.get("metadata_dominant"), {})
         )
 
-        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
         calculations = safe_json_load(row.get("variant_calculations"), {})
-
-        variant_count = calculations.get("variant_count")
-
-        total_allele_frequency = calculations.get("total_allele_frequency", [0] * 10)
-        carrier_frequency = calculations.get("carrier_frequency", [0] * 10)
-        prevalence = calculations.get("prevalence", [0] * 10)
-
+        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
         de_novo_data = row.get("de_novo_variant_calculations", {})
         de_novo_data = de_novo_data if isinstance(de_novo_data, dict) else {}
-
         de_novo_inputs = (
             de_novo_data.get("inputs", {}) if isinstance(de_novo_data, dict) else {}
         )
-
         total_de_novo_incidence = de_novo_data.get("total_de_novo_incidence", "")
         de_novo_estimated_per_100k = (
             float(total_de_novo_incidence) * 100000
@@ -935,44 +1059,14 @@ def prepare_dashboard_download(base_dir, df_recessive):
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
-            # "variant_count": variant_count,
-            "# of P, LP and HC pLoF variants in gnomAD": variant_count,
+            "# of P, LP and HC pLoF variants in gnomAD": calculations.get(
+                "variant_count"
+            ),
             "included_clinvar_variants": ", ".join(
                 metadata.get("include_clinvar_clinical_significance", [])
             ),
             "clinvar_version": metadata.get("clinvar_version", ""),
             "date_created": row["date_created"],
-            "allele_frequency_total": total_allele_frequency[0],
-            "allele_frequency_african_african_american": total_allele_frequency[1],
-            "allele_frequency_admixed_american": total_allele_frequency[2],
-            "allele_frequency_ashkenazi_jewish": total_allele_frequency[3],
-            "allele_frequency_east_asian": total_allele_frequency[4],
-            "allele_frequency_european_finnish": total_allele_frequency[5],
-            "allele_frequency_middle_eastern": total_allele_frequency[6],
-            "allele_frequency_european_non_finnish": total_allele_frequency[7],
-            "allele_frequency_remaining": total_allele_frequency[8],
-            "allele_frequency_south_asian": total_allele_frequency[9],
-            "carrier_frequency_total": carrier_frequency[0],
-            "carrier_frequency_african_african_american": carrier_frequency[1],
-            "carrier_frequency_admixed_american": carrier_frequency[2],
-            "carrier_frequency_ashkenazi_jewish": carrier_frequency[3],
-            "carrier_frequency_east_asian": carrier_frequency[4],
-            "carrier_frequency_european_finnish": carrier_frequency[5],
-            "carrier_frequency_middle_eastern": carrier_frequency[6],
-            "carrier_frequency_european_non_finnish": carrier_frequency[7],
-            "carrier_frequency_remaining": carrier_frequency[8],
-            "carrier_frequency_south_asian": carrier_frequency[9],
-            "genetic_prevalence_total": prevalence[0],
-            "genetic_prevalence_african_african_american": prevalence[1],
-            "genetic_prevalence_admixed_american": prevalence[2],
-            "genetic_prevalence_ashkenazi_jewish": prevalence[3],
-            "genetic_prevalence_east_asian": prevalence[4],
-            "genetic_prevalence_european_finnish": prevalence[5],
-            "genetic_prevalence_middle_eastern": prevalence[6],
-            "genetic_prevalence_european_non_finnish": prevalence[7],
-            "genetic_prevalence_remaining": prevalence[8],
-            "genetic_prevalence_south_asian": prevalence[9],
-            #
             "oe_missense_prior": de_novo_inputs.get("oe_mis_prior", ""),
             "oe_missense_gene": de_novo_inputs.get("oe_mis_capped", ""),
             "MU_mis": de_novo_inputs.get("mu_mis", ""),
@@ -983,125 +1077,21 @@ def prepare_dashboard_download(base_dir, df_recessive):
             "Estimated incidence of de novo variation (per 100,000)": de_novo_estimated_per_100k,
         }
 
-        for variant_index, variant in enumerate(top_ten_variants):
-            prefix = f"variant_{variant_index + 1}"
-            allele_count = variant["AC"][0]
-            allele_number = variant["AN"][0]
-
-            row_data.update(
-                {
-                    f"{prefix}_gnomad_id": variant["id"],
-                    f"{prefix}_vep_consequence": variant["major_consequence"],
-                    f"{prefix}_hgvsc": variant["hgvsc"],
-                    f"{prefix}_hgvsp": variant["hgvsp"],
-                    f"{prefix}_loftee": variant["lof"],
-                    f"{prefix}_clinvar_clinical_significance": (
-                        variant["clinical_significance"][0]
-                        if variant["clinical_significance"]
-                        else None
-                    ),
-                    f"{prefix}_clinvar_variation_id": variant["clinvar_variation_id"],
-                    f"{prefix}_allele_count": int(allele_count),
-                    f"{prefix}_allele_number": int(allele_number),
-                    f"{prefix}_allele_frequency": (
-                        0
-                        if allele_count == 0
-                        else "{:.2e}".format(allele_count / allele_number)
-                    ),
-                    f"{prefix}_source": ", ".join(variant["source"]),
-                    f"{prefix}_flags": ", ".join(variant["flags"]),
-                }
-            )
-
+        row_data.update(
+            stratify_fields_by_ancestry(calculations, GRP_STRATIFIED_FIELDS)
+        )
+        row_data.update(build_top_ten_variant_data(top_ten_variants))
         download_data.append(row_data)
 
     df_download = pd.DataFrame(download_data)
 
-    def generate_variant_columns(number):
-        variant_columns = []
+    final_column_order = build_base_columns()
 
-        prefix = f"variant_{number}"
-        columns = [
-            "gnomad_id",
-            "vep_consequence",
-            "hgvsc",
-            "hgvsp",
-            "loftee",
-            "clinvar_clinical_significance",
-            "clinvar_variation_id",
-            "allele_count",
-            "allele_number",
-            "allele_frequency",
-            "source",
-            "flags",
-        ]
-
-        for column in columns:
-            variant_columns.append(f"{prefix}_{column}")
-
-        return variant_columns
-
-    FINAL_COLUMNS = [
-        "gene_symbol",
-        "transcript_id",
-        "gnomad_version",
-        "reference_genome",
-        "included_clinvar_variants",
-        "clinvar_version",
-        "date_created",
-        "oe_missense_prior",
-        "oe_missense_gene",
-        "MU_mis",
-        "oe_lof_prior",
-        "oe_lof_gene",
-        "MU_lof",
-        "Estimated incidence of de novo variation",
-        "Estimated incidence of de novo variation (per 100,000)",
-        "# of P, LP and HC pLoF variants in gnomAD",
-        #
-        "allele_frequency_total",
-        "allele_frequency_african_african_american",
-        "allele_frequency_admixed_american",
-        "allele_frequency_ashkenazi_jewish",
-        "allele_frequency_east_asian",
-        "allele_frequency_european_finnish",
-        "allele_frequency_middle_eastern",
-        "allele_frequency_european_non_finnish",
-        "allele_frequency_remaining",
-        "allele_frequency_south_asian",
-        # TODO: could use a helper if I wanted
-        "carrier_frequency_total",
-        "carrier_frequency_african_african_american",
-        "carrier_frequency_admixed_american",
-        "carrier_frequency_ashkenazi_jewish",
-        "carrier_frequency_east_asian",
-        "carrier_frequency_european_finnish",
-        "carrier_frequency_middle_eastern",
-        "carrier_frequency_european_non_finnish",
-        "carrier_frequency_remaining",
-        "carrier_frequency_south_asian",
-        # could also here
-        "genetic_prevalence_total",
-        "genetic_prevalence_african_african_american",
-        "genetic_prevalence_admixed_american",
-        "genetic_prevalence_ashkenazi_jewish",
-        "genetic_prevalence_east_asian",
-        "genetic_prevalence_european_finnish",
-        "genetic_prevalence_middle_eastern",
-        "genetic_prevalence_european_non_finnish",
-        "genetic_prevalence_remaining",
-        "genetic_prevalence_south_asian",
-    ]
-
-    for number in range(1, 11):
-        variant_columns = generate_variant_columns(number)
-        FINAL_COLUMNS = FINAL_COLUMNS + variant_columns
-
-    for col in FINAL_COLUMNS:
+    for col in final_column_order:
         if col not in df_download.columns:
             df_download[col] = None
 
-    df_download = df_download[FINAL_COLUMNS]
+    df_download = df_download[final_column_order]
 
     return df_download
 
