@@ -68,6 +68,11 @@ class VariantListsView(ListCreateAPIView):
             )
 
     def perform_create(self, serializer):
+        if self.request.user.username.endswith("fulgent@gmail.com"):
+            raise ValidationError(
+                "We have temporarily disallowed you from creating variant lists. Please contact GeniE staff directly."
+            )
+
         self.check_list_limit(self.request.user)
 
         variants = serializer.validated_data.get("variants", [])
