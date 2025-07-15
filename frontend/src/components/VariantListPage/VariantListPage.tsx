@@ -739,7 +739,9 @@ const VariantListPage = (props: VariantListPageProps) => {
               Edit
             </VariantListSharingButton>
           </HStack>
-          <VariantListReviewStatus variantListStore={variantListStore} />
+          {variantList.status === "Ready" && (
+            <VariantListReviewStatus variantListStore={variantListStore} />
+          )}
         </Box>
       )}
 
