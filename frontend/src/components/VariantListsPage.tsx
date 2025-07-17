@@ -23,7 +23,7 @@ import { FC, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { get } from "../api";
-import { appConfigStore, useStore } from "../state";
+import { appConfigStore, authStore, useStore } from "../state";
 import { VariantList } from "../types";
 import DateTime from "./DateTime";
 import DocumentTitle from "./DocumentTitle";
@@ -96,6 +96,7 @@ const VariantLists: FC<VariantListsProps> = ({ variantLists }) => {
 
 const VariantListsContainer = () => {
   const appConfig = useStore(appConfigStore);
+  const { isSignedIn, user } = useStore(authStore);
   const [isLoading, setIsLoading] = useState(true);
   const [variantLists, setVariantLists] = useState<VariantList[]>([]);
   const [error, setError] = useState<Error | null>(null);
@@ -112,10 +113,15 @@ const VariantListsContainer = () => {
       });
   }, [orderBy]);
 
+  const userHasNotCreatedMaxNumberOfVariantLists =
+    variantLists.length < appConfig!.max_variant_lists_per_user;
+
+  const userIsStaff = isSignedIn && user && user.is_staff;
+
   const canCreateVariantList =
     !isLoading &&
     !error &&
-    variantLists.length < appConfig!.max_variant_lists_per_user;
+    (userHasNotCreatedMaxNumberOfVariantLists || userIsStaff);
 
   let content = null;
 
