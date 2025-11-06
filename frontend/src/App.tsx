@@ -12,6 +12,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
@@ -49,7 +50,23 @@ import { initializeAuth, signOut } from "./auth";
 import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
 
-const banner = undefined;
+const banner = (
+  <Box px={4} mb={4}>
+    <Alert status="info">
+      <AlertIcon />
+      <span>
+        We want to hear from you! Please take our{" "}
+        <BaseLink
+          href="https://docs.google.com/forms/d/e/1FAIpQLSf6dEDR028WmnCkro8bPXeVjrFhNuV8H0A2-MtkTNOKUZGZKA/viewform?usp=header"
+          isExternal
+        >
+          user survey
+        </BaseLink>{" "}
+        to provide feedback on GeniE.
+      </span>
+    </Alert>
+  </Box>
+);
 
 const RequireSignIn: FC<{}> = ({ children }) => {
   const { isSignedIn, user } = useStore(authStore);
