@@ -788,6 +788,22 @@ const faqs = [
       </>
     ),
   },
+  {
+    title:
+      "Does GeniE support lift over of gnomAD IDs between v2 (GRCh37) and v4 (GRCh38)?",
+    answer: (
+      <>
+        <Text>
+          GeniE does not lift over coordinates in the gnomAD style IDs between
+          different reference genomes. This can be accomplished using the{" "}
+          <ChakraLink href="https://genebe.net/tools/liftover" isExternal>
+            GeneBe lift over tool
+          </ChakraLink>
+          .
+        </Text>
+      </>
+    ),
+  },
 ];
 
 const FAQView = () => {
