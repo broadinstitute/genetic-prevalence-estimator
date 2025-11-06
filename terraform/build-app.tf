@@ -67,10 +67,8 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
       name = "gcr.io/kaniko-project/executor:latest"
       args = [
         "--dockerfile=website/website.dockerfile",
-        "--destination=gcr.io/$PROJECT_ID/website:$COMMIT_SHA",
-        "--destination=gcr.io/$PROJECT_ID/website:latest",
-        "--cache=true",
-        "--cache-ttl=168h",
+        "--destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA",
+        "--destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:latest",
       ]
     }
 
@@ -83,7 +81,7 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "deploy",
         google_cloud_run_service.website.name,
         "--image",
-        "gcr.io/$PROJECT_ID/website:$COMMIT_SHA",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA",
         "--region",
         google_cloud_run_service.website.location,
       ]
@@ -95,10 +93,8 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
       name = "gcr.io/kaniko-project/executor:latest"
       args = [
         "--dockerfile=worker/worker.dockerfile",
-        "--destination=gcr.io/$PROJECT_ID/worker:$COMMIT_SHA",
-        "--destination=gcr.io/$PROJECT_ID/worker:latest",
-        "--cache=true",
-        "--cache-ttl=168h",
+        "--destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:$COMMIT_SHA",
+        "--destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:latest",
       ]
       wait_for = ["-"]
     }
@@ -112,7 +108,7 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "deploy",
         google_cloud_run_service.worker.name,
         "--image",
-        "gcr.io/$PROJECT_ID/worker:$COMMIT_SHA",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:$COMMIT_SHA",
         "--region",
         google_cloud_run_service.worker.location,
       ]
