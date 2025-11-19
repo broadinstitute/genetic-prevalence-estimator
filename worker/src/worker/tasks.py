@@ -589,7 +589,9 @@ def _process_variant_list(variant_list):
         "  Handing off to annotate with flags helper at: %s",
         time.strftime("%Y-%m-%d %H:%M:%S"),
     )
+
     ds = _annotate_variants_with_flags(ds)
+    ds = ds.filter(~ds.flags.contains("filtered"))
 
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
         logger.info(
