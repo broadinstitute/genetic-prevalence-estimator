@@ -162,7 +162,7 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
                     zeroes,
                 )
                 for field in ("AC", "AN", "homozygote_count")
-            }
+            },
         )
     else:
         return hl.struct(
@@ -191,7 +191,7 @@ def combined_freq(ds, n_populations, gnomad_version, include_filtered=False):
                     )
                 ).map(lambda f: f[0] + f[1])
                 for field in ("AC", "AN", "homozygote_count")
-            }
+            },
         )
 
 
@@ -421,7 +421,7 @@ def _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata):
     ds = ds.annotate(
         **combined_freq(
             ds=ds, gnomad_version=gnomad_version, n_populations=len(populations)
-        )
+        ),
     )
 
     return ds
@@ -440,7 +440,7 @@ def _annotate_variants_with_ClinVar(ds, variant_list, reference_genome):
             "clinical_significance",
             "clinical_significance_category",
             "gold_stars",
-        )
+        ),
     )
 
     return ds
@@ -584,6 +584,15 @@ def _process_variant_list(variant_list):
 
     logger.info("  Annotating with ClinVar at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
     ds = _annotate_variants_with_ClinVar(ds, variant_list, reference_genome)
+
+    ds = ds.transmute(
+        source=hl.array(
+            [
+                hl.or_missing(hl.is_defined(ds.lof), "gnomAD"),
+                hl.or_missing(hl.is_defined(ds.gold_stars), "ClinVar"),
+            ]
+        ).filter(hl.is_defined)
+    )
 
     logger.info(
         "  Handing off to annotate with flags helper at: %s",
