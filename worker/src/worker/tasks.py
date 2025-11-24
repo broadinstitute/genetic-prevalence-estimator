@@ -368,10 +368,7 @@ def get_recommended_variants(metadata, transcript):
 
     ds = ds.transmute(
         source=hl.array(
-            [
-                hl.or_missing(ds.include_from_gnomad, "gnomAD"),
-                hl.or_missing(ds.include_from_clinvar, "ClinVar"),
-            ]
+            [hl.if_else(hl.is_defined(ds.include_from_clinvar), "ClinVar", "gnomAD")]
         ).filter(hl.is_defined)
     )
 
@@ -587,10 +584,7 @@ def _process_variant_list(variant_list):
 
     ds = ds.transmute(
         source=hl.array(
-            [
-                hl.or_missing(hl.is_defined(ds.lof), "gnomAD"),
-                hl.or_missing(hl.is_defined(ds.gold_stars), "ClinVar"),
-            ]
+            [hl.if_else(hl.is_defined(ds.gold_stars), "ClinVar", "gnomAD")]
         ).filter(hl.is_defined)
     )
 
