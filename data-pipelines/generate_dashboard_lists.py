@@ -70,7 +70,7 @@ def variant_id(locus, alleles):
     )
 
 
-def annotate_variants_with_flags(ds, max_af_of_clinvar_path_or_likely_path_variants):
+def _add_flags_to_variants(ds, max_af_of_clinvar_path_or_likely_path_variants):
     return hl.array(
         [
             hl.or_missing(hl.is_missing(ds.freq), "not_found"),
@@ -140,18 +140,7 @@ def get_highest_frequency_variants(ds, num_to_keep):
     return ds
 
 
-def process_dashboard_list(
-    dataframe,
-    index,
-    transcript_id,
-    start,
-    stop,
-    chrom,
-    gnomad_variants,
-    clinvar_variants,
-):
-    contig = f"chr{chrom}"
-
+def _annotate_variants_with_gnomAD(contig, start, stop, gnomad_variants):
     if start is not None and stop is not None:
         ht = hl.filter_intervals(
             gnomad_variants,
@@ -191,6 +180,10 @@ def process_dashboard_list(
 
     ht = ht.annotate(include_from_gnomad=include_from_gnomad)
 
+    return ht
+
+
+def _annotate_with_clinvar(ht, clinvar_variants):
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
         "Likely pathogenic",
@@ -221,8 +214,10 @@ def process_dashboard_list(
 
     ht = ht.annotate(include_from_clinvar=include_from_clinvar)
 
-    ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
+    return ht
 
+
+def _remove_clinvar_primary_benign_classifications(ht):
     # these should be kept in sync with the classifications in import_clinvar.py
     BENIGN_CLASSIFICATIONS = [
         "Benign",
@@ -241,6 +236,52 @@ def process_dashboard_list(
 
     ht = ht.annotate(disclude_because_benign=primary_report_is_benign)
     ht = ht.filter(~ht.disclude_because_benign)
+
+    return ht
+
+
+def _annotate_variants_with_flags(ht):
+    max_af_of_clinvar_path_or_likely_path_variants = ht.aggregate(
+        hl.agg.filter(
+            ht.clinical_significance_category == "pathogenic_or_likely_pathogenic",
+            hl.agg.max(ht.AC[0] / ht.AN[0]),
+        )
+    )
+
+    # if there are no clinvar path or likely path variants, the aggregation returns None
+    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
+    max_af_of_clinvar_path_or_likely_path_variants = (
+        max_af_of_clinvar_path_or_likely_path_variants
+        if max_af_of_clinvar_path_or_likely_path_variants is not None
+        else hl.int(1.1)
+    )
+
+    ht = ht.annotate(
+        flags=_add_flags_to_variants(ht, max_af_of_clinvar_path_or_likely_path_variants)
+    )
+
+    return ht
+
+
+def process_dashboard_list(
+    dataframe,
+    index,
+    transcript_id,
+    start,
+    stop,
+    chrom,
+    gnomad_variants,
+    clinvar_variants,
+):
+    contig = f"chr{chrom}"
+
+    ht = _annotate_with_gnomad(contig, start, stop, gnomad_variants)
+
+    ht = _annotate_with_clinvar(ht, contig, start, stop, clinvar_variants)
+
+    ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
+
+    ht = _remove_clinvar_primary_benign_classifications(ht)
 
     ht = ht.transmute(
         source=hl.array(
@@ -275,32 +316,11 @@ def process_dashboard_list(
         )
     )
 
-    max_af_of_clinvar_path_or_likely_path_variants = ht.aggregate(
-        hl.agg.filter(
-            ht.clinical_significance_category == "pathogenic_or_likely_pathogenic",
-            hl.agg.max(ht.AC[0] / ht.AN[0]),
-        )
-    )
+    ht = _annotate_variants_with_flags(ht)
 
-    # if there are no clinvar path or likely path variants, the aggregation returns None
-    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
-    max_af_of_clinvar_path_or_likely_path_variants = (
-        max_af_of_clinvar_path_or_likely_path_variants
-        if max_af_of_clinvar_path_or_likely_path_variants is not None
-        else hl.int(1.1)
-    )
-
-    ht = ht.annotate(
-        flags=annotate_variants_with_flags(
-            ht, max_af_of_clinvar_path_or_likely_path_variants
-        )
-    )
-
-    # TODO: move this logic further up?
     ht = ht.filter(~ht.flags.contains("filtered"))
 
     # TODO: lof curation for v2, later for v4
-
     table_fields = set(ht.row)
     select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
     ht = ht.select(*select_fields)
