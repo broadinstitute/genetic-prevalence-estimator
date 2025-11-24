@@ -724,6 +724,7 @@ const VariantsTable: FC<VariantsTableProps> = ({
   }) => {
     const rowData = data[dataRowIndex];
     const isNotIncluded = notIncludedVariants.has(rowData.id);
+    const isNotSelected = !selectedVariants.has(rowData.id);
 
     return (
       <Tr
@@ -735,7 +736,11 @@ const VariantsTable: FC<VariantsTableProps> = ({
           height: `${ROW_HEIGHT}px`,
           boxShadow:
             "inset -0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9), inset 0.65em 0em 1em -1.25em rgba(0, 0, 0, 0.9)",
-          backgroundColor: isNotIncluded ? "#f0f0f0" : "transparent",
+          backgroundColor: isNotIncluded
+            ? "#f0f0f0"
+            : isNotSelected
+            ? "#f8f8f8"
+            : "transparent",
         }}
         style={style}
       >
