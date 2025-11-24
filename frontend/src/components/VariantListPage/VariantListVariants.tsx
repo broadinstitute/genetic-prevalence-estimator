@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   HStack,
+  List,
   ListItem,
   Text,
   Tooltip,
@@ -32,6 +33,7 @@ import {
 import MultipleSelect from "../MultipleSelect";
 import { DownloadVariantListLink } from "./DownloadVariantList";
 import VariantsTable from "./VariantsTable";
+import HelpTextHover from "../HelpTextHover";
 
 export const combineVariants = (
   variants: Variant[],
@@ -181,16 +183,63 @@ const VariantListVariants = (props: VariantListVariantsProps) => {
     (variant) => (variant.AC || [])[0] === 0
   ).length;
 
+  const allUnincludedVariants = renderedVariants.filter(
+    (variant) => !selectedVariants.has(variant.id)
+  );
+  const unselectedVariants = allUnincludedVariants.filter(
+    (variant) => !notIncludedVariants.has(variant.id)
+  );
+  const neverIncludedVariants = renderedVariants.filter((variant) =>
+    notIncludedVariants.has(variant.id)
+  );
+
+  const unselectedVariantsTooltip = (
+    <>
+      {unselectedVariants.length > 0 && (
+        <>
+          <Text>
+            Currently unselected variant
+            {unselectedVariants.length > 1 ? "s" : ""}:
+          </Text>
+          <List>
+            {unselectedVariants.map((variant) => {
+              return <ListItem pl={"2"}>• {variant.id}</ListItem>;
+            })}
+          </List>
+        </>
+      )}
+      {neverIncludedVariants.length > 0 && (
+        <>
+          <Text>
+            Currently fully excluded variant
+            {neverIncludedVariants.length > 1 ? "s" : ""}:
+          </Text>
+          <List>
+            {neverIncludedVariants.map((variant) => {
+              return <ListItem pl={"2"}>• {variant.id}</ListItem>;
+            })}
+          </List>
+        </>
+      )}
+    </>
+  );
+
   return (
     <>
       <Text mb={2}>
         This variant list contains {renderedVariants.length} variant
         {variantList.variants.length !== 1 ? "s" : ""}.
       </Text>
-      <Text mb={2}>
-        {notIncludedVariants.size} variant
-        {notIncludedVariants.size !== 1 ? "s" : ""} are not included.
-      </Text>
+      {allUnincludedVariants.length > 0 && (
+        <>
+          <Text mb={2}>
+            {allUnincludedVariants.length} variant
+            {allUnincludedVariants.length !== 1 ? "s are" : " is"} not currently
+            included in the calculations.{" "}
+            <HelpTextHover helpText={unselectedVariantsTooltip} />
+          </Text>
+        </>
+      )}
 
       {variantList.status === "Ready" ? (
         <>
