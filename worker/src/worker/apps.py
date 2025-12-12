@@ -9,12 +9,13 @@ class WorkerConfig(AppConfig):
     def ready(self):
         from .tasks import (  # pylint: disable=import-outside-toplevel
             initialize_hail,
-            exit_if_hail_has_failed,
+            exit_after_job_finished,
         )
 
-        # If the worker encounters an error that it can't recover from (such as Hail
-        # running out of memory) while processing a variant list, exit after sending
-        # a request so that the next request gets a new worker.
-        request_finished.connect(exit_if_hail_has_failed)
+        # Always terminate the current worker after a job
+        #   Current working theory about many queue'd requests causing crashes is
+        #   CPU throttling in between jobs causes Java garbage collection
+        #   to not happen reliably, leading to OOM errors
+        request_finished.connect(exit_after_job_finished)
 
         initialize_hail()

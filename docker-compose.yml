@@ -83,6 +83,7 @@ services:
     build:
       context: .
       dockerfile: worker/worker.dockerfile
+    restart: always
     command: django-admin runserver worker:8080
     environment:
       - DJANGO_SETTINGS_MODULE=worker.settings.development
