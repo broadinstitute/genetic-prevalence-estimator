@@ -750,6 +750,10 @@ def process_variant_list(uid):
 
         variant_list.save()
 
+    finally:
+        global IS_SHUTTING_DOWN
+        IS_SHUTTING_DOWN = True
+
 
 def handle_event(event):
     try:
