@@ -18,6 +18,7 @@ from calculator.serializers import (
     is_structural_variant_id,
 )
 
+IS_SHUTTING_DOWN = False
 
 logger = logging.getLogger(__name__)
 
@@ -107,12 +108,16 @@ def is_hail_working():
 
 
 def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argument
+    global IS_SHUTTING_DOWN
+    IS_SHUTTING_DOWN = True
+
     logger.info(
         "Job finished. Recycling container to clear Java Heap for next request via a new container."
     )
+    sys.stdout.flush()
+    sys.stderr.flush()
 
-    # sleep to make sure the WSGI server reponds 204
-    #   before we recycle this container
+    # let 20x code get sent from worker
     time.sleep(1)
 
     # Very weird, but just kill at the OS level.
@@ -703,6 +708,12 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
 
 
 def process_variant_list(uid):
+    if IS_SHUTTING_DOWN:
+        logger.info(
+            "Worker is about to recycle - raise error to force a retry on another"
+        )
+        raise RuntimeError("Worker is about to recycle - retry on another")
+
     start_time = time.time()
     logger.info(
         "Processing new variant list %s at: %s", uid, time.strftime("%Y-%m-%d %H:%M:%S")
