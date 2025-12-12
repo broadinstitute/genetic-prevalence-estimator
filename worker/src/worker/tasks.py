@@ -106,9 +106,20 @@ def is_hail_working():
         return False
 
 
-def exit_if_hail_has_failed(sender, **kwargs):  # pylint: disable=unused-argument
-    if not is_hail_working():
-        sys.exit(1)
+def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argument
+    logger.info(
+        "Job finished. Recycling container to clear Java Heap for next request via a new container."
+    )
+
+    # sleep to make sure the WSGI server reponds 204
+    #   before we recycle this container
+    time.sleep(1)
+
+    # Very weird, but just kill at the OS level.
+    #   We know we want this to happen
+    #   sys.exit(0) results in Django trying to
+    #   catch and handle the error.
+    os._exit(0)
 
 
 def variant_id(locus, alleles):
