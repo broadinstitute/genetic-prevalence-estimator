@@ -19,6 +19,7 @@ from calculator.serializers import (
 )
 
 IS_SHUTTING_DOWN = False
+EXIT_SEQUENCE_STARTED = False
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +110,12 @@ def is_hail_working():
 
 def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argument
     global IS_SHUTTING_DOWN
+    global EXIT_SEQUENCE_STARTED
+
+    if EXIT_SEQUENCE_STARTED:
+        return
+
+    EXIT_SEQUENCE_STARTED = True
     IS_SHUTTING_DOWN = True
 
     logger.info(
@@ -709,6 +716,7 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
 
 def process_variant_list(uid):
     global IS_SHUTTING_DOWN
+
     if IS_SHUTTING_DOWN:
         logger.info(
             "Worker is about to recycle - raise error to force a retry on another"
