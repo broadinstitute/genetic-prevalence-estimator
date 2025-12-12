@@ -708,6 +708,7 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
 
 
 def process_variant_list(uid):
+    global IS_SHUTTING_DOWN
     if IS_SHUTTING_DOWN:
         logger.info(
             "Worker is about to recycle - raise error to force a retry on another"
@@ -735,6 +736,7 @@ def process_variant_list(uid):
         variant_list.status = VariantList.Status.ERROR
         variant_list.error = traceback.format_exc()
         variant_list.save()
+        IS_SHUTTING_DOWN = True
 
     else:
         end_time = time.time()
@@ -749,9 +751,6 @@ def process_variant_list(uid):
         variant_list.status = VariantList.Status.READY
 
         variant_list.save()
-
-    finally:
-        global IS_SHUTTING_DOWN
         IS_SHUTTING_DOWN = True
 
 
