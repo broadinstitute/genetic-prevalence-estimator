@@ -10,6 +10,9 @@ import hail as hl
 import requests
 from django.conf import settings
 
+import requests
+
+
 from calculator.models import VariantList, DashboardList
 from calculator.serializers import (
     VariantListSerializer,
@@ -87,6 +90,11 @@ STRUCTURAL_VARIANT_FIELDS = [
 
 
 def initialize_hail():
+    logger.info(
+        "Worker starting. Waiting 5 seconds before starting Hail to allow cleanup from previous worker"
+    )
+    time.sleep(5)
+
     spark_conf = os.getenv("SPARK_CONF", default=None)
     if spark_conf:
         spark_conf = json.loads(spark_conf)
@@ -124,13 +132,23 @@ def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argumen
     sys.stdout.flush()
     sys.stderr.flush()
 
-    # let 20x code get sent from worker
-    time.sleep(1)
+    try:
+        logger.info("Stopping hail")
+        hl.stop()
+    except Exception as e:
+        logger.info(f"Exception when stopping Hail!: {e}")
+        pass
+
+    # let 20x code get sent from worker, let hl.stop() free resources
+    #   from host machine, and let kernel clear ports
+    #   I'll gladly take 10 more seconds of wait, to avoid crashes
+    time.sleep(5)
 
     # Very weird, but just kill at the OS level.
     #   We know we want this to happen
     #   sys.exit(0) results in Django trying to
     #   catch and handle the error.
+    logger.info("Worker recycling now. Goodbye world.")
     os._exit(0)
 
 
@@ -718,9 +736,7 @@ def process_variant_list(uid):
     global IS_SHUTTING_DOWN
 
     if IS_SHUTTING_DOWN:
-        logger.info(
-            "Worker is about to recycle - raise error to force a retry on another"
-        )
+        logger.info("Worker is about to recycle - refuse job")
         raise RuntimeError("Worker is about to recycle - retry on another")
 
     start_time = time.time()
@@ -734,6 +750,14 @@ def process_variant_list(uid):
 
     try:
         _process_variant_list(variant_list)
+
+    except (ConnectionRefusedError, requests.exceptions.ConnectionRefusedError):
+        logger.warning(
+            f"Worker got ConnectionRefused. Raise error to recycle this worker {uid}."
+        )
+        IS_SHUTTING_DOWN = True
+        raise RuntimeError("Connection refused, force this container to recycle")
+
     except Exception:  # pylint: disable=broad-except
         logger.exception(
             "Error processing new variant list",
