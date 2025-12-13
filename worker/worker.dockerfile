@@ -54,4 +54,4 @@ USER app
 # Run
 ENV DJANGO_SETTINGS_MODULE=worker.settings.base
 
-CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 --timeout 300 worker.wsgi
+CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 --timeout 180 worker.wsgi
