@@ -91,9 +91,15 @@ STRUCTURAL_VARIANT_FIELDS = [
 
 def initialize_hail():
     logger.info(
-        "Worker starting. Waiting 5 seconds before starting Hail to allow cleanup from previous worker"
+        "Worker starting. Waiting 30 seconds before starting Hail to allow cleanup from previous worker"
     )
-    time.sleep(5)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    time.sleep(30)
+
+    logger.info("30s wait complete")
+    sys.stdout.flush()
+    sys.stderr.flush()
 
     spark_conf = os.getenv("SPARK_CONF", default=None)
     if spark_conf:
