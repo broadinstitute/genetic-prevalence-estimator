@@ -90,15 +90,26 @@ STRUCTURAL_VARIANT_FIELDS = [
 ]
 
 
-def initialize_hail():
-    logger.info(
-        "Worker starting. Waiting 30 seconds before starting Hail to allow cleanup from previous worker"
-    )
+def log_container_identity():
+    marker_file = "/tmp/container_id"
+
+    pid = os.getpid()
+
+    if os.path.exists(marker_file):
+        with open(marker_file, "r") as f:
+            container_uuid = f.read().strip()
+
+    else:
+        container_uuid = str(uuid.uuid4())[:8]
+        with open(marker_file, "w") as f:
+            f.write(container_uuid)
+
+    logger.info(f"ContainerID: {container_uuid} | PID: {pid}")
     sys.stdout.flush()
 
-    logger.info("30s wait complete")
-    sys.stdout.flush()
-    sys.stderr.flush()
+
+def initialize_hail():
+    log_container_identity()
 
     spark_conf = os.getenv("SPARK_CONF", default=None)
     if spark_conf:
