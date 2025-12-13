@@ -5,6 +5,7 @@ import sys
 import time
 import traceback
 import uuid
+import signal
 
 import hail as hl
 import requests
@@ -94,8 +95,6 @@ def initialize_hail():
         "Worker starting. Waiting 30 seconds before starting Hail to allow cleanup from previous worker"
     )
     sys.stdout.flush()
-    sys.stderr.flush()
-    time.sleep(30)
 
     logger.info("30s wait complete")
     sys.stdout.flush()
@@ -105,13 +104,16 @@ def initialize_hail():
     if spark_conf:
         spark_conf = json.loads(spark_conf)
 
-    hl.init(
-        idempotent=True,
-        master="local[1]",
-        log=settings.HAIL_LOG_PATH,
-        quiet=not settings.DEBUG,
-        spark_conf=spark_conf,
-    )
+    try:
+        hl.init(
+            idempotent=True,
+            master="local[1]",
+            log=settings.HAIL_LOG_PATH,
+            quiet=not settings.DEBUG,
+            spark_conf=spark_conf,
+        )
+    except Exception:
+        os.kill(os.getppid(), signal.SIGTERM)
 
 
 def is_hail_working():
@@ -140,15 +142,17 @@ def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argumen
 
     # let 20x code get sent from worker, let hl.stop() free resources
     #   from host machine, and let kernel clear ports
-    #   I'll gladly take 10 more seconds of wait, to avoid crashes
     time.sleep(1)
 
-    # Very weird, but just kill at the OS level.
-    #   We know we want this to happen
-    #   sys.exit(0) results in Django trying to
-    #   catch and handle the error.
-    logger.info("Worker recycling now. Goodbye world.")
-    os._exit(0)
+    # Kill the gunicorn process to force getting a fresh container
+    #   for the next request.
+    try:
+        logger.info("Gunicorn recycling now. Goodbye world.")
+        os.kill(os.getppid(), signal.SIGTERM)
+    except Exception as e:
+        logger.info(f"Failed to recycle Gunicorn: {e}")
+        logger.info("Recycling process as a fallback")
+        os._exit(0)
 
 
 def variant_id(locus, alleles):
