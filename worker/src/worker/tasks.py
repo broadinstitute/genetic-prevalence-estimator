@@ -750,7 +750,7 @@ def process_variant_list(uid):
     try:
         _process_variant_list(variant_list)
 
-    except (ConnectionRefusedError, requests.exceptions.ConnectionRefusedError):
+    except (ConnectionRefusedError, requests.exceptions.ConnectionError):
         logger.warning(
             f"Worker got ConnectionRefused. Raise error to recycle this worker {uid}."
         )
