@@ -358,16 +358,22 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       sortKey: (dashboardList) => {
         if (
           dashboardList.representative_variant_list &&
-          dashboardList.representative_variant_list.owners
+          dashboardList.representative_variant_list.owners &&
+          Array.isArray(dashboardList.representative_variant_list.owners) &&
+          dashboardList.representative_variant_list.owners.length > 0
         ) {
           return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
         }
         return 0;
       },
       render: (dashboardList) => {
-        const ownersArray = dashboardList.representative_variant_list
-          ? dashboardList.representative_variant_list.owners
-          : [""];
+        const ownersArray =
+          dashboardList.representative_variant_list &&
+          dashboardList.representative_variant_list.owners &&
+          Array.isArray(dashboardList.representative_variant_list.owners) &&
+          dashboardList.representative_variant_list.owners.length > 0
+            ? dashboardList.representative_variant_list.owners
+            : [""];
 
         return (
           <Cell maxWidth={200}>
