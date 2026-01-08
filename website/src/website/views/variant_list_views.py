@@ -156,7 +156,6 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        previous_publicity_status = instance.is_public
 
         if (
             not self.request.user.has_perm("calculator.change_variantlist", instance)
@@ -174,8 +173,8 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
                     "The supporting document must have a valid URL"
                 ) from exc
 
-        current_publicity_status = request.data.get("is_public")
-        if current_publicity_status is True and previous_publicity_status is False:
+        representative_status = request.data.get("representative_status")
+        if representative_status is VariantList.RepresentativeStatus.PENDING:
             self.send_slack_notification(instance.label, self.request.user)
 
         return self.partial_update(request, *args, **kwargs)
