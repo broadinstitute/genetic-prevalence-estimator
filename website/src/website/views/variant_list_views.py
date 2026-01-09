@@ -168,35 +168,7 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
                     "The supporting document must have a valid URL"
                 ) from exc
 
-        representative_status = request.data.get("representative_status")
-        if representative_status is VariantList.RepresentativeStatus.PENDING:
-            self.send_slack_notification(instance.label, self.request.user)
-
         return self.partial_update(request, *args, **kwargs)
-
-    def send_slack_notification(self, label, user):
-        webhook_url = os.getenv("SLACK_WEBHOOK_URL")
-        slack_user_id = os.getenv("SLACK_USER_ID")
-
-        if not webhook_url:
-            raise RuntimeError("Slack Webhook URL is not configured in settings.")
-
-        message = {
-            "attachments": [
-                {
-                    "pretext": f"<@{slack_user_id}> Approval needed for public status of the list '{label}' submitted by user {user}.",
-                }
-            ]
-        }
-
-        print(f"Slack message: {message}")
-
-        try:
-            response = requests.post(webhook_url, json=message, timeout=5)
-            response.raise_for_status()
-            print("Slack notification sent successfully.")
-        except RequestException as e:
-            print(f"Failed to send Slack notification. Error: {e}")
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -418,6 +390,8 @@ class PublicVariantListView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_update(self, serializer):
+        instance = self.get_object()
+
         request_representative_status = serializer.validated_data[
             "representative_status"
         ]
@@ -426,8 +400,11 @@ class PublicVariantListView(RetrieveUpdateAPIView):
             f"{serializer.instance.metadata['gene_id'].split('.')[0]}."
         )
 
-        # if the user is a staff member, they can update a list to any public status
+        # if the user is a staff member, they can update a list to any representative status
         if self.request.user.is_staff and self.request.user.is_active:
+            if request_representative_status == "P":
+                self.send_slack_notification(instance.label, self.request.user)
+
             serializer.save(
                 representative_status_updated_by=self.request.user,
                 representative_status=request_representative_status,
@@ -477,7 +454,32 @@ class PublicVariantListView(RetrieveUpdateAPIView):
                 "An approved public list for this gene already exists!"
             )
 
+        if request_representative_status == "P":
+            self.send_slack_notification(instance.label, self.request.user)
+
         serializer.save(
             representative_status_updated_by=self.request.user,
             representative_status=request_representative_status,
         )
+
+    def send_slack_notification(self, label, user):
+        webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+        slack_user_id = os.getenv("SLACK_USER_ID")
+
+        if not webhook_url:
+            raise RuntimeError("Slack Webhook URL is not configured in settings.")
+
+        message = {
+            "attachments": [
+                {
+                    "pretext": f"<@{slack_user_id}> Approval needed for public status of the list '{label}' submitted by user {user}.",
+                }
+            ]
+        }
+
+        try:
+            response = requests.post(webhook_url, json=message, timeout=5)
+            response.raise_for_status()
+            print("Slack notification sent successfully.")
+        except RequestException as e:
+            print(f"Failed to send Slack notification. Error: {e}")
