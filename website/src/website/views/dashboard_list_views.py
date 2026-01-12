@@ -17,9 +17,10 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
+from django.core.cache import cache
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_control
 from django.views.decorators.gzip import gzip_page
+from django.views.decorators.cache import cache_control
 
 from calculator.models import (
     DashboardList,
@@ -149,17 +150,28 @@ class DashboardListsLoadView(CreateAPIView):
     cache_control(public=True, max_age=SIX_HOURS_IN_SECONDS), name="dispatch"
 )
 class DashboardListsView(ListAPIView):
-    def get_queryset(self):
-        return DashboardList.objects.all()
-
+    queryset = DashboardList.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
-
     filter_backends = [OrderingFilter]
     ordering_fields = ["label", "created_at"]
     ordering = ["-created_at"]
+    serializer_class = DashboardListDashboardSerializer
 
-    def get_serializer_class(self):
-        return DashboardListDashboardSerializer
+    def list(self, request, *args, **kwargs):
+        CACHE_KEY = "dashboard_cache"
+
+        if request.user.is_staff and request.query_params.get("refresh") == "true":
+            cache.delete(CACHE_KEY)
+
+        data = cache.get(CACHE_KEY)
+
+        if data is None:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            data = serializer.data
+            cache.set(CACHE_KEY, data, timeout=SIX_HOURS_IN_SECONDS)
+
+        return Response(data)
 
 
 class DashboardListView(RetrieveUpdateDestroyAPIView):
