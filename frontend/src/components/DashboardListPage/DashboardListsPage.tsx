@@ -553,8 +553,9 @@ const DataRow = ({
 
 const DashboardLists = (props: {
   dashboardListsStore: Store<DashboardList[]>;
+  handleRefresh: () => Promise<void>;
 }) => {
-  const { dashboardListsStore } = props;
+  const { dashboardListsStore, handleRefresh } = props;
   const dashboardLists = useStore(dashboardListsStore);
 
   type Filter = {
@@ -839,98 +840,113 @@ const DashboardLists = (props: {
       </Box>
 
       {userIsStaff && (
-        <Box mt={6}>
-          <Accordion allowToggle>
-            <AccordionItem>
-              <h2>
-                <AccordionButton>
-                  <Box as="span" flex="1" textAlign="left">
-                    Upload dashboard lists from .csv file
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel pb={4}>
-                <Box mb={4}>
-                  <Input
-                    type="file"
-                    onChange={handleFileChange}
-                    placeholder="Add a file populate lists"
-                    size="md"
-                    mb={2}
-                    sx={{
-                      "::file-selector-button": {
-                        height: 10,
-                        padding: 0,
-                        mr: 4,
-                        background: "none",
-                        border: "none",
-                        fontWeight: "bold",
-                      },
-                    }}
-                  />
+        <>
+          <ButtonWithConfirmation
+            mt="6"
+            size="sm"
+            colorScheme="blue"
+            confirmationPrompt="This will clear the cache, and cause a reload."
+            confirmButtonText="Refresh"
+            onClick={() => {
+              handleRefresh();
+            }}
+          >
+            Refresh dashboard
+          </ButtonWithConfirmation>
 
-                  <ButtonWithConfirmation
-                    size="sm"
-                    colorScheme="blue"
-                    confirmationPrompt="This cannot be undone."
-                    confirmButtonText="Re-load"
-                    onClick={() => {
-                      loadDashboardLists();
-                    }}
-                  >
-                    Load
-                  </ButtonWithConfirmation>
-                </Box>
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
-          <Accordion allowToggle>
-            <AccordionItem>
-              <h2>
-                <AccordionButton>
-                  <Box as="span" flex="1" textAlign="left">
-                    Upload dominant dashboard lists from .csv file
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel pb={4}>
-                <Box mb={4}>
-                  <Input
-                    type="file"
-                    onChange={handleFileChange}
-                    placeholder="Add a file populate lists"
-                    size="md"
-                    mb={2}
-                    sx={{
-                      "::file-selector-button": {
-                        height: 10,
-                        padding: 0,
-                        mr: 4,
-                        background: "none",
-                        border: "none",
-                        fontWeight: "bold",
-                      },
-                    }}
-                  />
+          <Box mt={6}>
+            <Accordion allowToggle>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box as="span" flex="1" textAlign="left">
+                      Upload dashboard lists from .csv file
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <Box mb={4}>
+                    <Input
+                      type="file"
+                      onChange={handleFileChange}
+                      placeholder="Add a file populate lists"
+                      size="md"
+                      mb={2}
+                      sx={{
+                        "::file-selector-button": {
+                          height: 10,
+                          padding: 0,
+                          mr: 4,
+                          background: "none",
+                          border: "none",
+                          fontWeight: "bold",
+                        },
+                      }}
+                    />
 
-                  <ButtonWithConfirmation
-                    size="sm"
-                    colorScheme="blue"
-                    confirmationPrompt="This cannot be undone."
-                    confirmButtonText="Re-load"
-                    onClick={() => {
-                      loadDominantDashboardLists();
-                    }}
-                  >
-                    Load
-                  </ButtonWithConfirmation>
-                </Box>
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
-        </Box>
+                    <ButtonWithConfirmation
+                      size="sm"
+                      colorScheme="blue"
+                      confirmationPrompt="This cannot be undone."
+                      confirmButtonText="Re-load"
+                      onClick={() => {
+                        loadDashboardLists();
+                      }}
+                    >
+                      Load
+                    </ButtonWithConfirmation>
+                  </Box>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+            <Accordion allowToggle>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box as="span" flex="1" textAlign="left">
+                      Upload dominant dashboard lists from .csv file
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <Box mb={4}>
+                    <Input
+                      type="file"
+                      onChange={handleFileChange}
+                      placeholder="Add a file populate lists"
+                      size="md"
+                      mb={2}
+                      sx={{
+                        "::file-selector-button": {
+                          height: 10,
+                          padding: 0,
+                          mr: 4,
+                          background: "none",
+                          border: "none",
+                          fontWeight: "bold",
+                        },
+                      }}
+                    />
+
+                    <ButtonWithConfirmation
+                      size="sm"
+                      colorScheme="blue"
+                      confirmationPrompt="This cannot be undone."
+                      confirmButtonText="Re-load"
+                      onClick={() => {
+                        loadDominantDashboardLists();
+                      }}
+                    >
+                      Load
+                    </ButtonWithConfirmation>
+                  </Box>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </Box>
+        </>
       )}
     </>
   );
@@ -941,21 +957,41 @@ const DashboardListContainer = () => {
     atom<DashboardList[]>([])
   );
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    setIsLoading(true);
-    get("/dashboard-lists/")
-      .then((dashboardLists) => {
-        dashboardListStoreRef.current.set(dashboardLists);
-      }, setError)
-      .finally(() => {
-        setIsLoading(false);
-      });
+  const fetchDashboardData = useCallback(async (forceRefresh = false) => {
+    if (forceRefresh) {
+      setIsInitialLoading(true);
+    } else {
+      setIsInitialLoading(true);
+    }
+
+    try {
+      const url = forceRefresh
+        ? "/dashboard-lists/?refresh=true"
+        : "/dashboard-lists/";
+
+      const dashboardLists = await get(url);
+      dashboardListStoreRef.current.set(dashboardLists);
+
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsInitialLoading(false);
+    }
   }, []);
 
-  if (isLoading) {
+  useEffect(() => {
+    fetchDashboardData(false);
+  }, [fetchDashboardData]);
+
+  const handleRefresh = async () => {
+    await fetchDashboardData(true);
+  };
+
+  if (isInitialLoading) {
     return (
       <Center>
         <Spinner size="lg" />
@@ -973,7 +1009,12 @@ const DashboardListContainer = () => {
     );
   }
 
-  return <DashboardLists dashboardListsStore={dashboardListStoreRef.current} />;
+  return (
+    <DashboardLists
+      dashboardListsStore={dashboardListStoreRef.current}
+      handleRefresh={handleRefresh}
+    />
+  );
 };
 
 const DashboardListsPage = () => {
