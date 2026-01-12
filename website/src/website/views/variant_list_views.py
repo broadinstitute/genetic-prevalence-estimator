@@ -463,6 +463,10 @@ class PublicVariantListView(RetrieveUpdateAPIView):
         )
 
     def send_slack_notification(self, label, user):
+        if settings.DEBUG:
+            print("Would have sent slack message!")
+            return
+
         webhook_url = os.getenv("SLACK_WEBHOOK_URL")
         slack_user_id = os.getenv("SLACK_USER_ID")
 

@@ -704,26 +704,22 @@ class TestEditVariantList:
     @pytest.mark.parametrize(
         "user,new_representative_status,expected_response",
         [
-            # viewers and editors cannot edit public status
             ("viewer", "P", 403),
             ("editor", "P", 403),
-            # owners can only update the list to be pending or private
             ("owner", "", 200),
             ("owner", "P", 200),
             ("owner", "A", 403),
             ("owner", "R", 403),
-            # staff can update the list to anything
             ("staffmember", "", 200),
             ("staffmember", "P", 200),
             ("staffmember", "A", 200),
             ("staffmember", "R", 200),
-            # non-affiliated and inactive users cannot update the list
             ("other", "P", 403),
             ("inactiveuser", "P", 403),
             ("inactivestaffmember", "P", 403),
         ],
     )
-    # editing public status implements more specialized permissions
+    @override_settings(DEBUG=True)
     def test_editing_variant_list_representative_status_requires_permission(
         self, user, new_representative_status, expected_response
     ):
@@ -744,6 +740,7 @@ class TestEditVariantList:
         else:
             assert variant_list.representative_status == initial_representative_status
 
+    @override_settings(DEBUG=True)
     def test_editing_variant_list_representative_status_cannot_make_duplicates_unless_staff(
         self,
     ):
