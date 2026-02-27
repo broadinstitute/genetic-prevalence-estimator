@@ -55,6 +55,11 @@ const banner = (
     <Alert status="info">
       <AlertIcon />
       <span>
+        Note: we are aware of an issue that is causing creation of new Variant
+        Lists to fail, and are working on a fix. Thank you for your patience.
+      </span>
+      {/*
+      <span>
         We want to hear from you! Please take our{" "}
         <BaseLink
           href="https://docs.google.com/forms/d/e/1FAIpQLSf6dEDR028WmnCkro8bPXeVjrFhNuV8H0A2-MtkTNOKUZGZKA/viewform?usp=header"
@@ -64,6 +69,7 @@ const banner = (
         </BaseLink>{" "}
         to provide feedback on GeniE.
       </span>
+      */}
     </Alert>
   </Box>
 );
