@@ -14,7 +14,10 @@ class TestCreateVariantListAccessPermission:
     def db_setup(self):
         owner = User.objects.create(username="owner")
         viewer = User.objects.create(username="viewer")
+
+        User.objects.create(username="staff", is_staff=True)
         User.objects.create(username="other")
+        User.objects.create(username="another")
 
         list1 = VariantList.objects.create(
             id=1,
@@ -109,6 +112,33 @@ class TestCreateVariantListAccessPermission:
         assert (
             VariantListAccessPermission.objects.filter(
                 user__username="other",
+                variant_list=1,
+                level=VariantListAccessPermission.Level.VIEWER,
+            ).count()
+            == 1
+        )
+
+        client.force_authenticate(User.objects.get(username="staff"))
+
+        assert (
+            VariantListAccessPermission.objects.filter(
+                user__username="another", variant_list=1
+            ).count()
+            == 0
+        )
+        response = client.post(
+            "/api/variant-list-access/",
+            {
+                "user": "another",
+                "variant_list": VariantList.objects.get(id=1).uuid,
+                "level": "Viewer",
+            },
+        )
+        assert response.status_code == 201
+
+        assert (
+            VariantListAccessPermission.objects.filter(
+                user__username="another",
                 variant_list=1,
                 level=VariantListAccessPermission.Level.VIEWER,
             ).count()

@@ -18,10 +18,15 @@ class VariantListAccessList(CreateAPIView):
     serializer_class = NewVariantListAccessPermissionSerializer
 
     def perform_create(self, serializer):
-        if not self.request.user.has_perm(
-            "calculator.share_variantlist", serializer.validated_data["variant_list"]
-        ):
-            raise PermissionDenied
+        user = self.request.user
+        variant_list = serializer.validated_data["variant_list"]
+
+        if not user.is_staff:  # staff bypass this permissions check
+            if not self.request.user.has_perm(  # otherwise, actually check permissions
+                "calculator.share_variantlist",
+                variant_list,
+            ):
+                raise PermissionDenied
 
         serializer.save(created_by=self.request.user)
 
