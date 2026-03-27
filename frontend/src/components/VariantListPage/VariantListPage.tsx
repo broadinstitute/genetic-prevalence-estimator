@@ -733,11 +733,26 @@ const VariantListPage = (props: VariantListPageProps) => {
                       <Tooltip
                         hasArrow
                         label={
-                          "A user with this email has never signed in to GeniE. Is the email address correct?"
+                          <>
+                            <Box mb={2}>
+                              A user with this email has never signed in to
+                              GeniE.
+                            </Box>
+                            <Box mb={2}>
+                              When this user signs in, they will have
+                              permissions to this list, and this warning will
+                              dissapear.
+                            </Box>
+                            <Box>
+                              If this user has already signed in, and does not
+                              have access to the list, consider double checking
+                              that the email is correct.
+                            </Box>
+                          </>
                         }
                         placement="right"
                       >
-                        <Badge colorScheme="yellow">{"User inactive"}</Badge>
+                        <Badge colorScheme="yellow">{"Inactive user"}</Badge>
                       </Tooltip>
                     </>
                   )}
