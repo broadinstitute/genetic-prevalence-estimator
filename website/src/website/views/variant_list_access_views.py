@@ -46,5 +46,11 @@ class VariantListAccessDetail(RetrieveUpdateDestroyAPIView):
 
     serializer_class = VariantListAccessPermissionSerializer
 
+    def check_object_permissions(self, request, obj):
+        if request.user and request.user.is_staff:
+            return
+
+        super().check_object_permissions(request, obj)
+
     def perform_update(self, serializer):
         serializer.save(last_updated_by=self.request.user)

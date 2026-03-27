@@ -207,6 +207,7 @@ class TestGetVariantListAccessPermission:
         editor = User.objects.create(username="editor")
         viewer = User.objects.create(username="viewer")
         User.objects.create(username="other")
+        User.objects.create(username="staff", is_staff=True)
 
         variant_list = VariantList.objects.create(
             id=1,
@@ -260,6 +261,9 @@ class TestGetVariantListAccessPermission:
             ("other", 1, 404),
             ("other", 2, 404),
             ("other", 3, 404),
+            ("staff", 1, 200),
+            ("staff", 2, 200),
+            ("staff", 3, 200),
         ],
     )
     def test_viewing_variant_list_access_requires_permission(
@@ -304,6 +308,7 @@ class TestEditVariantListAccessPermission:
         editor = User.objects.create(username="editor")
         viewer = User.objects.create(username="viewer")
         User.objects.create(username="other")
+        User.objects.create(username="staff", is_staff=True)
 
         variant_list = VariantList.objects.create(
             id=1,
