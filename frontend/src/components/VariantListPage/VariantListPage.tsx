@@ -727,6 +727,20 @@ const VariantListPage = (props: VariantListPageProps) => {
                   >
                     <Badge>{accessPermission.level}</Badge>
                   </Tooltip>
+                  {accessPermission.user_ever_logged_in === false && (
+                    <>
+                      {" "}
+                      <Tooltip
+                        hasArrow
+                        label={
+                          "A user with this email has never signed in to GeniE. Is the email address correct?"
+                        }
+                        placement="right"
+                      >
+                        <Badge colorScheme="yellow">{"User inactive"}</Badge>
+                      </Tooltip>
+                    </>
+                  )}
                 </ListItem>
               );
             })}

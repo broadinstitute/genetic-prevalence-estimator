@@ -144,6 +144,7 @@ interface VariantListAccessPermission {
   uuid: string;
   user: string;
   level: VariantListAccessLevel;
+  user_ever_logged_in: boolean;
 }
 
 export interface VariantList {
