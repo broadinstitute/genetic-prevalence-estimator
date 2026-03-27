@@ -24,12 +24,18 @@ class NewVariantListAccessPermissionSerializer(ModelSerializer):
 
 class VariantListAccessPermissionSerializer(ModelSerializer):
     user = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    user_ever_logged_in = serializers.SerializerMethodField()
 
     level = ChoiceField(choices=VariantListAccessPermission.Level.choices)
 
     class Meta:
         model = VariantListAccessPermission
 
-        fields = ["uuid", "user", "level"]
+        fields = ["uuid", "user", "level", "user_ever_logged_in"]
 
         read_only_fields = [f for f in fields if f not in ("level",)]
+
+    def get_user_ever_logged_in(self, obj):
+        if obj.user:
+            return obj.user.last_login is not None
+        return False
