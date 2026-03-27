@@ -1,6 +1,7 @@
 # pylint: disable=no-else-raise
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
+from django.db.models import Q
 from django.views.decorators.csrf import csrf_protect
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -32,9 +33,27 @@ def get_username_from_token(request):
 @api_view(["POST"])
 @csrf_protect
 def signin(request):
-    username = get_username_from_token(request)
+    # old!
+    # username = get_username_from_token(request)
+    # user, _ = get_user_model().objects.get_or_create(username=username)
+    # login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    # serializer = CurrentUserSerializer(user)
+    # return Response(serializer.data)
 
-    user, _ = get_user_model().objects.get_or_create(username=username)
+    google_email_lowercase = get_username_from_token(request).lower()
+    User = get_user_model()
+    user = User.objects.filter(
+        Q(username__iexact=google_email_lowercase)
+        | Q(email__iexact=google_email_lowercase)
+    ).first()
+
+    if not user:
+        user = User.objects.create(
+            username=google_email_lowercase, email=google_email_lowercase
+        )
+        user.set_unusable_password()
+        user.save()
+
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     serializer = CurrentUserSerializer(user)
     return Response(serializer.data)
