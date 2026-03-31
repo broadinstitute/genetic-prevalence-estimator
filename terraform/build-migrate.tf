@@ -66,9 +66,6 @@ resource "google_cloudbuild_trigger" "db_migrations" {
       name = "gcr.io/kaniko-project/executor:latest"
       args = [
         "--dockerfile=website/website.dockerfile",
-        "--cache=true",
-        "--cache-repo=gcr.io/$PROJECT_ID/website/cache",
-        "--cache-ttl=168h",
         "--no-push",
       ]
     }
@@ -78,7 +75,7 @@ resource "google_cloudbuild_trigger" "db_migrations" {
       name = "gcr.io/google-appengine/exec-wrapper"
       args = [
         "-i",
-        "gcr.io/$PROJECT_ID/website:$COMMIT_SHA",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA",
         "-s",
         "${google_sql_database_instance.app_db_instance.connection_name}",
         "-e",
