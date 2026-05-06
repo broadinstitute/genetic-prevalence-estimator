@@ -9,6 +9,7 @@ from datetime import datetime
 import hail as hl
 import pandas as pd
 
+GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH = "gs://aggregate-frequency-calculator-data/dashboard/input/2025-05-02_recessive-dashboard-input_3958-genes.csv"
 GNOMAD_GRCH38_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/genes/gnomAD_browser_genes_grch38_annotated_6.ht"
 
 
@@ -51,13 +52,6 @@ VARIANT_FIELDS = [
 ]
 
 
-def open_file(path, mode="r"):
-    if path.startswith("gs://"):
-        return hl.hadoop_open(path, mode)
-    else:
-        return open(path, mode)
-
-
 def variant_id(locus, alleles):
     return (
         locus.contig.replace("^chr", "")
@@ -94,8 +88,8 @@ def _add_flags_to_variants(ds, max_af_of_clinvar_path_or_likely_path_variants):
     ).filter(hl.is_defined)
 
 
-# Currently this is used on the first local run to create a checkointed file,
-#   if run in google cloud run, this would be run every time and checkointing wouldn't
+# Currently this is used on the first local run to create a checkpointed file,
+#   if run in google cloud run, this would be run every time and checkpointing wouldn't
 #   be needed
 def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     ht = hl.read_table(gnomAD_gene_models_path)
@@ -1167,7 +1161,7 @@ def main() -> None:
     if args.directory_root:
         base_dir = args.directory_root
 
-    input_genes_filename = "all_genes.csv"
+    input_genes_filename = GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH
     if args.genes_file:
         input_genes_filename = args.genes_file
 
