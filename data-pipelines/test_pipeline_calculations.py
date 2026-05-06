@@ -2,7 +2,9 @@ import json
 import os
 import math
 
-from generate_dashboard_lists import calculate_carrier_frequency_and_prevalence
+from generate_recessive_dashboard_lists import (
+    calculate_carrier_frequency_and_prevalence,
+)
 
 
 def assert_dictionaries_are_equal_with_tolerance(result, expected, tolerance=1e-9):
