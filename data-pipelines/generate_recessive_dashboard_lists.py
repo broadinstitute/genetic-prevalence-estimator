@@ -1146,7 +1146,7 @@ def safe_cleanup():
 
 
 # e.g.
-# python data-pipelines/generate_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
+# python data-pipelines/generate_recessive_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 def main() -> None:
     start_time = datetime.now()
 

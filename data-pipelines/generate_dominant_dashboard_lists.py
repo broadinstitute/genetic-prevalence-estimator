@@ -8,7 +8,7 @@ import ast
 
 from datetime import datetime
 
-from generate_dashboard_lists import prepare_gene_models
+from generate_recessive_dashboard_lists import prepare_gene_models
 
 
 def calculate_carrier_frequency_and_prevalence(
