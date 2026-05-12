@@ -17,9 +17,9 @@ LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH = os.path.join(
     LOCAL_BASE_DIR,
     "input",
     "dominant_dashboard",
-    "2025-05-02_gene-symbols-with-inheritance_4k-lines.csv",
+    "2025-05_gene-symbols-and-inheritance-types.csv",
 )
-LOCAL_DOMINANT_INPUT_GENES_FILENAME = "v4p1p0-16869-genes-dominant-input.csv"
+LOCAL_DOMINANT_INPUT_GENES_FILENAME = "2025-10_dominant-incidence-gene-list-input.csv"
 LOCAL_ORPHANET_PATH = os.path.join(
     LOCAL_BASE_DIR, "processed_data", "orphanet_prevalences.tsv"
 )
@@ -30,14 +30,18 @@ LOCAL_REINDEXED_GRCH38_GENE_MODELS_PATH = os.path.join(
     LOCAL_BASE_DIR, "processed_data", "reindexed_gene_models.ht"
 )
 
-# TK: TODO:
-GCS_BASE_DIR = "gs://"
+# TK:
+GCS_BASE_DIR = "gs://aggregate-frequency-calculator-data"
 
-GCS_SYMBOLS_AND_INHERITANCE_TYPES_PATH = "TK:"
-GCS_DOMINANT_INPUT_GENES_FILENAME = "TK:"
-GCS_ORPHANET_PATH = "TK:"
-GCS_GNOMAD_GRCH38_GENE_MODELS_PATH = "TK:"
-GCS_REINDEXED_GRCH38_GENE_MODELS_PATH = "TK:"
+GCS_SYMBOLS_AND_INHERITANCE_TYPES_PATH = "gs://aggregate-frequency-calculator-data/input/2025-05_recessive-dashboard-genelist-symbols-and-inheritance-types.csv"
+GCS_DOMINANT_INPUT_GENES_FILENAME = "gs://aggregate-frequency-calculator-data/input/2025-10_dominant-incidence-gene-list-input.csv"
+GCS_ORPHANET_PATH = (
+    "gs://aggregate-frequency-calculator-data/input/2025-06-16_orphanet-prevalences.tsv"
+)
+GCS_GNOMAD_GRCH38_GENE_MODELS_PATH = (
+    "gs://aggregate-frequency-calculator-data/input/gnomAD/gnomad_grch38_gene_models.ht"
+)
+GCS_REINDEXED_GRCH38_GENE_MODELS_PATH = "gs://aggregate-frequency-calculator-data/input/gnomAD/reindexed_gnomad_grch38_gene_models.ht"
 
 
 def calculate_missense_and_lof_de_novo_incidence(
