@@ -11,7 +11,36 @@ from datetime import datetime
 from generate_recessive_dashboard_lists import prepare_gene_models
 
 
-def calculate_carrier_frequency_and_prevalence(
+LOCAL_BASE_DIR = os.path.join(os.path.dirname(__file__), "../data")
+
+LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH = os.path.join(
+    LOCAL_BASE_DIR,
+    "input",
+    "dominant_dashboard",
+    "2025-05-02_gene-symbols-with-inheritance_4k-lines.csv",
+)
+LOCAL_DOMINANT_INPUT_GENES_FILENAME = "v4p1p0-16869-genes-dominant-input.csv"
+LOCAL_ORPHANET_PATH = os.path.join(
+    LOCAL_BASE_DIR, "processed_data", "orphanet_prevalences.tsv"
+)
+LOCAL_GNOMAD_GRCH38_GENE_MODELS_PATH = os.path.join(
+    LOCAL_BASE_DIR, "gnomAD", "gene_models.ht"
+)
+LOCAL_REINDEXED_GRCH38_GENE_MODELS_PATH = os.path.join(
+    LOCAL_BASE_DIR, "processed_data", "reindexed_gene_models.ht"
+)
+
+# TK: TODO:
+GCS_BASE_DIR = "gs://"
+
+GCS_SYMBOLS_AND_INHERITANCE_TYPES_PATH = "TK:"
+GCS_DOMINANT_INPUT_GENES_FILENAME = "TK:"
+GCS_ORPHANET_PATH = "TK:"
+GCS_GNOMAD_GRCH38_GENE_MODELS_PATH = "TK:"
+GCS_REINDEXED_GRCH38_GENE_MODELS_PATH = "TK:"
+
+
+def calculate_missense_and_lof_de_novo_incidence(
     oe_mis_capped,
     mu_mis,
     oe_lof_capped,
@@ -40,108 +69,89 @@ def calculate_carrier_frequency_and_prevalence(
     return calculations_object
 
 
-def calculate_stats(dataframe, index):
+def annotate_row_with_dominant_incidence_dictionary(dataframe, index):
     row = dataframe.loc[index]
 
     required_fields = ["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]
     if any(pd.isna(row[field]) for field in required_fields):
         return
 
-    stats_dict = calculate_carrier_frequency_and_prevalence(
+    dominant_stats_dictionary = calculate_missense_and_lof_de_novo_incidence(
         oe_mis_capped=float(row["oe_mis_Capped"]),
         mu_mis=float(row["mu_mis"]),
         oe_lof_capped=float(row["oe_lof_capped"]),
         mu_lof=float(row["mu_lof"]),
     )
 
-    dataframe.at[index, "de_novo_variant_calculations"] = json.dumps(stats_dict)
+    dataframe.at[index, "de_novo_variant_calculations"] = json.dumps(
+        dominant_stats_dictionary
+    )
 
 
-def annotate_variants_with_orphanet_prevalences(variants, orphanet):
-    def format_prevalence(prevalence):
-        parts = prevalence.split("/")
-        numerator = parts[0].strip()
-        denominator = parts[1].strip()
-        formatted_denominator = "{:,}".format(
-            int(denominator.replace(" ", "").replace(",", ""))
+def create_or_read_reindexed_gnomad_gene_models_ht():
+    reindexed_gene_models_table_exists = os.path.exists(
+        LOCAL_REINDEXED_GRCH38_GENE_MODELS_PATH
+    )
+
+    if reindexed_gene_models_table_exists:
+        ht_gnomad_gene_models = hl.read_table(LOCAL_REINDEXED_GRCH38_GENE_MODELS_PATH)
+    else:
+        print(f"Path {gene_models_path} does not exist, creating ht.")
+        # TODO: possibly have prepare_gene_models download data locally? or have it throw a warning to say
+        #  'run this helper script!'
+        ht_gnomad_gene_models = prepare_gene_models(
+            LOCAL_GNOMAD_GRCH38_GENE_MODELS_PATH, base_dir
         )
-        return f"{numerator} / {formatted_denominator}"
 
-    def extract_prevalences(row):
-        row = ast.literal_eval(row)
-        prevalences = [prevalence.split(":")[1] for prevalence in row]
-        prevalences = [
-            "-" if prevalence == "Unknown" else prevalence for prevalence in prevalences
-        ]
-        if all(value == prevalences[0] for value in prevalences):
-            if "/" in prevalences[0]:
-                return format_prevalence(prevalences[0])
-            return prevalences[0]
-        else:
-            return "multiple_prevalences"
+    return ht_gnomad_gene_models
 
-    orphanet["genetic_prevalence_orphanet"] = orphanet["OrphaPrevalence"].apply(
-        extract_prevalences
+
+def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
+    ht_inheritance_types = hl.import_table(
+        LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH,
+        delimiter=",",
+        key="symbol",
+        impute=True,
     )
 
-    orphanet = orphanet.rename(columns={"ENSG_ID": "gene_id"}).drop(
-        columns=["OrphaCodes", "OrphaPrevalence", "GeneSymbol"]
-    )
+    # ---
 
-    pd.set_option("display.max_columns", None)
-
-    merged_df = pd.merge(variants, orphanet, on="gene_id", how="left")
-    return merged_df
-
-
-def prepare_dominant_dashboard_lists(input_path, base_dir):
-    ds = hl.import_table(
-        input_path,
+    ht_input_data = hl.import_table(
+        input_genes_path,
         delimiter=",",
         quote='"',
         key="symbol",
         impute=True,
     )
-
-    gene_models_path = os.path.join(base_dir, "dashboard/reindexed_gene_models.ht")
-    gnomad_grch38_genes_path = os.path.join(
-        base_dir, "gnomAD", "gnomAD_browser_genes_grch38_annotated_6.ht"
+    ht_dominant_models = ht_inheritance_types.annotate(
+        **ht_input_data[ht_inheritance_types.symbol]
     )
 
-    if not os.path.exists(gene_models_path):
-        print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(gnomad_grch38_genes_path, base_dir, "dominant-dashboard")
+    # ---
 
-    ht_gnomad_gene_models = hl.read_table(gene_models_path)
+    ht_gnomad_gene_models = create_or_read_reindexed_gnomad_gene_models_ht()
+    ht_dominant_models = ht_dominant_models.annotate(
+        **ht_gnomad_gene_models[ht_dominant_models.symbol]
+    )
 
-    ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
+    # ---
 
-    df = ds.to_pandas()
+    df = ht_dominant_models.to_pandas()
 
     df[["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]] = df[
         ["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]
     ].apply(pd.to_numeric, errors="coerce")
-    df["variants"] = [[] for _ in range(len(df))]
-    df["top_ten_variants"] = [[] for _ in range(len(df))]
-    df["label"] = ""
-    df["notes"] = ""
-    df["metadata"] = None
     current_datetime = datetime.now()
     iso_8601_datetime = current_datetime.isoformat()
     df["date_created"] = iso_8601_datetime
     df["de_novo_variant_calculations"] = [{} for _ in range(len(df))]
-
-    ORPHANET_PATH = os.path.join(base_dir, "dashboard/orphanet_prevalences.tsv")
-    df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
-    df["genetic_prevalence_genereviews"] = ""
-    df["genetic_prevalence_other"] = ""
-    df["genetic_incidence_other"] = ""
-
     df["inheritance_type"] = ""
 
+    # ---
+
     for index, row in df.iterrows():
-        print(f"Processing row {index + 1} of {len(df)}")
+        if index % 500 == 0:
+            print(f"Processing row {index + 1} of {len(df)}")
 
         required_metadata = [
             row.get("gene_id"),
@@ -176,12 +186,10 @@ def prepare_dominant_dashboard_lists(input_path, base_dir):
         if pd.isna(row.start) or pd.isna(row.stop) or pd.isna(row.chrom):
             continue
 
-        calculate_stats(
+        annotate_row_with_dominant_incidence_dictionary(
             dataframe=df,
             index=index,
         )
-
-    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
 
     FINAL_COLUMNS = [
         "gene_id",
@@ -202,29 +210,37 @@ def prepare_dominant_dashboard_lists(input_path, base_dir):
     return df
 
 
+# e.g.
+# python data-pipelines/generate_dominant_dashboard_lists.py
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
-    parser.add_argument("--genes-file", required=False)
+    parser.add_argument("--input-dominant-genes-filename", required=False)
     args = parser.parse_args()
 
     hl.init(quiet=args.quiet)
 
-    base_dir = os.path.join(os.path.dirname(__file__), "../data")
+    base_dir = LOCAL_BASE_DIR
     if args.directory_root:
         base_dir = args.directory_root
 
-    genes_filename = "genes_with_type.csv"
-    if args.genes_file:
-        genes_filename = args.genes_file
+    input_dominant_genes_filename = LOCAL_DOMINANT_INPUT_GENES_FILENAME
+    if args.input_dominant_genes_filename:
+        input_dominant_genes_filename = args.input_dominant_genes_filename
 
-    genes_fullpath = os.path.join(base_dir, "dominant-dashboard", genes_filename)
+    input_genes_fullpath = os.path.join(
+        base_dir, "input", "dominant_dashboard", input_dominant_genes_filename
+    )
 
     print("Preparing dominant dashboard list models ...")
-    df_dashboard_models = prepare_dominant_dashboard_lists(genes_fullpath, base_dir)
+    df_dashboard_models = prepare_dominant_dashboard_lists(
+        input_genes_fullpath, base_dir
+    )
     df_dashboard_models.to_csv(
-        os.path.join(base_dir, "dominant-dashboard/dominant-dashboard_models.csv"),
+        os.path.join(
+            base_dir, "output", "dominant_dashboard", "dominant-dashboard-models.csv"
+        ),
         index=False,
     )
     print("Wrote dominant dashboard list models to file")
