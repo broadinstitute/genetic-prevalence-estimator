@@ -23,9 +23,9 @@ type DominantListChartsProps = {
     lof_de_novo_incidence: number;
     total_de_novo_incidence: number;
     inputs: {
-      oe_mis_capped: number;
+      oe_mis: number;
       mu_mis: number;
-      oe_lof_capped: number;
+      oe_lof: number;
       mu_lof: number;
       oe_mis_prior: number;
       oe_lof_prior: number;
@@ -78,14 +78,7 @@ const DominantListCharts = (props: DominantListChartsProps) => {
     missense_de_novo_incidence,
     lof_de_novo_incidence,
     total_de_novo_incidence,
-    inputs: {
-      oe_mis_capped,
-      mu_mis,
-      oe_lof_capped,
-      mu_lof,
-      oe_mis_prior,
-      oe_lof_prior,
-    },
+    inputs: { oe_mis, mu_mis, oe_lof, mu_lof, oe_mis_prior, oe_lof_prior },
   } = calculations;
 
   const [displayFormat, setDisplayFormat] = useState<DisplayFormat>(
@@ -165,7 +158,7 @@ const DominantListCharts = (props: DominantListChartsProps) => {
                 </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} OE missense: {oe_mis_capped}
+                • {gene_symbol} OE missense: {oe_mis}
               </ListItem>
               <ListItem>
                 • {gene_symbol} MU missense: {mu_mis}
@@ -202,7 +195,7 @@ const DominantListCharts = (props: DominantListChartsProps) => {
                 </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} OE LoF: {oe_lof_capped}
+                • {gene_symbol} OE LoF: {oe_lof}
               </ListItem>
               <ListItem>
                 • {gene_symbol} MU LoF: {mu_lof}
