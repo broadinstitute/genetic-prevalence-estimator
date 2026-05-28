@@ -43,7 +43,10 @@ from website.pubsub import publisher
 
 class VariantListsView(ListCreateAPIView):
     def get_queryset(self):
-        return VariantList.objects.filter(access_permission__user=self.request.user)
+        return VariantList.objects.select_related(
+            "created_by",
+            "representative_status_updated_by",
+        ).filter(access_permission__user=self.request.user)
 
     permission_classes = (IsAuthenticated, ViewObjectPermissions)
 
