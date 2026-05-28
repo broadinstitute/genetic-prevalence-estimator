@@ -150,7 +150,10 @@ class DashboardListsLoadView(CreateAPIView):
     cache_control(public=True, max_age=SIX_HOURS_IN_SECONDS), name="dispatch"
 )
 class DashboardListsView(ListAPIView):
-    queryset = DashboardList.objects.all()
+    queryset = DashboardList.objects.select_related(
+        "representative_variant_list",
+        "dominant_dashboard_list",
+    ).all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = [OrderingFilter]
     ordering_fields = ["label", "created_at"]
