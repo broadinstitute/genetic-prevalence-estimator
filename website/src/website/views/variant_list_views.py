@@ -369,10 +369,14 @@ class PublicVariantListsView(ListAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return VariantList.objects.filter(
-                Q(is_public=True) | ~Q(representative_status="")
-            )
-        return VariantList.objects.filter(
+            return VariantList.objects.select_related(
+                "created_by",
+                "representative_status_updated_by",
+            ).filter(Q(is_public=True) | ~Q(representative_status=""))
+        return VariantList.objects.select_related(
+            "created_by",
+            "representative_status_updated_by",
+        ).filter(
             Q(is_public=True)
             | Q(representative_status=VariantList.RepresentativeStatus.APPROVED)
         )
@@ -384,7 +388,10 @@ class PublicVariantListsView(ListAPIView):
 
 
 class PublicVariantListView(RetrieveUpdateAPIView):
-    queryset = VariantList.objects.all()
+    queryset = VariantList.objects.select_related(
+        "created_by",
+        "representative_status_updated_by",
+    ).all()
 
     serializer_class = VariantListSerializer
 
