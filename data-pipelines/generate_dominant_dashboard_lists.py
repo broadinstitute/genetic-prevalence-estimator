@@ -55,7 +55,13 @@ def calculate_missense_and_lof_de_novo_incidence(
     oe_lof_prior=0.675,
 ):
     missense_de_novo_incidence = ((oe_mis_prior - oe_mis) * mu_mis) * 2
+    missense_de_novo_incidence = (
+        missense_de_novo_incidence if missense_de_novo_incidence > 0 else 0
+    )
+
     lof_de_novo_incidence = ((oe_lof_prior - oe_lof) * mu_lof) * 2
+    lof_de_novo_incidence = lof_de_novo_incidence if lof_de_novo_incidence > 0 else 0
+
     total_de_novo_incidence = missense_de_novo_incidence + lof_de_novo_incidence
 
     calculations_object = {
