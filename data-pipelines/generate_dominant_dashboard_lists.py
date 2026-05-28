@@ -19,7 +19,9 @@ LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH = os.path.join(
     "dominant_dashboard",
     "2025-05_gene-symbols-and-inheritance-types.csv",
 )
-LOCAL_DOMINANT_INPUT_GENES_FILENAME = "2025-10_dominant-incidence-gene-list-input.csv"
+LOCAL_DOMINANT_INPUT_GENES_FILENAME = (
+    "2026-05-11_gnomad-v4p1p1_dominant-incidence-gene-list-input.csv"
+)
 LOCAL_ORPHANET_PATH = os.path.join(
     LOCAL_BASE_DIR, "processed_data", "orphanet_prevalences.tsv"
 )
@@ -45,15 +47,15 @@ GCS_REINDEXED_GRCH38_GENE_MODELS_PATH = "gs://aggregate-frequency-calculator-dat
 
 
 def calculate_missense_and_lof_de_novo_incidence(
-    oe_mis_capped,
+    oe_mis,
     mu_mis,
-    oe_lof_capped,
+    oe_lof,
     mu_lof,
-    oe_mis_prior=0.904,
-    oe_lof_prior=0.679,
+    oe_mis_prior=0.906,
+    oe_lof_prior=0.675,
 ):
-    missense_de_novo_incidence = ((oe_mis_prior - oe_mis_capped) * mu_mis) * 2
-    lof_de_novo_incidence = ((oe_lof_prior - oe_lof_capped) * mu_lof) * 2
+    missense_de_novo_incidence = ((oe_mis_prior - oe_mis) * mu_mis) * 2
+    lof_de_novo_incidence = ((oe_lof_prior - oe_lof) * mu_lof) * 2
     total_de_novo_incidence = missense_de_novo_incidence + lof_de_novo_incidence
 
     calculations_object = {
@@ -61,9 +63,9 @@ def calculate_missense_and_lof_de_novo_incidence(
         "lof_de_novo_incidence": lof_de_novo_incidence,
         "total_de_novo_incidence": total_de_novo_incidence,
         "inputs": {
-            "oe_mis_capped": oe_mis_capped,
+            "oe_mis": oe_mis,
             "mu_mis": mu_mis,
-            "oe_lof_capped": oe_lof_capped,
+            "oe_lof": oe_lof,
             "mu_lof": mu_lof,
             "oe_mis_prior": oe_mis_prior,
             "oe_lof_prior": oe_lof_prior,
@@ -76,14 +78,14 @@ def calculate_missense_and_lof_de_novo_incidence(
 def annotate_row_with_dominant_incidence_dictionary(dataframe, index):
     row = dataframe.loc[index]
 
-    required_fields = ["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]
+    required_fields = ["oe_mis", "mu_mis", "oe_lof", "mu_lof"]
     if any(pd.isna(row[field]) for field in required_fields):
         return
 
     dominant_stats_dictionary = calculate_missense_and_lof_de_novo_incidence(
-        oe_mis_capped=float(row["oe_mis_Capped"]),
+        oe_mis=float(row["oe_mis"]),
         mu_mis=float(row["mu_mis"]),
-        oe_lof_capped=float(row["oe_lof_capped"]),
+        oe_lof=float(row["oe_lof"]),
         mu_lof=float(row["mu_lof"]),
     )
 
@@ -142,8 +144,8 @@ def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
 
     df = ht_dominant_models.to_pandas()
 
-    df[["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]] = df[
-        ["oe_mis_Capped", "mu_mis", "oe_lof_capped", "mu_lof"]
+    df[["oe_mis", "mu_mis", "oe_lof", "mu_lof"]] = df[
+        ["oe_mis", "mu_mis", "oe_lof", "mu_lof"]
     ].apply(pd.to_numeric, errors="coerce")
     current_datetime = datetime.now()
     iso_8601_datetime = current_datetime.isoformat()
@@ -178,7 +180,7 @@ def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
         df.at[index, "inheritance_type"] = row.type
 
         metadata = {
-            "gnomad_version": "4.1.0",
+            "gnomad_version": "4.1.1",
             "reference_genome": "GRCh38",
             "gene_symbol": row.symbol,
             "gene_id": gene_id_with_version,
