@@ -26,10 +26,13 @@ import {
   useToast,
   Tooltip,
   Text,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 
@@ -78,6 +81,13 @@ const PublicVariantLists = (props: {
   publicVariantListsStore: Store<PublicVariantList[]>;
 }) => {
   const publicVariantLists = useStore(props.publicVariantListsStore);
+
+  type Filter = {
+    searchText: string;
+  };
+  const [filter, setFilter] = useState<Filter>({
+    searchText: "",
+  });
 
   const toast = useToast();
   const { user } = useStore(authStore);
@@ -160,7 +170,13 @@ const PublicVariantLists = (props: {
         return publicList.metadata.gene_symbol;
       },
       render: (publicList) => {
-        return <Cell maxWidth={130}>{publicList.metadata.gene_symbol}</Cell>;
+        return (
+          <Cell maxWidth={130}>
+            {publicList.metadata.gene_symbol
+              ? publicList.metadata.gene_symbol
+              : "Custom"}
+          </Cell>
+        );
       },
     },
     {
@@ -326,38 +342,43 @@ const PublicVariantLists = (props: {
         return (
           <Cell maxWidth={130}>
             {publicList.representative_status !== "" && (
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  size="sm"
-                  rightIcon={<ChevronDownIcon />}
-                >
-                  {publicList.representative_status.toString()}
-                </MenuButton>
-                <MenuList>
-                  <MenuItem
-                    onClick={() => {
-                      updateRepresentativeVariantList(publicList, {
-                        representative_status:
-                          VariantListReviewStatusCode.APPROVED,
-                      });
-                    }}
+              <div>
+                <div>Dashboard</div>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    size="sm"
+                    backgroundColor={"#dddddd"}
+                    rightIcon={<ChevronDownIcon />}
                   >
-                    Approve
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      updateRepresentativeVariantList(publicList, {
-                        representative_status:
-                          VariantListReviewStatusCode.REJECTED,
-                      });
-                    }}
-                  >
-                    Reject
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+                    {publicList.representative_status.toString()}
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem
+                      onClick={() => {
+                        updateRepresentativeVariantList(publicList, {
+                          representative_status:
+                            VariantListReviewStatusCode.APPROVED,
+                        });
+                      }}
+                    >
+                      Approve
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        updateRepresentativeVariantList(publicList, {
+                          representative_status:
+                            VariantListReviewStatusCode.REJECTED,
+                        });
+                      }}
+                    >
+                      Reject
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </div>
             )}
+            {publicList.representative_status === "" && "Public"}
           </Cell>
         );
       },
@@ -388,7 +409,7 @@ const PublicVariantLists = (props: {
     },
   ];
 
-  const ROW_HEIGHT = 70;
+  const ROW_HEIGHT = 90;
 
   const DataRow = ({
     index: dataRowIndex,
@@ -450,8 +471,22 @@ const PublicVariantLists = (props: {
     "descending"
   );
 
+  const filteredPublicVariantLists = useMemo(() => {
+    return publicVariantLists.filter((publicVariantList: PublicVariantList) => {
+      const symbolHasMatch =
+        publicVariantList.metadata?.gene_symbol?.includes(filter.searchText) ??
+        false;
+      const labelHasMatch = publicVariantList.label.includes(filter.searchText);
+      const updatedByHasMatch =
+        publicVariantList.representative_status_updated_by?.includes(
+          filter.searchText
+        ) ?? false;
+      return symbolHasMatch || labelHasMatch || updatedByHasMatch;
+    });
+  }, [publicVariantLists, filter]);
+
   const sortedFilteredPublicVariantLists = sortBy(
-    publicVariantLists,
+    filteredPublicVariantLists,
     (publicVariantList) => sortColumn.sortKey!(publicVariantList)
   );
   if (sortOrder === "descending") {
@@ -460,6 +495,18 @@ const PublicVariantLists = (props: {
 
   return (
     <>
+      <Box mb={2}>
+        <FormControl>
+          <FormLabel>Search</FormLabel>
+          <Input
+            value={filter.searchText}
+            onChange={(e) =>
+              setFilter({ ...filter, searchText: e.target.value })
+            }
+          />
+        </FormControl>
+      </Box>
+
       <Table variant="striped">
         <Thead>
           <Tr
