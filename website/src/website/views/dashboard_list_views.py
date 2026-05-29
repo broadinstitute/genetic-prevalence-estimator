@@ -18,6 +18,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 
 from django.core.cache import cache
+from django.db.models import Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
 from django.views.decorators.cache import cache_control
@@ -26,6 +27,8 @@ from calculator.models import (
     DashboardList,
     VariantList,
     DominantDashboardList,
+    VariantListAnnotation,
+    VariantListAccessPermission,
 )
 from calculator.serializers import (
     NewDashboardListSerializer,
@@ -150,10 +153,27 @@ class DashboardListsLoadView(CreateAPIView):
     cache_control(public=True, max_age=SIX_HOURS_IN_SECONDS), name="dispatch"
 )
 class DashboardListsView(ListAPIView):
-    queryset = DashboardList.objects.select_related(
-        "representative_variant_list",
-        "dominant_dashboard_list",
-    ).all()
+    queryset = (
+        DashboardList.objects.select_related(
+            "representative_variant_list",
+            "dominant_dashboard_list",
+        )
+        .prefetch_related(
+            Prefetch(
+                "representative_variant_list__annotations",
+                queryset=VariantListAnnotation.objects.filter(user__isnull=True),
+                to_attr="shared_annotations_list",
+            ),
+            Prefetch(
+                "representative_variant_list__access_permissions",
+                queryset=VariantListAccessPermission.objects.filter(
+                    level=VariantListAccessPermission.Level.OWNER
+                ).select_related("user"),
+                to_attr="prefetched_owners",
+            ),
+        )
+        .all()
+    )
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = [OrderingFilter]
     ordering_fields = ["label", "created_at"]
