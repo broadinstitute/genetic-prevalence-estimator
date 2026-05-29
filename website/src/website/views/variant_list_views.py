@@ -32,7 +32,7 @@ from calculator.serializers import (
     AddedVariantsSerializer,
     NewVariantListSerializer,
     VariantListSerializer,
-    VariantListLightSerializer,
+    VariantListsSummarySerializer,
     VariantListAnnotationSerializer,
     PublicVariantListSummarySerializer,
     is_variant_id,
@@ -59,7 +59,7 @@ class VariantListsSummaryView(ListCreateAPIView):
         if self.request.method == "POST":
             return NewVariantListSerializer
 
-        return VariantListLightSerializer
+        return VariantListsSummarySerializer
 
     def check_list_limit(self, user):
         if (

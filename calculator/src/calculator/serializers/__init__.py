@@ -2,7 +2,7 @@ from calculator.serializers.variant_list_serializer import (
     AddedVariantsSerializer,
     NewVariantListSerializer,
     VariantListSerializer,
-    VariantListLightSerializer,
+    VariantListsSummarySerializer,
     PublicVariantListSummarySerializer,
     is_variant_id,
     is_structural_variant_id,
