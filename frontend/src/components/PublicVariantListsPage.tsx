@@ -456,8 +456,8 @@ const PublicVariantLists = (props: {
 
   const [sortColumn, sortOrder, setSortKey] = useSort(
     columns,
-    "label",
-    "ascending"
+    "updated_at",
+    "descending"
   );
 
   const filteredPublicVariantLists = useMemo(() => {
