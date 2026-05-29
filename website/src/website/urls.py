@@ -6,7 +6,7 @@ from website.views.frontend import FrontendView
 from website.views.system_status_views import system_status_view
 from website.views.user_views import UsersList, UserDetail
 from website.views.variant_list_views import (
-    VariantListsView,
+    VariantListsSummaryView,
     VariantListView,
     VariantListAnnotationView,
     VariantListSharedAnnotationView,
@@ -58,7 +58,7 @@ urlpatterns = [
     path("api/status/", system_status_view, name="system_status"),
     path("api/users/", UsersList.as_view(), name="users"),
     path("api/users/<int:id>/", UserDetail.as_view(), name="user"),
-    path("api/variant-lists/", VariantListsView.as_view(), name="variant-lists"),
+    path("api/variant-lists/", VariantListsSummaryView.as_view(), name="variant-lists"),
     path(
         "api/variant-lists/<uuid:uuid>/", VariantListView.as_view(), name="variant-list"
     ),
