@@ -219,7 +219,7 @@ const VariantListsContainer = () => {
   );
 };
 
-const VariantListsPage = () => {
+const AllVariantListsSummaryPage = () => {
   return (
     <>
       <DocumentTitle title="Variant lists" />
@@ -242,4 +242,4 @@ const VariantListsPage = () => {
   );
 };
 
-export default VariantListsPage;
+export default AllVariantListsSummaryPage;

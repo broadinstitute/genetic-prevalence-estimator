@@ -44,7 +44,7 @@ import DashboardListPage from "./components/DashboardListPage/SingleDashboardLis
 import IncidencePage from "./components/DashboardListPage/IncidencePage";
 
 import VariantListPage from "./components/VariantListPage/VariantListPage";
-import VariantListsPage from "./components/VariantListsPage";
+import AllVariantListsSummaryPage from "./components/AllVariantListsSummaryPage";
 import { initializeAuth, signOut } from "./auth";
 import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
@@ -209,7 +209,7 @@ const App = () => {
             path="/variant-lists/"
             render={() => (
               <RequireSignIn>
-                <VariantListsPage />
+                <AllVariantListsSummaryPage />
               </RequireSignIn>
             )}
           />
