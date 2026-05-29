@@ -386,8 +386,6 @@ class PublicVariantListsView(ListAPIView):
         )
 
     def get_serializer_class(self):
-        if self.request.user.is_staff:
-            return VariantListSerializer
         return VariantListDashboardSerializer
 
 
