@@ -42,7 +42,7 @@ from website.permissions import ViewObjectPermissions
 from website.pubsub import publisher
 
 
-class VariantListsView(ListCreateAPIView):
+class VariantListsSummaryView(ListCreateAPIView):
     def get_queryset(self):
         return VariantList.objects.select_related(
             "created_by",
