@@ -20,11 +20,18 @@ export const initializeAuth = (appConfig: AppConfig) => {
       });
   };
 
-  const google = (window as any).google;
-  google.accounts.id.initialize({
-    client_id: appConfig.google_auth_client_id,
-    callback: handleCredentialResponse,
-  });
+  const initializeGoogleAccount = () => {
+    (window as any).google.accounts.id.initialize({
+      client_id: appConfig.google_auth_client_id,
+      callback: handleCredentialResponse,
+    });
+  };
+
+  if ((window as any).google) {
+    initializeGoogleAccount();
+  } else {
+    (window as any).onGoogleLibraryLoad = initializeGoogleAccount;
+  }
 };
 
 export const signOut = (): Promise<void> => {
