@@ -328,6 +328,15 @@ class VariantListSerializer(ModelSerializer):
         ]
 
 
+class VariantListLightSerializer(VariantListSerializer):
+    class Meta(VariantListSerializer.Meta):
+        fields = [
+            f
+            for f in VariantListSerializer.Meta.fields
+            if f not in ("variants", "structural_variants")
+        ]
+
+
 class AddedVariantsSerializer(
     serializers.Serializer
 ):  # pylint: disable=abstract-method
@@ -337,7 +346,6 @@ class AddedVariantsSerializer(
     )
 
     def validate(self, attrs):
-
         attrs = super().validate(attrs)
 
         variants = attrs.get("variants", [])
@@ -425,5 +433,6 @@ class VariantListDashboardSerializer(ModelSerializer):
             "representative_status",
             "representative_status_updated_by",
             "metadata",
+            "updated_at",
         ]
         read_only_fields = list(fields)
