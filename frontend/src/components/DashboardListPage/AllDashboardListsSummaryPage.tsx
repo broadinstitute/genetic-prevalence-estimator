@@ -40,7 +40,6 @@ import { FixedSizeList } from "react-window";
 import { del, get, postFile } from "../../api";
 import { renderErrorDescription } from "../../errors";
 import { Store, atom, authStore, useStore } from "../../state";
-import { VariantList } from "../../types";
 
 import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
@@ -50,60 +49,21 @@ import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculati
 type DashboardList = {
   gene_id: string;
   gene_symbol: string;
-  label: string;
-  metadata: {
-    gnomad_version: string;
-    reference_genome: string;
-    gene_symbol: string;
-  };
-  estimates: {
-    genetic_prevalence: number[];
-  };
-  variant_calculations: {
-    carrier_frequency: number[];
-    carrier_frequency_raw_numbers: number[];
-    carrier_frequency_simplified: number[];
-    prevalence: number[];
-    prevalence_bayesian: number[];
-  };
+  inheritance_type: string;
+
   genetic_prevalence_orphanet: string;
-  genetic_prevalence_genereviews: string;
-  genetic_prevalence_other: string;
-  representative_variant_list?: VariantList & {
-    estimates: {
-      genetic_prevalence: {
-        global: number;
-      };
-      carrier_frequency: {
-        global: number;
-      };
-    };
+
+  aggregate_allele_frequency: number;
+  estimated_genetic_prevalence: number;
+  estimated_de_novo_incidence: number;
+
+  representative_variant_list: {
+    uuid: string;
+    label: string;
+    supporting_documents: any[];
+    total_genetic_prevalence: number;
     owners: string[];
   };
-  dominant_dashboard_list?: {
-    date_created: string;
-    metadata: {
-      gene_id: string;
-      gene_symbol: string;
-      transcript_id: string;
-      gnomad_version: string;
-    };
-    de_novo_variant_calculations: {
-      missense_de_novo_incidence: number;
-      lof_de_novo_incidence: number;
-      total_de_novo_incidence: number;
-      inputs: {
-        oe_mis_capped: number;
-        mu_mis: number;
-        oe_lof_capped: number;
-        mu_lof: number;
-        oe_mis_prior: number;
-        oe_lof_prior: number;
-      };
-    };
-    inheritance_type: string;
-  };
-  inheritance_type: string;
 };
 
 const MultipleInheritanceFlag = () => {
@@ -195,10 +155,10 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "inheritance_type",
       heading: "Mode of Inheritance",
       width: 120,
-      sortKey: (dashboardList) => {
+      sortKey: (dashboardList: DashboardList) => {
         return dashboardList.inheritance_type;
       },
-      render: (dashboardList) => {
+      render: (dashboardList: DashboardList) => {
         return <Cell maxWidth={130}>{dashboardList.inheritance_type}</Cell>;
       },
     },
@@ -207,19 +167,13 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "aggregate_allele_freq_lp_p",
       heading: "Aggregate allele frequency for LP/P variants",
       width: 175,
-      sortKey: (dashboardList) => {
-        const carrierFreq =
-          dashboardList?.variant_calculations?.carrier_frequency;
-        return carrierFreq && carrierFreq.length > 0
-          ? Math.round(1 / (carrierFreq[0] / 2))
-          : 0;
+      sortKey: (dashboardList: DashboardList) => {
+        return 1 / dashboardList.aggregate_allele_frequency;
       },
-      render: (dashboardList) => {
-        const carrierFreq =
-          dashboardList?.variant_calculations?.carrier_frequency;
-        return carrierFreq && carrierFreq.length > 0 ? (
+      render: (dashboardList: DashboardList) => {
+        return dashboardList.aggregate_allele_frequency ? (
           <Cell maxWidth={130}>
-            {renderFrequencyFraction(carrierFreq[0] / 2)}
+            {renderFrequencyFraction(dashboardList.aggregate_allele_frequency)}
           </Cell>
         ) : null;
       },
@@ -230,21 +184,29 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       heading: "Estimated heterozygous frequency (carrier frequency)",
       width: 175,
 
-      sortKey: (dashboardList) => {
-        const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
-        return cf && !isNaN(cf) && cf !== 0 ? Math.round(1 / cf) : 0;
+      sortKey: (dashboardList: DashboardList) => {
+        const aggregate_allele_frequency =
+          dashboardList.aggregate_allele_frequency;
+        const heterozygous_frequency = aggregate_allele_frequency
+          ? aggregate_allele_frequency * 2
+          : null;
+        return heterozygous_frequency ? 1 / heterozygous_frequency : 0;
       },
 
-      render: (dashboardList) => {
-        const cf = dashboardList?.variant_calculations?.carrier_frequency?.[0];
-        const isValid = typeof cf === "number" && !isNaN(cf) && cf > 0;
+      render: (dashboardList: DashboardList) => {
+        const aggregate_allele_frequency =
+          dashboardList.aggregate_allele_frequency;
+        const heterozygous_frequency = aggregate_allele_frequency
+          ? aggregate_allele_frequency * 2
+          : null;
 
-        return isValid ? (
-          <Cell maxWidth={130}>{renderFrequencyFraction(cf)}</Cell>
+        return heterozygous_frequency ? (
+          <Cell maxWidth={130}>
+            {renderFrequencyFraction(heterozygous_frequency)}
+          </Cell>
         ) : null;
       },
     },
-
     {
       key: "dashboard_estimate",
       heading:
@@ -252,25 +214,26 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       headingTooltip:
         "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
       width: 175,
-      sortKey: (dashboardList) => {
-        const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
-        return gp && !isNaN(gp) && gp !== 0 ? Math.round(1 / gp) : 0;
+      sortKey: (dashboardList: DashboardList) => {
+        return dashboardList.estimated_genetic_prevalence
+          ? 1 / dashboardList.estimated_genetic_prevalence
+          : 0;
       },
-      render: (dashboardList) => {
-        const gp = dashboardList?.estimates?.genetic_prevalence?.[0];
-        const isValid = typeof gp === "number" && !isNaN(gp) && gp > 0;
+      render: (dashboardList: DashboardList) => {
+        const estimated_genetic_prevalence =
+          dashboardList.estimated_genetic_prevalence;
 
-        if (dashboardList?.inheritance_type === "AD") {
-          return <Cell maxWidth={200}>N/A - Dominant disease</Cell>;
+        if (dashboardList.inheritance_type === "AD") {
+          return <Cell maxWidth={200}> - </Cell>;
         }
 
-        return isValid ? (
+        return (
           <Cell maxWidth={200}>
             <Link as={RRLink} to={`/dashboard/${dashboardList.gene_id}`}>
-              {renderFrequencyFraction(gp)}
+              {renderFrequencyFraction(estimated_genetic_prevalence)}
             </Link>
           </Cell>
-        ) : null;
+        );
       },
     },
   ];
@@ -281,21 +244,13 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       heading: "Estimated incidence of de novo variation (per 100,000)",
       headingTooltip: "Estimated incidence of de novo variation (per 100,000)",
       width: 175,
-      sortKey: (dashboardList) => {
-        const incidence =
-          dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
-            ?.total_de_novo_incidence;
-
-        return incidence ?? 0;
+      sortKey: (dashboardList: DashboardList) => {
+        return dashboardList.estimated_de_novo_incidence;
       },
-      render: (dashboardList) => {
-        const incidence =
-          dashboardList.dominant_dashboard_list?.de_novo_variant_calculations
-            ?.total_de_novo_incidence;
-
-        if (incidence === undefined || incidence === null) return null;
-
-        const per100k = (incidence * 100_000).toFixed(3);
+      render: (dashboardList: DashboardList) => {
+        const incidencePer100k = (
+          dashboardList.estimated_de_novo_incidence * 100_000
+        ).toFixed(3);
 
         return (
           <Cell maxWidth={200}>
@@ -303,7 +258,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
               as={RRLink}
               to={`/dashboard-incidence/${dashboardList.gene_id}`}
             >
-              {per100k}
+              {incidencePer100k}
             </Link>
           </Cell>
         );
@@ -316,20 +271,17 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "representative_estimate",
       heading: "Curated Estimates Public on GeniE",
       width: 150,
-      sortKey: (dashboardList) => {
+      sortKey: (dashboardList: DashboardList) => {
         if (dashboardList.representative_variant_list) {
-          return dashboardList.representative_variant_list.estimates
-            .genetic_prevalence.global !== 0
-            ? Math.round(
-                1 /
-                  dashboardList.representative_variant_list.estimates
-                    .genetic_prevalence.global
-              )
+          const genetic_prevalence =
+            dashboardList.representative_variant_list.total_genetic_prevalence;
+          return genetic_prevalence !== 0
+            ? Math.round(1 / genetic_prevalence)
             : 0;
         }
         return 0;
       },
-      render: (dashboardList) => {
+      render: (dashboardList: DashboardList) => {
         return (
           <Cell maxWidth={200}>
             {dashboardList.representative_variant_list && (
@@ -338,12 +290,12 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
                 to={`/variant-lists/${dashboardList.representative_variant_list.uuid}`}
               >
                 {renderFrequencyFraction(
-                  dashboardList.representative_variant_list.estimates
-                    .genetic_prevalence.global
+                  dashboardList.representative_variant_list
+                    .total_genetic_prevalence
                 )}
               </Link>
             )}
-            {!dashboardList.representative_variant_list && ""}
+            {!dashboardList.representative_variant_list && null}
           </Cell>
         );
       },
@@ -353,7 +305,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "representative_contact",
       heading: "Contact for public estimate",
       width: 150,
-      sortKey: (dashboardList) => {
+      sortKey: (dashboardList: DashboardList) => {
         if (
           dashboardList.representative_variant_list &&
           dashboardList.representative_variant_list.owners &&
