@@ -33,7 +33,7 @@ from calculator.models import (
 from calculator.serializers import (
     NewDashboardListSerializer,
     DashboardListSerializer,
-    DashboardListDashboardSerializer,
+    DashboardListsSummarySerializer,
 )
 
 # set csv field size limit to half of a megabyte
@@ -178,7 +178,7 @@ class DashboardListsView(ListAPIView):
     filter_backends = [OrderingFilter]
     ordering_fields = ["label", "created_at"]
     ordering = ["-created_at"]
-    serializer_class = DashboardListDashboardSerializer
+    serializer_class = DashboardListsSummarySerializer
 
     def list(self, request, *args, **kwargs):
         CACHE_KEY = "dashboard_cache"
