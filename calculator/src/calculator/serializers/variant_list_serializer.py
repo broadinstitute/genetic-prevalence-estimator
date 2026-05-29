@@ -328,13 +328,43 @@ class VariantListSerializer(ModelSerializer):
         ]
 
 
-class VariantListLightSerializer(VariantListSerializer):
+class VariantListsSummarySerializer(VariantListSerializer):
+    metadata = serializers.SerializerMethodField()
+    variant_count = serializers.SerializerMethodField()
+
     class Meta(VariantListSerializer.Meta):
         fields = [
-            f
-            for f in VariantListSerializer.Meta.fields
-            if f not in ("variants", "structural_variants")
+            "uuid",
+            "label",
+            "type",
+            "metadata",
+            "updated_at",
+            "variant_count",
         ]
+
+    def get_metadata(self, obj):
+        return {
+            "gene_id": obj.metadata.get("gene_id"),
+            "gnomad_version": obj.metadata.get("gnomad_version"),
+            "transcript_id": obj.metadata.get("transcript_id"),
+        }
+
+    def get_variant_count(self, obj):
+        short_variant_count = len(obj.variants) if obj.variants else 0
+        structural_variant_count = (
+            len(obj.structural_variants) if obj.structural_variants else 0
+        )
+
+        return short_variant_count + structural_variant_count
+
+    def to_representation(self, instance):
+        data = super(VariantListSerializer, self).to_representation(instance)
+
+        if hasattr(instance, "current_user_access") and instance.current_user_access:
+            user_permission = instance.current_user_access[0]
+            data["access_level"] = user_permission.get_level_display()
+
+        return data
 
 
 class AddedVariantsSerializer(
