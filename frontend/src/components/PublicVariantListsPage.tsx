@@ -164,7 +164,7 @@ const PublicVariantLists = (props: {
 
   const baseColumns: PublicVariantListColumnDef[] = [
     {
-      key: "metadata.gene_symbol",
+      key: "gene_symbol",
       heading: "Gene",
       width: 110,
       sortKey: (publicList) => {
@@ -472,16 +472,14 @@ const PublicVariantLists = (props: {
 
   const filteredPublicVariantLists = useMemo(() => {
     return publicVariantLists.filter((publicVariantList: PublicVariantList) => {
-      // const symbolHasMatch =
-      //   publicVariantList.gene_symbol?.includes(filter.searchText) ??
-      //   false;
+      const symbolHasMatch =
+        publicVariantList.gene_symbol?.includes(filter.searchText) ?? false;
       const labelHasMatch = publicVariantList.label.includes(filter.searchText);
       const updatedByHasMatch =
         publicVariantList.representative_status_updated_by?.includes(
           filter.searchText
         ) ?? false;
-      // return symbolHasMatch || labelHasMatch || updatedByHasMatch;
-      return labelHasMatch || updatedByHasMatch;
+      return symbolHasMatch || labelHasMatch || updatedByHasMatch;
     });
   }, [publicVariantLists, filter]);
 
