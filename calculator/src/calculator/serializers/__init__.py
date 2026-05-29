@@ -4,6 +4,7 @@ from calculator.serializers.variant_list_serializer import (
     VariantListSerializer,
     VariantListsSummarySerializer,
     PublicVariantListSummarySerializer,
+    RepresentativeVariantListSummarySerializer,
     is_variant_id,
     is_structural_variant_id,
 )
