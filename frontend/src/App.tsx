@@ -40,7 +40,7 @@ import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
 import UsersPage from "./components/UsersPage/UsersPage";
-import DashboardListPage from "./components/DashboardListPage/DashboardListPage";
+import DashboardListPage from "./components/DashboardListPage/SingleDashboardListPage";
 import IncidencePage from "./components/DashboardListPage/IncidencePage";
 
 import VariantListPage from "./components/VariantListPage/VariantListPage";
