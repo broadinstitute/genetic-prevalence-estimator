@@ -129,7 +129,7 @@ const MultipleDiseaseFlag = () => {
   );
 };
 
-const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
+export const Cell: FC<{ maxWidth: number }> = ({ children, maxWidth }) => {
   return (
     <span
       style={{
@@ -150,17 +150,15 @@ const orphanetPrevalencesRemappings: { [key: string]: string } = {
   "-": "No estimated prevalence",
 };
 
-interface ColumnDef {
+export interface ColumnDef {
   key: string;
   heading: string;
   headingTooltip?: string;
   isNumeric?: boolean;
   width: number;
-  sortKey?: (
-    dashboardList: DashboardList
-  ) => string | number | (string | number)[];
+  sortKey?: (rowData: any) => string | number | (string | number)[];
   render: (
-    dashboardList: DashboardList
+    rowData: any
   ) =>
     | JSX.Element
     | string
@@ -465,7 +463,7 @@ interface SortState {
   order: SortOrder;
 }
 
-const useSort = (
+export const useSort = (
   columns: ColumnDef[],
   defaultSortKey: string,
   defaultSortOrder: SortOrder = "ascending"
