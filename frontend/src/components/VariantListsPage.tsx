@@ -30,8 +30,12 @@ import DocumentTitle from "./DocumentTitle";
 import Link from "./Link";
 import { formatVariantListType } from "./VariantListPage/VariantListMetadata";
 
+type ReducedMetadataVariantListWithCount = {
+  variant_count: number;
+} & VariantList;
+
 interface VariantListMetadataSummaryProps {
-  variantList: VariantList;
+  variantList: ReducedMetadataVariantListWithCount;
 }
 
 const VariantListMetadataSummary: FC<VariantListMetadataSummaryProps> = ({
@@ -43,14 +47,15 @@ const VariantListMetadataSummary: FC<VariantListMetadataSummaryProps> = ({
       {variantList.metadata.gnomad_version}
       {variantList.metadata.transcript_id &&
         `, ${variantList.metadata.gene_id} / ${variantList.metadata.transcript_id}`}
-      {variantList.variants?.length &&
-        `, ${variantList.variants.length} variants`}
+      {`, ${variantList.variant_count} variant${
+        variantList.variant_count !== 1 ? "s" : ""
+      }`}
     </>
   );
 };
 
 interface VariantListCardProps extends BoxProps {
-  variantList: VariantList;
+  variantList: ReducedMetadataVariantListWithCount;
 }
 
 const VariantListCard: FC<VariantListCardProps> = ({
@@ -77,7 +82,7 @@ const VariantListCard: FC<VariantListCardProps> = ({
 };
 
 interface VariantListsProps {
-  variantLists: VariantList[];
+  variantLists: ReducedMetadataVariantListWithCount[];
 }
 
 const VariantLists: FC<VariantListsProps> = ({ variantLists }) => {
@@ -98,7 +103,9 @@ const VariantListsContainer = () => {
   const appConfig = useStore(appConfigStore);
   const { isSignedIn, user } = useStore(authStore);
   const [isLoading, setIsLoading] = useState(true);
-  const [variantLists, setVariantLists] = useState<VariantList[]>([]);
+  const [variantLists, setVariantLists] = useState<
+    ReducedMetadataVariantListWithCount[]
+  >([]);
   const [error, setError] = useState<Error | null>(null);
   const [orderBy, setOrderBy] = useState("-updated_at");
 
