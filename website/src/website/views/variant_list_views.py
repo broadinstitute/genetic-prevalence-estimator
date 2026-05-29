@@ -120,7 +120,10 @@ class VariantListView(RetrieveUpdateDestroyAPIView):
         if self.request.method == "GET":
             # active staff can view any list
             if self.request.user.is_staff and self.request.user.is_active:
-                return VariantList.objects.all()
+                return VariantList.objects.select_related(
+                    "created_by",
+                    "representative_status_updated_by",
+                ).all()
 
             # anonymous users or inactive users can view all public lists and
             #   approved representative lists
