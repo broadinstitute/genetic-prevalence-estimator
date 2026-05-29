@@ -461,9 +461,16 @@ const PublicVariantLists = (props: {
   );
 
   const filteredPublicVariantLists = useMemo(() => {
-    return publicVariantLists.filter((publicVariantList: PublicVariantList) =>
-      publicVariantList.label.includes(filter.searchText)
-    );
+    return publicVariantLists.filter((publicVariantList: PublicVariantList) => {
+      const symbolHasMatch = publicVariantList.metadata.gene_symbol.includes(
+        filter.searchText
+      );
+      const labelHasMatch = publicVariantList.label.includes(filter.searchText);
+      const updatedByHasMatch = publicVariantList.representative_status_updated_by.includes(
+        filter.searchText
+      );
+      return symbolHasMatch || labelHasMatch || updatedByHasMatch;
+    });
   }, [publicVariantLists, filter]);
 
   const sortedFilteredPublicVariantLists = sortBy(
