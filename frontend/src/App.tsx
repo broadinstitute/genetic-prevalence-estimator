@@ -35,7 +35,7 @@ import HomePage from "./components/HomePage";
 import Link from "./components/Link";
 import PageNotFoundPage from "./components/PageNotFoundPage";
 import PublicListsPage from "./components/PublicVariantListsPage";
-import DashboardListsPage from "./components/DashboardListPage/DashboardListsPage";
+import DashboardListsPage from "./components/DashboardListPage/AllDashboardListsSummaryPage";
 import { screenOnly } from "./components/media";
 import SignInButton from "./components/SignInButton";
 import SystemStatusPage from "./components/SystemStatusPage/SystemStatusPage";
