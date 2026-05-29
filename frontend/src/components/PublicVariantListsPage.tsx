@@ -42,7 +42,10 @@ import { Store, atom, authStore, useStore } from "../state";
 import { VariantListReviewStatusCode } from "../types";
 
 import ButtonWithConfirmation from "./ButtonWithConfirmation";
-import { Cell, useSort } from "./DashboardListPage/DashboardListsPage";
+import {
+  Cell,
+  useSort,
+} from "./DashboardListPage/AllDashboardListsSummaryPage";
 import DocumentTitle from "./DocumentTitle";
 
 interface PublicVariantList {
