@@ -26,13 +26,10 @@ import {
   useToast,
   Tooltip,
   Text,
-  FormControl,
-  FormLabel,
-  Input,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 
@@ -81,13 +78,6 @@ const PublicVariantLists = (props: {
   publicVariantListsStore: Store<PublicVariantList[]>;
 }) => {
   const publicVariantLists = useStore(props.publicVariantListsStore);
-
-  type Filter = {
-    searchText: string;
-  };
-  const [filter, setFilter] = useState<Filter>({
-    searchText: "",
-  });
 
   const toast = useToast();
   const { user } = useStore(authStore);
@@ -460,21 +450,8 @@ const PublicVariantLists = (props: {
     "descending"
   );
 
-  const filteredPublicVariantLists = useMemo(() => {
-    return publicVariantLists.filter((publicVariantList: PublicVariantList) => {
-      const symbolHasMatch = publicVariantList.metadata.gene_symbol.includes(
-        filter.searchText
-      );
-      const labelHasMatch = publicVariantList.label.includes(filter.searchText);
-      const updatedByHasMatch = publicVariantList.representative_status_updated_by.includes(
-        filter.searchText
-      );
-      return symbolHasMatch || labelHasMatch || updatedByHasMatch;
-    });
-  }, [publicVariantLists, filter]);
-
   const sortedFilteredPublicVariantLists = sortBy(
-    filteredPublicVariantLists,
+    publicVariantLists,
     (publicVariantList) => sortColumn.sortKey!(publicVariantList)
   );
   if (sortOrder === "descending") {
@@ -483,18 +460,6 @@ const PublicVariantLists = (props: {
 
   return (
     <>
-      <Box mb={2}>
-        <FormControl>
-          <FormLabel>Search</FormLabel>
-          <Input
-            value={filter.searchText}
-            onChange={(e) =>
-              setFilter({ ...filter, searchText: e.target.value })
-            }
-          />
-        </FormControl>
-      </Box>
-
       <Table variant="striped">
         <Thead>
           <Tr
