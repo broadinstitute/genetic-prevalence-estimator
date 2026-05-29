@@ -5,7 +5,9 @@ from rest_framework import serializers
 from calculator.constants import GNOMAD_VERSIONS, GNOMAD_REFERENCE_GENOMES
 from calculator.models import DashboardList
 from calculator.serializers.serializer import ModelSerializer
-from calculator.serializers.variant_list_serializer import VariantListSerializer
+from calculator.serializers.variant_list_serializer import (
+    RepresentativeVariantListSummarySerializer,
+)
 from calculator.serializers.serializer_fields import ChoiceField
 
 from calculator.serializers.dominant_dashboard_list_serializer import (
@@ -125,39 +127,82 @@ class DashboardListTopTenVariantSerializer(
     genetic_ancestry_groups = serializers.JSONField(default=list)
 
 
-class DashboardListDashboardSerializer(ModelSerializer):
+class DashboardListsSummarySerializer(ModelSerializer):
     gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
+
+    # recessive
+    aggregate_allele_frequency = serializers.SerializerMethodField()
+    estimated_genetic_prevalence = serializers.SerializerMethodField()
+
+    # dominant
+    estimated_de_novo_incidence = serializers.SerializerMethodField()
 
     # pylint: disable=fixme
     # TODO: use a reduced serializer here?
-    representative_variant_list = VariantListSerializer(many=False, read_only=True)
-    dominant_dashboard_list = DominantDashboardListSerializer(
+    representative_variant_list = RepresentativeVariantListSummarySerializer(
         many=False, read_only=True
     )
 
-    estimates = serializers.SerializerMethodField()
+    # TK: this one should be lifted into a top level field
+    #   the second field (estimated heterozygous freq) is just this * 2
+    def get_aggregate_allele_frequency(self, obj):
+        calculations = obj.variant_calculations or {}
+        carrier_freq = calculations.get("carrier_frequency")
 
-    def get_estimates(self, obj):
-        return {
-            "genetic_prevalence": (obj.variant_calculations.get("prevalence", "-")),
-        }
+        if carrier_freq and len(carrier_freq) > 0:
+            total_freq = carrier_freq[0]
+
+            if total_freq == 0:
+                return 0
+
+            return total_freq / 2
+
+        return 0
+
+    # TK: this one should be lifted into a top level field
+    def get_estimated_genetic_prevalence(self, obj):
+        calculations = obj.variant_calculations or {}
+        genetic_prevalence = calculations.get("prevalence")
+
+        if genetic_prevalence and len(genetic_prevalence) > 0:
+            total_genetic_prevalence = genetic_prevalence[0]
+
+            if total_genetic_prevalence == 0:
+                return 0
+
+            return total_genetic_prevalence
+
+        return 0
+
+    def get_estimated_de_novo_incidence(self, obj):
+        if not obj.dominant_dashboard_list:
+            return 0
+
+        de_novo_calculations = (
+            obj.dominant_dashboard_list.de_novo_variant_calculations or {}
+        )
+        total_de_novo_incidence = de_novo_calculations.get("total_de_novo_incidence")
+
+        if total_de_novo_incidence:
+            return total_de_novo_incidence
+
+        return 0
 
     class Meta:
         model = DashboardList
         fields = [
+            #
             "gene_id",
             "gene_symbol",
-            "label",
-            "metadata",
-            "representative_variant_list",
-            "variant_calculations",
-            "dominant_dashboard_list",
-            "estimates",
-            "genetic_prevalence_orphanet",
-            "genetic_prevalence_genereviews",
-            "genetic_prevalence_other",
-            "genetic_incidence_other",
             "inheritance_type",
+            "genetic_prevalence_orphanet",
+            # recessive -- nested inside JSON calcs
+            "aggregate_allele_frequency",
+            "estimated_genetic_prevalence",
+            # dominant -- foreign key + json calcs!
+            "estimated_de_novo_incidence",
+            # user created list -- foreign key!
+            "representative_variant_list",
         ]
         read_only_fields = list(fields)
 
@@ -167,7 +212,9 @@ class DashboardListSerializer(ModelSerializer):
     status = ChoiceField(choices=DashboardList.Status.choices, read_only=True)
     metadata = serializers.JSONField()
 
-    representative_variant_list = VariantListSerializer(many=False, read_only=True)
+    representative_variant_list = RepresentativeVariantListSummarySerializer(
+        many=False, read_only=True
+    )
     # grabs foreign key
     dominant_dashboard_list = DominantDashboardListSerializer(
         many=False, read_only=True
