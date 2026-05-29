@@ -411,9 +411,11 @@ class AddedVariantsSerializer(
         return attrs
 
 
-class VariantListDashboardSerializer(ModelSerializer):
+class PublicVariantListSummarySerializer(ModelSerializer):
     gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
-    created_by = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    gnomad_version = serializers.CharField(
+        source="metadata.gnomad_version", read_only=True
+    )
     representative_status = ChoiceField(
         choices=VariantList.RepresentativeStatus.choices
     )
@@ -425,14 +427,11 @@ class VariantListDashboardSerializer(ModelSerializer):
         model = VariantList
         fields = [
             "uuid",
-            "created_by",
             "gene_symbol",
             "label",
-            "supporting_documents",
-            "is_public",
+            "gnomad_version",
             "representative_status",
             "representative_status_updated_by",
-            "metadata",
             "updated_at",
         ]
         read_only_fields = list(fields)

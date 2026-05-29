@@ -34,7 +34,7 @@ from calculator.serializers import (
     VariantListSerializer,
     VariantListLightSerializer,
     VariantListAnnotationSerializer,
-    VariantListDashboardSerializer,
+    PublicVariantListSummarySerializer,
     is_variant_id,
     is_structural_variant_id,
 )
@@ -386,7 +386,7 @@ class PublicVariantListsView(ListAPIView):
         )
 
     def get_serializer_class(self):
-        return VariantListDashboardSerializer
+        return PublicVariantListSummarySerializer
 
 
 class PublicVariantListView(RetrieveUpdateAPIView):
