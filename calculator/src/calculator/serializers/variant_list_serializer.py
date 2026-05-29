@@ -285,7 +285,7 @@ class VariantListSerializer(ModelSerializer):
 
         # Only show the owners array for approved representative lists
         if instance.representative_status != VariantList.RepresentativeStatus.APPROVED:
-            data.pop("owners")
+            data.pop("owners", None)
 
         return data
 
@@ -328,6 +328,39 @@ class VariantListSerializer(ModelSerializer):
         ]
 
 
+# used on the 'back of envelope' Dashboard to only return minor data about
+#   representative variant lists associated with a given row
+class RepresentativeVariantListSummarySerializer(ModelSerializer):
+    total_genetic_prevalence = serializers.SerializerMethodField()
+    owners = serializers.SerializerMethodField()
+
+    def get_total_genetic_prevalence(self, obj):
+        if hasattr(obj, "shared_annotations_list") and obj.shared_annotations_list:
+            shared_annotation = obj.shared_annotations_list[0]
+            calculations = shared_annotation.variant_calculations or {}
+            genetic_prevalence_object = calculations.get("prevalence", {})
+            if isinstance(genetic_prevalence_object, dict):
+                return genetic_prevalence_object.get("global", 0)
+
+        return 0
+
+    def get_owners(self, obj):
+        if hasattr(obj, "prefetched_owners"):
+            return [permission.user.username for permission in obj.prefetched_owners]
+
+        return []
+
+    class Meta(VariantListSerializer.Meta):
+        fields = [
+            "uuid",
+            "label",
+            "supporting_documents",
+            "total_genetic_prevalence",
+            "owners",
+        ]
+
+
+# used on the 'variant list' page to only return relevant data
 class VariantListsSummarySerializer(VariantListSerializer):
     metadata = serializers.SerializerMethodField()
     variant_count = serializers.SerializerMethodField()
@@ -441,6 +474,7 @@ class AddedVariantsSerializer(
         return attrs
 
 
+# used on the 'public variant list' page to only return relevant data
 class PublicVariantListSummarySerializer(ModelSerializer):
     gene_symbol = serializers.CharField(source="metadata.gene_symbol", read_only=True)
     gnomad_version = serializers.CharField(
