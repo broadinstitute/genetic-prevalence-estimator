@@ -48,10 +48,8 @@ import DocumentTitle from "./DocumentTitle";
 interface PublicVariantList {
   uuid: string;
   label: string;
-  metadata: {
-    gene_symbol: string;
-    gnomad_version: string;
-  };
+  gene_symbol: string;
+  gnomad_version: string;
   updated_at: string;
   representative_status: VariantListReviewStatusCode | "";
   representative_status_updated_by: string;
@@ -167,14 +165,12 @@ const PublicVariantLists = (props: {
       heading: "Gene",
       width: 110,
       sortKey: (publicList) => {
-        return publicList.metadata.gene_symbol;
+        return publicList.gene_symbol ?? "Custom";
       },
       render: (publicList) => {
         return (
           <Cell maxWidth={130}>
-            {publicList.metadata.gene_symbol
-              ? publicList.metadata.gene_symbol
-              : "Custom"}
+            {publicList.gene_symbol ? publicList.gene_symbol : "Custom"}
           </Cell>
         );
       },
@@ -201,10 +197,10 @@ const PublicVariantLists = (props: {
       heading: "gnomAD Version",
       width: 110,
       sortKey: (publicList) => {
-        return publicList.metadata.gnomad_version;
+        return publicList.gnomad_version;
       },
       render: (publicList) => {
-        return <Cell maxWidth={130}>{publicList.metadata.gnomad_version}</Cell>;
+        return <Cell maxWidth={130}>{publicList.gnomad_version}</Cell>;
       },
     },
     {
@@ -473,15 +469,16 @@ const PublicVariantLists = (props: {
 
   const filteredPublicVariantLists = useMemo(() => {
     return publicVariantLists.filter((publicVariantList: PublicVariantList) => {
-      const symbolHasMatch =
-        publicVariantList.metadata?.gene_symbol?.includes(filter.searchText) ??
-        false;
+      // const symbolHasMatch =
+      //   publicVariantList.gene_symbol?.includes(filter.searchText) ??
+      //   false;
       const labelHasMatch = publicVariantList.label.includes(filter.searchText);
       const updatedByHasMatch =
         publicVariantList.representative_status_updated_by?.includes(
           filter.searchText
         ) ?? false;
-      return symbolHasMatch || labelHasMatch || updatedByHasMatch;
+      // return symbolHasMatch || labelHasMatch || updatedByHasMatch;
+      return labelHasMatch || updatedByHasMatch;
     });
   }, [publicVariantLists, filter]);
 
