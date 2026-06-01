@@ -1,7 +1,7 @@
 ###############################################################################
 # Frontend build
 ###############################################################################
-FROM node:14.16.1 as frontend
+FROM node:24.16 as frontend
 
 WORKDIR /app
 
@@ -11,6 +11,7 @@ RUN npm install
 
 COPY frontend ./
 
+ENV NODE_OPTIONS="--openssl-legacy-provider"
 RUN npm run build
 
 ###############################################################################
