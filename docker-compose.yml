@@ -13,7 +13,7 @@ services:
       dockerfile: frontend/frontend-dev.dockerfile
     environment:
       - NODE_OPTIONS=--openssl-legacy-provider
-    command: npm start
+    command: pnpm start
     ports:
       - 127.0.0.1:3000:3000
     volumes:

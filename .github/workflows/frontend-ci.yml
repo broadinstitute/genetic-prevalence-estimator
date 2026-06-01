@@ -15,20 +15,26 @@ on:
       - "data-pipelines/tests/calculationsData.json"
 jobs:
   checks:
-    name: Checks
+    name: Frontend CI Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 11.5
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: "24.16"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Verify clean build
-        run: npm run build
+        run: pnpm run build
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
       - name: Run Jest tests
-        run: npm test
+        run: pnpm test
