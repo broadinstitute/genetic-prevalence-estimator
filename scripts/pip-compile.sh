@@ -16,5 +16,5 @@ fi
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 docker run --rm -ti -v "$(pwd):/mnt" \
-  python:3.10.20-slim \
+  python:3.13-slim \
   /bin/bash -c "cd /mnt; pip install pip-tools; pip-compile $component/$component-requirements.in"
