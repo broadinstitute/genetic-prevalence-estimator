@@ -17,7 +17,7 @@ RUN npm run build
 ###############################################################################
 # Base image
 ###############################################################################
-FROM python:3.10.20-slim as base
+FROM python:3.13-slim as base
 
 RUN useradd --create-home app
 
