@@ -20,7 +20,7 @@ RUN apt-get -qq update && \
   apt install -y temurin-8-jdk && \
   rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.3
+RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.12
 
 COPY worker/worker-requirements.txt ./worker/worker-requirements.txt
 RUN pip install --no-cache-dir -r ./worker/worker-requirements.txt
