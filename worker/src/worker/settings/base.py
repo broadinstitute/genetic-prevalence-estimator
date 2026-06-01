@@ -30,6 +30,13 @@ DEBUG = False
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
+# TK: possibly just loop over ALLOWED_HOSTS to build this
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://genie.broadinstitute.org",
+]
+
 
 # Application definition
 
