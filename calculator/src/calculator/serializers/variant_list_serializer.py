@@ -66,7 +66,7 @@ class VariantListV2MetadataSerializer(
         required=False
     )
     include_clinvar_clinical_significance = MultipleChoiceField(
-        [
+        choices=[
             "pathogenic_or_likely_pathogenic",
             "conflicting_interpretations",
         ],
