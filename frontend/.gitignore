@@ -11,6 +11,9 @@
 # production
 /build
 
+# pnpm
+.pnpm-store
+
 # misc
 .DS_Store
 .env.local

@@ -6,7 +6,7 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-} from "@chakra-ui/popover";
+} from "@chakra-ui/react";
 
 const HelpTextHover = ({ helpText }: { helpText: any }) => {
   return (

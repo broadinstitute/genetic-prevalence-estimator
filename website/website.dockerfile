@@ -5,14 +5,18 @@ FROM node:24.16 as frontend
 
 WORKDIR /app
 
+RUN npm install -g pnpm@11.5
+
 COPY frontend/package.json ./package.json
-COPY frontend/package-lock.json ./package-lock.json
-RUN npm install
+COPY frontend/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY frontend/pnpm-lock.yaml ./pnpm-lock.yaml
+
+RUN pnpm install --frozen-lockfile
 
 COPY frontend ./
 
 ENV NODE_OPTIONS="--openssl-legacy-provider"
-RUN npm run build
+RUN pnpm run build
 
 ###############################################################################
 # Base image
