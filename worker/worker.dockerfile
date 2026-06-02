@@ -17,7 +17,7 @@ RUN apt-get -qq update && \
   wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc && \
   echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list && \
   apt update && \
-  apt install -y temurin-8-jdk && \
+  apt install -y temurin-11-jdk && \
   rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.12
