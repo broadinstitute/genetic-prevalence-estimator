@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - "data-pipelines/**"
+permissions:
+  contents: read
 jobs:
   checks:
     name: Pipeline CI Checks

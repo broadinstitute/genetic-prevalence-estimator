@@ -13,6 +13,8 @@ on:
     paths:
       - "frontend/**"
       - "data-pipelines/tests/calculationsData.json"
+permissions:
+  contents: read
 jobs:
   checks:
     name: Frontend CI Checks
