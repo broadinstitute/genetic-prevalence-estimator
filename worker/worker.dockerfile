@@ -9,8 +9,8 @@ RUN useradd --create-home app
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
 # Install dependencies
 RUN apt-get -qq update && \
@@ -22,16 +22,14 @@ RUN apt-get -qq update && \
   apt install -y temurin-11-jdk && \
   rm -rf /var/lib/apt/lists/*
 
-RUN uv pip install --system gunicorn==20.1.0 psycopg2-binary==2.9.12
+COPY uv.lock pyproject.toml ./
+COPY worker/pyproject.toml ./worker/
+COPY calculator/pyproject.toml ./calculator/
 
-COPY worker/worker-requirements.txt ./worker/worker-requirements.txt
-RUN uv pip install --system -r ./worker/worker-requirements.txt
-# Can't add google-cloud-logging to requirements.txt because Hail pins protobuf to an old version
-# and google-cloud-logging requires a newer version.
-RUN uv pip install --system google-cloud-logging
+RUN uv sync --frozen --no-install-project --package worker
 
-COPY shared-requirements.txt ./shared-requirements.txt
-RUN uv pip install --system -r ./shared-requirements.txt
+# ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Install and configure GCS connector
 # https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/branch-2.2.x/gcs/CONFIGURATION.md#authentication
@@ -42,15 +40,15 @@ RUN export SPARK_HOME=$(find_spark_home.py) && \
     touch $SPARK_HOME/conf/spark-defaults.conf && \
     echo "spark.hadoop.google.cloud.auth.service.account.enable true" >> $SPARK_HOME/conf/spark-defaults.conf
 
-# Copy code
+# Copy backend code
 COPY calculator ./calculator
-RUN uv pip install --system -e calculator
+RUN uv sync --frozen --package calculator
 
 COPY worker ./worker
-RUN uv pip install --system -e worker
+RUN uv sync --frozen --package worker
 
 # Run as app user
-RUN chown -R app .
+RUN chown -R app:app /app /opt/venv
 USER app
 
 # Run

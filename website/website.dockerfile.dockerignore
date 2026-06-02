@@ -1,12 +1,11 @@
 *
 
-!shared-requirements.txt
-
+!calculator/pyproject.toml
 !calculator/setup.py
 !calculator/src/calculator
 calculator/src/calculator/**/__pycache__
 
-!website/website-requirements.txt
+!website/pyproject.toml
 !website/setup.py
 !website/src/website
 website/src/website/**/__pycache__
@@ -17,3 +16,5 @@ frontend/node_modules
 
 !.pylintrc
 !dev-requirements.txt
+!uv.lock
+!pyproject.toml
