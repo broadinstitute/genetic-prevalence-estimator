@@ -3,6 +3,8 @@
 ###############################################################################
 FROM python:3.13-slim as base
 
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
+
 RUN useradd --create-home app
 
 WORKDIR /app
@@ -20,16 +22,16 @@ RUN apt-get -qq update && \
   apt install -y temurin-11-jdk && \
   rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.12
+RUN uv pip install --system gunicorn==20.1.0 psycopg2-binary==2.9.12
 
 COPY worker/worker-requirements.txt ./worker/worker-requirements.txt
-RUN pip install --no-cache-dir -r ./worker/worker-requirements.txt
+RUN uv pip install --system -r ./worker/worker-requirements.txt
 # Can't add google-cloud-logging to requirements.txt because Hail pins protobuf to an old version
 # and google-cloud-logging requires a newer version.
-RUN pip install --no-cache-dir google-cloud-logging
+RUN uv pip install --system google-cloud-logging
 
 COPY shared-requirements.txt ./shared-requirements.txt
-RUN pip install --no-cache-dir -r ./shared-requirements.txt
+RUN uv pip install --system -r ./shared-requirements.txt
 
 # Install and configure GCS connector
 # https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/branch-2.2.x/gcs/CONFIGURATION.md#authentication
@@ -42,10 +44,10 @@ RUN export SPARK_HOME=$(find_spark_home.py) && \
 
 # Copy code
 COPY calculator ./calculator
-RUN pip install --no-cache-dir -e calculator
+RUN uv pip install --system -e calculator
 
 COPY worker ./worker
-RUN pip install --no-cache-dir -e worker
+RUN uv pip install --system -e worker
 
 # Run as app user
 RUN chown -R app .

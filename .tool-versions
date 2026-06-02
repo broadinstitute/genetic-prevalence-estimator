@@ -1,3 +1,4 @@
 nodejs 24.16
-pnpm 11.5
+pnpm   11.5
 python 3.13
+uv     0.9

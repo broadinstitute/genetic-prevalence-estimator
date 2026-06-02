@@ -407,7 +407,6 @@ class TestEditVariantListAccessPermission:
 
 
 class TestDeleteVariantListAccessPermission:
-    @pytest.mark.django_db
     @pytest.fixture(autouse=True, scope="function")
     def db_setup(self):
         owner = User.objects.create(username="owner")

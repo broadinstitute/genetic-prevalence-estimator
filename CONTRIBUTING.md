@@ -6,12 +6,27 @@
 
 - Create a virtual python environment
 
+  ```
+  uv venv
+  ```
+
+  Activate the environment
+
+  ```
+  source ./venv/bin/activate
+  ```
+
 - Install development tools.
 
   ```
-  pip install -r dev-requirements.txt
-  pip install -r website/website-requirements.txt
-  pip install -r worker/worker-requirements.txt
+  uv pip install -r dev-requirements.txt
+  uv pip install -r shared-requirements.txt
+
+  uv pip install -r website/website-requirements.txt
+
+  uv pip install -r worker/worker-requirements.txt
+
+  uv pip install -r pipeline/pipeline-requirements.txt
   ```
 
 - Install and configure [git-secrets](https://github.com/awslabs/git-secrets).

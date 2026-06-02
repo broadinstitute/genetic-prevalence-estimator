@@ -31,7 +31,8 @@ def is_structural_variant_id(maybe_structural_variant_id, gnomad_version):
 
     if gnomad_version == "4.1.0":
         pattern = r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_CHR((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9a-f]*)$"
-    elif gnomad_version == "2.1.1":
+    else:
+        # gnomad_version == "2.1.1":
         pattern = (
             r"^(BND|CPX|CTX|DEL|DUP|INS|INV|CNV)_((1[0-9]|2[0-2]|[1-9])|X|Y)_([0-9]*)$"
         )

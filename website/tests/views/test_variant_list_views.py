@@ -141,8 +141,8 @@ class TestGetVariantLists:
         )
 
 
+@pytest.mark.django_db
 class TestCreateVariantList:
-    @pytest.mark.django_db
     @pytest.fixture(autouse=True)
     def db_setup(self):
         User.objects.create(username="testuser")
@@ -764,8 +764,8 @@ class TestEditVariantList:
         assert response.status_code == 200
 
 
+@pytest.mark.django_db
 class TestDeleteVariantList:
-    @pytest.mark.django_db
     @pytest.fixture(autouse=True, scope="function")
     def db_setup(self):
         viewer = User.objects.create(username="viewer")
