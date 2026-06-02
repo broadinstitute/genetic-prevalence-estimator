@@ -23,6 +23,8 @@ RUN pnpm run build
 ###############################################################################
 FROM python:3.13-slim as base
 
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
+
 RUN useradd --create-home app
 
 WORKDIR /app
@@ -31,20 +33,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install dependencies
-RUN pip install --no-cache-dir gunicorn==20.1.0 psycopg2-binary==2.9.12
+RUN uv pip install --system gunicorn==20.1.0 psycopg2-binary==2.9.12
 
 COPY website/website-requirements.txt ./website/website-requirements.txt
-RUN pip install --no-cache-dir -r ./website/website-requirements.txt
+RUN uv pip install --system -r ./website/website-requirements.txt
 
 COPY shared-requirements.txt ./shared-requirements.txt
-RUN pip install --no-cache-dir -r ./shared-requirements.txt
+RUN uv pip install --system -r ./shared-requirements.txt
 
 # Copy code
 COPY calculator ./calculator
-RUN pip install --no-cache-dir -e calculator
+RUN uv pip install --system -e calculator
 
 COPY website ./website
-RUN pip install --no-cache-dir -e website
+RUN uv pip install --system -e website
 
 COPY --from=frontend /app/build/index.html ./website/src/website/templates/frontend/index.html
 COPY --from=frontend /app/build/static ./website/src/website/static

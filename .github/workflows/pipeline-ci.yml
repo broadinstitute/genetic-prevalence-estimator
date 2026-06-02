@@ -10,7 +10,7 @@ on:
       - "data-pipelines/**"
 jobs:
   checks:
-    name: Checks
+    name: Pipeline CI Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,14 +19,16 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.13.x
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.9"
+          enable-cache: true
       - name: Install dependencies
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r dev-requirements.txt
-          pip install -r shared-requirements.txt
-          pip install -r data-pipelines/requirements-pipeline.txt
+          uv venv
+          uv pip install \
+            -r dev-requirements.txt \
+            -r data-pipelines/requirements-pipeline.txt
       - name: Run pipeline tests
-        run: |
-          source venv/bin/activate
-          pytest data-pipelines/test_pipeline_calculations.py
+        run: uv run pytest data-pipelines/test_pipeline_calculations.py
