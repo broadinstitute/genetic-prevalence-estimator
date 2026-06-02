@@ -16,25 +16,43 @@ jobs:
   checks:
     name: Website CI Checks
     runs-on: ubuntu-latest
-    env:
-      NOX_DEFAULT_VENV_BACKEND: uv
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.13.x
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.9"
           enable-cache: true
-      - name: Install Nox
-        run: uv tool install nox
-      - name: Format with Black
-        run: nox -s format
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13.x
+
+      - name: Install dependencies
+        run: |
+          uv sync \
+          --package website \
+          --package genetic-prevalence-estimator --group dev
+
+      - name: Check formatting with Black
+        run: uv run black --check calculator website
+
       - name: Run Pylint
-        run: nox -s pylint:website
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
+        run: |
+          uv run pylint --load-plugins=pylint_django \
+          calculator/src/calculator \
+          calculator/tests \
+          website/src/website \
+          website/tests
+
       - name: Run website tests
-        run: nox -s tests:website
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.test
+        run: |
+          uv run pytest calculator/tests
+          uv run pytest website/tests

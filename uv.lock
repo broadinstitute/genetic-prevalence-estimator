@@ -536,7 +536,7 @@ wheels = [
 [[package]]
 name = "data-pipelines"
 version = "0.1.0"
-source = { editable = "data-pipelines" }
+source = { virtual = "data-pipelines" }
 dependencies = [
     { name = "aiodns" },
     { name = "aiohappyeyeballs" },
