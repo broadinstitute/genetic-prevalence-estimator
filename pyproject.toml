@@ -6,6 +6,9 @@ dependencies = []
 
 [tool.black]
 target-version = ['py39']
+extend-exclude = '''
+.*/migrations/.*
+'''
 
 [tool.uv.workspace]
 members = [
