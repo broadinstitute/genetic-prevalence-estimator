@@ -1,0 +1,47 @@
+[project]
+name = "website"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "asgiref==3.11.1",
+    "calculator>=1.1.0",
+    "certifi==2026.5.20",
+    "cffi==2.0.0",
+    "charset-normalizer==3.4.7",
+    "cryptography==48.0.0",
+    "django==4.2.30",
+    "djangorestframework==3.14.0",
+    "google-api-core[grpc]==2.30.3",
+    "google-auth==2.53.0",
+    "google-cloud-pubsub==2.38.0",
+    "googleapis-common-protos[grpc]==1.75.0",
+    "grpc-google-iam-v1==0.14.4",
+    "grpcio==1.81.0",
+    "grpcio-status==1.81.0",
+    "gunicorn>=26.0.0",
+    "idna==3.17",
+    "opentelemetry-api==1.42.1",
+    "opentelemetry-sdk==1.42.1",
+    "opentelemetry-semantic-conventions==0.63b1",
+    "project-calculator",
+    "proto-plus==1.28.0",
+    "protobuf==7.35.0",
+    "psycopg2-binary>=2.9.12",
+    "pyasn1==0.6.3",
+    "pyasn1-modules==0.4.2",
+    "pycparser==3.0",
+    "pytz==2021.1",
+    "requests==2.34.2",
+    "rules==3.0",
+    "sqlparse==0.4.1",
+    "typing-extensions==4.15.0",
+    "urllib3==2.7.0",
+    "whitenoise==6.12.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.sources]
+project-calculator = { workspace = true }
