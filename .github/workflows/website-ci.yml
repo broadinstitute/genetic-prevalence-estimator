@@ -18,7 +18,7 @@ jobs:
       NOX_DEFAULT_VENV_BACKEND: uv
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
