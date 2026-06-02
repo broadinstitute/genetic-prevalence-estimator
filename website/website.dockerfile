@@ -29,34 +29,34 @@ RUN useradd --create-home app
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
-# Install dependencies
-RUN uv pip install --system gunicorn==20.1.0 psycopg2-binary==2.9.12
+# Install dependencies early to cache layer
+COPY uv.lock pyproject.toml ./
+COPY website/pyproject.toml ./website/
+COPY calculator/pyproject.toml ./calculator/
 
-COPY website/website-requirements.txt ./website/website-requirements.txt
-RUN uv pip install --system -r ./website/website-requirements.txt
+RUN uv sync --frozen --no-install-project --package website
 
-COPY shared-requirements.txt ./shared-requirements.txt
-RUN uv pip install --system -r ./shared-requirements.txt
-
-# Copy code
+# Copy backend code
 COPY calculator ./calculator
-RUN uv pip install --system -e calculator
-
 COPY website ./website
-RUN uv pip install --system -e website
 
+# Copy built frontend files to serve from this webserver
 COPY --from=frontend /app/build/index.html ./website/src/website/templates/frontend/index.html
 COPY --from=frontend /app/build/static ./website/src/website/static
 COPY --from=frontend /app/public ./website/src/website/public
 
+# Install backend code
+RUN uv sync --frozen --package website
+
 # Run as app user
-RUN chown -R app .
+RUN chown -R app:app /app /opt/venv
 USER app
 
 # Run
+# ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH"
 ENV DJANGO_SETTINGS_MODULE=website.settings.base
-
 CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 website.wsgi
