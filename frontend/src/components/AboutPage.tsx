@@ -15,9 +15,10 @@ const AboutView = () => {
   return (
     <>
       <Text mb={2}>
-        GeniE, the Genetic Prevalence Estimator, uses variant databases and
-        population data to estimate prevalence for recessive diseases. This tool
-        uses data from the open source databases{" "}
+        GenIE, the Genetic Prevalence and Incidence Estimator, uses variant
+        databases and population data to estimate genetic prevalence of
+        recessive diseases, and genetic incidence of dominant diseases. This
+        tool uses data from the open source databases{" "}
         <Link href="https://www.ncbi.nlm.nih.gov/clinvar/" isExternal>
           ClinVar
         </Link>{" "}
@@ -81,7 +82,7 @@ const AboutView = () => {
         Citation in Publications
       </Heading>
       <Text mb={2}>
-        We request that any use of data obtained from GeniE cite the online
+        We request that any use of data obtained from GenIE cite the online
         resource and include a link to the tool ({document.location.hostname}).
       </Text>
       <Text>

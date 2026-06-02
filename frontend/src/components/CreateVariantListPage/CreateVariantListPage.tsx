@@ -50,7 +50,7 @@ const CreateVariantListPage = () => {
         work as well for many autosomal dominant or X-linked conditions.{" "}
       </Text>
       <Text mt={4} mb={8}>
-        For more information and future directions of GeniE please see our{" "}
+        For more information and future directions of GenIE please see our{" "}
         <Link href="/faq">FAQ</Link>.
       </Text>
 

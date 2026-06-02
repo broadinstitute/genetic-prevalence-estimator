@@ -135,7 +135,7 @@ const App = () => {
                   textDecoration: "none",
                 }}
               >
-                GeniE
+                GenIE
               </Link>
 
               {isSignedIn && (

@@ -55,10 +55,10 @@ const IncidencePage = (props: IncidencePageProps) => {
   return (
     <>
       <Box mb={4} sx={printOnly}>
-        These estimates were performed using GeniE, the Genetic Prevalence
-        Estimator ({document.location.hostname}), created and maintained by the
-        Translation Genomics Group and Rare Genomes Project at the Broad
-        Institute.
+        These estimates were performed using GenIE, the Genetic Prevalence and
+        Incidence Estimator ({document.location.hostname}), created and
+        maintained by the Translation Genomics Group and Rare Genomes Project at
+        the Broad Institute.
       </Box>
 
       <Heading as="h1" mb={4}>
