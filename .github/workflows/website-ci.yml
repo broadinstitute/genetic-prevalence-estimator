@@ -10,6 +10,8 @@ on:
     paths:
       - "calculator/**"
       - "website/**"
+permissions:
+  contents: read
 jobs:
   checks:
     name: Website CI Checks
