@@ -458,10 +458,10 @@ def get_gnomad_v4_variants():
         )
 
     exomes = hl.read_table(
-        "gs://gcp-public-data--gnomad/release/4.1/ht/exomes/gnomad.exomes.v4.1.sites.ht"
+        "gs://gcp-public-data--gnomad/release/4.1.1/ht/exomes/gnomad.exomes.v4.1.1.sites.ht"
     )
     genomes = hl.read_table(
-        "gs://gcp-public-data--gnomad/release/4.1/ht/genomes/gnomad.genomes.v4.1.sites.ht"
+        "gs://gcp-public-data--gnomad/release/4.1.1/ht/genomes/gnomad.genomes.v4.1.1.sites.ht"
     )
     joint = hl.read_table(
         "gs://gcp-public-data--gnomad/release/4.1/ht/joint/gnomad.joint.v4.1.sites.ht"
