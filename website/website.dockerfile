@@ -52,11 +52,10 @@ COPY --from=frontend /app/public ./website/src/website/public
 RUN uv sync --frozen --package website
 
 # Run as app user
-RUN chown -R app:app /app /opt/venv
+RUN chown -R app:app /app
 USER app
 
 # Run
-# ENV PATH="/app/.venv/bin:$PATH"
 ENV PATH="/opt/venv/bin:$PATH"
 ENV DJANGO_SETTINGS_MODULE=website.settings.base
 CMD exec gunicorn --bind :$PORT --log-file - --workers 1 --threads 8 website.wsgi

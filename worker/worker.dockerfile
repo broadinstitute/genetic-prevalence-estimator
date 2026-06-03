@@ -28,7 +28,6 @@ COPY calculator/pyproject.toml ./calculator/
 
 RUN uv sync --frozen --no-install-project --package worker
 
-# ENV PATH="/app/.venv/bin:$PATH"
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install and configure GCS connector
@@ -48,7 +47,7 @@ COPY worker ./worker
 RUN uv sync --frozen --package worker
 
 # Run as app user
-RUN chown -R app:app /app /opt/venv
+RUN chown -R app:app /app
 USER app
 
 # Run
