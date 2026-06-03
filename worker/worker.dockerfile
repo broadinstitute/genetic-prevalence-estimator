@@ -12,6 +12,8 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
+ENV UV_NO_CACHE=1
+
 # Install dependencies
 RUN apt-get -qq update && \
   apt-get -qq install -y gnupg wget apt-transport-https && \
@@ -26,9 +28,13 @@ COPY uv.lock pyproject.toml ./
 COPY worker/pyproject.toml ./worker/
 COPY calculator/pyproject.toml ./calculator/
 
+# install dependencies -- causes google cloud build's Kaniko helper to snapshot
 RUN uv sync --frozen --no-install-project --package worker
 
 ENV PATH="/opt/venv/bin:$PATH"
+
+COPY --chown=app:app calculator ./calculator
+COPY --chown=app:app worker ./worker
 
 # Install and configure GCS connector
 # https://github.com/GoogleCloudDataproc/hadoop-connectors/blob/branch-2.2.x/gcs/CONFIGURATION.md#authentication
@@ -37,17 +43,9 @@ RUN export SPARK_HOME=$(find_spark_home.py) && \
       https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-2.2.5.jar && \
     mkdir -p $SPARK_HOME/conf && \
     touch $SPARK_HOME/conf/spark-defaults.conf && \
-    echo "spark.hadoop.google.cloud.auth.service.account.enable true" >> $SPARK_HOME/conf/spark-defaults.conf
+    echo "spark.hadoop.google.cloud.auth.service.account.enable true" >> $SPARK_HOME/conf/spark-defaults.conf && \
+    uv sync --frozen --package worker
 
-# Copy backend code
-COPY calculator ./calculator
-RUN uv sync --frozen --package calculator
-
-COPY worker ./worker
-RUN uv sync --frozen --package worker
-
-# Run as app user
-RUN chown -R app:app /app
 USER app
 
 # Run
