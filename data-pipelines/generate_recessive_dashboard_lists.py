@@ -4,12 +4,14 @@ import os
 import ast
 import time
 import signal
+from pathlib import Path
 
 from datetime import datetime
 import hail as hl
 import pandas as pd
 
-GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH = "gs://aggregate-frequency-calculator-data/dashboard/input/2025-05-02_recessive-dashboard-input_3958-genes.csv"
+GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/2026-05-29_genie-input_5k-disease-associated-genes.csv"
+
 GNOMAD_GRCH38_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/genes/gnomAD_browser_genes_grch38_annotated_6.ht"
 
 
@@ -134,7 +136,7 @@ def get_highest_frequency_variants(ds, num_to_keep):
     return ds
 
 
-def _annotate_variants_with_gnomAD(contig, start, stop, gnomad_variants):
+def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
     if start is not None and stop is not None:
         ht = hl.filter_intervals(
             gnomad_variants,
@@ -211,7 +213,7 @@ def _annotate_with_clinvar(ht, clinvar_variants):
     return ht
 
 
-def _remove_clinvar_primary_benign_classifications(ht):
+def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
     # these should be kept in sync with the classifications in import_clinvar.py
     BENIGN_CLASSIFICATIONS = [
         "Benign",
@@ -269,13 +271,13 @@ def process_dashboard_list(
 ):
     contig = f"chr{chrom}"
 
-    ht = _annotate_with_gnomad(contig, start, stop, gnomad_variants)
+    ht = _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants)
 
-    ht = _annotate_with_clinvar(ht, contig, start, stop, clinvar_variants)
+    ht = _annotate_with_clinvar(ht, clinvar_variants)
 
     ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
 
-    ht = _remove_clinvar_primary_benign_classifications(ht)
+    ht = _remove_clinvar_primary_benign_classifications(ht, clinvar_variants)
 
     ht = ht.transmute(
         source=hl.array(
@@ -1147,6 +1149,9 @@ def safe_cleanup():
 
 # e.g.
 # python data-pipelines/generate_recessive_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
+# uv run python data-pipelines/generate_recessive_dashboard_lists.py \
+#     --genes-file=2026-05-29_genie-input_5k-disease-associated-genes.csv \
+#     --test
 def main() -> None:
     start_time = datetime.now()
 
@@ -1170,7 +1175,6 @@ def main() -> None:
     start = 0
     batch_size = 100
     stop = 3999
-
     file_prefix = ""
 
     if args.test:
@@ -1218,33 +1222,35 @@ def main() -> None:
             df_dashboard_models = prepare_dashboard_lists(
                 input_genes_fullpath, base_dir, start=batch_start, stop=batch_stop
             )
-            df_dashboard_models.to_csv(
-                os.path.join(
-                    base_dir,
-                    "output",
-                    "dashboard",
-                    "models",
-                    f"{file_prefix}dashboard_models_{batch_start}-{batch_stop_print}.csv",
-                ),
-                index=False,
+            model_output_file = (
+                Path(base_dir)
+                / "output"
+                / "recessive_dashboard"
+                / "models"
+                / f"{file_prefix}recessive_dashboard_models_{batch_start}-{batch_stop_print}.csv"
             )
+            model_output_file.parent.mkdir(parents=True, exist_ok=True)
+            df_dashboard_models.to_csv(model_output_file, index=False)
             print("Wrote dashboard list models to file")
 
-            print("Preparing dashboard downloads")
+            # ---
+
+            print("Preparing dashboard list downloads")
             df_dashboard_download = prepare_dashboard_download(
                 base_dir, df_dashboard_models
             )
-            df_dashboard_download.to_csv(
-                os.path.join(
-                    base_dir,
-                    "output",
-                    "dashboard",
-                    "downloads",
-                    f"{file_prefix}dashboard_download_{batch_start}-{batch_stop_print}.csv",
-                ),
-                index=False,
+            download_output_file = (
+                Path(base_dir)
+                / "output"
+                / "recessive_dashboard"
+                / "models"
+                / f"{file_prefix}recessive_dashboard_downloads_{batch_start}-{batch_stop_print}.csv"
             )
+            download_output_file.parent.mkdir(parents=True, exist_ok=True)
+            df_dashboard_download.to_csv(download_output_file, index=False)
             print("Wrote dashboard downloads to file")
+
+            # ---
 
             batch_end_time = datetime.now()
             print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
