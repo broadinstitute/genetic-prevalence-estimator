@@ -1020,54 +1020,13 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
         return base_columns + ancestry_stratified_columns + top_ten_variant_columns
 
-    # ---
-
     download_data = []
 
-    dominant_models_filepath = os.path.join(
-        base_dir, "output", "dashboard", "dominant_dashboard-models.csv"
-    )
-
-    df_dominant = pd.read_csv(dominant_models_filepath)
-
-    df_dominant["de_novo_variant_calculations"] = df_dominant[
-        "de_novo_variant_calculations"
-    ].apply(json.loads)
-
-    df_dominant["gene_id_base"] = df_dominant["gene_id"]
-
-    df_recessive["gene_id_base"] = df_recessive["metadata"].apply(
-        lambda dictionary: json.loads(dictionary)["gene_id"].split(".")[0]
-    )
-
-    df_merged = pd.merge(
-        df_dominant,
-        df_recessive,
-        on="gene_id_base",
-        how="right",
-        suffixes=("_dominant", ""),
-    )
-
-    df_dominant = df_dominant.set_index("gene_id")
-
-    for _, row in df_merged.iterrows():
-        metadata = safe_json_load(
-            row.get("metadata"), safe_json_load(row.get("metadata_dominant"), {})
-        )
+    for _, row in df_recessive.iterrows():
+        metadata = safe_json_load(row.get("metadata"))
 
         calculations = safe_json_load(row.get("variant_calculations"), {})
         top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
-        de_novo_data = row.get("de_novo_variant_calculations", {})
-        de_novo_data = de_novo_data if isinstance(de_novo_data, dict) else {}
-        de_novo_inputs = (
-            de_novo_data.get("inputs", {}) if isinstance(de_novo_data, dict) else {}
-        )
-        total_de_novo_incidence = de_novo_data.get("total_de_novo_incidence", "")
-        de_novo_estimated_per_100k = (
-            float(total_de_novo_incidence) * 100000
-            if total_de_novo_incidence not in ("", None)
-            else ""
-        )
 
         # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
@@ -1083,14 +1042,6 @@ def prepare_dashboard_download(base_dir, df_recessive):
             ),
             "clinvar_version": metadata.get("clinvar_version", ""),
             "date_created": row["date_created"],
-            "oe_missense_prior": de_novo_inputs.get("oe_mis_prior", ""),
-            "oe_missense_gene": de_novo_inputs.get("oe_mis_capped", ""),
-            "MU_mis": de_novo_inputs.get("mu_mis", ""),
-            "oe_lof_prior": de_novo_inputs.get("oe_lof_prior", ""),
-            "oe_lof_gene": de_novo_inputs.get("oe_lof_capped", ""),
-            "MU_lof": de_novo_inputs.get("mu_lof", ""),
-            "Estimated incidence of de novo variation": total_de_novo_incidence,
-            "Estimated incidence of de novo variation (per 100,000)": de_novo_estimated_per_100k,
         }
 
         row_data.update(
