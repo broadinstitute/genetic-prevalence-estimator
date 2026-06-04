@@ -778,6 +778,8 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
 
     print(f"New len dataframe is: {len(df)}")
 
+    df = df.sort_values(by=["chrom", "start"]).reset_index(drop=True)
+
     df["variants"] = [[] for _ in range(len(df))]
     df["top_ten_variants"] = [[] for _ in range(len(df))]
     df["label"] = ""
@@ -798,11 +800,35 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     df["inheritance_type"] = ""
 
     batch_i = 0
+
+    current_chrom = None
+    chrom_gnomad_variants = None
+    chrom_clinvar_variants = None
+
     for index, row in df.iterrows():
         batch_i += 1
         print(
             f"  -- Processing row {index + 1} [{row.symbol} - {row.gene_id}] ({batch_i} of {len(df)} in batch)"
         )
+
+        # ---> ADD THIS BLOCK <---
+        if str(row.chrom) != str(current_chrom):
+            print(
+                f"  -- New chromosome detected: {row.chrom}. Subsetting Hail tables..."
+            )
+            current_chrom = row.chrom
+            contig_str = f"chr{row.chrom}"
+
+            chrom_interval = [
+                hl.parse_locus_interval(contig_str, reference_genome="GRCh38")
+            ]
+            chrom_gnomad_variants = hl.filter_intervals(
+                ht_gnomad_variants, chrom_interval
+            )
+            chrom_clinvar_variants = hl.filter_intervals(
+                ht_clinvar_variants, chrom_interval
+            )
+        # ---> END ADDED BLOCK <---
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
         transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
@@ -842,8 +868,8 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
             start=row.start,
             stop=row.stop,
             chrom=row.chrom,
-            gnomad_variants=ht_gnomad_variants,
-            clinvar_variants=ht_clinvar_variants,
+            gnomad_variants=chrom_gnomad_variants,
+            clinvar_variants=chrom_clinvar_variants,
         )
 
         # TODO: right here, call a helper to create a .csv for this variant
