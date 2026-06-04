@@ -1144,9 +1144,9 @@ def main() -> None:
                 quiet=args.quiet,
                 master="local[8]",
                 spark_conf={
-                    "spark.driver.memory": "8g",
-                    "spark.executor.memory": "8g",
-                    "spark.driver.maxResultSize": "4g",
+                    "spark.driver.memory": "16g",
+                    "spark.executor.memory": "16g",
+                    "spark.driver.maxResultSize": "8g",
                     "spark.memory.fraction": "0.8",
                     "spark.memory.storageFraction": "0.3",
                     "spark.local.dir": "/tmp",
