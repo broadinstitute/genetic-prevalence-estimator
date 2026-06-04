@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import ast
+import gc
 import time
 import signal
 from pathlib import Path
@@ -332,6 +333,10 @@ def process_dashboard_list(
     )
 
     dataframe.at[index, "top_ten_variants"] = top_10_variants
+
+    del ht
+    del top_10_variants
+    gc.collect()
 
     return variants
 
