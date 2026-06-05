@@ -5,6 +5,9 @@ import ast
 import gc
 import time
 import signal
+import subprocess
+import shutil
+import glob
 from pathlib import Path
 
 from datetime import datetime
@@ -1095,7 +1098,52 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
 
 def safe_cleanup():
+    """
+    Since this pipeline exits and re-initializes Hail, here we manually trigger GC
+    and clear out specific spark processes, and hail/spark temp directories,
+    that may still be hanging around. Without this, subsequent batches get slower and slower
+    e.g. on the initial write of this pipeline, going from ~10 mins per batch, to 45+ minutes.
+    """
+    gc.collect()
+
     try:
+        hl.stop()
+    except Exception:
+        pass
+
+    time.sleep(2)
+
+    try:
+        cmd = "ps aux | grep '[j]ava' | grep -E 'spark|hail' | awk '{print $2}'"
+        pids = subprocess.check_output(cmd, shell=True).decode().strip()
+
+        if pids:
+            for pid in pids.split("\n"):
+                if pid:
+                    try:
+                        os.kill(int(pid), signal.SIGKILL)
+                    except OSError:
+                        pass
+    except Exception as e:
+        pass
+
+    try:
+        temp_patterns = ["/tmp/hail*", "/tmp/spark*", "/tmp/blockmgr-*"]
+        for pattern in temp_patterns:
+            for path in glob.glob(pattern):
+                try:
+                    if os.path.isdir(path):
+                        shutil.rmtree(path)
+                    else:
+                        os.remove(path)
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    time.sleep(1)
+
+
         try:
             hl.stop()
         except:
