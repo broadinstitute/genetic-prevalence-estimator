@@ -327,18 +327,24 @@ def process_dashboard_list(
 
     variants = [json.loads(variant) for variant in hl.json(ht.row_value).collect()]
 
-    top_10_variants = get_highest_frequency_variants(ht, 10)
-    top_10_variants = json.dumps(
-        [
-            json.loads(variant)
-            for variant in hl.json(top_10_variants.row_value).collect()
-        ]
+    valid_variants = [
+        v
+        for v in variants
+        if v.get("AN")
+        and len(v["AN"]) > 0
+        and v["AN"][0] > 0
+        and v.get("AC")
+        and len(v["AC"]) > 0
+    ]
+
+    sorted_variants = sorted(
+        valid_variants, key=lambda v: v["AC"][0] / v["AN"][0], reverse=True
     )
 
-    dataframe.at[index, "top_ten_variants"] = top_10_variants
+    top_10_variants_list = sorted_variants[:10]
+    dataframe.at[index, "top_ten_variants"] = json.dumps(top_10_variants_list)
 
     del ht
-    del top_10_variants
     gc.collect()
 
     return variants
