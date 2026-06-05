@@ -815,34 +815,60 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
 
     batch_i = 0
 
-    current_chrom = None
-    chrom_gnomad_variants = None
-    chrom_clinvar_variants = None
+    def subset_gnomad_and_clinvar_to_chrom(chrom, start, stop):
+        print(f"    -- Subsetting Hail tables...")
+        region_interval = hl.locus_interval(
+            f"chr{chrom}",
+            start,
+            stop,
+            includes_start=True,
+            includes_end=True,
+            reference_genome="GRCh38",
+        )
+
+        chrom_gnomad_variants = hl.filter_intervals(
+            ht_gnomad_variants, [region_interval]
+        )
+        chrom_clinvar_variants = hl.filter_intervals(
+            ht_clinvar_variants, [region_interval]
+        )
+
+        return (chrom_gnomad_variants, chrom_clinvar_variants)
+
+    # ---
+
+    batch_chrom_list = df["chrom"].values
+    if len(set(batch_chrom_list)) > 1:
+        print("!!=== Panic! Multiple chroms in this batch!")
+        print("!!=== Exiting early")
+        exit(1)
+
+    batch_chrom = batch_chrom_list[0]
+    batch_pos_min = df["start"].values.min()
+    batch_pos_max = df["stop"].values.max()
+
+    subset_start_time = datetime.now()
+
+    (
+        chrom_gnomad_variants,
+        chrom_clinvar_variants,
+    ) = subset_gnomad_and_clinvar_to_chrom(batch_chrom, batch_pos_min, batch_pos_max)
+    chrom_gnomad_variants = chrom_gnomad_variants.persist()
+    chrom_clinvar_variants = chrom_clinvar_variants.persist()
+
+    subset_end_time = datetime.now()
+    duration_seconds = (subset_start_time - subset_end_time).total_seconds()
+    minutes, seconds = divmod(int(duration_seconds), 60)
+    formatted_time = f"{minutes:02d}m{seconds:02d}s"
+    print(f"    - Finished in {formatted_time}")
+
+    # ---
 
     for index, row in df.iterrows():
         batch_i += 1
         print(
             f"  -- Processing row {index + 1} [{row.symbol} - {row.gene_id}] ({batch_i} of {len(df)} in batch)"
         )
-
-        # ---> ADD THIS BLOCK <---
-        if str(row.chrom) != str(current_chrom):
-            print(
-                f"  -- New chromosome detected: {row.chrom}. Subsetting Hail tables..."
-            )
-            current_chrom = row.chrom
-            contig_str = f"chr{row.chrom}"
-
-            chrom_interval = [
-                hl.parse_locus_interval(contig_str, reference_genome="GRCh38")
-            ]
-            chrom_gnomad_variants = hl.filter_intervals(
-                ht_gnomad_variants, chrom_interval
-            )
-            chrom_clinvar_variants = hl.filter_intervals(
-                ht_clinvar_variants, chrom_interval
-            )
-        # ---> END ADDED BLOCK <---
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
         transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
@@ -915,6 +941,9 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
         "type",
     ]
     df = df[FINAL_COLUMNS]
+
+    chrom_gnomad_variants.unpersist()
+    chrom_clinvar_variants.unpersist()
 
     return df
 
