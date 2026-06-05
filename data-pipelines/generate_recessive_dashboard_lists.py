@@ -580,29 +580,10 @@ def write_recommended_variants_to_csv(
     print(f"    - Gene-variant CSV file written to ...{filename}")
 
 
-def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
-    ds = hl.import_table(
-        genes_fullpath,
-        delimiter=",",
-        quote='"',
-        key="symbol",
-        impute=True,
-    )
-
-    gene_models_path = os.path.join(
-        base_dir, "processed_data", "reindexed_gene_models.ht"
-    )
-    if not os.path.exists(gene_models_path):
-        print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
-
-    ht_gnomad_gene_models = hl.read_table(gene_models_path)
-
-    # annotate my list of gene symbols with gene model information
-    ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
-
-    # load gnomad and clinvar tables for use in main task
-    # GNOMAD_V4_VARIANTS_PATH = os.path.join(base_dir, "gnomAD/gnomAD_v4.1.0_variants.ht")
+def prepare_dashboard_lists(
+    df_genes_this_batch,
+    base_dir,
+):
     GNOMAD_V4_VARIANTS_PATH = (
         "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
     )
@@ -615,184 +596,7 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     ht_clinvar_variants = hl.read_table(CLINVAR_GRCH38_PATH)
     metadata_clinvar_version = hl.eval(ht_clinvar_variants.globals.release_date)
 
-    # iterate and perform the worker-esque task with pandas because hail does not like
-    #   accessing values of rows while assigning them in a non hail expression way
-    df = ds.to_pandas()
-
-    if stop != None:
-        df = df.iloc[start:stop]
-    else:
-        df = df.iloc[start:]
-
-    print(f"Old len dataframe is: {len(df)}")
-
-    manual_gene_ids = {
-        "C12ORF57": {
-            "gene_id": "ENSG00000111678",
-            "gene_version": "11",
-            "transcript_id": "ENST00000229281",
-            "transcript_version": "6",
-            "chrom": 12,
-            "start": 6942978,
-            "stop": 6946003,
-        },
-        "C12ORF65": {
-            "gene_id": "ENSG00000130921",
-            "gene_version": "9",
-            "transcript_id": "ENST00000253233",
-            "transcript_version": "6",
-            "chrom": 12,
-            "start": 123233385,
-            "stop": 123258079,
-        },
-        "C15ORF41": {
-            "gene_id": "ENSG00000186073",
-            "gene_version": "14",
-            "transcript_id": "ENST00000566621",
-            "transcript_version": "6",
-            "chrom": 15,
-            "start": 36579626,
-            "stop": 36810248,
-        },
-        "C19ORF12": {
-            "gene_id": "ENSG00000131943",
-            "gene_version": "20",
-            "transcript_id": "ENST00000323670",
-            "transcript_version": "14",
-            "chrom": 19,
-            "start": 29698937,
-            "stop": 29715789,
-        },
-        "C8ORF37": {
-            "gene_id": "ENSG00000156172",
-            "gene_version": "6",
-            "transcript_id": "ENST00000286688",
-            "transcript_version": "6",
-            "chrom": 8,
-            "start": 95244913,
-            "stop": 95269201,
-        },
-        "CCDC114": {
-            "gene_id": "ENSG00000105479",
-            "gene_version": "16",
-            "transcript_id": "ENST00000674294",
-            "transcript_version": "1",
-            "chrom": 19,
-            "start": 48296457,
-            "stop": 48321971,
-        },
-        "CCDC151": {
-            "gene_id": "ENSG00000198003",
-            "gene_version": "12",
-            "transcript_id": "ENST00000356392",
-            "transcript_version": "9",
-            "chrom": 19,
-            "start": 11420604,
-            "stop": 11435782,
-        },
-        "CLAM": {
-            "gene_id": "ENSG00000101222",
-            "gene_version": "12",
-            "transcript_id": "ENST00000379756",
-            "transcript_version": "3",
-            "chrom": 20,
-            "start": 3777504,
-            "stop": 3781448,
-        },
-        "FAM126A": {
-            "gene_id": "ENSG00000122591",
-            "gene_version": "13",
-            "transcript_id": "ENST00000432176",
-            "transcript_version": "7",
-            "chrom": 7,
-            "start": 22889371,
-            "stop": 23014130,
-        },
-        "MAP11": {
-            "gene_id": "ENSG00000146826",
-            "gene_version": "17",
-            "transcript_id": "ENST00000316937",
-            "transcript_version": "8",
-            "chrom": 7,
-            "start": 100154420,
-            "stop": 100158723,
-        },
-        "SKIV2L": {
-            "gene_id": "ENSG00000204351",
-            "gene_version": "12",
-            "transcript_id": "ENST00000375394",
-            "transcript_version": "7",
-            "chrom": 6,
-            "start": 31959117,
-            "stop": 31969751,
-        },
-        "SPATA5": {
-            "gene_id": "ENSG00000145375",
-            "gene_version": "9",
-            "transcript_id": "ENST00000274008",
-            "transcript_version": "5",
-            "chrom": 4,
-            "start": 122923070,
-            "stop": 123319433,
-        },
-        "TCTEX1D2": {
-            "gene_id": "ENSG00000213123",
-            "gene_version": "11",
-            "transcript_id": "ENST00000325318",
-            "transcript_version": "10",
-            "chrom": 3,
-            "start": 196291219,
-            "stop": 196318299,
-        },
-        "TTC25": {
-            "gene_id": "ENSG00000204815",
-            "gene_version": "10",
-            "transcript_id": "ENST00000377540",
-            "transcript_version": "6",
-            "chrom": 17,
-            "start": 41930617,
-            "stop": 41966503,
-        },
-        "TTC37": {
-            "gene_id": "ENSG00000198677",
-            "gene_version": "12",
-            "transcript_id": "ENST00000358746",
-            "transcript_version": "7",
-            "chrom": 5,
-            "start": 95461755,
-            "stop": 95554977,
-        },
-    }
-
-    def stitch_values(row, manual_gene_ids):
-        symbol = row["symbol"]
-        if symbol in manual_gene_ids:
-            manual_entry = manual_gene_ids[symbol]
-            row["gene_id"] = manual_entry.get("gene_id", row["gene_id"])
-            row["gene_version"] = manual_entry.get("gene_version", row["gene_version"])
-            row["preferred_trancript_id"] = manual_entry.get(
-                "transcript_id", row["preferred_transcript_id"]
-            )
-            row["mane_select_transcript_ensemble_version"] = manual_entry.get(
-                "transcript_version", row["mane_select_transcript_ensemble_version"]
-            )
-            row["chrom"] = manual_entry.get("chrom", row["chrom"])
-            row["start"] = manual_entry.get("start", row["stop"])
-            row["stop"] = manual_entry.get("stop", row["stop"])
-        return row
-
-    df = df.apply(stitch_values, manual_gene_ids=manual_gene_ids, axis=1)
-
-    missing_gene_id_rows = df[df["gene_id"].isna()]
-    print("Gene symbols with missing gene_id:")
-    print(missing_gene_id_rows["symbol"].tolist())
-
-    # Drop rows with missing "gene_id"
-    df = df.dropna(subset=["gene_id"])
-
-    print(f"New len dataframe is: {len(df)}")
-
-    df = df.sort_values(by=["chrom", "start"]).reset_index(drop=True)
+    df = df_genes_this_batch
 
     df["variants"] = [[] for _ in range(len(df))]
     df["top_ten_variants"] = [[] for _ in range(len(df))]
@@ -901,6 +705,10 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
         }
 
         df.at[index, "metadata"] = json.dumps(metadata)
+
+        if row.should_calculate_recessive == False:
+            print(f"    -- Skipping row, not reccessive or semidominant! ({row.type})")
+            continue
 
         recommended_variants = process_dashboard_list(
             dataframe=df,
@@ -1188,37 +996,112 @@ def safe_cleanup():
     time.sleep(1)
 
 
+def assign_contiguous_batches(genes_df, batch_size=100):
+    # Ensure coordinates are clean integers
+    genes_df["chrom"] = genes_df["chrom"].astype(str).str.replace("chr", "")
+    genes_df["start"] = pd.to_numeric(genes_df["start"], errors="coerce")
+    genes_df["stop"] = pd.to_numeric(genes_df["stop"], errors="coerce")
+    genes_df = genes_df.dropna(subset=["chrom", "start", "stop"])
+
+    # Sort human-style (1, 2, ... 22, X, Y)
+    # We can create a temporary sorting key for chromosomes
+    def chrom_key(c):
+        if c == "X":
+            return 23
+        if c == "Y":
+            return 24
         try:
-            hl.stop()
+            return int(c)
         except:
-            pass
-        time.sleep(1)
+            return 99
 
+    genes_df["chrom_sort"] = genes_df["chrom"].apply(chrom_key)
+    genes_df = genes_df.sort_values(by=["chrom_sort", "start"]).drop(
+        columns=["chrom_sort"]
+    )
+
+    # Assign batch IDs so each batch is strictly contained to one chromosome
+    batch_counter = 0
+    batch_ids = []
+
+    for chrom, group in genes_df.groupby("chrom", sort=False):
+        for i in range(0, len(group), batch_size):
+            # Fill the next N rows with the current batch ID
+            chunk_len = len(group.iloc[i : i + batch_size])
+            batch_ids.extend([batch_counter] * chunk_len)
+            batch_counter += 1
+
+    genes_df["batch_id"] = batch_ids
+    return genes_df
+
+
+def prepare_and_batch_genes(
+    input_genes_csv_fullpath,
+    gene_models_ht_path,
+    batch_size,
+):
+    ds = hl.import_table(
+        input_genes_csv_fullpath,
+        delimiter=",",
+        quote='"',
+        key="symbol",
+        impute=True,
+    )
+
+    # TK: possibly match on prior/alias symbols from gencode here
+    #   currently, about 15 genes get dropped in this step
+    ht_gnomad_gene_models = hl.read_table(gene_models_ht_path)
+    ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
+
+    df = ds.to_pandas()
+    print(f"  - {len(df)} -- Start")
+
+    df = df.dropna(subset=["gene_id", "chrom", "start", "stop"])
+    print(f"  - {len(df)} -- Post initial null drop on gene_id, chrom, start, stop")
+
+    df["chrom"] = df["chrom"].astype(str).str.replace("^chr", "", regex=True)
+    df["start"] = pd.to_numeric(df["start"], errors="coerce")
+    df["stop"] = pd.to_numeric(df["stop"], errors="coerce")
+    df = df.dropna(subset=["chrom", "start", "stop"])
+    print(f"  - {len(df)} -- Post coersion of chrom, start, stop then dropna")
+
+    def chrom_key(c):
+        if c == "X":
+            return 23
+        if c == "Y":
+            return 24
+        if c in ("M", "MT"):
+            return 25
         try:
-            cmds = [
-                "jps | grep 'SparkSubmit' | awk '{print $1}'",
-                "ps aux | grep '[S]parkSubmit' | awk '{print $2}'",
-                "ps aux | grep '[h]ail' | awk '{print $2}'",
-            ]
-            for cmd in cmds:
-                try:
-                    pids = subprocess.check_output(cmd, shell=True).decode().strip()
-                    if pids:
-                        for pid in pids.split("\n"):
-                            os.kill(int(pid), signal.SIGKILL)
-                except:
-                    pass
+            return int(c)
+        except:
+            return 99
 
-            os.system("rm -rf /tmp/hail*")
-            os.system("rm -rf /tmp/spark*")
+    df["chrom_sort"] = df["chrom"].apply(chrom_key)
+
+    df = (
+        df.sort_values(by=["chrom_sort", "start"])
+        .drop(columns=["chrom_sort"])
+        .reset_index(drop=True)
+    )
 
         except Exception as e:
             print(f"Process cleanup error (safe to ignore): {e}")
 
         time.sleep(3)
 
-    except Exception as e:
-        print(f"Cleanup error (safe to ignore): {e}")
+    batch_counter = 0
+    batch_ids = []
+
+    for _chrom, group in df.groupby("chrom", sort=False):
+        for i in range(0, len(group), batch_size):
+            chunk_len = len(group.iloc[i : i + batch_size])
+            batch_ids.extend([batch_counter] * chunk_len)
+            batch_counter += 1
+
+    df["batch_id"] = batch_ids
+
+    return df
 
 
 # e.g.
@@ -1241,23 +1124,92 @@ def main() -> None:
         base_dir = args.directory_root
 
     input_genes_filename = GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH
-    if args.genes_file:
-        input_genes_filename = args.genes_file
+    if args.input_genes_file:
+        input_genes_filename = args.input_genes_file
 
-    input_genes_fullpath = os.path.join(base_dir, "input", input_genes_filename)
+    input_genes_csv_fullpath = os.path.join(base_dir, "input", input_genes_filename)
 
-    start = 0
-    batch_size = 100
-    stop = 3999
+    # 310 is a funny number, but at 300, chromosome 11 had 2 batches:
+    # - first batch of 300
+    # - second batch of 1
+    # use 310 to reduce total batches by 1 for convenience
+    BATCH_SIZE = 310
+
     file_prefix = ""
 
-    if args.test:
-        start = 0
-        batch_size = 5
-        stop = 6
-        file_prefix = "test_"
+    # ---
 
-    for i in range(start, stop, batch_size):
+    print("Initializing Hail for global data prep...")
+    hl.init(
+        quiet=args.quiet,
+        master="local[8]",
+        spark_conf={
+            "spark.driver.memory": "16g",
+            "spark.executor.memory": "16g",
+            "spark.driver.maxResultSize": "8g",
+            "spark.memory.fraction": "0.8",
+            "spark.memory.storageFraction": "0.3",
+            "spark.local.dir": "/tmp",
+            "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+            "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+            "spark.network.timeout": "800s",
+            "spark.executor.heartbeatInterval": "400s",
+            "spark.default.parallelism": "8",
+            "spark.sql.shuffle.partitions": "8",
+            "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+            "spark.kryoserializer.buffer.max": "1g",
+        },
+    )
+
+    gene_models_ht_fullpath = os.path.join(
+        base_dir, "processed_data", "reindexed_gene_models.ht"
+    )
+    if not os.path.exists(gene_models_ht_fullpath):
+        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
+
+    # TK: TODO: break into helper -- sort and batch genes
+    # ---
+
+    print("Sorting and batching genes...")
+    df_genes_batched = prepare_and_batch_genes(
+        input_genes_csv_fullpath,
+        gene_models_ht_fullpath,
+        batch_size=BATCH_SIZE,
+    )
+
+    # --- DEBUG LOGGING ---
+    print("\n--- Batch Summary ---")
+    batch_summary = df_genes_batched.groupby("batch_id").agg(
+        chrom=("chrom", "first"),
+        num_genes=("symbol", "count"),
+    )
+
+    for batch_id, row in batch_summary.iterrows():
+        print(
+            f"Batch {batch_id:03d} | chr{row['chrom']:<2} | Genes: {row['num_genes']}"
+        )
+    print(f"Total Batches: {len(batch_summary)}")
+    print("---------------------\n")
+
+    num_batches = df_genes_batched["batch_id"].max() + 1
+    print(f"Successfully sorted genes into {num_batches} distinct batches.")
+
+    TEST_GENE_AMOUNT = 20
+    if args.test:
+        print("Got test arg, moving to single batch of 20 ...")
+        df_genes_batched = df_genes_batched.iloc[0:TEST_GENE_AMOUNT]
+        df_genes_batched["batch_id"] = 0
+        file_prefix = "test_"
+        num_batches = 1
+
+    gene_models_path = os.path.join(
+        base_dir, "processed_data", "reindexed_gene_models.ht"
+    )
+    if not os.path.exists(gene_models_path):
+        print(f"Path {gene_models_path} does not exist, creating ht.")
+        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
+
+    for batch_id in range(num_batches):
         try:
             print("starting cleanup")
             safe_cleanup()
@@ -1286,11 +1238,21 @@ def main() -> None:
 
             batch_start_time = datetime.now()
 
-            batch_start = i
-            batch_stop = i + batch_size if i + batch_size < stop else None
-            batch_stop_print = i + batch_size if i + batch_size < stop else "end"
+            df_genes_this_batch = df_genes_batched[
+                df_genes_batched["batch_id"] == batch_id
+            ].copy()
+            batch_length = len(df_genes_this_batch)
 
-            print(f"\nBeginning batch: {batch_start}-{batch_stop_print}")
+            print(f"\nBeginning batch_id: {batch_id}, size: {batch_length}")
+
+            # ---
+            print("\n\n===DEBUG!")
+            for row in df_genes_this_batch.itertuples():
+                print(
+                    f"(batch_id): {row.batch_id} | Symbol: {row.symbol} | Type: {row.type} | Chrom: {row.chrom} | Range: {row.start}-{row.stop} | Type: {row.type} | Should Calc: {row.should_calculate_recessive}"
+                )
+            print("\n\n")
+            # ---
 
             print("Preparing dashboard list models ...")
             df_dashboard_models = prepare_dashboard_lists(
