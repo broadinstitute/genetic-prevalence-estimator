@@ -1,0 +1,39 @@
+steps:
+  - name: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=website/website.dockerfile"
+      - "--no-push"
+    id: build-website
+  - name: gcr.io/google-appengine/exec-wrapper
+    args:
+      - "-i"
+      - >-
+        us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA
+      - "-s"
+      - aggregate-frequency-calculator:us-central1:app
+      - "-e"
+      - DB_ENGINE=django.db.backends.postgresql
+      - "-e"
+      - DB_HOST=/cloudsql/aggregate-frequency-calculator:us-central1:app
+      - "-e"
+      - DB_PORT=5432
+      - "-e"
+      - DB_DATABASE=aggregate-frequency-calculator
+      - "-e"
+      - DB_USER=calculator
+      - "-e"
+      - DB_PASSWORD
+      - "--"
+      - django-admin
+      - migrate
+    id: apply-migrations
+    secretEnv:
+      - DB_PASSWORD
+timeout: 1200s
+logsBucket: gs://aggregate-frequency-calculator-build-logs/db_migrations
+options:
+  logging: GCS_ONLY
+availableSecrets:
+  secretManager:
+    - versionName: projects/1048184763302/secrets/app-db-user-password/versions/1
+      env: DB_PASSWORD

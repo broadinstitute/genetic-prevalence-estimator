@@ -1,0 +1,68 @@
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - dataproc
+      - clusters
+      - create
+      - import-gnomad-$BUILD_ID
+      - "--image-version=2.1.2-debian11"
+      - >-
+        --properties=^|||^spark:spark.task.maxFailures=20|||spark:spark.driver.extraJavaOptions=-Xss4M|||spark:spark.executor.extraJavaOptions=-Xss4M|||spark:spark.speculation=true|||hdfs:dfs.replication=1|||dataproc:dataproc.logging.stackdriver.enable=false|||dataproc:dataproc.monitoring.stackdriver.enable=false|||spark:spark.driver.memory=41g|||yarn:yarn.nodemanager.resource.memory-mb=29184|||yarn:yarn.scheduler.maximum-allocation-mb=14592|||spark:spark.executor.cores=4|||spark:spark.executor.memory=5837m|||spark:spark.executor.memoryOverhead=8755m|||spark:spark.memory.storageFraction=0.2|||spark:spark.executorEnv.HAIL_WORKER_OFF_HEAP_MEMORY_PER_CORE_MB=3648
+      - >-
+        --initialization-actions=gs://hail-common/hailctl/dataproc/0.2.120/init_notebook.py
+      - >-
+        --metadata=^|||^WHEEL=gs://hail-common/hailctl/dataproc/0.2.120/hail-0.2.120-py3-none-any.whl|||PKGS=aiodns==2.0.0|aiohttp==3.8.4|aiosignal==1.3.1|async-timeout==4.0.2|asyncinit==0.2.4|attrs==23.1.0|avro==1.11.1|azure-common==1.1.28|azure-core==1.27.0|azure-identity==1.13.0|azure-mgmt-core==1.4.0|azure-mgmt-storage==20.1.0|azure-storage-blob==12.16.0|bokeh==3.1.1|boto3==1.26.152|botocore==1.29.152|cachetools==5.3.1|certifi==2023.5.7|cffi==1.15.1|charset-normalizer==3.1.0|click==8.1.3|commonmark==0.9.1|contourpy==1.0.7|cryptography==41.0.1|decorator==4.4.2|deprecated==1.2.14|dill==0.3.6|frozenlist==1.3.3|google-api-core==2.11.0|google-auth==2.19.1|google-cloud-core==2.3.2|google-cloud-storage==2.9.0|google-crc32c==1.5.0|google-resumable-media==2.5.0|googleapis-common-protos==1.59.1|humanize==1.1.0|hurry-filesize==0.9|idna==3.4|isodate==0.6.1|janus==1.0.0|jinja2==3.1.2|jmespath==1.0.1|jproperties==2.1.1|markupsafe==2.1.3|msal==1.22.0|msal-extensions==1.0.0|msrest==0.7.1|multidict==6.0.4|nest-asyncio==1.5.6|numpy==1.24.3|oauthlib==3.2.2|orjson==3.9.1|packaging==23.1|pandas==2.0.2|parsimonious==0.10.0|pillow==9.5.0|plotly==5.15.0|portalocker==2.7.0|protobuf==3.20.2|py4j==0.10.9.5|pyasn1==0.5.0|pyasn1-modules==0.3.0|pycares==4.3.0|pycparser==2.21|pygments==2.15.1|pyjwt[crypto]==2.7.0|python-dateutil==2.8.2|python-json-logger==2.0.7|pytz==2023.3|pyyaml==6.0|regex==2023.6.3|requests==2.31.0|requests-oauthlib==1.3.1|rich==12.6.0|rsa==4.9|s3transfer==0.6.1|scipy==1.9.3|six==1.16.0|sortedcontainers==2.4.0|tabulate==0.9.0|tenacity==8.2.2|tornado==6.3.2|typer==0.9.0|typing-extensions==4.6.3|tzdata==2023.3|urllib3==1.26.16|uvloop==0.17.0;sys_platform!="win32"|wrapt==1.15.0|xyzservices==2023.5.0|yarl==1.9.2
+      - "--master-machine-type=n1-highmem-8"
+      - "--master-boot-disk-size=100GB"
+      - "--num-master-local-ssds=0"
+      - "--num-secondary-workers=0"
+      - "--num-worker-local-ssds=0"
+      - "--num-workers=32"
+      - "--secondary-worker-boot-disk-size=40GB"
+      - "--worker-boot-disk-size=40GB"
+      - "--worker-machine-type=n1-standard-8"
+      - "--initialization-action-timeout=20m"
+      - "--region=us-central1"
+      - >-
+        --subnet=projects/aggregate-frequency-calculator/regions/us-central1/subnetworks/dataproc
+      - >-
+        --service-account=data-pipeline@aggregate-frequency-calculator.iam.gserviceaccount.com
+      - "--no-address"
+      - "--tags=dataproc"
+      - "--max-idle=5m"
+      - "--max-age=3h"
+    id: start-cluster
+    entrypoint: gcloud
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - dataproc
+      - jobs
+      - submit
+      - pyspark
+      - "--cluster=import-gnomad-$BUILD_ID"
+      - "--region=us-central1"
+      - ./data-pipelines/prepare_gnomad_variants.py
+      - "--"
+      - "--quiet"
+      - "--gnomad-version=4"
+      - "--partitions=100000"
+      - >-
+        gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht
+    id: prepare-gnomad-v4-variants
+    entrypoint: gcloud
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - dataproc
+      - clusters
+      - delete
+      - "--quiet"
+      - import-gnomad-$BUILD_ID
+      - "--region=us-central1"
+    id: stop-cluster
+    entrypoint: gcloud
+timeout: 10800s
+logsBucket: gs://aggregate-frequency-calculator-build-logs/data-pipelines/import-gnomad-v4
+options:
+  logging: GCS_ONLY
+substitutions:
+  _HAIL_VERSION: 0.2.120

@@ -1,0 +1,52 @@
+steps:
+  - name: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=website/website.dockerfile"
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:latest
+    id: build-website
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - run
+      - deploy
+      - website
+      - "--image"
+      - >-
+        us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA
+      - "--region"
+      - us-central1
+    id: deploy-website
+    waitFor:
+      - build-website
+    entrypoint: gcloud
+  - name: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=worker/worker.dockerfile"
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:$COMMIT_SHA
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:latest
+    id: build-worker
+    waitFor:
+      - "-"
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - run
+      - deploy
+      - worker
+      - "--image"
+      - >-
+        us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:$COMMIT_SHA
+      - "--region"
+      - us-central1
+    id: deploy-worker
+    waitFor:
+      - build-worker
+    entrypoint: gcloud
+timeout: 1200s
+logsBucket: gs://aggregate-frequency-calculator-build-logs/build
+options:
+  machineType: E2_HIGHCPU_8
+  logging: GCS_ONLY

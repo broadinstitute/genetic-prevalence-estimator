@@ -1,0 +1,24 @@
+steps:
+  - name: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=website/website.dockerfile"
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:$COMMIT_SHA
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/website:latest
+    id: build-website
+  - name: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=worker/worker.dockerfile"
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:$COMMIT_SHA
+      - >-
+        --destination=us-central1-docker.pkg.dev/$PROJECT_ID/genetic-prevalence-estimator/worker:latest
+    id: build-worker
+    waitFor:
+      - "-"
+timeout: 1200s
+logsBucket: gs://aggregate-frequency-calculator-build-logs/build
+options:
+  machineType: E2_HIGHCPU_8
+  logging: GCS_ONLY
