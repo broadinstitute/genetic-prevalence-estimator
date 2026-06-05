@@ -865,9 +865,10 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
     # ---
 
     for index, row in df.iterrows():
+        single_gene_start_time = datetime.now()
         batch_i += 1
         print(
-            f"  -- Processing row {index + 1} [{row.symbol} - {row.gene_id}] ({batch_i} of {len(df)} in batch)"
+            f"  -- Processing row {index + 1} [{row.symbol}, chr{row.chrom} - {row.gene_id}] ({batch_i} of {len(df)} in batch) ({row.type})"
         )
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
@@ -923,6 +924,14 @@ def prepare_dashboard_lists(genes_fullpath, base_dir, start, stop):
             populations=metadata_populations,
             variants=recommended_variants,
         )
+
+        single_gene_end_time = datetime.now()
+        duration_seconds = (
+            single_gene_end_time - single_gene_start_time
+        ).total_seconds()
+        minutes, seconds = divmod(int(duration_seconds), 60)
+        formatted_time = f"{minutes:02d}m{seconds:02d}s"
+        print(f"    - Finished in {formatted_time}")
 
     df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
 
