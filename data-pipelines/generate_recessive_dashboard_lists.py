@@ -1106,9 +1106,8 @@ def prepare_and_batch_genes(
 
 
 # e.g.
-# python data-pipelines/generate_recessive_dashboard_lists.py --genes-file=20240730_spot_check_genes.csv
 # uv run python data-pipelines/generate_recessive_dashboard_lists.py \
-#     --genes-file=2026-05-29_genie-input_5k-disease-associated-genes.csv \
+#     --input-genes-file=2026-05-29_genie-input_5k-disease-associated-genes.csv \
 #     --test
 def main() -> None:
     start_time = datetime.now()
@@ -1116,7 +1115,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
-    parser.add_argument("--genes-file", required=False)
+    parser.add_argument("--input-genes-file", required=False)
     parser.add_argument("--test", action="store_true", required=False)
     args = parser.parse_args()
 
