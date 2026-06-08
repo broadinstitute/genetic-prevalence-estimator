@@ -690,7 +690,7 @@ def prepare_dashboard_lists(
         df.at[index, "inheritance_type"] = row.type
 
         metadata = {
-            "gnomad_version": "4.1.0",
+            "gnomad_version": "4.1.1",
             "reference_genome": "GRCh38",
             "gene_symbol": row.symbol,
             "populations": metadata_populations,
