@@ -1085,10 +1085,11 @@ def prepare_and_batch_genes(
         .reset_index(drop=True)
     )
 
-        except Exception as e:
-            print(f"Process cleanup error (safe to ignore): {e}")
+    # should_calculate_recessive = df['type'].str.contains('AR|SD', na=False)
+    # df['should_calculate_recessive'] = False
+    # df.loc[should_calculate_recessive, 'should_calculate_recessive'] = True
 
-        time.sleep(3)
+    df["should_calculate_recessive"] = True
 
     batch_counter = 0
     batch_ids = []
