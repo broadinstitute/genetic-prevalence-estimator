@@ -156,6 +156,9 @@ SECURE_BROWSER_XSS_FILTER = True
 
 SECURE_SSL_REDIRECT = True
 
+# allow Google auth popup to work in production
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
 if os.getenv("SECURE_PROXY_SSL_HEADER"):
     SECURE_PROXY_SSL_HEADER = tuple(os.environ["SECURE_PROXY_SSL_HEADER"].split(":"))
 
