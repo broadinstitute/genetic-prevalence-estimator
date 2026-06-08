@@ -1255,19 +1255,18 @@ def main() -> None:
             # ---
 
             print("Preparing dashboard list models ...")
-            df_dashboard_models = prepare_dashboard_lists(
-                input_genes_fullpath, base_dir, start=batch_start, stop=batch_stop
-            )
+
+            df_dashboard_models = prepare_dashboard_lists(df_genes_this_batch, base_dir)
             model_output_file = (
                 Path(base_dir)
                 / "output"
                 / "recessive_dashboard"
                 / "models"
-                / f"{file_prefix}recessive_dashboard_models_{batch_start}-{batch_stop_print}.csv"
+                / f"{file_prefix}recessive_dashboard_models_batch-{batch_id}-of-{num_batches}--{batch_length}-lists.csv"
             )
             model_output_file.parent.mkdir(parents=True, exist_ok=True)
             df_dashboard_models.to_csv(model_output_file, index=False)
-            print("Wrote dashboard list models to file")
+            print("\n\nWrote dashboard list models to file")
 
             # ---
 
@@ -1279,8 +1278,8 @@ def main() -> None:
                 Path(base_dir)
                 / "output"
                 / "recessive_dashboard"
-                / "models"
-                / f"{file_prefix}recessive_dashboard_downloads_{batch_start}-{batch_stop_print}.csv"
+                / "downloads"
+                / f"{file_prefix}recessive_dashboard_downloads_batch-{batch_id}-of-{num_batches}--{batch_length}-lists.csv"
             )
             download_output_file.parent.mkdir(parents=True, exist_ok=True)
             df_dashboard_download.to_csv(download_output_file, index=False)
