@@ -1049,7 +1049,13 @@ const DashboardLists = (props: {
 
       <Box mt={4}>
         <Link href="/dashboard-summary.csv" download>
-          Download CSV
+          Download dashboard summary (disease associated genes) CSV
+        </Link>
+      </Box>
+
+      <Box mt={4}>
+        <Link href="/dashboard-gidnv-summary.csv" download>
+          Download GIDNV summary (no olfactory or disease associated genes) CSV
         </Link>
       </Box>
 
