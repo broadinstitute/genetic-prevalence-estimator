@@ -145,23 +145,47 @@ const DominantListCharts = (props: DominantListChartsProps) => {
             </Text>
             <List spacing={1} fontSize="sm">
               <ListItem>
-                • OE missense prior: {oe_mis_prior}
+                • oe missense prior: {oe_mis_prior}
                 <Box as="span" ml={2}>
                   <HelpTextHover
                     helpText={
                       <Text>
-                        OE priors are derived from non-disease associated gene
-                        distributions.
+                        Average missense obeserved / expected (oe) for all
+                        non-disease associated and non-olfactory genes in gnomAD
                       </Text>
                     }
                   />
                 </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} OE missense: {oe_mis}
+                • {gene_symbol} oe missense: {oe_mis}
+                <Box as="span" ml={2}>
+                  <HelpTextHover
+                    helpText={
+                      <Text>
+                        Represents the observed / expected (oe) number of
+                        missense variants in a gene
+                      </Text>
+                    }
+                  />
+                </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} MU missense: {mu_mis}
+                • {gene_symbol}{" "}
+                <Text as="span" fontStyle="italic">
+                  mu
+                </Text>{" "}
+                missense: {mu_mis}
+                <Box as="span" ml={2}>
+                  <HelpTextHover
+                    helpText={
+                      <Text>
+                        The expected number of new missense mutations in a
+                        generation in a gene
+                      </Text>
+                    }
+                  />
+                </Box>
               </ListItem>
             </List>
           </Box>
@@ -182,23 +206,48 @@ const DominantListCharts = (props: DominantListChartsProps) => {
             </Text>
             <List spacing={1} fontSize="sm">
               <ListItem>
-                • OE LoF prior: {oe_lof_prior}
+                • oe LoF prior: {oe_lof_prior}
                 <Box as="span" ml={2}>
                   <HelpTextHover
                     helpText={
                       <Text>
-                        OE priors are derived from non-disease associated gene
-                        distributions.
+                        Average loss of function (LoF) observed / expected (oe)
+                        for all non-disease associated and non-olfactory genes
+                        in gnomAD
                       </Text>
                     }
                   />
                 </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} OE LoF: {oe_lof}
+                • {gene_symbol} oe LoF: {oe_lof}
+                <Box as="span" ml={2}>
+                  <HelpTextHover
+                    helpText={
+                      <Text>
+                        Represents the observed / expected (oe) number of loss
+                        of function variants in a gene
+                      </Text>
+                    }
+                  />
+                </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} MU LoF: {mu_lof}
+                • {gene_symbol}{" "}
+                <Text as="span" fontStyle="italic">
+                  mu
+                </Text>{" "}
+                LoF: {mu_lof}
+                <Box as="span" ml={2}>
+                  <HelpTextHover
+                    helpText={
+                      <Text>
+                        The expected number of new loss of function mutations in
+                        a generation in a gene
+                      </Text>
+                    }
+                  />
+                </Box>
               </ListItem>
             </List>
           </Box>
