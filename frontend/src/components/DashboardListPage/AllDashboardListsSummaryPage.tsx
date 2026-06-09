@@ -412,6 +412,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "inheritance_type",
       heading: "Mode of Inheritance",
+      headingTooltip:
+        "AD = autosomal dominant, AR = autosomal recessive, SD = semi-dominant",
       width: 120,
       sortKey: (dashboardList: DashboardList) => {
         return dashboardList.inheritance_type;
@@ -424,6 +426,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "aggregate_allele_freq_lp_p",
       heading: "Aggregate allele frequency for LP/P variants",
+      headingTooltip:
+        "Calculated using ClinVar pathogenic/likely pathogenic variants found in >=1 individuals in gnomAD, as well as high confidence predicted loss-of-function variants (HC pLoF) from gnomAD",
       width: 175,
       sortKey: (dashboardList: DashboardList) => {
         return 1 / dashboardList.aggregate_allele_frequency;
@@ -440,6 +444,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "est_heterozygous_freq",
       heading: "Estimated heterozygous frequency (carrier frequency)",
+      headingTooltip:
+        "Calculated by multiplying the aggregate allele frequency by 2",
       width: 175,
 
       sortKey: (dashboardList: DashboardList) => {
@@ -467,10 +473,9 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     },
     {
       key: "dashboard_estimate",
-      heading:
-        "Estimated biallelic frequency (Preliminary genetic prevalence) - AR ONLY",
+      heading: "Estimated biallelic frequency (Preliminary genetic prevalence)",
       headingTooltip:
-        "Preliminary genetic prevalence estimates are algorithmically generated using ClinVar pathogenic/likely pathogenic variants and gnomAD high confidence predicted loss-of-function variants only. These estimates have not been manually reviewed and may contain non-disease causing variants. Use with caution.",
+        "Preliminary genetic prevalence estimates are calculated by squaring the aggregate allele frequency. This value is only calculated for genes with AR and SD modes of inheritance. These estimates are derived from a variant list that has not been manually reviewed",
       width: 175,
       sortKey: (dashboardList: DashboardList) => {
         return dashboardList.estimated_genetic_prevalence
@@ -500,7 +505,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     columns.push({
       key: "de_novo_dashboard_estimate",
       heading: "Estimated incidence of de novo variation (per 100,000)",
-      headingTooltip: "Estimated incidence of de novo variation (per 100,000)",
+      headingTooltip:
+        "Genetic incidence of de novo variation (GIDNV) is the estimated rate of de novo genotypes at gamete creation. Calculated using gnomAD constraint and mutation rate data",
       width: 175,
       sortKey: (dashboardList: DashboardList) => {
         return dashboardList.estimated_de_novo_incidence;
