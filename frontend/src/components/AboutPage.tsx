@@ -15,9 +15,10 @@ const AboutView = () => {
   return (
     <>
       <Text mb={2}>
-        GeniE, the Genetic Prevalence Estimator, uses variant databases and
-        population data to estimate prevalence for recessive diseases. This tool
-        uses data from the open source databases{" "}
+        GenIE, the Genetic Prevalence and Incidence Estimator, uses variant
+        databases and population data to estimate genetic prevalence and genetic
+        incidence for genetic diseases. This tool uses data from the open source
+        databases{" "}
         <Link href="https://www.ncbi.nlm.nih.gov/clinvar/" isExternal>
           ClinVar
         </Link>{" "}
@@ -84,6 +85,21 @@ const AboutView = () => {
         We request that any use of data obtained from GeniE cite the online
         resource and include a link to the tool ({document.location.hostname}).
       </Text>
+
+      <Text mb={2}>
+        For manuscripts we request that you cite our{" "}
+        <Link
+          href="https://www.medrxiv.org/content/10.64898/2026.03.30.26349539v1"
+          isExternal
+        >
+          preprint
+        </Link>
+        : Baxter SM, Singer-Berk M, Glaze C, et al. The power of partnership:
+        Democratizing genetic prevalence to empower patient advocacy. medRxiv.
+        Published online March 31, 2026:2026.03.30.26349539.
+        doi:10.64898/2026.03.30.26349539
+      </Text>
+
       <Text>
         There is no need to include us as authors on your manuscript, unless we
         contributed specific advice or analysis for your work.
