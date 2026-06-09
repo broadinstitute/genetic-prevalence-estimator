@@ -4,7 +4,6 @@ import json
 import hail as hl
 
 import os
-import ast
 
 from datetime import datetime
 
@@ -13,15 +12,13 @@ from generate_recessive_dashboard_lists import prepare_gene_models
 
 LOCAL_BASE_DIR = os.path.join(os.path.dirname(__file__), "../data")
 
-LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH = os.path.join(
-    LOCAL_BASE_DIR,
-    "input",
-    "dominant_dashboard",
-    "2025-05_gene-symbols-and-inheritance-types.csv",
+LOCAL_DISEASE_ASSOCIATED_GENES_FILENAME = (
+    "2026-05-29_genie-input_5k-disease-associated-genes.csv"
 )
 LOCAL_DOMINANT_INPUT_GENES_FILENAME = (
-    "2026-05-11_gnomad-v4p1p1_dominant-incidence-gene-list-input.csv"
+    "2026-05-29_genie-input_17k-dominant-v4p1p1-stats-genes.csv"
 )
+
 LOCAL_ORPHANET_PATH = os.path.join(
     LOCAL_BASE_DIR, "processed_data", "orphanet_prevalences.tsv"
 )
@@ -118,25 +115,31 @@ def create_or_read_reindexed_gnomad_gene_models_ht():
     return ht_gnomad_gene_models
 
 
-def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
-    ht_inheritance_types = hl.import_table(
-        LOCAL_SYMBOLS_AND_INHERITANCE_TYPES_PATH,
-        delimiter=",",
-        key="symbol",
-        impute=True,
-    )
-
-    # ---
-
-    ht_input_data = hl.import_table(
+def prepare_dominant_dashboard_download(
+    input_genes_path,
+    input_disease_associated_genes_with_inheritance_types_path,
+    base_dir,
+):
+    ht_dominant_dashboard_list_input = hl.import_table(
         input_genes_path,
         delimiter=",",
         quote='"',
         key="symbol",
         impute=True,
     )
-    ht_dominant_models = ht_inheritance_types.annotate(
-        **ht_input_data[ht_inheritance_types.symbol]
+
+    ht_disease_associated_genes = hl.import_table(
+        input_disease_associated_genes_with_inheritance_types_path,
+        delimiter=",",
+        quote='"',
+        key="symbol",
+        impute=True,
+    )
+
+    # ---
+
+    ht_dominant_models = ht_dominant_dashboard_list_input.annotate(
+        **ht_disease_associated_genes[ht_dominant_dashboard_list_input.symbol]
     )
 
     # ---
@@ -158,8 +161,7 @@ def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
     df["date_created"] = iso_8601_datetime
     df["de_novo_variant_calculations"] = [{} for _ in range(len(df))]
     df["inheritance_type"] = ""
-
-    # ---
+    df["gene_symbol"] = df["symbol"]
 
     for index, row in df.iterrows():
         if index % 500 == 0:
@@ -205,6 +207,7 @@ def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
 
     FINAL_COLUMNS = [
         "gene_id",
+        "gene_symbol",
         "date_created",
         "metadata",
         "de_novo_variant_calculations",
@@ -222,13 +225,33 @@ def prepare_dominant_dashboard_lists(input_genes_path, base_dir):
     return df
 
 
+def prepare_dominant_dashboard_models(df_dashboard_download):
+    """
+    Trim the downloads file to just disease associated genes
+    Remove the 'gene_symbol' column
+    """
+    FINAL_COLUMNS = [
+        "gene_id",
+        "date_created",
+        "metadata",
+        "de_novo_variant_calculations",
+        "type",
+    ]
+    df_dashboard_models = df_dashboard_download[FINAL_COLUMNS]
+
+    df_dashboard_models = df_dashboard_models[df_dashboard_models["type"] != "NA"]
+
+    return df_dashboard_models
+
+
 # e.g.
-# python data-pipelines/generate_dominant_dashboard_lists.py
+# uv run python data-pipelines/generate_dominant_dashboard_lists.py
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--input-dominant-genes-filename", required=False)
+    parser.add_argument("--input-disease-associated-genes-filename", required=False)
     args = parser.parse_args()
 
     hl.init(quiet=args.quiet)
@@ -240,22 +263,39 @@ def main():
     input_dominant_genes_filename = LOCAL_DOMINANT_INPUT_GENES_FILENAME
     if args.input_dominant_genes_filename:
         input_dominant_genes_filename = args.input_dominant_genes_filename
-
     input_genes_fullpath = os.path.join(
-        base_dir, "input", "dominant_dashboard", input_dominant_genes_filename
+        base_dir, "input", input_dominant_genes_filename
+    )
+
+    input_disease_associated_genes_filename = LOCAL_DISEASE_ASSOCIATED_GENES_FILENAME
+    if args.input_disease_associated_genes_filename:
+        input_disease_associated_genes_filename = (
+            args.input_disease_associated_genes_filename
+        )
+    input_disease_associated_genes_fullpath = os.path.join(
+        base_dir, "input", input_disease_associated_genes_filename
     )
 
     print("Preparing dominant dashboard list models ...")
-    df_dashboard_models = prepare_dominant_dashboard_lists(
-        input_genes_fullpath, base_dir
+    df_dashboard_download = prepare_dominant_dashboard_download(
+        input_genes_fullpath, input_disease_associated_genes_fullpath, base_dir
     )
+    df_dashboard_download.to_csv(
+        os.path.join(
+            base_dir, "output", "dominant_dashboard", "dominant-dashboard-download.csv"
+        ),
+        index=False,
+    )
+    print("Wrote dominant dashboard downloads file")
+
+    df_dashboard_models = prepare_dominant_dashboard_models(df_dashboard_download)
     df_dashboard_models.to_csv(
         os.path.join(
             base_dir, "output", "dominant_dashboard", "dominant-dashboard-models.csv"
         ),
         index=False,
     )
-    print("Wrote dominant dashboard list models to file")
+    print("Wrote dominant dashboard models file")
 
 
 if __name__ == "__main__":
