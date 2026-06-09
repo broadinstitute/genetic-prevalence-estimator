@@ -958,94 +958,109 @@ const DashboardLists = (props: {
         </FormControl>
       </Box>
 
-      <Table>
-        <Thead>
-          <Tr
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "stretch",
-              boxSizing: "border-box",
-              borderBottom: "1px solid #e0e0e0",
-              height: `${ROW_HEIGHT + 30}px`,
-            }}
-          >
-            {columns.map((column) => {
-              return (
-                <Th
-                  key={column.key}
-                  scope="col"
-                  isNumeric={column.isNumeric}
-                  aria-sort={column.key === sortColumn.key ? sortOrder : "none"}
-                  style={{ position: "relative", width: `${column.width}px` }}
-                >
-                  {column.sortKey ? (
-                    <>
-                      <button
-                        style={{
-                          display: "block",
-                          width: "100%",
-                          height: "100%",
-                          appearance: "none",
-                          fontSize: "inherit",
-                          fontWeight: "inherit",
-                          textAlign: "inherit",
-                        }}
-                        onClick={() => {
-                          setSortKey(column.key);
-                        }}
-                      >
-                        {column.headingTooltip ? (
-                          <Tooltip label={column.headingTooltip}>
-                            {column.heading}
-                          </Tooltip>
-                        ) : (
-                          column.heading
-                        )}
-                      </button>
-                      {column.key === sortColumn.key && (
-                        <span
+      <div
+        style={{
+          width: "100%",
+          overflowX: "auto",
+          borderColor: "#edf2f7",
+          borderStyle: "solid",
+          borderWidth: "1px",
+          boxShadow:
+            "inset -0.65em 0em 1em -1.25em #000, inset 0.65em 0em 1em -1.25em #000",
+          marginBottom: "1rem",
+        }}
+      >
+        <Table>
+          <Thead>
+            <Tr
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "stretch",
+                boxSizing: "border-box",
+                borderBottom: "1px solid #e0e0e0",
+                height: `${ROW_HEIGHT + 30}px`,
+              }}
+            >
+              {columns.map((column) => {
+                return (
+                  <Th
+                    key={column.key}
+                    scope="col"
+                    isNumeric={column.isNumeric}
+                    aria-sort={
+                      column.key === sortColumn.key ? sortOrder : "none"
+                    }
+                    style={{ position: "relative", width: `${column.width}px` }}
+                  >
+                    {column.sortKey ? (
+                      <>
+                        <button
                           style={{
-                            position: "absolute",
-                            right: "3px",
-                            top: "calc(50% - 10px)",
+                            display: "block",
+                            width: "100%",
+                            height: "100%",
+                            appearance: "none",
+                            fontSize: "inherit",
+                            fontWeight: "inherit",
+                            textAlign: "inherit",
+                          }}
+                          onClick={() => {
+                            setSortKey(column.key);
                           }}
                         >
-                          {sortOrder === "descending" ? (
-                            <ArrowDownIcon />
+                          {column.headingTooltip ? (
+                            <Tooltip label={column.headingTooltip}>
+                              {column.heading}
+                            </Tooltip>
                           ) : (
-                            <ArrowUpIcon />
+                            column.heading
                           )}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    column.heading
-                  )}
-                </Th>
-              );
-            })}
-          </Tr>
-        </Thead>
-        <Tbody>
-          <FixedSizeList
-            height={10 * ROW_HEIGHT - 1}
-            itemCount={sortedDashboardLists.length}
-            itemSize={ROW_HEIGHT}
-            width={"100%"}
-            overscanCount={5}
-            itemData={{
-              columns,
-              data: sortedDashboardLists,
-            }}
-            style={{
-              overflowX: "hidden",
-            }}
-          >
-            {DataRow}
-          </FixedSizeList>
-        </Tbody>
-      </Table>
+                        </button>
+                        {column.key === sortColumn.key && (
+                          <span
+                            style={{
+                              position: "absolute",
+                              right: "3px",
+                              top: "calc(50% - 10px)",
+                            }}
+                          >
+                            {sortOrder === "descending" ? (
+                              <ArrowDownIcon />
+                            ) : (
+                              <ArrowUpIcon />
+                            )}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      column.heading
+                    )}
+                  </Th>
+                );
+              })}
+            </Tr>
+          </Thead>
+          <Tbody>
+            <FixedSizeList
+              height={10 * ROW_HEIGHT - 1}
+              itemCount={sortedDashboardLists.length}
+              itemSize={ROW_HEIGHT}
+              width={"100%"}
+              overscanCount={5}
+              itemData={{
+                columns,
+                data: sortedDashboardLists,
+              }}
+              style={{
+                overflowX: "hidden",
+              }}
+            >
+              {DataRow}
+            </FixedSizeList>
+          </Tbody>
+        </Table>
+      </div>
 
       <Box mt={4}>
         <Link href="/dashboard-summary.csv" download>
