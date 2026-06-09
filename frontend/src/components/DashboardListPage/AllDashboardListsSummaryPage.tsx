@@ -89,7 +89,7 @@ const MultipleDiseaseFlag = () => {
   );
 };
 
-const CHIP_GENE_SYMBOLS = [
+export const CHIP_GENE_SYMBOLS = [
   "ARID1A",
   "ASXL1",
   "ASXL2",
@@ -254,7 +254,7 @@ const ChipGeneFlag = () => {
   );
 };
 
-const CES_GENE_SYMBOLS = [
+export const CES_GENE_SYMBOLS = [
   "ANKRD11",
   "ARHGAP35",
   "ARID1A",
