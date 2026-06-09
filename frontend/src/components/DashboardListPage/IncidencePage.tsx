@@ -3,6 +3,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Link as BaseLink,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -29,6 +30,10 @@ import { printOnly, screenOnly } from "../media";
 
 import VariantListMetadata from "../VariantListPage/VariantListMetadata";
 import VariantListStatus from "../VariantListPage/VariantListStatus";
+import {
+  CES_GENE_SYMBOLS,
+  CHIP_GENE_SYMBOLS,
+} from "./AllDashboardListsSummaryPage";
 
 import DominantListCharts from "./DominantListCharts";
 
@@ -83,6 +88,58 @@ const IncidencePage = (props: IncidencePageProps) => {
           <DateTime datetime={dominantDashboardList.date_created} />
         </DescriptionListItem>
       </DescriptionList>
+
+      {CHIP_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
+        -1 && (
+        <Box mb={4}>
+          <Alert status="error">
+            <AlertIcon />
+            <span>
+              This is a known clonal expansion spermatogonia (CES) gene (
+              <BaseLink
+                href="https://pubmed.ncbi.nlm.nih.gov/41062699/"
+                isExternal
+              >
+                Seplyarskiy et al.
+              </BaseLink>
+              ). These genes are associated with cell proliferation, which may
+              impact the accuracy of these results
+            </span>
+          </Alert>
+        </Box>
+      )}
+
+      {CES_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
+        -1 && (
+        <Box mb={4}>
+          <Alert status="error">
+            <AlertIcon />
+            <span>
+              This is a known clonal hematopoiesis of indeterminate potential
+              (CHIP) gene (
+              <BaseLink
+                href="https://pubmed.ncbi.nlm.nih.gov/25426837/"
+                isExternal
+              >
+                Jaiswa et al.
+              </BaseLink>
+              ,
+              <BaseLink
+                href="https://pubmed.ncbi.nlm.nih.gov/34663986/"
+                isExternal
+              >
+                Niroula et al.
+              </BaseLink>
+              ). These genes are associated with clonal hematopoiesis, which may
+              lead to these results overestimating the incidence of{" "}
+              <Text as="span" fontStyle="italic">
+                de novo
+              </Text>{" "}
+              variation
+            </span>
+          </Alert>
+        </Box>
+      )}
 
       {userIsStaff && (
         <HStack mb={4} sx={screenOnly}>
