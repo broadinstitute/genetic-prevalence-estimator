@@ -17,6 +17,7 @@ import {
   MenuItem,
   MenuList,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import { FC, useState, useEffect } from "react";
 import {
@@ -49,7 +50,24 @@ import { initializeAuth, signOut } from "./auth";
 import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
 import theme from "./theme";
 
-const banner = undefined;
+const bannerContent = (
+  <>
+    GenIE now includes estimates of genetic incidence of{" "}
+    <Text as="span" fontStyle="italic">
+      de novo
+    </Text>{" "}
+    variation (GIDNV) on the dashboard
+  </>
+);
+
+const banner = bannerContent ? (
+  <Box px={4} mb={4}>
+    <Alert status="info">
+      <AlertIcon />
+      <span>{bannerContent}</span>
+    </Alert>
+  </Box>
+) : undefined;
 
 const RequireSignIn: FC<{}> = ({ children }) => {
   const { isSignedIn, user } = useStore(authStore);
@@ -119,6 +137,8 @@ const App = () => {
   const { isSignedIn, user } = useStore(authStore);
   const history = useHistory();
 
+  const tkStaffPreview = isSignedIn && user!.is_staff;
+
   return (
     <>
       <Box boxShadow="base" mb={4} sx={screenOnly}>
@@ -186,8 +206,7 @@ const App = () => {
           </Flex>
         </Container>
       </Box>
-      {banner}
-
+      {tkStaffPreview && banner}
       <Container pb={4} maxW="1400px">
         <Switch>
           <Route
