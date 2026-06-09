@@ -94,10 +94,13 @@ const AboutView = () => {
         >
           preprint
         </Link>
-        : Baxter SM, Singer-Berk M, Glaze C, et al. The power of partnership:
-        Democratizing genetic prevalence to empower patient advocacy. medRxiv.
-        Published online March 31, 2026:2026.03.30.26349539.
-        doi:10.64898/2026.03.30.26349539
+        :
+        <Text mt={2} mb={2} as="div">
+          Baxter SM, Singer-Berk M, Glaze C, et al. The power of partnership:
+          Democratizing genetic prevalence to empower patient advocacy. medRxiv.
+          Published online March 31, 2026:2026.03.30.26349539.
+          doi:10.64898/2026.03.30.26349539
+        </Text>
       </Text>
 
       <Text>
