@@ -879,6 +879,7 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
     def build_base_columns():
         base_columns = [
+            "gene_id",
             "gene_symbol",
             "transcript_id",
             "gnomad_version",
