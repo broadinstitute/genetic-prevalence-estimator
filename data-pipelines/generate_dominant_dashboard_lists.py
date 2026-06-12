@@ -249,12 +249,21 @@ def prepare_dominant_dashboard_models(df_dashboard_download):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--quiet", action="store_true", required=False)
+    parser.add_argument("--bind-spark", action="store_true", required=False)
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--input-dominant-genes-filename", required=False)
     parser.add_argument("--input-disease-associated-genes-filename", required=False)
     args = parser.parse_args()
 
-    hl.init(quiet=args.quiet)
+    init_kwargs = {"quiet": args.quiet}
+
+    if args.bind_spark:
+        init_kwargs["spark_conf"] = {
+            "spark.driver.bindAddress": "127.0.0.1",
+            "spark.driver.host": "127.0.0.1",
+        }
+
+    hl.init(**init_kwargs)
 
     base_dir = LOCAL_BASE_DIR
     if args.directory_root:
