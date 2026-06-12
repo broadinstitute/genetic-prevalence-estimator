@@ -49,13 +49,19 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         "pathogenic_or_likely_pathogenic": {
             "association",
             "Likely pathogenic",
+            "Likely pathogenic, low penetrance",
             "Likely pathogenic/Likely risk allele",
             "Likely pathogenic/Pathogenic",
+            "Likely pathogenic/Likely pathogenic",
             "Pathogenic",
+            "Pathogenic, low penetrance",
             "Pathogenic/Pathogenic",
             "Pathogenic/Likely pathogenic",
+            "Pathogenic/Likely risk allele",
             "Pathogenic/Likely pathogenic/Likely risk allele",
+            "Pathogenic/Likely pathogenic/Established risk allele",
             "Pathogenic/Likely pathogenic/Pathogenic",
+            "Pathogenic/Likely pathogenic/Likely pathogenic",
         },
         "conflicting_interpretations": {
             "conflicting data from submitters",
@@ -65,6 +71,9 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
         "uncertain_significance": {
             "Uncertain significance",
             "Uncertain significance/Uncertain risk allele",
+            "Uncertain significance/VUS-high",
+            "Uncertain significance/VUS-mid",
+            "Uncertain significance/VUS-low",
         },
         "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
         "other": {
@@ -80,15 +89,17 @@ CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
             "low penetrance/Established risk allele",
             "not provided",
             "other",
-            "Pathogenic/Likely risk allele",
             "protective",
             "Uncertain risk allele",
             "no classification for the single variant",
             "no classifications from unflagged records",
+            "VUS-high",
+            "VUS-mid",
+            "VUS-low",
+            "-",
         },
     }
 )
-
 
 CLINICAL_SIGNIFICANCE_CATEGORY = hl.dict(
     CLINICAL_SIGNIFICANCE_CATEGORIES.items().flatmap(
