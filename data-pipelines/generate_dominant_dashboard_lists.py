@@ -51,26 +51,43 @@ def calculate_missense_and_lof_de_novo_incidence(
     oe_mis_prior=0.906,
     oe_lof_prior=0.675,
 ):
-    missense_de_novo_incidence = ((oe_mis_prior - oe_mis) * mu_mis) * 2
-    missense_de_novo_incidence = (
-        missense_de_novo_incidence if missense_de_novo_incidence > 0 else 0
-    )
+    has_insufficient_missense_data = False
+    has_insufficient_lof_data = False
 
-    lof_de_novo_incidence = ((oe_lof_prior - oe_lof) * mu_lof) * 2
-    lof_de_novo_incidence = lof_de_novo_incidence if lof_de_novo_incidence > 0 else 0
+    if oe_mis is not None and mu_mis is not None:
+        missense_de_novo_incidence = ((oe_mis_prior - oe_mis) * mu_mis) * 2
+        missense_de_novo_incidence = (
+            missense_de_novo_incidence if missense_de_novo_incidence > 0 else 0
+        )
+    else:
+        missense_de_novo_incidence = 0
+        has_insufficient_missense_data = True
+
+    if oe_lof is not None and mu_lof is not None:
+        lof_de_novo_incidence = ((oe_lof_prior - oe_lof) * mu_lof) * 2
+        lof_de_novo_incidence = (
+            lof_de_novo_incidence if lof_de_novo_incidence > 0 else 0
+        )
+    else:
+        lof_de_novo_incidence = 0
+        has_insufficient_lof_data = True
 
     total_de_novo_incidence = missense_de_novo_incidence + lof_de_novo_incidence
+
+    na_sentinel_value = -1.337
 
     calculations_object = {
         "missense_de_novo_incidence": missense_de_novo_incidence,
         "lof_de_novo_incidence": lof_de_novo_incidence,
         "total_de_novo_incidence": total_de_novo_incidence,
+        "has_insufficient_missense_data": has_insufficient_missense_data,
+        "has_insufficient_lof_data": has_insufficient_lof_data,
         "inputs": {
-            "oe_mis": oe_mis,
-            "mu_mis": mu_mis,
-            "oe_lof": oe_lof,
-            "mu_lof": mu_lof,
+            "oe_mis": oe_mis if oe_mis is not None else na_sentinel_value,
+            "mu_mis": mu_mis if mu_mis is not None else na_sentinel_value,
             "oe_mis_prior": oe_mis_prior,
+            "oe_lof": oe_lof if oe_lof is not None else na_sentinel_value,
+            "mu_lof": mu_lof if mu_lof is not None else na_sentinel_value,
             "oe_lof_prior": oe_lof_prior,
         },
     }
@@ -81,15 +98,27 @@ def calculate_missense_and_lof_de_novo_incidence(
 def annotate_row_with_dominant_incidence_dictionary(dataframe, index):
     row = dataframe.loc[index]
 
-    required_fields = ["oe_mis", "mu_mis", "oe_lof", "mu_lof"]
-    if any(pd.isna(row[field]) for field in required_fields):
-        return
+    def get_safe_float(field_name):
+        val = row.get(field_name)
+        if pd.isna(val) or val == "NA" or val == "":
+            return None
+        return float(val)
+
+    oe_mis = get_safe_float("oe_mis")
+    mu_mis = get_safe_float("mu_mis")
+    oe_lof = get_safe_float("oe_lof")
+    mu_lof = get_safe_float("mu_lof")
+
+    if all(v is None for v in [oe_mis, mu_mis, oe_lof, mu_lof]):
+        print(
+            f"Skipping calculations for gene: {row.get('symbol', 'UNKNOWN')} - All input constraint metrics (oe_mis, mu_mis, oe_lof, mu_lof) were missing."
+        )
 
     dominant_stats_dictionary = calculate_missense_and_lof_de_novo_incidence(
-        oe_mis=float(row["oe_mis"]),
-        mu_mis=float(row["mu_mis"]),
-        oe_lof=float(row["oe_lof"]),
-        mu_lof=float(row["mu_lof"]),
+        oe_mis=oe_mis,
+        mu_mis=mu_mis,
+        oe_lof=oe_lof,
+        mu_lof=mu_lof,
     )
 
     dataframe.at[index, "de_novo_variant_calculations"] = json.dumps(
@@ -198,6 +227,9 @@ def prepare_dominant_dashboard_download(
         df.at[index, "metadata"] = json.dumps(metadata)
 
         if pd.isna(row.start) or pd.isna(row.stop) or pd.isna(row.chrom):
+            print(
+                f"Skipping calculations for gene: {row.symbol} - Missing genomic coordinates."
+            )
             continue
 
         annotate_row_with_dominant_incidence_dictionary(
