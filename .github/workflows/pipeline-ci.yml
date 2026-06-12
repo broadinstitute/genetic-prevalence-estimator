@@ -33,7 +33,9 @@ jobs:
         run: |
           uv sync \
           --package data-pipelines \
-          --package genetic-prevalence-estimator --group dev
+          --package website \
+          --package genetic-prevalence-estimator \
+          --group dev
 
       - name: Run pipeline tests
         run: uv run pytest data-pipelines/test_pipeline_calculations.py
