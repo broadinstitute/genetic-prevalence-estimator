@@ -209,7 +209,9 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
             lambda c: CLINICAL_SIGNIFICANCE_CATEGORY[c]
         ),
         conflicting_clinical_significance_categories=ds.conflicting_clinical_significances.map(
-            lambda c: CLINICAL_SIGNIFICANCE_CATEGORY[c]
+            # trim whitespace from categories due to many anomalous whitespace
+            #   at the end of a category, e.g. "Benign "
+            lambda c: CLINICAL_SIGNIFICANCE_CATEGORY[c.strip()]
         ),
     )
 
