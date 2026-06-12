@@ -25,24 +25,25 @@ class TestDashboardListsLoadView:
     def test_posting_to_dashboard_lists_load_view_requires_authentication(self):
         client = APIClient()
 
-        file_content = b"Test, Hello, Yes\n1, 2, 3"
-        mock_file = SimpleUploadedFile(
-            "test.csv", file_content, content_type="text/csv"
-        )
-        form_data = {
-            "csv_file": mock_file,
-        }
+        gene_id_base = "ENSG00000187634"
+        valid_csv_content = RAW_CSV_DASHBOARD_MODEL_STRING.replace(
+            "{gene_id_base}", gene_id_base
+        ).encode("utf-8")
 
-        response = client.post("/api/dashboard-lists/load", data=form_data)
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", valid_csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/load",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
         assert response.status_code == 403
 
-    # There's some intentional jank here, rather than submitting a fully correctly formed CSV, we submit a stub
-    #   for both requests,
-    #     - 'User 1' is not staff and we expect 403 forbidden
-    #     - 'staffuser' is staff, and thus we expect 400 bad request, due to the stub of a .csv
-    #       importantly, the staff user does not get a 403
     @pytest.mark.parametrize(
-        "username, expected_response", [("User 1", 403), ("staffuser", 400)]
+        "username, expected_response", [("User 1", 403), ("staffuser", 200)]
     )
     def test_posting_to_dashboard_lists_load_view_requires_permission(
         self, username, expected_response
@@ -50,15 +51,21 @@ class TestDashboardListsLoadView:
         client = APIClient()
         client.force_authenticate(User.objects.get(username=username))
 
-        file_content = b"Test, Hello, Yes\n1, 2, 3"
-        mock_file = SimpleUploadedFile(
-            "test.csv", file_content, content_type="text/csv"
-        )
-        form_data = {
-            "csv_file": mock_file,
-        }
+        gene_id_base = "ENSG00000187634"
+        valid_csv_content = RAW_CSV_DASHBOARD_MODEL_STRING.replace(
+            "{gene_id_base}", gene_id_base
+        ).encode("utf-8")
 
-        response = client.post("/api/dashboard-lists/load", data=form_data)
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", valid_csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/load",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
         assert response.status_code == expected_response
 
     def test_dashboard_load_correctly_links_approved_representative_variant_list(self):
