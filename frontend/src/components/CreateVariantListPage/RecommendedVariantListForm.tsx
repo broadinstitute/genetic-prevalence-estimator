@@ -196,7 +196,7 @@ const RecommendedVariantListForm = () => {
           label="Transcript"
           helpText={
             <span>
-              GeniE defaults to the MANE (GRCh38)/canonical (GRCh37/hg19)
+              GenIE defaults to the MANE (GRCh38)/canonical (GRCh37/hg19)
               transcript of the gene. You can also select other transcripts from
               the drop down. Additional support, including visualizing various
               transcripts and pext scores, can be found on the{" "}

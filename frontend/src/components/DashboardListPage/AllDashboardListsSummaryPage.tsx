@@ -537,7 +537,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
   columns.push(
     {
       key: "representative_estimate",
-      heading: "Curated Estimates Public on GeniE",
+      heading: "Curated Estimates Public on GenIE",
       width: 150,
       sortKey: (dashboardList: DashboardList) => {
         if (dashboardList.representative_variant_list) {

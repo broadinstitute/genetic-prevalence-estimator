@@ -91,7 +91,7 @@ const DashboardListPage = (props: DashboardListPageProps) => {
   return (
     <>
       <Box mb={4} sx={printOnly}>
-        These estimates were performed using GeniE, the Genetic Prevalence
+        These estimates were performed using GenIE, the Genetic Prevalence
         Estimator ({document.location.hostname}), created and maintained by the
         Translation Genomics Group and Rare Genomes Project at the Broad
         Institute.

@@ -143,7 +143,7 @@ const CustomVariantListForm = () => {
               <em>
                 Please use caution including a list of variants from multiple
                 genes, as this will assume digenic inheritance is possible. For
-                more information on how to us GeniE for multiple genes please
+                more information on how to us GenIE for multiple genes please
                 see our <Link href="/faq">FAQ</Link>.
               </em>
             </Text>
@@ -251,7 +251,7 @@ const CustomVariantListForm = () => {
                 label="Transcript"
                 helpText={
                   <span>
-                    GeniE defaults to the MANE (GRCh38)/canonical (GRCh37/hg19)
+                    GenIE defaults to the MANE (GRCh38)/canonical (GRCh37/hg19)
                     transcript of the gene. You can also select other
                     transcripts from the drop down. Additional support,
                     including visualizing various transcripts and pext scores,
