@@ -66,8 +66,8 @@ const DominantIncidenceMethods = () => {
 
       <Text ml={8} mt={8}>
         <strong>
-          GIDNV = ( ( ( oe_mis_prior - os_mis ) * mu_mis ) + ( ( oe_lof_prior -
-          oe_lof ) * mu_lof ) ) * 2
+          GIDNV = ( [ ( oe_mis_prior - os_mis ) * mu_mis ] + [ ( oe_lof_prior -
+          oe_lof ) * mu_lof ] ) * 2
         </strong>
       </Text>
       <UnorderedList listStyleType="none" ml={12} mt={4} mb={8}>
