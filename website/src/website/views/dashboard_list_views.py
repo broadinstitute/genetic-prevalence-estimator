@@ -148,6 +148,59 @@ class DashboardListsLoadView(CreateAPIView):
             )
 
 
+class DashboardListsBulkDeleteView(CreateAPIView):
+    """
+    Should be given a csv file with a single column where the column contains the symbol. E.g. 'PCSK9', or 'DEPDC5'
+    """
+
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def post(self, request, *args, **kwargs):
+        csv_file = request.FILES.get("csv_file")
+
+        if not csv_file:
+            return Response(
+                {"error": "No CSV File provided!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            decoded_file = csv_file.read().decode("utf-8").splitlines()
+            reader = csv.reader(decoded_file)
+
+            # skip header
+            next(reader, None)
+
+            # dashboard lists created by the pipeline always have the name in
+            #     the format of: '<GENE_SYMBOL> - Dashboard'
+            #     we could use the gene_symbol in the metadata instead,
+            #     but that comes from gencode, and might drift
+            labels_to_delete = [
+                f"{row[0].strip()} - Dashboard" for row in reader if row
+            ]
+
+            if not labels_to_delete:
+                return Response(
+                    {"error": "No valid gene IDs found in CSV."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # since our pipeline labels the dashboard lists, we can safely
+            #     filter and delete by label
+            deleted_count, _ = DashboardList.objects.filter(
+                label__in=labels_to_delete
+            ).delete()
+
+            return Response(
+                {"message": f"Successfully deleted {deleted_count} Dashboard Lists."},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:  # pylint: disable=broad-except
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 @method_decorator(gzip_page, name="dispatch")
 @method_decorator(
     cache_control(public=True, max_age=SIX_HOURS_IN_SECONDS), name="dispatch"
