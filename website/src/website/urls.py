@@ -16,6 +16,7 @@ from website.views.variant_list_views import (
     PublicVariantListView,
 )
 from website.views.dashboard_list_views import (
+    DashboardListsBulkDeleteView,
     DashboardListsView,
     DashboardListView,
     DashboardListsLoadView,
@@ -71,6 +72,11 @@ urlpatterns = [
         "api/dashboard-lists/load",
         DashboardListsLoadView.as_view(),
         name="load-dashboard-lists",
+    ),
+    path(
+        "api/dashboard-lists/bulk-delete",
+        DashboardListsBulkDeleteView.as_view(),
+        name="bulk-delete-dashboard-lists",
     ),
     path(
         "api/dashboard-lists/",

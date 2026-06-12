@@ -60,6 +60,112 @@ class TestDashboardListsLoadView:
 
 
 @pytest.mark.django_db
+class TestDashboardListsBulkDeleteView:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="User 1")
+        User.objects.create(username="staffuser", is_staff=True)
+
+    def test_posting_to_dashboard_bulk_delete_view_requires_authentication(self):
+        client = APIClient()
+
+        csv_content = ("symbol\n" "PCSK9\n" "A4GALT\n").encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/bulk-delete",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "username, expected_response", [("User 1", 403), ("staffuser", 200)]
+    )
+    def test_posting_to_dashboard_bulk_delete_view_requires_permissions(
+        self, username, expected_response
+    ):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username=username))
+
+        csv_content = ("symbol\n" "PCSK9\n" "A4GALT\n").encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/bulk-delete",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        assert response.status_code == expected_response
+
+    def test_dashboard_lists_bulk_delete_removes_only_specified_symbols(self):
+        """
+        Given a CSV of gene symbols, the view should delete any DashboardList
+        that matches those symbols in its metadata, leaving the rest untouched.
+        """
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffuser"))
+
+        DashboardList.objects.create(
+            gene_id="ENSG111",
+            label="PCSK9 - Dashboard",
+            metadata={"gene_symbol": "PCSK9"},
+            created_at="2024-05-14T21:49:36.005507Z",
+            variant_calculations={},
+            status="R",
+        )
+        DashboardList.objects.create(
+            gene_id="ENSG222",
+            label="A4GALT - Dashboard",
+            metadata={"gene_symbol": "A4GALT"},
+            created_at="2024-05-14T21:49:36.005507Z",
+            variant_calculations={},
+            status="R",
+        )
+        DashboardList.objects.create(
+            gene_id="ENSG333",
+            label="BRCA1 - Dashboard",
+            metadata={"gene_symbol": "BRCA1"},
+            created_at="2024-05-14T21:49:36.005507Z",
+            variant_calculations={},
+            status="R",
+        )
+
+        assert DashboardList.objects.count() == 3
+
+        csv_content = ("symbol\n" "PCSK9\n" "A4GALT\n").encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/bulk-delete",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        print(response.data)
+
+        assert response.status_code == 200, response.data
+
+        assert DashboardList.objects.count() == 1
+        assert DashboardList.objects.filter(metadata__gene_symbol="BRCA1").exists()
+
+        assert not DashboardList.objects.filter(metadata__gene_symbol="PCSK9").exists()
+        assert not DashboardList.objects.filter(metadata__gene_symbol="A4GALT").exists()
+
+
+@pytest.mark.django_db
 class TestDashboardListsView:
     @pytest.fixture(autouse=True)
     def db_setup(self):
