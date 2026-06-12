@@ -1130,9 +1130,9 @@ const faqs: FaqQuestion[] = [
           <>
             <Text mb={2}>
               The GIDNV estimates we provide on GenIE are per gene estimates.
-              However, there is a download available for all genes on the{" "}
-              <ChakraLink href="/dashboard">dashboard page</ChakraLink>. Those
-              GIDNV estimates can be combined together for a multi-gene
+              However, there is a download available for all autosomal genes on
+              the <ChakraLink href="/dashboard">dashboard page</ChakraLink>.
+              Those GIDNV estimates can be combined together for a multi-gene
               estimate.
             </Text>
           </>
@@ -1144,12 +1144,13 @@ const faqs: FaqQuestion[] = [
         content: (
           <>
             <Text mb={2}>
-              All genes with available gnomAD data are listed in the "all genes"
-              download on the{" "}
+              All autosomal genes with available gnomAD data are listed in the
+              "all autosomal genes" download on the{" "}
               <ChakraLink href="/dashboard">dashboard page</ChakraLink> below
-              the gene table. The all gene download includes genes that do not
-              have a moderate, strong, or definitive association with a disease
-              based on the Gene Curation Coalition (GenCC) database.
+              the gene table. The all autosomal gene download includes genes
+              that do not have a moderate, strong, or definitive association
+              with a disease based on the Gene Curation Coalition (GenCC)
+              database.
             </Text>
           </>
         ),
@@ -1194,8 +1195,8 @@ const faqs: FaqQuestion[] = [
               Coalition (GenCC) database, and have an autosomal dominant,
               autosomal recessive or semi dominant inheritance pattern. All
               other genes, with available gnomAD data, are listed in the “all
-              genes” download on the dashboard page. Gene symbols reflect gene
-              information found in{" "}
+              autosomal genes” download on the dashboard page. Gene symbols
+              reflect gene information found in{" "}
               <ChakraLink href="https://gnomad.broadinstitute.org/" isExternal>
                 gnomAD
               </ChakraLink>
@@ -1206,12 +1207,12 @@ const faqs: FaqQuestion[] = [
               (HGNC).
             </Text>
             <Text mb={2}>
-              If your gene of interest is not on the dashboard or the all genes
-              file it is possible that is not the HGNC gene name. While GenIE
-              does not support searching by aliases, the gnomAD browser does. If
-              you search your gene name in gnomAD and it goes to a gene page
-              with a different name, that is the HGNC gene name, and you should
-              use that for your search.
+              If your gene of interest is not on the dashboard or the all
+              autosomal genes file it is possible that is not the HGNC gene
+              name. While GenIE does not support searching by aliases, the
+              gnomAD browser does. If you search your gene name in gnomAD and it
+              goes to a gene page with a different name, that is the HGNC gene
+              name, and you should use that for your search.
             </Text>
           </>
         ),
