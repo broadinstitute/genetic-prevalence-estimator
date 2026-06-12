@@ -504,7 +504,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
   if (userIsStaff) {
     columns.push({
       key: "de_novo_dashboard_estimate",
-      heading: "Estimated incidence of de novo variation (per 100,000)",
+      heading: "Estimated genetic incidence of de novo variation (per 100,000)",
       headingTooltip:
         "Genetic incidence of de novo variation (GIDNV) is the estimated rate of de novo genotypes at gamete creation. Calculated using gnomAD constraint and mutation rate data",
       width: 175,

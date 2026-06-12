@@ -166,7 +166,7 @@ const RecessiveMethods = () => {
       </Text>
 
       <Text fontWeight="bold">
-        Estimated incidence of de novo variation (per 100,000)
+        Estimated genetic incidence of de novo variation (per 100,000)
       </Text>
       <Text mb={2}>
         Genetic incidence of de novo variation estimates the rate of newly
