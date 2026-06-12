@@ -133,7 +133,7 @@ const faqs: FaqQuestion[] = [
             <Text mb={2}>
               <strong>Prevalence</strong> is the proportion of a population that
               has a specific characteristic in a given time period. Example: "1
-              in 10 Americans has Type 2 diabetes"
+              in 10 Americans has Type 2 diabetes."
             </Text>
             <Text mb={2}>
               <strong>Incidence</strong> is the measure of the number of new
@@ -142,25 +142,25 @@ const faqs: FaqQuestion[] = [
               women is diagnosed with breast cancer"
             </Text>
             <Text>
-              Due to these definitions we believe that the calculations
-              performed by this tool is most accurately defined as an{" "}
-              <strong>estimated genetic prevalence</strong>, as it represents
-              the estimated proportion of a population that will have a genotype
-              for a genetic disorder, irrespective of penetrance, age of onset,
-              and other factors affecting the disease prevalence. These results
-              should always be interpreted in the context of the disease/gene of
-              interest. To learn more about considerations for these results
-              please see our FAQ question: "What factors should I consider when
-              interpreting these genetic prevalence results?", under the section
-              "Genetic Prevalence". To read more about how these estimates
-              relate to prevalence, incidence and lifetime risk please read{" "}
+              Due to these definitions, we believe that the calculations
+              performed by this tool are most accurately defined as an{" "}
+              <strong>estimated genetic prevalence</strong>, as they represent
+              the estimated proportion of a population that will have a causal
+              genotype for a genetic disorder, irrespective of penetrance, age
+              of onset, and other factors affecting the disease prevalence.
+              These results should always be interpreted in the context of the
+              disease/gene of interest. To learn more about considerations for
+              these results please see our FAQ “What factors should I consider
+              when interpreting these genetic prevalence results?”, in the
+              section "Genetic Prevalence". To read more about how these
+              estimates relate to prevalence, incidence and lifetime risk please
+              read{" "}
               <ChakraLink
-                href="https://www.cureffi.org/2019/06/05/using-genetic-data-to-estimate-disease-prevalence/"
+                href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence"
                 isExternal
               >
-                "Using genetic data to estimate disease prevalence"
+                our recent blog post.
               </ChakraLink>
-              .
             </Text>
           </>
         ),
@@ -185,17 +185,9 @@ const faqs: FaqQuestion[] = [
             For instance, if the causative genotype is not fully penetrant, then
             the estimated genetic prevalence will be higher than actual disease
             prevalence. To learn more about the factors that shape the estimated
-            genetic prevalence, please read{" "}
-            <Link
-              to={{
-                pathname: "/faq",
-                hash:
-                  "what-factors-should-i-consider-when-interpreting-these-results",
-              }}
-            >
-              "What factors should I consider when interpreting these results?"
-            </Link>
-            .
+            genetic prevalence, please read the FAQ question "What factors
+            should I consider when interpreting these genetic prevalence
+            results?" in the section "Genetic Prevalence".
           </Text>
         ),
       },
@@ -254,7 +246,7 @@ const faqs: FaqQuestion[] = [
               it can be excluded from the formula. This model is often used in
               rare disease to simplify the math.
             </Text>
-            <Text>
+            <Text mt={4}>
               <i>Remove gnomAD homozygotes:</i> This version of the formula will
               subtract the homozygous counts for any variant in the list that
               has homozygotes in gnomAD before performing the calculations via
@@ -262,7 +254,7 @@ const faqs: FaqQuestion[] = [
               <Text ml={8} mt={8}>
                 AC - 2 * (# of homozygotes)
               </Text>
-              <Text ml={12} mt={4} mb={8}>
+              <Text ml={8} mt={4} mb={8}>
                 AC = allele count of a particular variant
               </Text>
               This approach might be taken if there is concern that homozygous
@@ -412,19 +404,6 @@ const faqs: FaqQuestion[] = [
                 found only in gnomAD genome samples.
               </ListItem>
             </UnorderedList>
-            <Text mt={4}>
-              <strong>Gene</strong>
-            </Text>
-            <UnorderedList listStyleType="none" mt={4} mb={4}>
-              <ListItem>
-                <Badge colorScheme="yellow">I</Badge>: The gene is associated
-                with multiple inheritance patterns.
-              </ListItem>
-              <ListItem>
-                <Badge colorScheme="yellow">D</Badge>: The gene is associated
-                with multiple diseases.
-              </ListItem>
-            </UnorderedList>
           </Text>
         ),
       },
@@ -445,26 +424,37 @@ const faqs: FaqQuestion[] = [
         title:
           "Does the genetic prevalence calculator work for autosomal dominant and x-linked conditions?",
         content: (
-          <Text>
-            This method is designed for autosomal recessive disease because
-            prevalence can be calculated by observing carriers at expected rates
-            in the general population, i.e., using the carrier frequency in
-            unaffected individuals. In contrast, for dominant disorders,
-            pathogenic variants are typically found in affected individuals who
-            are less likely to participate in or meet recruitment criteria for
-            research studies that are included in reference population
-            databases. As a result, this method does not work as well for many
-            autosomal dominant conditions. For X-linked disorders in carrier
-            females, the mild manifestation of disease could have similar
-            effects as dominant disorders. We are working on creating methods
-            and tools for estimating genetic prevalence of AD and XL diseases
-            and hope to add them in future versions.
-          </Text>
+          <>
+            <Text>
+              This method is primarily designed for autosomal recessive disease
+              because prevalence can be calculated by observing heterozygotes at
+              expected rates in the general population, i.e., using the carrier
+              frequency in unaffected individuals. For dominant disorders,
+              pathogenic variants are typically found in affected individuals
+              who are less likely to participate in or meet recruitment criteria
+              for research studies that are included in reference population
+              databases such as gnomAD. However for later onset and more mild
+              conditions heterozygote rates can provide an estimated prevalence
+              of affected/at risk individuals.
+            </Text>
+            <Text>
+              While some past studies have attempted to use this method for
+              X-linked recessive conditions, it can lead to underestimates. This
+              is likely due to two factors: 1) the method does not account for
+              the variable contributions of de novo pathogenic variants across
+              X-linked conditions, and 2) we see a depletion of female carriers
+              for X-linked conditions in gnomAD, likely due to females with
+              milder symptoms of X-linked condition being less likely to
+              participate in research studies included in gnomAD. More work is
+              needed to improve the quality of genetic prevalence estimates for
+              all inherited conditions.
+            </Text>
+          </>
         ),
       },
 
       {
-        title: "What version of gnomAD is used in GenIE?",
+        title: "What version of gnomAD is used in GenIE for genetic prevalence",
         content: (
           <>
             <Text>
@@ -488,13 +478,21 @@ const faqs: FaqQuestion[] = [
             <Text mt={4}>
               The gnomAD v4.1.1 dataset is over 5 times the size of previous
               versions of gnomAD, containing 730,947 exomes plus the 76,215
-              genomes previously called in gnomAD v3, all mapped to the
+              genomes previously called in gnomAD v3.1.2, all mapped to the
               GRCh38/hg38 reference sequence.
             </Text>
             <Text mt={4}>
               The gnomAD v2.1.1 dataset contains data from 125,748 exomes and
               15,708 whole genomes, all mapped to the GRCh37/hg19 reference
               sequence. Most of the data from v2 are included in v4.
+            </Text>
+
+            <Text mt={8}>
+              <strong>UK Biobank:</strong>
+            </Text>
+            <Text mt={4}>
+              The gnomAD v4.1.1 callset includes 416,555 UK Biobank and 314,392
+              non-UK Biobank exomes.
             </Text>
 
             <Text mt={8}>
@@ -515,7 +513,7 @@ const faqs: FaqQuestion[] = [
             </Text>
 
             <Text mt={8}>
-              <strong>Genetic ancestry subgroups:</strong>
+              <strong>Subpopulations:</strong>
             </Text>
             <Text mt={4}>
               Genetic ancestry subgroups (ex. Korean, Bulgarian, Estonian) are
@@ -572,13 +570,13 @@ const faqs: FaqQuestion[] = [
       },
       {
         title:
-          "What factors should I consider when interpreting these genetic prevalence results?",
+          "What factors should I consider when interpreting genetic prevalence results?",
         content: (
           <>
             <Text mb={2}>
-              This tool provides an estimated carrier frequency and genetic
-              prevalence. There are many factors that go into these estimates,
-              which can influence the way you interpret the results.
+              This tool provides an <em>estimated</em> carrier frequency and
+              genetic prevalence. There are many factors that go into these
+              estimates, which can influence the way you interpret the results.
             </Text>
 
             <Text mb={2}>
@@ -628,10 +626,10 @@ const faqs: FaqQuestion[] = [
             </Text>
             <UnorderedList spacing={2} mb={2}>
               <ListItem>
-                <em>
+                <Text fontStyle="italic" mb={1}>
                   Is the disease known to be more common in a population not
                   well represented in gnomAD (e.g. Middle Eastern)?
-                </em>{" "}
+                </Text>{" "}
                 Representation can have a big influence on these calculations.
                 If a variant is more common in a population that is not well
                 represented in gnomAD, the disease-causing variant(s) could
@@ -646,10 +644,10 @@ const faqs: FaqQuestion[] = [
                 .
               </ListItem>
               <ListItem>
-                <em>
+                <Text fontStyle="italic" mb={1}>
                   What proportion of affected individuals have disease-causing
                   variants detectable by exome or genome sequencing?
-                </em>{" "}
+                </Text>{" "}
                 Variants in gnomAD have been identified via exome or genome
                 sequencing. Variants not detectable by one for these two
                 technologies will not be included in these estimates.
@@ -660,7 +658,9 @@ const faqs: FaqQuestion[] = [
                 prevalence.
               </ListItem>
               <ListItem>
-                <em>Is the disease-gene relationship still relatively new?</em>{" "}
+                <Text fontStyle="italic" mb={1}>
+                  Is the disease-gene relationship still relatively new?
+                </Text>{" "}
                 It can take years to appreciate the full variant spectrums for a
                 novel disease. During that time there can be fewer pathogenic
                 variants known for a disease, which limits the number of allele
@@ -673,14 +673,14 @@ const faqs: FaqQuestion[] = [
 
             <Text mb={2}>
               If you feel the estimate is too high (either globally or a
-              specific population):
+              specific genetic ancestry group):
             </Text>
             <UnorderedList spacing={2} mb={2}>
               <ListItem>
-                <em>
+                <Text fontStyle="italic" mb={1}>
                   Are there any high frequency variants in your list that have
                   questionable or unknown significance?
-                </em>{" "}
+                </Text>{" "}
                 Even a single high frequency allele can dramatically impact the
                 results so we recommend reviewing any high frequency variants to
                 determine if they have a well established association with
@@ -688,22 +688,24 @@ const faqs: FaqQuestion[] = [
                 without that allele included.
               </ListItem>
               <ListItem>
-                <em>Do we know the full phenotypic spectrum of the gene?</em> As
-                mentioned above, disease spectrum should always be considered in
-                interpreting these results. Impacts to life expectancy, reduced
-                penetrance and variable expressivity can all lead to estimated
-                genetic prevalence being considerably higher than estimates
-                based on a clinical diagnosis alone. Additionally, does the
-                disease have any phenocopies caused by another gene that could
-                lead to individuals being diagnostically grouped in with some
-                more common, non-specific phenotype like autism or cerebral
-                palsy?
+                <Text fontStyle="italic mb={1}">
+                  Do we know the full phenotypic spectrum of the gene?
+                </Text>{" "}
+                As mentioned above, disease spectrum should always be considered
+                in interpreting these results. Impacts to life expectancy,
+                reduced penetrance and variable expressivity can all lead to
+                estimated genetic prevalence being considerably higher than
+                estimates based on a clinical diagnosis alone. Additionally,
+                does the disease have any phenocopies caused by another gene
+                that could lead to individuals being diagnostically grouped in
+                with some more common, non-specific phenotype like autism or
+                cerebral palsy?
               </ListItem>
               <ListItem>
-                <em>
+                <Text fontStyle="italic" mb={1}>
                   Does the gene, or specific regions of the gene, have lower
                   than average allele numbers?
-                </em>{" "}
+                </Text>{" "}
                 Allele frequencies are determined by allele count/allele number.
                 Having lower allele numbers for a specific variant or region can
                 inflate the frequencies. Clinical Genome Resource (ClinGen)
@@ -750,16 +752,16 @@ const faqs: FaqQuestion[] = [
             </Text>
             <UnorderedList listStyleType="none" ml={8} mt={4} mb={8}>
               <ListItem>
-                <em>Viewer:</em>These users can view the data but not make any
+                <em>Viewer:</em> These users can view the data but not make any
                 changes
               </ListItem>
               <ListItem mt={4}>
-                <em>Editor:</em>These users will be allowed to make changes to
+                <em>Editor:</em> These users will be allowed to make changes to
                 the variant list and add private notes, but not will not be able
                 to add any users or make a list public
               </ListItem>
               <ListItem mt={4}>
-                <em>Owner:</em>These users will have all the capabilities of an
+                <em>Owner:</em> These users will have all the capabilities of an
                 editor but also have the ability to add other collaborators or
                 designate a list to become public. Creators of a list are owners
                 by default. There can be multiple owners of a list.
@@ -774,19 +776,19 @@ const faqs: FaqQuestion[] = [
         content: (
           <>
             <Text>
-              Some pathogenic variants have reduced penetrance compared to other
-              disease-causing variants. In recessive disorders, these variants
-              are often hypomorphic, meaning they partially impair gene function
-              rather than causing complete loss of function. For example, a
-              splice variant may alter splicing in only a subset of transcripts,
-              allowing some normal protein production, while a missense variant
-              may reduce enzyme activity without fully disrupting protein
-              function. Hypomorphic variants may cause disease only when
-              inherited in trans with a fully pathogenic variant and may not
-              result in disease when present in homozygosity. If the clinical
-              presentation associated with hypomorphic variants differs
-              substantially from the disease of interest, these variants may be
-              excluded from prevalence estimates. Alternatively, one can include
+              Some variants can be pathogenic yet have much reduced penetrance
+              compared to other variants in the gene. For recessive diseases,
+              these are often hypomorphic alleles where they have partial
+              activity. For example, some splice variants only lead to partial
+              splice disruption and the transcript is still expressed at a
+              reduced level. Others may be a missense variant that reduces
+              enzyme activity but still leaves the protein largely intact. For
+              many of these variants, they may only cause disease if combined
+              with a second allele that is fully pathogenic but not when the
+              hypomorphic allele is homozygous. Therefore, one may wish to
+              exclude them from the calculation if the disease that is manifest
+              is too divergent from the primary disease or in order to exclude
+              the effects of the homozygous state. Alternatively one can include
               these alleles and then subtract the homozygous frequency of the
               reduced penetrant allele(s) from the final calculation.
             </Text>
