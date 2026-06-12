@@ -7,6 +7,7 @@ import {
   ListItem,
   Flex,
   Tooltip,
+  Badge,
 } from "@chakra-ui/react";
 import { useState } from "react";
 
@@ -70,6 +71,20 @@ const StatBox = ({ value }: { value: React.ReactNode }) => (
   >
     {value}
   </Box>
+);
+
+const oeLofSentinelValue = -1.337;
+const oeLoFNAWarningText =
+  "This gene has no observed/expected ratio for Loss of Function variants.";
+const oeLoFNAWarning = (
+  <Tooltip hasArrow label={oeLoFNAWarningText}>
+    <Box as="span">
+      <Badge colorScheme="yellow" fontSize="1em" ml={1} mr={2}>
+        Note
+      </Badge>
+      <Text as="span">N/A</Text>
+    </Box>
+  </Tooltip>
 );
 
 const DominantListCharts = (props: DominantListChartsProps) => {
@@ -220,7 +235,8 @@ const DominantListCharts = (props: DominantListChartsProps) => {
                 </Box>
               </ListItem>
               <ListItem>
-                • {gene_symbol} oe LoF: {oe_lof}
+                • {gene_symbol} oe LoF:{" "}
+                {oe_lof === oeLofSentinelValue ? oeLoFNAWarning : oe_lof}
                 <Box as="span" ml={2}>
                   <HelpTextHover
                     helpText={
