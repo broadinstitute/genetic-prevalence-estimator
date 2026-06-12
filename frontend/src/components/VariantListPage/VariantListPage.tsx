@@ -595,10 +595,10 @@ const VariantListPage = (props: VariantListPageProps) => {
   return (
     <>
       <Box mb={4} sx={printOnly}>
-        These estimates were performed using GeniE, the Genetic Prevalence
-        Estimator ({document.location.hostname}), created and maintained by the
-        Translation Genomics Group and Rare Genomes Project at the Broad
-        Institute.
+        These estimates were performed using GenIE, the Genetic Prevalence and
+        Incidence Estimator ({document.location.hostname}), created and
+        maintained by the Translation Genomics Group and Rare Genomes Project at
+        the Broad Institute.
       </Box>
 
       <Heading as="h1" mb={4}>
@@ -697,7 +697,7 @@ const VariantListPage = (props: VariantListPageProps) => {
                   <>
                     <Text>
                       This functionality enables you to share variant lists with
-                      other registered GeniE users.{" "}
+                      other registered GenIE users.{" "}
                     </Text>
                     <Text ml={4} mt={4}>
                       <strong>Owners:</strong> can edit the list, manage
@@ -736,7 +736,7 @@ const VariantListPage = (props: VariantListPageProps) => {
                           <>
                             <Box mb={2}>
                               A user with this email has never signed in to
-                              GeniE.
+                              GenIE.
                             </Box>
                             <Box mb={2}>
                               When this user signs in, they will have

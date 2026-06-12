@@ -82,7 +82,7 @@ const AboutView = () => {
         Citation in Publications
       </Heading>
       <Text mb={2}>
-        We request that any use of data obtained from GeniE cite the online
+        We request that any use of data obtained from GenIE cite the online
         resource and include a link to the tool ({document.location.hostname}).
       </Text>
 
