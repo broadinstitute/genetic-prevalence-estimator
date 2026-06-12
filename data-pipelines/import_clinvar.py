@@ -43,63 +43,67 @@ def download_clinvar_vcf(output_path, reference_genome):
 # https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/
 # These must be kept in sync with CLINVAR_CLINICAL_SIGNIFICANCE_CATEGORIES
 # in frontend/src/constants/clinvar.ts
-CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(
-    {
-        # these should be kept in sync with the classifications in generate_recessive_dashboard_lists
-        "pathogenic_or_likely_pathogenic": {
-            "association",
-            "Likely pathogenic",
-            "Likely pathogenic, low penetrance",
-            "Likely pathogenic/Likely risk allele",
-            "Likely pathogenic/Pathogenic",
-            "Likely pathogenic/Likely pathogenic",
-            "Pathogenic",
-            "Pathogenic, low penetrance",
-            "Pathogenic/Pathogenic",
-            "Pathogenic/Likely pathogenic",
-            "Pathogenic/Likely risk allele",
-            "Pathogenic/Likely pathogenic/Likely risk allele",
-            "Pathogenic/Likely pathogenic/Established risk allele",
-            "Pathogenic/Likely pathogenic/Pathogenic",
-            "Pathogenic/Likely pathogenic/Likely pathogenic",
-        },
-        "conflicting_interpretations": {
-            "conflicting data from submitters",
-            "Conflicting interpretations of pathogenicity",
-            "Conflicting classifications of pathogenicity",
-        },
-        "uncertain_significance": {
-            "Uncertain significance",
-            "Uncertain significance/Uncertain risk allele",
-            "Uncertain significance/VUS-high",
-            "Uncertain significance/VUS-mid",
-            "Uncertain significance/VUS-low",
-        },
-        "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
-        "other": {
-            None,
-            "Affects",
-            "association not found",
-            "confers sensitivity",
-            "drug response",
-            "Established risk allele",
-            "Likely risk allele",
-            "risk factor",
-            "low penetrance",
-            "low penetrance/Established risk allele",
-            "not provided",
-            "other",
-            "protective",
-            "Uncertain risk allele",
-            "no classification for the single variant",
-            "no classifications from unflagged records",
-            "VUS-high",
-            "VUS-mid",
-            "VUS-low",
-            "-",
-        },
-    }
-)
+PYTHON_CLINICAL_SIGNIFICANCE_CATEGORIES = {
+    # these should be kept in sync with the classifications in generate_recessive_dashboard_lists
+    "pathogenic_or_likely_pathogenic": {
+        "association",
+        "Likely pathogenic",
+        "Likely pathogenic, low penetrance",
+        "Likely pathogenic/Likely risk allele",
+        "Likely pathogenic/Pathogenic",
+        "Likely pathogenic/Likely pathogenic",
+        "Pathogenic",
+        "Pathogenic, low penetrance",
+        "Pathogenic/Pathogenic",
+        "Pathogenic/Likely pathogenic",
+        "Pathogenic/Likely pathogenic/Likely risk allele",
+        "Pathogenic/Likely pathogenic/Established risk allele",
+        "Pathogenic/Likely pathogenic/Pathogenic",
+        "Pathogenic/Likely pathogenic/Likely pathogenic",
+    },
+    "conflicting_interpretations": {
+        "conflicting data from submitters",
+        "Conflicting interpretations of pathogenicity",
+        "Conflicting classifications of pathogenicity",
+    },
+    "uncertain_significance": {
+        "Uncertain significance",
+        "Uncertain significance/Uncertain risk allele",
+        "Uncertain significance/VUS-high",
+        "Uncertain significance/VUS-mid",
+        "Uncertain significance/VUS-low",
+    },
+    "benign_or_likely_benign": {"Benign", "Benign/Likely benign", "Likely benign"},
+    "other": {
+        None,
+        "Affects",
+        "association not found",
+        "confers sensitivity",
+        "drug response",
+        "Established risk allele",
+        "Likely risk allele",
+        "risk factor",
+        "low penetrance",
+        "low penetrance/Established risk allele",
+        "not provided",
+        "other",
+        "Pathogenic/Likely risk allele",
+        "protective",
+        "Uncertain risk allele",
+        "no classification for the single variant",
+        "no classifications from unflagged records",
+        "VUS-high",
+        "VUS-mid",
+        "VUS-low",
+        "-",
+    },
+}
+
+KNOWN_CLINICAL_SIGNIFICANCES = {
+    term for terms in PYTHON_CLINICAL_SIGNIFICANCE_CATEGORIES.values() for term in terms
+}
+
+CLINICAL_SIGNIFICANCE_CATEGORIES = hl.dict(PYTHON_CLINICAL_SIGNIFICANCE_CATEGORIES)
 
 CLINICAL_SIGNIFICANCE_CATEGORY = hl.dict(
     CLINICAL_SIGNIFICANCE_CATEGORIES.items().flatmap(
@@ -180,6 +184,45 @@ def import_clinvar_vcf(clinvar_vcf_path, *, intervals=None, partitions=2000):
         ds = hl.filter_intervals(ds, intervals)
 
     ds = ds.repartition(partitions, shuffle=True)
+
+    # catch any new terms in incoming ClinVar vcf early
+    print("Pre-scanning VCF for unknown clinical significance terms...")
+
+    cleaned_clnsig = ds.info.CLNSIG.flatmap(lambda s: s.split(r"\|")).map(
+        lambda s: s.replace("^_", "").replace("_", " ")
+    )
+
+    cleaned_clnsigconf = (
+        hl.or_else(ds.info.CLNSIGCONF, hl.empty_array(hl.tstr))
+        .flatmap(lambda s: s.split(r"\|"))
+        .map(
+            lambda s: s.replace("^_", "")
+            .replace("_", " ")
+            .replace(r"\(\d+\)$", "")
+            .strip()
+        )
+    )
+
+    unique_clnsig = ds.aggregate(
+        hl.agg.explode(lambda x: hl.agg.collect_as_set(x), cleaned_clnsig)
+    )
+    unique_clnsigconf = ds.aggregate(
+        hl.agg.explode(lambda x: hl.agg.collect_as_set(x), cleaned_clnsigconf)
+    )
+
+    all_found_terms = set(unique_clnsig) | set(unique_clnsigconf)
+    all_found_terms = {t for t in all_found_terms if t is not None}
+    known_terms = {t for t in KNOWN_CLINICAL_SIGNIFICANCES if t is not None}
+
+    unmapped_terms = all_found_terms - known_terms
+
+    if unmapped_terms:
+        error_msg = (
+            "\n ==== ERROR: The following ClinVar clinical significance terms are present in the incoming VCF, but not in the 'PYTHON_CLINICAL_SIGNIFICANCE_CATEGORIES' dict. !\n"
+            f"Add the following {len(unmapped_terms)} terms to PYTHON_CLINICAL_SIGNIFICANCE_CATEGORIES:\n"
+            + "\n".join([f'    "{term}",' for term in unmapped_terms])
+        )
+        raise ValueError(error_msg)
 
     ds = ds.annotate_globals(
         reference_genome=reference_genome,
