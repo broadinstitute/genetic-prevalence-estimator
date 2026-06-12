@@ -173,7 +173,7 @@ const Methods: FC<{ variantList: VariantList }> = ({ variantList }) => {
 
       <Text mb={2}>
         Aggregate carrier frequency and genomic prevalence are calculated using
-        the Hardy-Weinberg equation). All frequency annotations were collected
+        the Hardy-Weinberg equation. All frequency annotations were collected
         across all the global and sub-continental ancestries in gnomAD v
         {variantList.metadata.gnomad_version} with more than 2,000 reference
         alleles<sup>2</sup>. Allele frequencies (AF) from all the variants
