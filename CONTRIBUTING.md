@@ -4,21 +4,15 @@
 
 - Confirm you're using the tool versions specified in `.tool_versions` file, for convenience consider using a tool such as `asdf` or `mise` to manage this
 
-- Create a virtual python environment
+- Install python dependencies
 
-  ```
-  uv venv
-  ```
-
-  Activate the environment
-
-  ```
-  source ./venv/bin/activate
+  ```bash
+  uv sync --all-packages --all-groups
   ```
 
 - Install development tools.
 
-  ```
+  ```bash
   uv pip install -r dev-requirements.txt
   uv pip install -r shared-requirements.txt
 
@@ -31,7 +25,7 @@
 
 - Install and configure [git-secrets](https://github.com/awslabs/git-secrets).
 
-  ```
+  ```bash
   git secrets --add --literal 'private_key'
   git secrets --add --literal 'private_key_id'
   git secrets --add --literal 'client_id'
@@ -40,8 +34,8 @@
 
 - Install pre-commit hooks.
 
-  ```
-  python -m pre_commit install
+  ```bash
+  uv run pre_commit install
   ```
 
 ## Preparing data
@@ -55,13 +49,13 @@ The Docker Compose configuration for the development environment expects Hail Ta
 
 For example, to prepare data for variants in PCSK9:
 
-```
-python data-pipelines/prepare_gnomad_variants.py --gnomad-version 2 --intervals 1:55505221-55530525 --partitions 2 ./data/gnomAD_v2.1.1_variants.ht
-python data-pipelines/prepare_gnomad_variants.py --gnomad-version 4 --intervals chr1:55039447-55064852 --partitions 2 ./data/gnomAD_v4.1.0_variants.ht
+```bash
+uv run python data-pipelines/prepare_gnomad_variants.py --gnomad-version 2 --intervals 1:55505221-55530525 --partitions 2 ./data/gnomAD_v2.1.1_variants.ht
+uv run python data-pipelines/prepare_gnomad_variants.py --gnomad-version 4 --intervals chr1:55039447-55064852 --partitions 2 ./data/gnomAD_v4.1.0_variants.ht
 
-python data-pipelines/import_lof_curation_results.py --gnomad-version 2 -intervals 1:55505221-55530525 --partitions=2 ./data/gnomAD_v2.1.1_lof_curation_results.ht
+uv run python data-pipelines/import_lof_curation_results.py --gnomad-version 2 -intervals 1:55505221-55530525 --partitions=2 ./data/gnomAD_v2.1.1_lof_curation_results.ht
 
-python data-pipelines/import_clinvar.py --reference-genome GRCh37 --intervals 1:55505221-55530525 --partitions 2 ./data/ClinVar_GRCh37_variants.ht
+uv run python data-pipelines/import_clinvar.py --reference-genome GRCh37 --intervals 1:55505221-55530525 --partitions 2 ./data/ClinVar_GRCh37_variants.ht
 python data-pipelines/import_clinvar.py --reference-genome GRCh38 --intervals chr1:55039447-55064852 --partitions 2 ./data/ClinVar_GRCh38_variants.ht
 ```
 
@@ -73,7 +67,7 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 
 - Configure app. Create a `.env` file and fill in values for environment variables.
 
-  ```
+  ```bash
   cat <<EOF > .env
   SECRET_KEY=
   DB_DATABASE=
@@ -85,40 +79,42 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 
   To generate a random secret key, use:
 
-  ```
-  python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key());'
+  ```bash
+  uv run python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key());'
   ```
 
 - On first run, start database and apply migrations.
 
-  ```
+  ```bash
   docker compose up database
   docker compose run --rm website django-admin migrate
   ```
 
 - Start all services.
 
-  ```
+  ```bash
   docker compose up
   ```
 
 - On first run, create a user.
 
-  Users created by the application are inactive by default. The first user cannot be activated through the application UI.
+  Users created by the application are non-staff by default. The first staff user cannot be created through the application UI.
 
   - Start a REPL.
 
-    ```
+    ```bash
     docker compose exec website django-admin shell
     ```
 
-  - Create a user or activate an existing user.
+  - Optionally create a user, and promote your user to a superuser.
 
-    ```
+    ```python
     from django.contrib.auth import get_user_model
     User = get_user_model()
 
+    # optional, create user if you haven't signed into the local app yet
     User.objects.create(username="<YOUR_USERNAME>")
+
     User.objects.filter(username="<YOUR_USERNAME>").update(is_active=True, is_staff=True)
     ```
 
@@ -126,6 +122,32 @@ This assumes that [BuildKit](https://docs.docker.com/develop/develop-images/buil
 
 ## Running development tasks
 
-Use [nox](https://nox.thea.codes/en/stable/) to run tasks in a virtualenv with necessary dependencies.
+Use `uv run` to execute tasks within `uv`'s managed virtual environment
 
-Use `nox -l` to list available tasks. Use `nox -s <name>` to run a specific task.
+- Run all Django/Python tests
+
+  ```bash
+  uv run pytest website/tests calculator/tests
+  ```
+
+- Check, but don't format, Python code with black
+
+  ```bash
+  uv run black --check calculator website
+  ```
+
+- Format Python code with black
+
+  ```bash
+  uv run black calculator website
+  ```
+
+- Lint code Python code with black
+
+  ```bash
+  uv run pylint --load-plugins=pylint_django \
+      calculator/src/calculator \
+      calculator/tests \
+      website/src/website \
+      website/tests
+  ```
