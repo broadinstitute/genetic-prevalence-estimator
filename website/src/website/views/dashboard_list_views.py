@@ -98,15 +98,31 @@ class DashboardListsLoadView(CreateAPIView):
                     gene_id = metadata["gene_id"].split(".")[0]
                     gene_id_with_decimal = f"{gene_id}."
 
-                    representative_variant_list = None
-                    representative_variant_list_with_same_gene_id = VariantList.objects.filter(
+                    approved_representative_variant_lists = VariantList.objects.filter(
                         metadata__gene_id__startswith=gene_id_with_decimal,
                         representative_status=VariantList.RepresentativeStatus.APPROVED,
                     )
-                    if representative_variant_list_with_same_gene_id.count() > 0:
-                        representative_variant_list = (
-                            representative_variant_list_with_same_gene_id[0]
+
+                    representative_variant_list = None
+
+                    # for dashboard lists from the paper, there is both a "conservative" list and a
+                    #     "relaxed" list. Both got approved at some point in the past, while now
+                    #     only one should be approved at a time.
+                    # preferentially make sure to grab the "conservative" ones in here, just in case
+                    #     since these lists are mentioned in the GenIE paper
+                    if approved_representative_variant_lists.exists():
+                        conservative_list = (
+                            approved_representative_variant_lists.filter(
+                                label__icontains="conservative"
+                            ).first()
                         )
+
+                        if conservative_list:
+                            representative_variant_list = conservative_list
+                        else:
+                            representative_variant_list = (
+                                approved_representative_variant_lists.first()
+                            )
 
                     dashboard_list = serializer.save(
                         representative_variant_list=representative_variant_list

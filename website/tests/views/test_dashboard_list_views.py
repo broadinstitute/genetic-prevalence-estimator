@@ -4,8 +4,11 @@ from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 
+from tests.views.mock_dashboard_model import RAW_CSV_DASHBOARD_MODEL_STRING
+
 from calculator.models import (
     DashboardList,
+    VariantList,
 )
 
 
@@ -57,6 +60,204 @@ class TestDashboardListsLoadView:
 
         response = client.post("/api/dashboard-lists/load", data=form_data)
         assert response.status_code == expected_response
+
+    def test_dashboard_load_correctly_links_approved_representative_variant_list(self):
+        """
+        If an approved representative list exists for a given dashboard list, the load function
+        should add to the new dashboard list object, a foreign key relationship to that approved
+        representative variant list
+        """
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffuser"))
+
+        gene_id_base = "ENSG00000187634"
+        metadata_json = {"gene_id": f"{gene_id_base}.13"}
+
+        private_representative_list = VariantList.objects.create(
+            label="Unsubmitted SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PRIVATE,
+        )
+
+        pending_representative_list = VariantList.objects.create(
+            label="Pending SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PENDING,
+        )
+
+        rejected_representative_list = VariantList.objects.create(
+            label="Rejected SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.REJECTED,
+        )
+
+        approved_representative_list = VariantList.objects.create(
+            label="Representative SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+        )
+
+        valid_csv_content = RAW_CSV_DASHBOARD_MODEL_STRING.replace(
+            "{gene_id_base}", gene_id_base
+        ).encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", valid_csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/load",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        assert response.status_code == 200
+
+        dashboard_list = DashboardList.objects.get(gene_id=gene_id_base)
+
+        assert (
+            dashboard_list.representative_variant_list == approved_representative_list
+        )
+        assert "Representative" in dashboard_list.representative_variant_list.label
+
+        assert dashboard_list.representative_variant_list != private_representative_list
+        assert dashboard_list.representative_variant_list != pending_representative_list
+        assert (
+            dashboard_list.representative_variant_list != rejected_representative_list
+        )
+
+    def test_dashboard_load_doesnt_link_a_variant_list_if_theres_no_approved_representative_variant_list(
+        self,
+    ):
+        """
+        If an approved representative list exists for a given dashboard list, the load function
+        should add to the new dashboard list object, a foreign key relationship to that approved
+        representative variant list
+        """
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffuser"))
+
+        gene_id_base = "ENSG00000187634"
+        metadata_json = {"gene_id": f"{gene_id_base}.13"}
+
+        private_representative_list = VariantList.objects.create(
+            label="Unsubmitted SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PRIVATE,
+        )
+
+        pending_representative_list = VariantList.objects.create(
+            label="Pending SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PENDING,
+        )
+
+        rejected_representative_list = VariantList.objects.create(
+            label="Rejected SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.REJECTED,
+        )
+
+        valid_csv_content = RAW_CSV_DASHBOARD_MODEL_STRING.replace(
+            "{gene_id_base}", gene_id_base
+        ).encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", valid_csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/load",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        assert response.status_code == 200
+
+        dashboard_list = DashboardList.objects.get(gene_id=gene_id_base)
+
+        assert dashboard_list.representative_variant_list is None
+
+        assert dashboard_list.representative_variant_list != private_representative_list
+        assert dashboard_list.representative_variant_list != pending_representative_list
+        assert (
+            dashboard_list.representative_variant_list != rejected_representative_list
+        )
+
+    def test_dashboard_load_prefers_approved_representative_variant_list_with_conservative_in_the_title(
+        self,
+    ):
+        """
+        In the case where multiple approved representative variant lists exist for a single gene, preferentially select the one where the word "conservative" occurs in the title.
+        """
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffuser"))
+
+        gene_id_base = "ENSG00000187634"
+        metadata_json = {"gene_id": f"{gene_id_base}.13"}
+
+        VariantList.objects.create(
+            label="Unsubmitted SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PRIVATE,
+        )
+
+        VariantList.objects.create(
+            label="Pending SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.PENDING,
+        )
+
+        VariantList.objects.create(
+            label="Rejected SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.REJECTED,
+        )
+
+        representative_list = VariantList.objects.create(
+            label="Representative SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+        )
+
+        relaxed_list = VariantList.objects.create(
+            label="Relaxed SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+        )
+
+        conservative_list = VariantList.objects.create(
+            label="Conservative SAMD11 List",
+            metadata=metadata_json,
+            representative_status=VariantList.RepresentativeStatus.APPROVED,
+        )
+
+        valid_csv_content = RAW_CSV_DASHBOARD_MODEL_STRING.replace(
+            "{gene_id_base}", gene_id_base
+        ).encode("utf-8")
+
+        mock_file = SimpleUploadedFile(
+            "test_load.csv", valid_csv_content, content_type="text/csv"
+        )
+
+        response = client.post(
+            "/api/dashboard-lists/load",
+            data={"csv_file": mock_file},
+            format="multipart",
+        )
+
+        assert response.status_code == 200
+
+        dashboard_list = DashboardList.objects.get(gene_id=gene_id_base)
+
+        assert dashboard_list.representative_variant_list == conservative_list
+        assert "Conservative" in dashboard_list.representative_variant_list.label
+
+        assert dashboard_list.representative_variant_list != relaxed_list
+        assert dashboard_list.representative_variant_list != representative_list
 
 
 @pytest.mark.django_db
