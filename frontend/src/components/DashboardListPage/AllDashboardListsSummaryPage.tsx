@@ -1070,7 +1070,7 @@ const DashboardLists = (props: {
 
       <Box mt={4}>
         <Link href="/dashboard-gidnv-summary.csv" download>
-          Download GIDNV summary (no olfactory or disease associated genes) CSV
+          Download GIDNV summary (all autosomal genes) CSV
         </Link>
       </Box>
 
