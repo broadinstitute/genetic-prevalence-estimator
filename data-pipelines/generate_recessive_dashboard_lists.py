@@ -899,6 +899,7 @@ def prepare_dashboard_download(base_dir, df_recessive):
             "gene_id",
             "gene_symbol",
             "transcript_id",
+            "inheritance_type",
             "gnomad_version",
             "reference_genome",
             "included_clinvar_variants",
@@ -926,6 +927,28 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
     download_data = []
 
+    def expand_inheritance_abbreviations(inheritance_type_abbreviations):
+        unabbreviated_inheritance_types = []
+
+        inheritance_type_mapping = {
+            "AD": "Autosomal dominant",
+            "AR": "Autosomal recessive",
+            "SD": "Semidominant",
+        }
+
+        for type in inheritance_type_abbreviations.split(","):
+            # print(f"type: {type}")
+            # print(f"full name: {inheritance_type_mapping.get(type.strip(), "")}")
+            unabbreviated_inheritance_types.append(
+                inheritance_type_mapping.get(type.strip(), "")
+            )
+
+        unabbreviated_inheritance_type_string = ", ".join(
+            unabbreviated_inheritance_types
+        )
+
+        return unabbreviated_inheritance_type_string
+
     for _, row in df_recessive.iterrows():
         metadata = safe_json_load(row.get("metadata"))
 
@@ -947,6 +970,7 @@ def prepare_dashboard_download(base_dir, df_recessive):
             ),
             "clinvar_version": metadata.get("clinvar_version", ""),
             "date_created": row["date_created"],
+            "inheritance_type": expand_inheritance_abbreviations(row["type"]),
         }
 
         row_data.update(
