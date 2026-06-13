@@ -503,10 +503,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-  ];
 
-  if (userIsStaff) {
-    columns.push({
+    {
       key: "de_novo_dashboard_estimate",
       heading: "Estimated genetic incidence of de novo variation (per 100,000)",
       headingTooltip:
@@ -551,10 +549,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           </Cell>
         );
       },
-    });
-  }
+    },
 
-  columns.push(
     {
       key: "representative_estimate",
       heading: "Curated Estimates Public on GenIE",
@@ -626,7 +622,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-
     {
       key: "supporting_documents",
       heading: "Supporting document",
@@ -667,7 +662,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-
     {
       key: "prevalence_orphanet",
       heading: "Prevalence orphanet",
@@ -692,8 +686,9 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           </Cell>
         );
       },
-    }
-  );
+    },
+  ];
+
   return columns;
 };
 
