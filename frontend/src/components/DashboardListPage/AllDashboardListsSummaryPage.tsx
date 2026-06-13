@@ -516,6 +516,26 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         return dashboardList.estimated_de_novo_incidence;
       },
       render: (dashboardList: DashboardList) => {
+        const incidenceIsSentinel =
+          dashboardList.estimated_de_novo_incidence === -1.337;
+        const incidenceSentinelText =
+          "This gene has no constraint data in gnomAD v4.1.1, incidence estimates are unavailable.";
+
+        if (incidenceIsSentinel) {
+          return (
+            <Cell maxWidth={200}>
+              <Tooltip hasArrow label={incidenceSentinelText}>
+                <Box as="span">
+                  <Badge colorScheme="yellow" fontSize="0.8em" ml={1} mr={2}>
+                    Note
+                  </Badge>
+                  <Text as="span">-</Text>
+                </Box>
+              </Tooltip>
+            </Cell>
+          );
+        }
+
         const incidencePer100k = (
           dashboardList.estimated_de_novo_incidence * 100_000
         ).toFixed(3);
