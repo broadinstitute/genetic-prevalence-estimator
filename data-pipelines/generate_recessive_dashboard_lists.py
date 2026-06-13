@@ -917,6 +917,7 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
         # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
+            "gene_id": row.get("gene_id"),
             "gene_symbol": metadata.get("gene_symbol", row.get("gene_id_base")),
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
