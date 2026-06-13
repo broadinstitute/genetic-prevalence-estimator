@@ -13,10 +13,11 @@ from generate_recessive_dashboard_lists import prepare_gene_models
 LOCAL_BASE_DIR = os.path.join(os.path.dirname(__file__), "../data")
 
 LOCAL_DISEASE_ASSOCIATED_GENES_FILENAME = (
-    "2026-05-29_genie-input_5k-disease-associated-genes.csv"
+    "2026-06-12_genie-input_5k-disease-associated-dashboard-genes.csv"
 )
+
 LOCAL_DOMINANT_INPUT_GENES_FILENAME = (
-    "2026-05-29_genie-input_17k-dominant-v4p1p1-stats-genes.csv"
+    "2026-06-12_genie-input_17k-dominant-gidnv-genes-with-stats.csv"
 )
 
 LOCAL_ORPHANET_PATH = os.path.join(
