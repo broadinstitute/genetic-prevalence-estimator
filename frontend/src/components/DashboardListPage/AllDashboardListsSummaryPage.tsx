@@ -389,7 +389,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
     {
       key: "gene_symbol",
       heading: "Gene Symbol",
-      width: 175,
+      width: 210,
       sortKey: (dashboardList) => {
         return dashboardList.gene_symbol;
       },
@@ -779,6 +779,8 @@ const DataRow = ({
             width={`${column.width}px`}
             sx={{
               height: `${ROW_HEIGHT}px`,
+              flexShrink: 0,
+              minWidth: `${column.width}px`,
             }}
           >
             {column.render(rowData)}
@@ -1229,6 +1231,7 @@ const DashboardLists = (props: {
                     style={{
                       position: "relative",
                       width: `${column.width} px`,
+                      minWidth: `${column.width}px`,
                     }}
                   >
                     {column.sortKey ? (
@@ -1481,11 +1484,10 @@ const DashboardLists = (props: {
                       Delete
                     </ButtonWithConfirmation>
                   </Box>
+                  <Box>Length: {dashboardLists.length}</Box>
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
-
-            <Box>Length: {dashboardLists.length}</Box>
           </Box>
         </>
       )}
