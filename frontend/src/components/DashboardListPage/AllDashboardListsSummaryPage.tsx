@@ -560,10 +560,10 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           const genetic_prevalence =
             dashboardList.representative_variant_list.total_genetic_prevalence;
           return genetic_prevalence !== 0
-            ? Math.round(1 / genetic_prevalence)
-            : 0;
+            ? 1 - Math.round(1 / genetic_prevalence)
+            : 0.000001;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList: DashboardList) => {
         return (
@@ -596,9 +596,9 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           Array.isArray(dashboardList.representative_variant_list.owners) &&
           dashboardList.representative_variant_list.owners.length > 0
         ) {
-          return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
+          return dashboardList.representative_variant_list.owners[0] ? 0 : 1;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList) => {
         const ownersArray =
@@ -633,10 +633,10 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         ) {
           return dashboardList.representative_variant_list
             .supporting_documents[0]
-            ? 1
-            : 0;
+            ? 0
+            : 1;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList) => {
         return (
