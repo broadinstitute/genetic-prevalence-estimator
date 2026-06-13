@@ -14,7 +14,10 @@ from datetime import datetime
 import hail as hl
 import pandas as pd
 
-GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/2026-05-29_genie-input_5k-disease-associated-genes.csv"
+GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_GCS_PATH = "gs://aggregate-frequency-calculator-data/input/2026-05-29_genie-input_5k-disease-associated-genes.csv"
+GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_LOCAL_FILENAME = (
+    "2026-06-12_genie-input_5k-disease-associated-dashboard-genes.csv"
+)
 
 GNOMAD_GRCH38_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/genes/gnomAD_browser_genes_grch38_annotated_6.ht"
 
@@ -1125,7 +1128,7 @@ def main() -> None:
     if args.directory_root:
         base_dir = args.directory_root
 
-    input_genes_filename = GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_PATH
+    input_genes_filename = GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_LOCAL_FILENAME
     if args.input_genes_file:
         input_genes_filename = args.input_genes_file
 
@@ -1140,6 +1143,8 @@ def main() -> None:
     file_prefix = ""
 
     # ---
+
+    print(f"\nRunning with input file: {input_genes_csv_fullpath}\n")
 
     print("Initializing Hail for global data prep...")
     hl.init(
