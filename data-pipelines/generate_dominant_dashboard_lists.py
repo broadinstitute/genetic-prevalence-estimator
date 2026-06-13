@@ -259,8 +259,9 @@ def prepare_dominant_dashboard_download(
 
 def prepare_dominant_dashboard_models(df_dashboard_download):
     """
-    Trim the downloads file to just disease associated genes
-    Remove the 'gene_symbol' column
+    Trim the models file to just disease associated genes
+    as the dashboard should ONLY have disease associated genes on it.
+    Also, remove the 'gene_symbol' column
     """
     FINAL_COLUMNS = [
         "gene_id",
@@ -308,6 +309,8 @@ def main():
         base_dir, "input", input_dominant_genes_filename
     )
 
+    print(f"Running with GIDNV genes stats input CSV of: {input_genes_fullpath}")
+
     input_disease_associated_genes_filename = LOCAL_DISEASE_ASSOCIATED_GENES_FILENAME
     if args.input_disease_associated_genes_filename:
         input_disease_associated_genes_filename = (
@@ -317,10 +320,18 @@ def main():
         base_dir, "input", input_disease_associated_genes_filename
     )
 
+    print(
+        f"Running with disease associated genes input CSV of: {input_disease_associated_genes_fullpath}"
+    )
+
     print("Preparing dominant dashboard list models ...")
     df_dashboard_download = prepare_dominant_dashboard_download(
         input_genes_fullpath, input_disease_associated_genes_fullpath, base_dir
     )
+
+    print(f"\n\ndownload info: \n")
+    print(df_dashboard_download.info())
+
     df_dashboard_download.to_csv(
         os.path.join(
             base_dir, "output", "dominant_dashboard", "dominant-dashboard-download.csv"
@@ -330,6 +341,8 @@ def main():
     print("Wrote dominant dashboard downloads file")
 
     df_dashboard_models = prepare_dominant_dashboard_models(df_dashboard_download)
+    print(f"\n\nmodels info: \n")
+    print(df_dashboard_models.info())
     df_dashboard_models.to_csv(
         os.path.join(
             base_dir, "output", "dominant_dashboard", "dominant-dashboard-models.csv"
