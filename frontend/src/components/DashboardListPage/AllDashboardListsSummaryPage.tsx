@@ -403,7 +403,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
             {CHIP_GENE_SYMBOLS.indexOf(dashboardList.gene_symbol) !== -1 && (
               <ChipGeneFlag />
             )}
-            {dashboardList.inheritance_type.includes("/") && (
+            {dashboardList.inheritance_type.includes(",") && (
               <MultipleInheritanceFlag />
             )}
             {dashboardList.genetic_prevalence_orphanet ===
