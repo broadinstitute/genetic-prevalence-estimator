@@ -679,7 +679,21 @@ def prepare_dashboard_lists(
         )
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
-        transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
+
+        mane_select_transcript_version_val = row.mane_select_transcript_ensemble_version
+
+        safe_mane_select_transcript_ensembl_version = (
+            0
+            if pd.isna(mane_select_transcript_version_val)
+            else row.mane_select_transcript_ensemble_version
+        )
+
+        if safe_mane_select_transcript_ensembl_version == 0:
+            print(
+                f"   - Row has {row.mane_select_transcript_ensemble_version} for transcript version! Using fallback of {safe_mane_select_transcript_ensembl_version}"
+            )
+
+        transcript_id_with_version = f"{row.preferred_transcript_id}.{safe_mane_select_transcript_ensembl_version}"
 
         df.at[index, "label"] = f"{row.symbol} - Dashboard"
         df.at[
