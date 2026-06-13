@@ -1086,6 +1086,43 @@ const DashboardLists = (props: {
     );
   };
 
+  const bulkDeleteDashboardLists = (): Promise<void> => {
+    if (!file) {
+      toast({
+        title: "You need to add a file",
+        status: "error",
+        duration: 10_000,
+        isClosable: true,
+      });
+      return new Promise<void>((resolve, reject) => resolve());
+    }
+
+    const formData = new FormData();
+    const blob = new Blob([file!], { type: file!.type });
+    formData.append("csv_file", blob, file!.name);
+
+    return postFile(`/dashboard-lists/bulk-delete`, formData).then(
+      () => {
+        toast({
+          title: "List of dashboard lists deleted!",
+          status: "success",
+          duration: 30_000,
+          isClosable: true,
+        });
+        setFile(null);
+      },
+      (error) => {
+        toast({
+          title: "Unable to bulk delete dashboard lists",
+          description: renderErrorDescription(error),
+          status: "error",
+          duration: 10_000,
+          isClosable: true,
+        });
+      }
+    );
+  };
+
   const deleteDashboardList = (
     dashboardListToDelete: DashboardList
   ): Promise<void> => {
@@ -1326,6 +1363,7 @@ const DashboardLists = (props: {
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
+
             <Accordion allowToggle>
               <AccordionItem>
                 <h2>
@@ -1371,6 +1409,54 @@ const DashboardLists = (props: {
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
+
+            <Accordion allowToggle>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box as="span" flex="1" textAlign="left">
+                      Bulk delete dashboard lists using a .csv file
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <Box mb={4}>
+                    <Input
+                      type="file"
+                      onChange={handleFileChange}
+                      placeholder="Add a file to bulk delete lists"
+                      size="md"
+                      mb={2}
+                      sx={{
+                        "::file-selector-button": {
+                          height: 10,
+                          padding: 0,
+                          mr: 4,
+                          background: "none",
+                          border: "none",
+                          fontWeight: "bold",
+                        },
+                      }}
+                    />
+
+                    <ButtonWithConfirmation
+                      size="sm"
+                      colorScheme="red"
+                      confirmationPrompt="This cannot be undone."
+                      confirmButtonText="Bulk delete"
+                      onClick={() => {
+                        bulkDeleteDashboardLists();
+                      }}
+                    >
+                      Delete
+                    </ButtonWithConfirmation>
+                  </Box>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+
+            <Box>Length: {dashboardLists.length}</Box>
           </Box>
         </>
       )}
