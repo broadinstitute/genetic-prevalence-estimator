@@ -1307,7 +1307,7 @@ def main() -> None:
                 / "output"
                 / "recessive_dashboard"
                 / "models"
-                / f"{file_prefix}recessive_dashboard_models_batch-{batch_id}-of-{num_batches}--{batch_length}-lists.csv"
+                / f"{file_prefix}recessive_dashboard_models_batch-{batch_id + 1}-of-{num_batches}--{batch_length}-lists.csv"
             )
             model_output_file.parent.mkdir(parents=True, exist_ok=True)
             df_dashboard_models.to_csv(model_output_file, index=False)
@@ -1324,7 +1324,7 @@ def main() -> None:
                 / "output"
                 / "recessive_dashboard"
                 / "downloads"
-                / f"{file_prefix}recessive_dashboard_downloads_batch-{batch_id}-of-{num_batches}--{batch_length}-lists.csv"
+                / f"{file_prefix}recessive_dashboard_downloads_batch-{batch_id + 1}-of-{num_batches}--{batch_length}-lists.csv"
             )
             download_output_file.parent.mkdir(parents=True, exist_ok=True)
             df_dashboard_download.to_csv(download_output_file, index=False)
