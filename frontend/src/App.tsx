@@ -137,8 +137,6 @@ const App = () => {
   const { isSignedIn, user } = useStore(authStore);
   const history = useHistory();
 
-  const tkStaffPreview = isSignedIn && user!.is_staff;
-
   return (
     <>
       <Box boxShadow="base" mb={4} sx={screenOnly}>
@@ -206,7 +204,7 @@ const App = () => {
           </Flex>
         </Container>
       </Box>
-      {tkStaffPreview && banner}
+      {banner}
       <Container pb={4} maxW="1400px">
         <Switch>
           <Route
@@ -252,21 +250,7 @@ const App = () => {
           <Route
             exact
             path="/dashboard-incidence/:uuid/"
-            render={({ match }) =>
-              isSignedIn && user?.is_staff ? (
-                <RequireSignIn>
-                  <IncidencePage uuid={match.params.uuid} />
-                </RequireSignIn>
-              ) : (
-                <RequireSignIn>
-                  <Box mt={8}>
-                    <Heading as="h2" size="md">
-                      This page is not accessible to non-staff users.
-                    </Heading>
-                  </Box>
-                </RequireSignIn>
-              )
-            }
+            render={({ match }) => <IncidencePage uuid={match.params.uuid} />}
           />
 
           {user?.is_staff && [
