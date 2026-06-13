@@ -503,10 +503,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-  ];
 
-  if (userIsStaff) {
-    columns.push({
+    {
       key: "de_novo_dashboard_estimate",
       heading: "Estimated genetic incidence of de novo variation (per 100,000)",
       headingTooltip:
@@ -551,10 +549,8 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           </Cell>
         );
       },
-    });
-  }
+    },
 
-  columns.push(
     {
       key: "representative_estimate",
       heading: "Curated Estimates Public on GenIE",
@@ -564,10 +560,10 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           const genetic_prevalence =
             dashboardList.representative_variant_list.total_genetic_prevalence;
           return genetic_prevalence !== 0
-            ? Math.round(1 / genetic_prevalence)
-            : 0;
+            ? 1 - Math.round(1 / genetic_prevalence)
+            : 0.000001;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList: DashboardList) => {
         return (
@@ -600,9 +596,9 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           Array.isArray(dashboardList.representative_variant_list.owners) &&
           dashboardList.representative_variant_list.owners.length > 0
         ) {
-          return dashboardList.representative_variant_list.owners[0] ? 1 : 0;
+          return dashboardList.representative_variant_list.owners[0] ? 0 : 1;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList) => {
         const ownersArray =
@@ -626,7 +622,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-
     {
       key: "supporting_documents",
       heading: "Supporting document",
@@ -638,10 +633,10 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         ) {
           return dashboardList.representative_variant_list
             .supporting_documents[0]
-            ? 1
-            : 0;
+            ? 0
+            : 1;
         }
-        return 0;
+        return 1;
       },
       render: (dashboardList) => {
         return (
@@ -667,7 +662,6 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
         );
       },
     },
-
     {
       key: "prevalence_orphanet",
       heading: "Prevalence orphanet",
@@ -692,8 +686,9 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
           </Cell>
         );
       },
-    }
-  );
+    },
+  ];
+
   return columns;
 };
 
