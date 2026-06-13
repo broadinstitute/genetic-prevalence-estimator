@@ -176,7 +176,8 @@ class DashboardListsSummarySerializer(ModelSerializer):
 
     def get_estimated_de_novo_incidence(self, obj):
         if not obj.dominant_dashboard_list:
-            return 0
+            # sentinel value
+            return -1.337
 
         de_novo_calculations = (
             obj.dominant_dashboard_list.de_novo_variant_calculations or {}
