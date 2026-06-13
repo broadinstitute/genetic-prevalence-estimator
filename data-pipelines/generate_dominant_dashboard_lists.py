@@ -200,7 +200,6 @@ def prepare_dominant_dashboard_download(
             row.get("gene_id"),
             row.get("gene_version"),
             row.get("preferred_transcript_id"),
-            row.get("mane_select_transcript_ensemble_version"),
         ]
 
         if any(pd.isna(field) or field in ("", "<NA>") for field in required_metadata):
@@ -208,7 +207,19 @@ def prepare_dominant_dashboard_download(
             continue
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
-        transcript_id_with_version = f"{row.preferred_transcript_id}.{row.mane_select_transcript_ensemble_version}"
+
+        mane_select_transcript_version_val = row.mane_select_transcript_ensemble_version
+        safe_mane_select_transcript_ensembl_version = (
+            0
+            if pd.isna(mane_select_transcript_version_val)
+            else row.mane_select_transcript_ensemble_version
+        )
+        if safe_mane_select_transcript_ensembl_version == 0:
+            print(
+                f"   - Row has {row.mane_select_transcript_ensemble_version} for transcript version! Using fallback of {safe_mane_select_transcript_ensembl_version}"
+            )
+
+        transcript_id_with_version = f"{row.preferred_transcript_id}.{safe_mane_select_transcript_ensembl_version}"
 
         current_datetime = datetime.now()
         iso_8601_datetime = current_datetime.isoformat()
