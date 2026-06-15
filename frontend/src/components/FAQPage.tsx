@@ -412,11 +412,12 @@ const faqs: FaqQuestion[] = [
           "How do I add or remove variants after a variant list is created?",
         content: (
           <Text>
-            To add more variants to a list after a variant list is created,
-            select the '+' button next to the "Variants" header. At this time,
-            variants cannot be completely removed from the list after it is
-            created, but can be excluded from the calculations by unchecking the
-            box next to the gnomAD ID in the variant table.
+            To add more variants to a list after a variant list is created
+            select the + button next to the “Variants” header.  Variants can be
+            either excluded from the calculations temporarily by unchecking the
+            box next to the gnomAD ID in the variant table, or they can be
+            removed from the list completely by checking “Exclude” on the far
+            right side of the variant-specific row in the variant table.
           </Text>
         ),
       },
