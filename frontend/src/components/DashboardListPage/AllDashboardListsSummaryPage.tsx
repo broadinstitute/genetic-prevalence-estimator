@@ -417,7 +417,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "inheritance_type",
       heading: "Mode of Inheritance",
       headingTooltip:
-        "AD = autosomal dominant, AR = autosomal recessive, SD = semi-dominant",
+        "AD = autosomal dominant, AR = autosomal recessive, SD = semi-dominant (see methods for more information on MOIs)",
       width: 120,
       sortKey: (dashboardList: DashboardList) => {
         return dashboardList.inheritance_type;
@@ -431,7 +431,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "aggregate_allele_freq_lp_p",
       heading: "Aggregate allele frequency for LP/P variants",
       headingTooltip:
-        "Calculated using ClinVar pathogenic/likely pathogenic variants found in >=1 individuals in gnomAD, as well as high confidence predicted loss-of-function variants (HC pLoF) from gnomAD",
+        "Sum of allele frequencies from ClinVar pathogenic/likely pathogenic variants found in  ≥1 individuals in gnomAD, as well as high confidence predicted loss-of-function variants (HC pLoF) from gnomAD",
       width: 175,
       sortKey: (dashboardList: DashboardList) => {
         return 1 / dashboardList.aggregate_allele_frequency;
@@ -587,7 +587,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
 
     {
       key: "representative_contact",
-      heading: "Contact for public estimate",
+      heading: "Contact for curated estimate",
       width: 150,
       sortKey: (dashboardList: DashboardList) => {
         if (
@@ -811,11 +811,11 @@ const DashboardMethods = () => {
       <Text fontWeight="bold">Modes of Inheritance</Text>
       <Text mb={2}>
         The mode(s) of inheritance associated with disease-causing variants in
-        each gene (e.g., autosomal recessive (AR), autosomal dominant (AD), or
-        semidominant (SD)) are included and derived from GenCC.
+        each gene (e.g., autosomal recessive [AR], autosomal dominant [AD], or
+        semidominant [SD]) are included and derived from GenCC.
       </Text>
       <Text mb={2}>
-        Autosomal recessive (AR) = A mode of inheritance for diseases associated
+        Autosomal recessive [AR] = A mode of inheritance for diseases associated
         to a gene located on one of the autosomes, in which a disease presents
         in individuals with two disease-causing alleles, either homozygotes (two
         copies of the same allele) or compound heterozygotes (each copy of a
