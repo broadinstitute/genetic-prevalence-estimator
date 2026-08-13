@@ -12,12 +12,12 @@ import {
   Flex,
   Heading,
   HStack,
+  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Spinner,
-  Text,
 } from "@chakra-ui/react";
 import { FC, useState, useEffect } from "react";
 import {
@@ -52,11 +52,14 @@ import theme from "./theme";
 
 const bannerContent = (
   <>
-    GenIE now includes estimates of genetic incidence of{" "}
-    <Text as="span" fontStyle="italic">
-      de novo
-    </Text>{" "}
-    variation (GIDNV) on the dashboard
+    We want to hear from you! Please take our{" "}
+    <BaseLink
+      href="https://docs.google.com/forms/d/e/1FAIpQLSf6dEDR028WmnCkro8bPXeVjrFhNuV8H0A2-MtkTNOKUZGZKA/viewform?usp=header"
+      isExternal
+    >
+      user survey
+    </BaseLink>{" "}
+    to provide feedback on GeniE.
   </>
 );
 
