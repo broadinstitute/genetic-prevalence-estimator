@@ -1,3 +1,7 @@
+overrides:
+  # 6.1.0 has known bug with transparent warning overlay, pin to 6.0.9 for now
+  react-error-overlay: 6.0.9
+
 allowBuilds:
   core-js: true
   core-js-pure: true
