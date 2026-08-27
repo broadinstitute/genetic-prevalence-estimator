@@ -90,6 +90,8 @@ export const authStore: Store<AuthState> = atom({
   user: null,
 } as AuthState);
 
+export const authErrorStore: Store<Error | null> = atom(null as Error | null);
+
 export const loadCurrentUser = (): Promise<AuthUser | null> => {
   return get("/auth/whoami/").then(
     (user) => {

@@ -3,7 +3,7 @@
 // https://developers.google.com/identity/gsi/web/reference/js-reference
 
 import { post } from "./api";
-import { AppConfig, AuthUser, authStore } from "./state";
+import { AppConfig, AuthUser, authErrorStore, authStore } from "./state";
 
 export const initializeAuth = (appConfig: AppConfig) => {
   const handleCredentialResponse = (response: any) => {
@@ -11,12 +11,16 @@ export const initializeAuth = (appConfig: AppConfig) => {
       .catch(() => {})
       .then(() => {
         const token: string = response.credential;
-        post("/auth/signin/", { token }).then((user: AuthUser) => {
-          authStore.set({
-            isSignedIn: true,
-            user,
+        post("/auth/signin/", { token })
+          .then((user: AuthUser) => {
+            authStore.set({
+              isSignedIn: true,
+              user,
+            });
+          })
+          .catch((error: Error) => {
+            authErrorStore.set(error);
           });
-        });
       });
   };
 

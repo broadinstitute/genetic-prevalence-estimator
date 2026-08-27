@@ -18,6 +18,7 @@ import {
   MenuItem,
   MenuList,
   Spinner,
+  useToast,
 } from "@chakra-ui/react";
 import { FC, useState, useEffect } from "react";
 import {
@@ -47,7 +48,14 @@ import IncidencePage from "./components/DashboardListPage/IncidencePage";
 import VariantListPage from "./components/VariantListPage/VariantListPage";
 import AllVariantListsSummaryPage from "./components/AllVariantListsSummaryPage";
 import { initializeAuth, signOut } from "./auth";
-import { authStore, loadCurrentUser, loadAppConfig, useStore } from "./state";
+import { renderErrorDescription } from "./errors";
+import {
+  authErrorStore,
+  authStore,
+  loadCurrentUser,
+  loadAppConfig,
+  useStore,
+} from "./state";
 import theme from "./theme";
 
 const bannerContent = (
@@ -138,7 +146,22 @@ const NavLink: FC<NavLinkProps> = ({ to, children }) => {
 
 const App = () => {
   const { isSignedIn, user } = useStore(authStore);
+  const authError = useStore(authErrorStore);
   const history = useHistory();
+  const toast = useToast();
+
+  useEffect(() => {
+    if (authError) {
+      toast({
+        title: "Unable to sign in",
+        description: renderErrorDescription(authError),
+        status: "error",
+        duration: 10_000,
+        isClosable: true,
+      });
+      authErrorStore.set(null);
+    }
+  }, [authError, toast]);
 
   return (
     <>
