@@ -1,0 +1,6 @@
+# Golden snapshot fixtures for data-pipelines/tests/snapshots/. These are compared
+# byte-for-byte against pipeline output (Python's json.dump(..., indent=2, sort_keys=True)),
+# not hand-maintained, and not meant to match Prettier's JSON formatting conventions
+# (array wrapping, exponent normalization). Reformatting them here breaks the snapshot
+# check without changing any actual data.
+data-pipelines/tests/snapshots/golden/
