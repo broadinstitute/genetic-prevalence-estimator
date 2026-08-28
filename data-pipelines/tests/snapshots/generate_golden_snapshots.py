@@ -45,6 +45,45 @@ GOLDEN_FIXTURE_GENES = [
         "reason": "autosomal recessive, different chromosome (chr6): exercises "
         "per-chromosome batching with more than one chromosome in the fixture",
     },
+    # The five below all have curated public prevalence estimates on GenIE from known
+    # staff users -- added together to widen chromosome coverage (chr15, chr4, chr17,
+    # chr6, chr22) and give the suite real-world AR genes beyond ARG1.
+    {
+        "symbol": "EFL1",
+        "type": "AR",
+        "Unique MOI Titles": "Autosomal recessive",
+        "MOI with Classifications": "Autosomal recessive (Moderate, Strong, Definitive)",
+        "reason": "curated GenIE staff estimate; chr15",
+    },
+    {
+        "symbol": "HADH",
+        "type": "AR",
+        "Unique MOI Titles": "Autosomal recessive",
+        "MOI with Classifications": "Autosomal recessive (Definitive, Strong)",
+        "reason": "curated GenIE staff estimate; chr4",
+    },
+    {
+        "symbol": "SLC13A5",
+        "type": "AR",
+        "Unique MOI Titles": "Autosomal recessive",
+        "MOI with Classifications": "Autosomal recessive (Strong, Definitive)",
+        "reason": "curated GenIE staff estimate; chr17",
+    },
+    {
+        "symbol": "EPM2A",
+        "type": "AR",
+        "Unique MOI Titles": "Autosomal recessive",
+        "MOI with Classifications": "Autosomal recessive (Definitive, Strong)",
+        "reason": "curated GenIE staff estimate; chr6 (second gene on this chromosome, "
+        "alongside ARG1)",
+    },
+    {
+        "symbol": "MLC1",
+        "type": "AR",
+        "Unique MOI Titles": "Autosomal recessive",
+        "MOI with Classifications": "Autosomal recessive (Definitive, Strong)",
+        "reason": "curated GenIE staff estimate; chr22",
+    },
 ]
 
 
