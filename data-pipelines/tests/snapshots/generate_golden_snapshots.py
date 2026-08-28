@@ -87,21 +87,37 @@ GOLDEN_FIXTURE_GENES = [
 ]
 
 
-def write_genes_csv(path: Path) -> None:
+def write_genes_csv(path: Path, symbols: list[str] | None = None) -> None:
     """Write GOLDEN_FIXTURE_GENES as the pipeline's expected input CSV shape.
 
     Only GENES_CSV_FIELDNAMES columns are written - `reason` is fixture
     documentation for readers of this file, not part of the pipeline's input
     schema.
+
+    `symbols`, if given, restricts the CSV to that subset of
+    GOLDEN_FIXTURE_GENES (by `symbol`), instead of writing all of them.
     """
+    genes = GOLDEN_FIXTURE_GENES
+    if symbols is not None:
+        known_symbols = {gene["symbol"] for gene in GOLDEN_FIXTURE_GENES}
+        unknown_symbols = [symbol for symbol in symbols if symbol not in known_symbols]
+        if unknown_symbols:
+            raise ValueError(
+                f"unknown golden fixture symbol(s): {', '.join(unknown_symbols)} -- "
+                f"must be a subset of {sorted(known_symbols)}"
+            )
+        genes = [gene for gene in GOLDEN_FIXTURE_GENES if gene["symbol"] in symbols]
+
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=GENES_CSV_FIELDNAMES)
         writer.writeheader()
-        for gene in GOLDEN_FIXTURE_GENES:
+        for gene in genes:
             writer.writerow({column: gene[column] for column in GENES_CSV_FIELDNAMES})
 
 
-def run_pipeline(source_data_root: Path, scratch_dir: Path) -> Path:
+def run_pipeline(
+    source_data_root: Path, scratch_dir: Path, symbols: list[str] | None = None
+) -> Path:
     """Run the real pipeline against a scratch directory-root with its own
     `input/` and `output/`, so this run's batch CSVs can't land in - or get
     confused with - the shared `data/output/recessive_dashboard/` that real
@@ -110,10 +126,13 @@ def run_pipeline(source_data_root: Path, scratch_dir: Path) -> Path:
     read-only, since it's the same real data a production run would use and
     rebuilding it (particularly the gene models table) means a slow, network-
     bound Hail job. Returns the directory containing the run's models CSV(s).
+
+    `symbols`, if given, restricts the run to that subset of
+    GOLDEN_FIXTURE_GENES -- see `write_genes_csv`.
     """
     input_dir = scratch_dir / "input"
     input_dir.mkdir(parents=True)
-    write_genes_csv(input_dir / GENES_CSV_FILENAME)
+    write_genes_csv(input_dir / GENES_CSV_FILENAME, symbols=symbols)
 
     shared_processed_data_dir = scratch_dir / "processed_data"
     shared_processed_data_dir.symlink_to(source_data_root / "processed_data")

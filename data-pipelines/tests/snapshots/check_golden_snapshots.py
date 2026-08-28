@@ -4,8 +4,12 @@ Used to run the pipeline with real data and generate the same set of json snapsh
 Usage:
 
     uv run python data-pipelines/tests/snapshots/check_golden_snapshots.py \\
-        [--source-data-root ./data]
+        [--source-data-root ./data] [--symbols SYMBOL [SYMBOL ...]]
 
+--symbols restricts the check to a subset of GOLDEN_FIXTURE_GENES (see
+generate_golden_snapshots.py), e.g. `--symbols PCSK9` for a single-gene,
+single-chromosome, single-batch run -- much faster than the full fixture set
+for iterating locally, at the cost of covering only that gene's code paths.
 """
 
 import argparse
@@ -24,19 +28,28 @@ class SnapshotComparison:
     only_in_golden: list[str] = field(default_factory=list)
     only_in_fresh: list[str] = field(default_factory=list)
     differing: dict[str, str] = field(default_factory=dict)
+    compared_count: int = 0
 
     @property
     def matches(self) -> bool:
         return not (self.only_in_golden or self.only_in_fresh or self.differing)
 
 
-def compare_snapshot_dirs(golden_dir: Path, fresh_dir: Path) -> SnapshotComparison:
-    golden_files = {p.name for p in golden_dir.glob("*.json")}
-    fresh_files = {p.name for p in fresh_dir.glob("*.json")}
+def compare_snapshot_dirs(
+    golden_dir: Path, fresh_dir: Path, symbols: list[str] | None = None
+) -> SnapshotComparison:
+    def in_scope(filename: str) -> bool:
+        return symbols is None or any(
+            filename.startswith(f"{symbol}-") for symbol in symbols
+        )
+
+    golden_files = {p.name for p in golden_dir.glob("*.json") if in_scope(p.name)}
+    fresh_files = {p.name for p in fresh_dir.glob("*.json") if in_scope(p.name)}
 
     result = SnapshotComparison(
         only_in_golden=sorted(golden_files - fresh_files),
         only_in_fresh=sorted(fresh_files - golden_files),
+        compared_count=len(golden_files),
     )
 
     for name in sorted(golden_files & fresh_files):
@@ -56,11 +69,11 @@ def compare_snapshot_dirs(golden_dir: Path, fresh_dir: Path) -> SnapshotComparis
     return result
 
 
-def print_report(result: SnapshotComparison, golden_dir: Path) -> None:
+def print_report(result: SnapshotComparison) -> None:
     if result.matches:
-        golden_count = len(list(golden_dir.glob("*.json")))
         print(
-            f"all good! pipeline output matches all {golden_count} golden snapshot(s)."
+            f"all good! pipeline output matches all {result.compared_count} golden "
+            "snapshot(s)."
         )
         return
 
@@ -83,17 +96,28 @@ def print_report(result: SnapshotComparison, golden_dir: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-data-root", type=Path, default=REPO_ROOT / "data")
+    parser.add_argument(
+        "--symbols",
+        nargs="+",
+        default=None,
+        help="Only check these golden fixture gene(s) (space-separated symbols), "
+        "instead of the full GOLDEN_FIXTURE_GENES set.",
+    )
     args = parser.parse_args(argv)
 
     with tempfile.TemporaryDirectory(prefix="genie-golden-check-") as scratch:
-        models_dir = run_pipeline(args.source_data_root, Path(scratch))
+        models_dir = run_pipeline(
+            args.source_data_root, Path(scratch), symbols=args.symbols
+        )
         fresh_snapshots_dir = Path(scratch) / "fresh_snapshots"
         generate_snapshots(
             models_dir, fresh_snapshots_dir, filename_field="metadata.gene_symbol"
         )
-        result = compare_snapshot_dirs(SNAPSHOTS_DIR, fresh_snapshots_dir)
+        result = compare_snapshot_dirs(
+            SNAPSHOTS_DIR, fresh_snapshots_dir, symbols=args.symbols
+        )
 
-    print_report(result, SNAPSHOTS_DIR)
+    print_report(result)
     return 0 if result.matches else 1
 
 
