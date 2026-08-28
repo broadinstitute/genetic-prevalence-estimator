@@ -320,19 +320,8 @@ def process_dashboard_list(
             ]
         ).filter(hl.is_defined)
     )
-    ht = ht.select("source")
 
     ht = ht.annotate(id=variant_id(ht.locus, ht.alleles))
-
-    ht = ht.annotate(**gnomad_variants[ht.locus, ht.alleles])
-
-    ht = ht.transmute(
-        transcript_consequence=ht.transcript_consequences.find(
-            lambda csq: csq.transcript_id == transcript_id
-        )
-    )
-
-    ht = ht.transmute(**ht.transcript_consequence)
 
     ht = ht.annotate(**ht.freq.joint)
 
