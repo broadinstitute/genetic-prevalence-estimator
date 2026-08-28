@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import os
 import ast
 import gc
@@ -73,28 +74,76 @@ def variant_id(locus, alleles):
     )
 
 
-def _add_flags_to_variants(ds, max_af_of_clinvar_path_or_likely_path_variants):
-    return hl.array(
-        [
-            hl.or_missing(hl.is_missing(ds.freq), "not_found"),
-            hl.or_missing(
-                hl.len(
-                    hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
-                        hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
-                    )
-                )
-                > 0,
-                "filtered",
-            ),
-            hl.or_missing(
-                (ds.AC[0] / ds.AN[0] > max_af_of_clinvar_path_or_likely_path_variants)
-                & (hl.is_missing(ds.clinvar_variation_id)),
-                "high_AF",
-            ),
-            # TODO: add "low_AN" flag?
-            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
-        ]
-    ).filter(hl.is_defined)
+def _max_af_of_clinvar_pathogenic_variants(variants):
+    candidate_allele_frequencies = []
+    for variant in variants:
+        if (
+            variant.get("clinical_significance_category")
+            != "pathogenic_or_likely_pathogenic"
+        ):
+            continue
+
+        allele_counts = variant.get("AC")
+        allele_numbers = variant.get("AN")
+        if not allele_counts or not allele_numbers:
+            continue
+
+        allele_count = allele_counts[0]
+        allele_number = allele_numbers[0]
+        if allele_count is None or allele_number is None:
+            continue
+
+        if allele_number == 0:
+            allele_frequency = float("nan") if allele_count == 0 else float("inf")
+        else:
+            allele_frequency = allele_count / allele_number
+
+        candidate_allele_frequencies.append(allele_frequency)
+
+    if not candidate_allele_frequencies:
+        return None
+
+    finite_allele_frequencies = [
+        af for af in candidate_allele_frequencies if not math.isnan(af)
+    ]
+    return max(finite_allele_frequencies) if finite_allele_frequencies else float("nan")
+
+
+def _flags_for_variant(variant, max_af_of_clinvar_path_or_likely_path_variants):
+    flags = []
+
+    if variant.get("_freq_missing"):
+        flags.append("not_found")
+
+    filters = variant.get("filters") or {}
+    exome_filters = set(filters.get("exome") or [])
+    genome_filters = set(filters.get("genome") or [])
+    if len(exome_filters | genome_filters) > 0:
+        flags.append("filtered")
+
+    allele_counts = variant.get("AC")
+    allele_numbers = variant.get("AN")
+    if allele_counts and allele_numbers:
+        allele_count = allele_counts[0]
+        allele_number = allele_numbers[0]
+        if allele_count is not None and allele_number is not None:
+            if allele_number == 0:
+                allele_frequency = float("nan") if allele_count == 0 else float("inf")
+            else:
+                allele_frequency = allele_count / allele_number
+
+            if (
+                allele_frequency > max_af_of_clinvar_path_or_likely_path_variants
+                and variant.get("clinvar_variation_id") is None
+            ):
+                flags.append("high_AF")
+
+    # TODO: add "low_AN" flag?
+    homozygote_counts = variant.get("homozygote_count")
+    if homozygote_counts and homozygote_counts[0] > 0:
+        flags.append("has_homozygotes")
+
+    return flags
 
 
 # Currently this is used on the first local run to create a checkpointed file,
@@ -243,29 +292,6 @@ def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
     return ht
 
 
-def _annotate_variants_with_flags(ht):
-    max_af_of_clinvar_path_or_likely_path_variants = ht.aggregate(
-        hl.agg.filter(
-            ht.clinical_significance_category == "pathogenic_or_likely_pathogenic",
-            hl.agg.max(ht.AC[0] / ht.AN[0]),
-        )
-    )
-
-    # if there are no clinvar path or likely path variants, the aggregation returns None
-    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
-    max_af_of_clinvar_path_or_likely_path_variants = (
-        max_af_of_clinvar_path_or_likely_path_variants
-        if max_af_of_clinvar_path_or_likely_path_variants is not None
-        else hl.int(1.1)
-    )
-
-    ht = ht.annotate(
-        flags=_add_flags_to_variants(ht, max_af_of_clinvar_path_or_likely_path_variants)
-    )
-
-    return ht
-
-
 def process_dashboard_list(
     dataframe,
     index,
@@ -319,16 +345,38 @@ def process_dashboard_list(
         )
     )
 
-    ht = _annotate_variants_with_flags(ht)
-
-    ht = ht.filter(~ht.flags.contains("filtered"))
+    ht = ht.annotate(_freq_missing=hl.is_missing(ht.freq))
 
     # TODO: lof curation for v2, later for v4
     table_fields = set(ht.row)
     select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
-    ht = ht.select(*select_fields)
+    temp_fields_for_flags = [
+        field
+        for field in ("clinical_significance_category", "_freq_missing")
+        if field in table_fields
+    ]
+    ht = ht.select(*select_fields, *temp_fields_for_flags)
 
     variants = [json.loads(variant) for variant in hl.json(ht.row_value).collect()]
+
+    max_af_of_clinvar_path_or_likely_path_variants = (
+        _max_af_of_clinvar_pathogenic_variants(variants)
+    )
+    # 1 is a deliberate sentinel: no real AF can exceed it, so high_AF never fires
+    # when there are no ClinVar P/LP variants to set a real threshold against
+    if max_af_of_clinvar_path_or_likely_path_variants is None:
+        max_af_of_clinvar_path_or_likely_path_variants = 1
+
+    for variant in variants:
+        variant["flags"] = _flags_for_variant(
+            variant, max_af_of_clinvar_path_or_likely_path_variants
+        )
+
+    variants = [v for v in variants if "filtered" not in v["flags"]]
+
+    for variant in variants:
+        for temp_field in temp_fields_for_flags:
+            variant.pop(temp_field, None)
 
     valid_variants = [
         v
