@@ -86,6 +86,8 @@ resource "google_cloudbuild_trigger" "build_app_trigger" {
         "gcr.io/$PROJECT_ID/website:$COMMIT_SHA",
         "--region",
         google_cloud_run_service.website.location,
+        "--ingress",
+        "internal-and-cloud-load-balancing",
       ]
       wait_for = ["build-website"]
     }

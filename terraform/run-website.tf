@@ -31,6 +31,13 @@ resource "google_cloud_run_service" "website" {
   name     = "website"
   location = var.gcp_region
 
+  // Keep public website traffic behind the load balancer, not the run.app URL.
+  metadata {
+    annotations = {
+      "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
+    }
+  }
+
   depends_on = [
     google_project_service.cloud_run,
     google_secret_manager_secret_iam_member.website_access_app_db_user_password,
