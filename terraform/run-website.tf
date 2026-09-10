@@ -210,7 +210,7 @@ module "website-external-lb" {
       custom_request_headers  = null
       custom_response_headers = null
       enable_cdn              = false
-      security_policy         = null
+      security_policy         = google_compute_security_policy.website.self_link
 
       groups = [
         {
