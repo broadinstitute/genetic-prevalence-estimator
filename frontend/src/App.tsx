@@ -27,8 +27,10 @@ import {
   Route,
   Switch,
   useHistory,
+  useLocation,
 } from "react-router-dom";
 
+import { initializeAnalytics, trackPageView } from "./analytics";
 import "./style.css";
 import AboutPage from "./components/AboutPage";
 import CreateVariantListPage from "./components/CreateVariantListPage/CreateVariantListPage";
@@ -142,6 +144,16 @@ const NavLink: FC<NavLinkProps> = ({ to, children }) => {
       {children}
     </Link>
   );
+};
+
+const AnalyticsPageTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location.pathname]);
+
+  return null;
 };
 
 const App = () => {
@@ -316,6 +328,7 @@ const App = () => {
           <Route path="*" render={() => <PageNotFoundPage />} />
         </Switch>
       </Container>
+      <AnalyticsPageTracker />
     </>
   );
 };
@@ -326,6 +339,7 @@ const AppContainer = () => {
   useEffect(() => {
     Promise.all([loadAppConfig(), loadCurrentUser()]).then(([appConfig]) => {
       initializeAuth(appConfig);
+      initializeAnalytics();
       setIsInitializing(false);
     });
   }, []);
