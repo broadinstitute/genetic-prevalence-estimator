@@ -18,6 +18,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Spinner,
   Table,
   Text,
@@ -30,6 +31,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
+import { FixedSizeList } from "react-window";
 
 import { get, patch, post } from "../../api";
 import { USERNAME_LABEL } from "../../constants/config";
@@ -47,6 +49,110 @@ interface User {
   is_active: boolean;
   is_staff: boolean;
 }
+
+type UpdateUser = (
+  userToUpdate: User,
+  update: { is_active?: boolean; is_staff?: boolean }
+) => Promise<User>;
+
+interface UserRowData {
+  users: User[];
+  updateUser: UpdateUser;
+}
+
+const ROW_HEIGHT = 70;
+const USERS_DISPLAYED = 10;
+
+const UserRow = ({
+  index,
+  data,
+  style,
+}: {
+  index: number;
+  data: UserRowData;
+  style: React.CSSProperties;
+}) => {
+  const user = data.users[index];
+
+  return (
+    <Tr
+      key={user.id}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        boxSizing: "border-box",
+        background: index % 2 === 1 ? "initial" : "#edf2f7",
+      }}
+      style={style}
+    >
+      <Td width="35%">
+        {user.username}
+        {user.is_staff && (
+          <Badge colorScheme="blue" ml="1ch">
+            Staff
+          </Badge>
+        )}
+      </Td>
+      <Td width="20%">
+        <Menu>
+          <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
+            {user.is_active ? "Active" : "Inactive"}
+          </MenuButton>
+          <Portal>
+            <MenuList>
+              <MenuItem
+                onClick={() => {
+                  data.updateUser(user, { is_active: true });
+                }}
+              >
+                Active
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  data.updateUser(user, { is_active: false });
+                }}
+              >
+                Inactive
+              </MenuItem>
+            </MenuList>
+          </Portal>
+        </Menu>
+      </Td>
+      <Td width="20%">
+        <Menu>
+          <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
+            {user.is_staff ? "Staff" : "Not staff"}
+          </MenuButton>
+          <Portal>
+            <MenuList>
+              <MenuItem
+                onClick={() => {
+                  data.updateUser(user, { is_staff: true });
+                }}
+              >
+                Staff
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  data.updateUser(user, { is_staff: false });
+                }}
+              >
+                Not staff
+              </MenuItem>
+            </MenuList>
+          </Portal>
+        </Menu>
+      </Td>
+      <Td width="25%">
+        {new Date(user.date_joined).toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+      </Td>
+    </Tr>
+  );
+};
 
 const UserList = (props: { usersStore: Store<User[]> }) => {
   const users = useStore(props.usersStore);
@@ -123,89 +229,33 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
 
       <Table variant="striped">
         <Thead>
-          <Tr>
-            <Th scope="col">{USERNAME_LABEL}</Th>
-            <Th scope="col">Active</Th>
-            <Th scope="col">Staff</Th>
-            <Th scope="col">Date joined</Th>
+          <Tr sx={{ display: "flex" }}>
+            <Th scope="col" width="35%">
+              {USERNAME_LABEL}
+            </Th>
+            <Th scope="col" width="20%">
+              Active
+            </Th>
+            <Th scope="col" width="20%">
+              Staff
+            </Th>
+            <Th scope="col" width="25%">
+              Date joined
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
-          {users.map((user) => {
-            return (
-              <Tr key={user.username}>
-                <Td>
-                  {user.username}
-                  {user.is_staff && (
-                    <Badge colorScheme="blue" ml="1ch">
-                      Staff
-                    </Badge>
-                  )}
-                </Td>
-                <Td>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      size="sm"
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      {user.is_active ? "Active" : "Inactive"}
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          updateUser(user, { is_active: true });
-                        }}
-                      >
-                        Active
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          updateUser(user, { is_active: false });
-                        }}
-                      >
-                        Inactive
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </Td>
-                <Td>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      size="sm"
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      {user.is_staff ? "Staff" : "Not staff"}
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          updateUser(user, { is_staff: true });
-                        }}
-                      >
-                        Staff
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          updateUser(user, { is_staff: false });
-                        }}
-                      >
-                        Not staff
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                </Td>
-                <Td>
-                  {new Date(user.date_joined).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </Td>
-              </Tr>
-            );
-          })}
+          <FixedSizeList
+            height={Math.min(users.length, USERS_DISPLAYED) * ROW_HEIGHT}
+            itemCount={users.length}
+            itemSize={ROW_HEIGHT}
+            width="100%"
+            overscanCount={5}
+            itemData={{ users, updateUser }}
+            style={{ overflowX: "hidden" }}
+          >
+            {UserRow}
+          </FixedSizeList>
         </Tbody>
       </Table>
     </>
