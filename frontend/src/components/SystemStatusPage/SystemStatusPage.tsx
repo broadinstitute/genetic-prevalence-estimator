@@ -1,3 +1,4 @@
+import { ViewIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -7,9 +8,16 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Center,
   Heading,
   Link,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
   Stat,
   StatGroup,
@@ -48,8 +56,22 @@ interface SystemStatusViewProps {
   systemStatus: SystemStatus;
 }
 
-const ERROR_ROW_HEIGHT = 100;
+interface SystemStatusErrorRowData {
+  systemStatusErrors: SystemStatusError[];
+  onViewError: (systemStatusError: SystemStatusError) => void;
+}
+
+const ERROR_PREVIEW_LENGTH = 30;
+const ERROR_ROW_HEIGHT = 70;
 const ERRORS_DISPLAYED = 10;
+
+const getErrorPreview = (error: string) => {
+  if (error.length <= ERROR_PREVIEW_LENGTH) {
+    return error;
+  }
+
+  return `${error.slice(0, ERROR_PREVIEW_LENGTH)}...`;
+};
 
 const SystemStatusErrorRow = ({
   index,
@@ -57,10 +79,10 @@ const SystemStatusErrorRow = ({
   style,
 }: {
   index: number;
-  data: SystemStatusError[];
+  data: SystemStatusErrorRowData;
   style: React.CSSProperties;
 }) => {
-  const systemStatusError = data[index];
+  const systemStatusError = data.systemStatusErrors[index];
 
   return (
     <Tr
@@ -80,15 +102,68 @@ const SystemStatusErrorRow = ({
           {systemStatusError.label}
         </Link>
       </Td>
-      <Td width="70%" overflowY="auto">
-        {systemStatusError.error || "no error"}
+      <Td width="70%">
+        {systemStatusError.error ? (
+          <Button
+            variant="link"
+            colorScheme="blue"
+            rightIcon={<ViewIcon />}
+            textDecoration="underline"
+            whiteSpace="normal"
+            textAlign="left"
+            aria-label={`View full error for ${systemStatusError.label}`}
+            onClick={() => {
+              data.onViewError(systemStatusError);
+            }}
+          >
+            {getErrorPreview(systemStatusError.error)}
+          </Button>
+        ) : (
+          "No error details"
+        )}
       </Td>
     </Tr>
   );
 };
 
+const SystemStatusErrorModal = ({
+  systemStatusError,
+  onClose,
+}: {
+  systemStatusError: SystemStatusError | null;
+  onClose: () => void;
+}) => {
+  return (
+    <Modal
+      isOpen={systemStatusError !== null}
+      size="4xl"
+      scrollBehavior="inside"
+      onClose={onClose}
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Error for {systemStatusError?.label}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Box
+            as="pre"
+            fontFamily="mono"
+            fontSize="sm"
+            m={0}
+            sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
+          >
+            {systemStatusError?.error}
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
+
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus } = props;
+  const [selectedSystemStatusError, setSelectedSystemStatusError] =
+    useState<SystemStatusError | null>(null);
 
   return (
     <>
@@ -132,7 +207,10 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
               itemSize={ERROR_ROW_HEIGHT}
               width="100%"
               overscanCount={5}
-              itemData={systemStatus.error_details}
+              itemData={{
+                systemStatusErrors: systemStatus.error_details,
+                onViewError: setSelectedSystemStatusError,
+              }}
               style={{ overflowX: "hidden" }}
             >
               {SystemStatusErrorRow}
@@ -140,6 +218,13 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           </Tbody>
         </Table>
       </Box>
+
+      <SystemStatusErrorModal
+        systemStatusError={selectedSystemStatusError}
+        onClose={() => {
+          setSelectedSystemStatusError(null);
+        }}
+      />
     </>
   );
 };
