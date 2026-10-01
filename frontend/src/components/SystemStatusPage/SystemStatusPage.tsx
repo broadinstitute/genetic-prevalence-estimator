@@ -24,22 +24,68 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
+import { FixedSizeList } from "react-window";
 
 import { get } from "../../api";
 import { VariantListStatus } from "../../types";
 
 import DocumentTitle from "../DocumentTitle";
 
+interface SystemStatusError {
+  error: string;
+  label: string;
+  uuid: string;
+}
+
 interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
   };
-  error_details: any;
+  error_details: SystemStatusError[];
 }
 
 interface SystemStatusViewProps {
   systemStatus: SystemStatus;
 }
+
+const ERROR_ROW_HEIGHT = 100;
+const ERRORS_DISPLAYED = 10;
+
+const SystemStatusErrorRow = ({
+  index,
+  data,
+  style,
+}: {
+  index: number;
+  data: SystemStatusError[];
+  style: React.CSSProperties;
+}) => {
+  const systemStatusError = data[index];
+
+  return (
+    <Tr
+      sx={{
+        display: "flex",
+        alignItems: "stretch",
+        boxSizing: "border-box",
+        background: index % 2 === 1 ? "initial" : "#edf2f7",
+      }}
+      style={style}
+    >
+      <Td width="30%">
+        <Link
+          as={RRLink}
+          to={`/variant-lists/${systemStatusError.uuid}`}
+        >
+          {systemStatusError.label}
+        </Link>
+      </Td>
+      <Td width="70%" overflowY="auto">
+        {systemStatusError.error || "no error"}
+      </Td>
+    </Tr>
+  );
+};
 
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus } = props;
@@ -65,24 +111,32 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
         <h1>Summary of errors</h1>
         <Table variant="striped" mt={8}>
           <Thead>
-            <Tr>
-              <Th scope="col">List label</Th>
-              <Th scope="col">Error</Th>
+            <Tr sx={{ display: "flex" }}>
+              <Th scope="col" width="30%">
+                List label
+              </Th>
+              <Th scope="col" width="70%">
+                Error
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {systemStatus.error_details.map((list: any) => {
-              return (
-                <Tr key={list.uuid}>
-                  <Td>
-                    <Link as={RRLink} to={`/variant-lists/${list.uuid}`}>
-                      {list.label}
-                    </Link>
-                  </Td>
-                  <Td>{list.error || "no error"}</Td>
-                </Tr>
-              );
-            })}
+            <FixedSizeList
+              height={
+                Math.min(
+                  systemStatus.error_details.length,
+                  ERRORS_DISPLAYED
+                ) * ERROR_ROW_HEIGHT
+              }
+              itemCount={systemStatus.error_details.length}
+              itemSize={ERROR_ROW_HEIGHT}
+              width="100%"
+              overscanCount={5}
+              itemData={systemStatus.error_details}
+              style={{ overflowX: "hidden" }}
+            >
+              {SystemStatusErrorRow}
+            </FixedSizeList>
           </Tbody>
         </Table>
       </Box>
