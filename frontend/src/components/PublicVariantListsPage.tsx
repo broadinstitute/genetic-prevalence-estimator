@@ -29,6 +29,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Flex,
 } from "@chakra-ui/react";
 import { sortBy } from "lodash";
 
@@ -57,6 +58,89 @@ interface PublicVariantList {
   representative_status: VariantListReviewStatusCode | "";
   representative_status_updated_by: string;
 }
+
+const DownloadPublicVariantListsLink = ({
+  publicVariantLists,
+}: {
+  publicVariantLists: PublicVariantList[];
+}) => {
+  const [linkUrl, setLinkUrl] = useState("");
+
+  useEffect(() => {
+    const columns = [
+      {
+        label: "Gene",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.gene_symbol || "Custom",
+      },
+      {
+        label: "Label",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.label,
+      },
+      {
+        label: "gnomAD Version",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.gnomad_version,
+      },
+      {
+        label: "Representative",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.representative_status === "Approved" ? "Yes" : "No",
+      },
+      {
+        label: "Approval Status",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.representative_status || "Public",
+      },
+      {
+        label: "Updated By",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.representative_status_updated_by,
+      },
+      {
+        label: "Updated",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.updated_at,
+      },
+      {
+        label: "UUID",
+        getValue: (publicVariantList: PublicVariantList) =>
+          publicVariantList.uuid,
+      },
+    ];
+    const rows = [
+      columns.map((column) => column.label),
+      ...publicVariantLists.map((publicVariantList) =>
+        columns.map((column) => column.getValue(publicVariantList))
+      ),
+    ];
+    const csv = `${rows
+      .map((row) =>
+        row
+          .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+          .join(",")
+      )
+      .join("\r\n")}\r\n`;
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    setLinkUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [publicVariantLists]);
+
+  return (
+    <Link
+      variant="button"
+      download="genie-public-lists.csv"
+      href={linkUrl}
+    >
+      Download list
+    </Link>
+  );
+};
 
 interface PublicVariantListColumnDef {
   key: string;
@@ -493,10 +577,15 @@ const PublicVariantLists = (props: {
 
   return (
     <>
-      <Text mb={4}>
-        {publicVariantLists.length} public variant
-        {publicVariantLists.length === 1 ? " list" : " lists"}
-      </Text>
+      <Flex align="center" justify="space-between" mb={4}>
+        <Text>
+          {publicVariantLists.length} public variant
+          {publicVariantLists.length === 1 ? " list" : " lists"}
+        </Text>
+        <DownloadPublicVariantListsLink
+          publicVariantLists={publicVariantLists}
+        />
+      </Flex>
 
       <Box mb={2}>
         <FormControl>
