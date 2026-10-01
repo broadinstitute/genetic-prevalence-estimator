@@ -493,6 +493,11 @@ const PublicVariantLists = (props: {
 
   return (
     <>
+      <Text mb={4}>
+        {publicVariantLists.length} public variant
+        {publicVariantLists.length === 1 ? " list" : " lists"}
+      </Text>
+
       <Box mb={2}>
         <FormControl>
           <FormLabel>Search</FormLabel>
