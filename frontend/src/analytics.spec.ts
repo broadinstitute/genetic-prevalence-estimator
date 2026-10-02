@@ -42,12 +42,12 @@ describe("analytics tracking", () => {
     expect(script?.src).toBe(
       "https://www.googletagmanager.com/gtag/js?id=G-07C90N4LCC"
     );
-    expect(window.dataLayer?.[1]).toEqual([
+    expect(Array.from(window.dataLayer?.[1] ?? [])).toEqual([
       "config",
       "G-07C90N4LCC",
       { send_page_view: false },
     ]);
-    expect(window.dataLayer?.[2]).toEqual([
+    expect(Array.from(window.dataLayer?.[2] ?? [])).toEqual([
       "event",
       "page_view",
       expect.objectContaining({
