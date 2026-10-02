@@ -18,11 +18,13 @@ interface AnalyticsPage {
   path: string;
 }
 
-type GoogleTagArguments = readonly unknown[];
+interface GoogleTag {
+  push(...args: readonly unknown[]): void;
+}
 
 declare global {
   interface Window {
-    dataLayer?: GoogleTagArguments[];
+    dataLayer?: IArguments[];
   }
 }
 
@@ -31,8 +33,10 @@ const GOOGLE_ANALYTICS_SCRIPT_ID = "google-analytics-script";
 
 let isAnalyticsInitialized = false;
 
-const googleTag = (...args: GoogleTagArguments) => {
-  window.dataLayer?.push(args);
+const googleTag: GoogleTag = {
+  push() {
+    window.dataLayer?.push(arguments);
+  },
 };
 
 export const getAnalyticsPage = (pathname: string): AnalyticsPage => {
@@ -98,8 +102,8 @@ export const initializeAnalytics = (): void => {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_MEASUREMENT_ID}`;
   document.head.appendChild(script);
 
-  googleTag("js", new Date());
-  googleTag("config", GOOGLE_ANALYTICS_MEASUREMENT_ID, {
+  googleTag.push("js", new Date());
+  googleTag.push("config", GOOGLE_ANALYTICS_MEASUREMENT_ID, {
     send_page_view: false,
   });
   isAnalyticsInitialized = true;
@@ -111,7 +115,7 @@ export const trackPageView = (pathname: string): void => {
   }
 
   const page = getAnalyticsPage(pathname);
-  googleTag("event", "page_view", {
+  googleTag.push("event", "page_view", {
     page_category: page.category,
     page_location: `${window.location.origin}${page.path}`,
     page_path: page.path,
