@@ -50,6 +50,8 @@ import { screenOnly } from "../media";
 
 import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
 
+import DashboardGeneResources from "./DashboardGeneResources";
+
 type DashboardList = {
   gene_id: string;
   gene_symbol: string;
@@ -396,7 +398,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       render: (dashboardList) => {
         return (
           <Cell maxWidth={130}>
-            {dashboardList.gene_symbol}
+            <DashboardGeneResources gene={dashboardList} />
             {CES_GENE_SYMBOLS.indexOf(dashboardList.gene_symbol) !== -1 && (
               <CesGeneFlag />
             )}
