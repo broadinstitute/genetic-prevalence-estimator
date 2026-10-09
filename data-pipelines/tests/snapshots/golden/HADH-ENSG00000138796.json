@@ -1,0 +1,731 @@
+{
+  "gene_id": "ENSG00000138796",
+  "genetic_incidence_other": "",
+  "genetic_prevalence_genereviews": "",
+  "genetic_prevalence_orphanet": "<1 / 1,000,000",
+  "genetic_prevalence_other": "",
+  "label": "HADH - Dashboard",
+  "metadata": {
+    "clinvar_version": "2026-06-06",
+    "gene_id": "ENSG00000138796.18",
+    "gene_symbol": "HADH",
+    "gnomad_version": "4.1.1",
+    "include_clinvar_clinical_significance": [
+      "pathogenic_or_likely_pathogenic"
+    ],
+    "include_gnomad_missense_with_high_revel_score": false,
+    "include_gnomad_plof": true,
+    "populations": [
+      "afr",
+      "amr",
+      "asj",
+      "eas",
+      "fin",
+      "mid",
+      "nfe",
+      "remaining",
+      "sas"
+    ],
+    "reference_genome": "GRCh38",
+    "transcript_id": "ENST00000309522.8"
+  },
+  "notes": "This list was algorithmically generated for the gene HADH, with the transcript ENST00000309522",
+  "top_ten_variants": [
+    {
+      "AC": [
+        43,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        43,
+        0,
+        0
+      ],
+      "AN": [
+        1611140,
+        74876,
+        59880,
+        29518,
+        44806,
+        62934,
+        6054,
+        1179214,
+        62364,
+        90582
+      ],
+      "clinical_significance": [
+        "Likely pathogenic"
+      ],
+      "clinvar_variation_id": "659541",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 2,
+      "hgvsc": "c.100G>C",
+      "hgvsp": "p.Gly34Arg",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-107990032-G-C",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        14,
+        12,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "AN": [
+        1613844,
+        74900,
+        60000,
+        29608,
+        44884,
+        64006,
+        6084,
+        1179894,
+        62478,
+        91078
+      ],
+      "clinical_significance": [
+        "Likely pathogenic"
+      ],
+      "clinvar_variation_id": "2675956",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 2,
+      "hgvsc": "c.262-2A>G",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108014429-A-G",
+      "lof": "HC",
+      "major_consequence": "splice_acceptor_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        13,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        13,
+        0,
+        0
+      ],
+      "AN": [
+        1613604,
+        75006,
+        60016,
+        29602,
+        44876,
+        64012,
+        6060,
+        1179564,
+        62492,
+        91064
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": null,
+      "hgvsc": "c.133-1G>A",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108009758-G-A",
+      "lof": "HC",
+      "major_consequence": "splice_acceptor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        11,
+        2,
+        0,
+        0,
+        0,
+        0,
+        1,
+        6,
+        1,
+        1
+      ],
+      "AN": [
+        1589622,
+        74388,
+        59954,
+        29438,
+        44784,
+        63966,
+        6050,
+        1157836,
+        61700,
+        90594
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "39482",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 2,
+      "hgvsc": "c.706C>T",
+      "hgvsp": "p.Arg236Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108027757-C-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0
+      ],
+      "AN": [
+        1614118,
+        75030,
+        60010,
+        29608,
+        44882,
+        64028,
+        6062,
+        1180012,
+        62506,
+        91068
+      ],
+      "clinical_significance": [
+        "Pathogenic"
+      ],
+      "clinvar_variation_id": "2758232",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 1,
+      "hgvsc": "c.304_307dup",
+      "hgvsp": "p.Ser103AsnfsTer39",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108014472-G-GACCA",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        1,
+        0
+      ],
+      "AN": [
+        1607476,
+        74952,
+        60014,
+        29562,
+        44840,
+        64016,
+        6040,
+        1173862,
+        62304,
+        90974
+      ],
+      "clinical_significance": [
+        "Conflicting classifications of pathogenicity"
+      ],
+      "clinvar_variation_id": "871109",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 1,
+      "hgvsc": "c.617del",
+      "hgvsp": "p.Lys206SerfsTer14",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108023541-GA-G",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0
+      ],
+      "AN": [
+        1611064,
+        74882,
+        59998,
+        29570,
+        44876,
+        64004,
+        6080,
+        1177292,
+        62400,
+        91050
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": null,
+      "hgvsc": "c.241A>T",
+      "hgvsp": "p.Lys81Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108009867-A-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0
+      ],
+      "AN": [
+        1612902,
+        75050,
+        59984,
+        29552,
+        44840,
+        63522,
+        6058,
+        1179588,
+        62462,
+        90934
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": null,
+      "hgvsc": "c.44C>A",
+      "hgvsp": "p.Ser15Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-107989976-C-A",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      "AN": [
+        1594966,
+        74608,
+        59994,
+        29468,
+        44802,
+        63988,
+        6020,
+        1162604,
+        61886,
+        90684
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": null,
+      "hgvsc": "c.705dup",
+      "hgvsp": "p.Arg236ThrfsTer3",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108027754-G-GA",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    },
+    {
+      "AC": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      "AN": [
+        1601570,
+        74732,
+        59972,
+        29498,
+        44778,
+        63820,
+        6040,
+        1168898,
+        62080,
+        90840
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "802082",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000138796.18",
+      "gene_symbol": "HADH",
+      "gold_stars": 2,
+      "hgvsc": "c.261+1G>A",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "4-108009888-G-A",
+      "lof": "HC",
+      "major_consequence": "splice_donor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000309522.8"
+    }
+  ],
+  "type": "AR",
+  "variant_calculations": {
+    "carrier_frequency": [
+      0.00019303748780566738,
+      0.0005088790221707742,
+      0.000133296683584158,
+      0.0,
+      4.455831567354872e-05,
+      0.0,
+      0.00033052387132026506,
+      0.00021467522808599708,
+      9.651911423122882e-05,
+      2.2076273522339134e-05
+    ],
+    "carrier_frequency_raw_numbers": [
+      {
+        "average_an": 1600293.1914893617,
+        "total_ac": 155
+      },
+      {
+        "average_an": 74737.27659574468,
+        "total_ac": 19
+      },
+      {
+        "average_an": 59986.21276595745,
+        "total_ac": 4
+      },
+      {
+        "average_an": 29512.72340425532,
+        "total_ac": 0
+      },
+      {
+        "average_an": 44809.14893617021,
+        "total_ac": 1
+      },
+      {
+        "average_an": 63914.12765957447,
+        "total_ac": 0
+      },
+      {
+        "average_an": 6036.425531914893,
+        "total_ac": 1
+      },
+      {
+        "average_an": 1167581.319148936,
+        "total_ac": 126
+      },
+      {
+        "average_an": 62033.1914893617,
+        "total_ac": 3
+      },
+      {
+        "average_an": 90770.97872340426,
+        "total_ac": 1
+      }
+    ],
+    "carrier_frequency_simplified": [
+      0.0001930561231390081,
+      0.0005090085670314299,
+      0.00013330556877149075,
+      0.0,
+      4.455930843953302e-05,
+      0.0,
+      0.00033057851239669424,
+      0.0002146982757608044,
+      9.652377265057218e-05,
+      2.2076517208645165e-05
+    ],
+    "prevalence": [
+      9.317666670365964e-09,
+      6.477243032784741e-08,
+      4.442593666372662e-09,
+      0.0,
+      4.963829921523597e-10,
+      0.0,
+      2.732053821460283e-08,
+      1.1523837403665602e-08,
+      2.3292096716748365e-09,
+      1.2184315301590153e-10
+    ],
+    "prevalence_bayesian": [
+      9.316862128472626e-09,
+      6.476298896609935e-08,
+      4.442371588201504e-09,
+      0.0,
+      4.96382992151529e-10,
+      0.0,
+      2.7320538214586498e-08,
+      1.1522773671956338e-08,
+      2.32913473240993e-09,
+      1.218431530146939e-10
+    ],
+    "total_allele_frequency": [
+      9.652806156950405e-05,
+      0.00025450428351571493,
+      6.665278438574537e-05,
+      0.0,
+      2.227965421976651e-05,
+      0.0,
+      0.00016528925619834712,
+      0.0001073491378804022,
+      4.826188632528609e-05,
+      1.1038258604322582e-05
+    ],
+    "variant_count": 47
+  }
+}

@@ -1,0 +1,735 @@
+{
+  "gene_id": "ENSG00000141485",
+  "genetic_incidence_other": "",
+  "genetic_prevalence_genereviews": "",
+  "genetic_prevalence_orphanet": "multiple_prevalences",
+  "genetic_prevalence_other": "",
+  "label": "SLC13A5 - Dashboard",
+  "metadata": {
+    "clinvar_version": "2026-06-06",
+    "gene_id": "ENSG00000141485.17",
+    "gene_symbol": "SLC13A5",
+    "gnomad_version": "4.1.1",
+    "include_clinvar_clinical_significance": [
+      "pathogenic_or_likely_pathogenic"
+    ],
+    "include_gnomad_missense_with_high_revel_score": false,
+    "include_gnomad_plof": true,
+    "populations": [
+      "afr",
+      "amr",
+      "asj",
+      "eas",
+      "fin",
+      "mid",
+      "nfe",
+      "remaining",
+      "sas"
+    ],
+    "reference_genome": "GRCh38",
+    "transcript_id": "ENST00000433363.7"
+  },
+  "notes": "This list was algorithmically generated for the gene SLC13A5, with the transcript ENST00000433363",
+  "top_ten_variants": [
+    {
+      "AC": [
+        291,
+        1,
+        2,
+        1,
+        1,
+        10,
+        0,
+        259,
+        17,
+        0
+      ],
+      "AN": [
+        1614092,
+        74944,
+        60014,
+        29600,
+        44902,
+        64018,
+        6084,
+        1180044,
+        62482,
+        91092
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "140752",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.655G>A",
+      "hgvsp": "p.Gly219Arg",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6703031-C-T",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        94,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        89,
+        5,
+        0
+      ],
+      "AN": [
+        1613896,
+        74912,
+        59994,
+        29606,
+        44890,
+        63908,
+        6084,
+        1180020,
+        62486,
+        91084
+      ],
+      "clinical_significance": [
+        "Likely pathogenic"
+      ],
+      "clinvar_variation_id": "652099",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 1,
+      "hgvsc": "c.202C>T",
+      "hgvsp": "p.Pro68Ser",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6707057-G-A",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        27,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        22,
+        0,
+        3
+      ],
+      "AN": [
+        1614098,
+        74956,
+        60014,
+        29606,
+        44900,
+        64010,
+        6084,
+        1180044,
+        62488,
+        91084
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "140753",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.680C>T",
+      "hgvsp": "p.Thr227Met",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6703006-G-A",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        25,
+        2,
+        3,
+        0,
+        1,
+        0,
+        0,
+        18,
+        0,
+        1
+      ],
+      "AN": [
+        1614006,
+        74902,
+        60002,
+        29604,
+        44888,
+        64020,
+        6084,
+        1180022,
+        62488,
+        91084
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "280534",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.997C>T",
+      "hgvsp": "p.Arg333Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6695784-G-A",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        23,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        23,
+        0,
+        0
+      ],
+      "AN": [
+        1614042,
+        74924,
+        60008,
+        29606,
+        44882,
+        64030,
+        6084,
+        1180040,
+        62478,
+        91078
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "218171",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.1022G>A",
+      "hgvsp": "p.Trp341Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6695759-C-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        19,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        16,
+        0,
+        1
+      ],
+      "AN": [
+        1613160,
+        74910,
+        59988,
+        29588,
+        44840,
+        63684,
+        6078,
+        1179666,
+        62446,
+        91048
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "218173",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.425C>T",
+      "hgvsp": "p.Thr142Met",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6704000-G-A",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        14,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        14,
+        0,
+        0
+      ],
+      "AN": [
+        1602952,
+        74796,
+        59444,
+        28876,
+        44724,
+        63508,
+        5952,
+        1173048,
+        62020,
+        89672
+      ],
+      "clinical_significance": [
+        "Pathogenic/Likely pathogenic"
+      ],
+      "clinvar_variation_id": "218170",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": 2,
+      "hgvsc": "c.1280C>T",
+      "hgvsp": "p.Ser427Leu",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6690936-G-A",
+      "lof": null,
+      "major_consequence": "missense_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0,
+        0
+      ],
+      "AN": [
+        1614190,
+        75064,
+        60028,
+        29606,
+        44892,
+        64022,
+        6062,
+        1180010,
+        62508,
+        91086
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": null,
+      "hgvsc": "c.826del",
+      "hgvsp": "p.Tyr276ThrfsTer2",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6701016-TA-T",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0
+      ],
+      "AN": [
+        1613962,
+        74926,
+        60010,
+        29608,
+        44888,
+        63910,
+        6084,
+        1180042,
+        62488,
+        91094
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": null,
+      "hgvsc": "c.873del",
+      "hgvsp": "p.Ser291ArgfsTer30",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6695907-TG-T",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    },
+    {
+      "AC": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+      ],
+      "AN": [
+        1559116,
+        69754,
+        54956,
+        28472,
+        42868,
+        60760,
+        5902,
+        1146906,
+        60556,
+        88068
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141485.17",
+      "gene_symbol": "SLC13A5",
+      "gold_stars": null,
+      "hgvsc": "c.1157-2A>G",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-6693164-T-C",
+      "lof": "HC",
+      "major_consequence": "splice_acceptor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000433363.7"
+    }
+  ],
+  "type": "AR",
+  "variant_calculations": {
+    "carrier_frequency": [
+      0.0007203234273598555,
+      0.00032015597596200763,
+      0.00029992946480829525,
+      0.00013545166452483655,
+      0.0002673839110753853,
+      0.0004376036362985953,
+      0.0003388107644560695,
+      0.00084949158535612,
+      0.0007359328350888594,
+      0.0002856059373981389
+    ],
+    "carrier_frequency_raw_numbers": [
+      {
+        "average_an": 1608487.4925373134,
+        "total_ac": 581
+      },
+      {
+        "average_an": 74735.6119402985,
+        "total_ac": 12
+      },
+      {
+        "average_an": 59623.82089552239,
+        "total_ac": 9
+      },
+      {
+        "average_an": 29446.746268656716,
+        "total_ac": 2
+      },
+      {
+        "average_an": 44701.58208955224,
+        "total_ac": 6
+      },
+      {
+        "average_an": 63635.611940298506,
+        "total_ac": 14
+      },
+      {
+        "average_an": 6036.7164179104475,
+        "total_ac": 1
+      },
+      {
+        "average_an": 1176436.328358209,
+        "total_ac": 501
+      },
+      {
+        "average_an": 62282.68656716418,
+        "total_ac": 23
+      },
+      {
+        "average_an": 90677.76119402985,
+        "total_ac": 13
+      }
+    ],
+    "carrier_frequency_simplified": [
+      0.0007205830473239008,
+      0.00032020724230101864,
+      0.0002999744571457652,
+      0.0001354608393443345,
+      0.00026741966771472566,
+      0.00043769942669265885,
+      0.00033886818027787193,
+      0.0008498527101706121,
+      0.0007362038331308176,
+      0.00028564673442658316
+    ],
+    "prevalence": [
+      1.2980998202264975e-07,
+      2.5633169505505815e-08,
+      2.249616873497413e-08,
+      4.5874097489679e-09,
+      1.787831967016357e-08,
+      4.789519703177056e-08,
+      2.8707910901209078e-08,
+      1.805624072460836e-07,
+      1.354990209791272e-07,
+      2.0398514222142732e-08
+    ],
+    "prevalence_bayesian": [
+      1.2977651384041295e-07,
+      2.5629692985298092e-08,
+      2.2493586255092065e-08,
+      4.58725439759143e-09,
+      1.7876460372205294e-08,
+      4.78902701302591e-08,
+      2.870791090120373e-08,
+      1.8050916642421852e-07,
+      1.3547884509153108e-07,
+      2.0395928415077497e-08
+    ],
+    "total_allele_frequency": [
+      0.0003602915236619504,
+      0.00016010362115050932,
+      0.0001499872285728826,
+      6.773041967216725e-05,
+      0.00013370983385736283,
+      0.00021884971334632943,
+      0.00016943409013893597,
+      0.00042492635508530605,
+      0.0003681019165654088,
+      0.00014282336721329158
+    ],
+    "variant_count": 67
+  }
+}
