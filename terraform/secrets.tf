@@ -1,3 +1,15 @@
+# Slack secrets are managed outside this configuration. Look up metadata only;
+# do not recreate the secrets or read their values into Terraform state.
+data "google_secret_manager_secret" "slack_webhook_url" {
+  project   = var.gcp_project
+  secret_id = "slack-webhook-url"
+}
+
+data "google_secret_manager_secret" "slack_user_id" {
+  project   = var.gcp_project
+  secret_id = "slack-user-id"
+}
+
 # =============================================================================
 
 resource "google_secret_manager_secret" "app_db_user_password" {

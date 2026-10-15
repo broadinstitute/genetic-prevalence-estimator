@@ -31,6 +31,13 @@ resource "google_cloud_run_service" "website" {
   name     = "website"
   location = var.gcp_region
 
+  // Keep public website traffic behind the load balancer, not the run.app URL.
+  metadata {
+    annotations = {
+      "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
+    }
+  }
+
   depends_on = [
     google_project_service.cloud_run,
     google_secret_manager_secret_iam_member.website_access_app_db_user_password,
@@ -88,7 +95,7 @@ resource "google_cloud_run_service" "website" {
           name = "SLACK_WEBHOOK_URL"
           value_from {
             secret_key_ref {
-              name = google_secret_manager_secret.slack_webhook_url.secret_id
+              name = data.google_secret_manager_secret.slack_webhook_url.secret_id
               key  = "latest"
             }
           }
@@ -98,7 +105,7 @@ resource "google_cloud_run_service" "website" {
           name = "SLACK_USER_ID"
           value_from {
             secret_key_ref {
-              name = google_secret_manager_secret.slack_user_id.secret_id
+              name = data.google_secret_manager_secret.slack_user_id.secret_id
               key  = "latest"
             }
           }
@@ -203,7 +210,7 @@ module "website-external-lb" {
       custom_request_headers  = null
       custom_response_headers = null
       enable_cdn              = false
-      security_policy         = null
+      security_policy         = google_compute_security_policy.website.self_link
 
       groups = [
         {
