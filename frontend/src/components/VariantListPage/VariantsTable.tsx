@@ -29,7 +29,7 @@ import {
 import { getVariantSources } from "./variantSources";
 import { VariantNote } from "./VariantNote";
 import { combineVariants } from "./VariantListVariants";
-import { isStructuralVariantId } from "../identifiers";
+import { getGnomadVariantUrl } from "../gnomadVariantUrl";
 import { FixedSizeList } from "react-window";
 import Highlighter from "react-highlight-words";
 
@@ -170,38 +170,22 @@ const BASE_COLUMNS: ColumnDef[] = [
       _userCanEdit,
       searchText
     ) => {
-      const gnomadVersion = variantList.metadata.gnomad_version;
-      const gnomadDataset = {
-        "2.1.1": "gnomad_r2_1",
-        "3.1.2": "gnomad_r3",
-        "4.0.0": "gnomad_r4",
-        "4.1.0": "gnomad_r4",
-      }[gnomadVersion];
-      const gnomadSVDataset = {
-        "2.1.1": "gnomad_sv_r2_1",
-        "3.1.2": "gnomad_sv_r4",
-        "4.0.0": "gnomad_sv_r4",
-        "4.1.0": "gnomad_sv_r4",
-      }[gnomadVersion];
-      const dataset = isStructuralVariantId(variant.id, gnomadVersion)
-        ? gnomadSVDataset
-        : gnomadDataset;
-      const variantId = isStructuralVariantId(variant.id, gnomadVersion)
-        ? variant.id.toUpperCase()
-        : variant.id;
+      const gnomadUrl = getGnomadVariantUrl(
+        variant.id,
+        variantList.metadata.gnomad_version
+      );
+      const highlightedVariantId = (
+        <Highlighter
+          highlightClassName="highlight"
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={variant.id}
+        />
+      );
       return (
         <Cell maxWidth={190}>
-          <Link
-            href={`https://gnomad.broadinstitute.org/variant/${variantId}?dataset=${dataset}`}
-            isExternal
-            target="_blank"
-          >
-            <Highlighter
-              highlightClassName="highlight"
-              searchWords={[searchText]}
-              autoEscape
-              textToHighlight={variant.id}
-            />
+          <Link href={gnomadUrl} isExternal target="_blank">
+            {highlightedVariantId}
           </Link>
         </Cell>
       );

@@ -1,4 +1,12 @@
-export type GnomadVersion = "2.1.1" | "3.1.2";
+export type GnomadVersion =
+  | "2.1.1"
+  | "3.1.2"
+  | "4.0.0"
+  | "4.0.0_non-ukb"
+  | "4.1.0"
+  | "4.1.0_non-ukb"
+  | "4.1.1"
+  | "4.1.2";
 
 export type GnomadPopulationId =
   | "global"
