@@ -165,7 +165,7 @@ const DominantListCharts = (props: DominantListChartsProps) => {
                   <HelpTextHover
                     helpText={
                       <Text>
-                        Average missense obeserved / expected (oe) for all
+                        Average missense observed / expected (oe) for all
                         non-disease associated and non-olfactory genes in gnomAD
                       </Text>
                     }
