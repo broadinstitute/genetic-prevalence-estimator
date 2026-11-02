@@ -38,4 +38,4 @@ jobs:
           --group dev
 
       - name: Run pipeline tests
-        run: uv run pytest data-pipelines/test_pipeline_calculations.py
+        run: uv run pytest data-pipelines
