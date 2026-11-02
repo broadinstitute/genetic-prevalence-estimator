@@ -1,0 +1,426 @@
+{
+  "gene_id": "ENSG00000141543",
+  "genetic_incidence_other": "",
+  "genetic_prevalence_genereviews": "",
+  "genetic_prevalence_orphanet": "<1 / 1,000,000",
+  "genetic_prevalence_other": "",
+  "label": "EIF4A3 - Dashboard",
+  "metadata": {
+    "clinvar_version": "2026-06-06",
+    "gene_id": "ENSG00000141543.12",
+    "gene_symbol": "EIF4A3",
+    "gnomad_version": "4.1.1",
+    "include_clinvar_clinical_significance": [
+      "pathogenic_or_likely_pathogenic"
+    ],
+    "include_gnomad_missense_with_high_revel_score": false,
+    "include_gnomad_plof": true,
+    "populations": [
+      "afr",
+      "amr",
+      "asj",
+      "eas",
+      "fin",
+      "mid",
+      "nfe",
+      "remaining",
+      "sas"
+    ],
+    "reference_genome": "GRCh38",
+    "transcript_id": "ENST00000649764.2"
+  },
+  "notes": "This list was algorithmically generated for the gene EIF4A3, with the transcript ENST00000649764",
+  "top_ten_variants": [
+    {
+      "AC": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "AN": [
+        1608122,
+        74524,
+        58246,
+        29376,
+        44820,
+        63822,
+        6026,
+        1177796,
+        62232,
+        90368
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141543.12",
+      "gene_symbol": "EIF4A3",
+      "gold_stars": null,
+      "hgvsc": "c.504del",
+      "hgvsp": "p.Phe168LeufsTer3",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-80140008-CA-C",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000649764.2"
+    },
+    {
+      "AC": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "AN": [
+        1612426,
+        74952,
+        59670,
+        29580,
+        44872,
+        63962,
+        6052,
+        1179412,
+        62436,
+        90578
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141543.12",
+      "gene_symbol": "EIF4A3",
+      "gold_stars": null,
+      "hgvsc": "c.506-2A>T",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-80139752-T-A",
+      "lof": "HC",
+      "major_consequence": "splice_acceptor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000649764.2"
+    },
+    {
+      "AC": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "AN": [
+        1612656,
+        74910,
+        59712,
+        29568,
+        44876,
+        64014,
+        6054,
+        1179342,
+        62466,
+        90804
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141543.12",
+      "gene_symbol": "EIF4A3",
+      "gold_stars": null,
+      "hgvsc": "c.984-4_988del",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-80136330-ACTCGGCTGC-A",
+      "lof": "HC",
+      "major_consequence": "splice_acceptor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000649764.2"
+    },
+    {
+      "AC": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "AN": [
+        1614042,
+        74980,
+        59990,
+        29600,
+        44880,
+        64008,
+        6062,
+        1180022,
+        62506,
+        91082
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141543.12",
+      "gene_symbol": "EIF4A3",
+      "gold_stars": null,
+      "hgvsc": "c.204_205del",
+      "hgvsp": "p.Ile69GlnfsTer37",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-80144208-ATT-A",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000649764.2"
+    },
+    {
+      "AC": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "AN": [
+        1614066,
+        74996,
+        59998,
+        29602,
+        44884,
+        64000,
+        6062,
+        1180026,
+        62510,
+        91076
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000141543.12",
+      "gene_symbol": "EIF4A3",
+      "gold_stars": null,
+      "hgvsc": "c.206_207insTG",
+      "hgvsp": "p.Lys70AlafsTer42",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "17-80144207-G-GCA",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000649764.2"
+    }
+  ],
+  "type": "AR",
+  "variant_calculations": {
+    "carrier_frequency": [
+      7.446134675169506e-06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      6.785912410238926e-06,
+      0.0,
+      4.410490564743687e-05
+    ],
+    "carrier_frequency_raw_numbers": [
+      {
+        "average_an": 1612262.4,
+        "total_ac": 6
+      },
+      {
+        "average_an": 74872.4,
+        "total_ac": 0
+      },
+      {
+        "average_an": 59523.2,
+        "total_ac": 0
+      },
+      {
+        "average_an": 29545.2,
+        "total_ac": 0
+      },
+      {
+        "average_an": 44866.4,
+        "total_ac": 0
+      },
+      {
+        "average_an": 63961.2,
+        "total_ac": 0
+      },
+      {
+        "average_an": 6051.2,
+        "total_ac": 0
+      },
+      {
+        "average_an": 1179319.6,
+        "total_ac": 4
+      },
+      {
+        "average_an": 62430.0,
+        "total_ac": 0
+      },
+      {
+        "average_an": 90781.6,
+        "total_ac": 2
+      }
+    ],
+    "carrier_frequency_simplified": [
+      7.446162397836733e-06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      6.785935434698789e-06,
+      0.0,
+      4.410587831168769e-05
+    ],
+    "prevalence": [
+      1.386133361373942e-11,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.151222993097516e-11,
+      0.0,
+      4.863321254113506e-10
+    ],
+    "prevalence_bayesian": [
+      1.386129348768817e-11,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.1512205527874372e-11,
+      0.0,
+      4.863267629057423e-10
+    ],
+    "total_allele_frequency": [
+      3.7230811989183664e-06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3.3929677173493944e-06,
+      0.0,
+      2.2052939155843844e-05
+    ],
+    "variant_count": 5
+  }
+}
