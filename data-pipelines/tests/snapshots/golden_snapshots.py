@@ -1,6 +1,7 @@
 """Check the recessive dashboard pipeline against golden snapshots, or --update them."""
 
 import argparse
+import ast
 import csv
 import difflib
 import json
@@ -17,10 +18,16 @@ FIXTURE_GENES_CSV = SNAPSHOTS_DIR / "golden_fixture_genes.csv"
 GOLDEN_DIR = SNAPSHOTS_DIR / "golden"
 FAST_CHECK_SYMBOLS = ["SAMD11"]
 
+PIPELINE_OUTPUT_DIRS = {
+    "models": Path("recessive_dashboard/models"),
+    "downloads": Path("recessive_dashboard/downloads"),
+    "variants": Path("dashboard/individual_gene_files"),
+}
 GENE_SYMBOL_PATH_BY_OUTPUT = {
     "models": ["metadata", "gene_symbol"],
     "downloads": ["gene_symbol"],
 }
+VARIANT_FILE_PREFIX = "GeniE_dashboard_variants-"
 
 
 def read_fixture_genes() -> list[dict[str, str]]:
@@ -61,18 +68,26 @@ def run_pipeline(
     if gnomad_variants_path is not None:
         command.append(f"--gnomad-variants-path={gnomad_variants_path.resolve()}")
     subprocess.run(command, check=True)
-    return scratch_dir / "output" / "recessive_dashboard"
+    return scratch_dir / "output"
 
 
-def parse_json_cell(value: str):
-    try:
-        parsed = json.loads(value)
-    except (json.JSONDecodeError, TypeError):
-        return value
-    return parsed if isinstance(parsed, (dict, list)) else value
+def parse_structured_cell(value: str):
+    for parse in (json.loads, ast.literal_eval):
+        try:
+            parsed = parse(value)
+        except (ValueError, SyntaxError, TypeError):
+            continue
+        if isinstance(parsed, (dict, list)):
+            return parsed
+    return value
 
 
-def write_snapshots(
+def write_json(path: Path, value) -> None:
+    text = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    path.write_text(text, encoding="utf-8")
+
+
+def write_gene_row_snapshots(
     pipeline_csv_dir: Path, snapshot_dir: Path, gene_symbol_path: list[str]
 ) -> None:
     records_by_filename = {}
@@ -80,7 +95,7 @@ def write_snapshots(
         with open(csv_path, newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 record = {
-                    column: parse_json_cell(value)
+                    column: parse_structured_cell(value)
                     for column, value in row.items()
                     if column != "date_created"
                 }
@@ -94,8 +109,28 @@ def write_snapshots(
 
     snapshot_dir.mkdir(parents=True)
     for filename, record in records_by_filename.items():
-        text = json.dumps(record, indent=2, sort_keys=True) + "\n"
-        (snapshot_dir / filename).write_text(text, encoding="utf-8")
+        write_json(snapshot_dir / filename, record)
+
+
+def write_variant_snapshots(pipeline_csv_dir: Path, snapshot_dir: Path) -> None:
+    snapshot_dir.mkdir(parents=True)
+    for csv_path in pipeline_csv_dir.glob(f"{VARIANT_FILE_PREFIX}*.csv"):
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            variants = [
+                {column: parse_structured_cell(value) for column, value in row.items()}
+                for row in csv.DictReader(f)
+            ]
+        gene = csv_path.stem.removeprefix(VARIANT_FILE_PREFIX)
+        write_json(snapshot_dir / f"{gene}.json", variants)
+
+
+def write_snapshots(output_name: str, pipeline_output_dir: Path, snapshot_dir: Path):
+    pipeline_csv_dir = pipeline_output_dir / PIPELINE_OUTPUT_DIRS[output_name]
+    if output_name == "variants":
+        write_variant_snapshots(pipeline_csv_dir, snapshot_dir)
+    else:
+        gene_symbol_path = GENE_SYMBOL_PATH_BY_OUTPUT[output_name]
+        write_gene_row_snapshots(pipeline_csv_dir, snapshot_dir, gene_symbol_path)
 
 
 def snapshots_in_scope(directory: Path, symbols: list[str] | None) -> set[str]:
@@ -184,12 +219,10 @@ def main(argv: list[str] | None = None) -> int:
         pipeline_output_dir = run_pipeline(
             scratch_dir, args.source_data_root, args.symbols, args.gnomad_variants_path
         )
-        for output_name, gene_symbol_path in GENE_SYMBOL_PATH_BY_OUTPUT.items():
+        for output_name in PIPELINE_OUTPUT_DIRS:
             golden_dir = GOLDEN_DIR / output_name
             fresh_dir = scratch_dir / "snapshots" / output_name
-            write_snapshots(
-                pipeline_output_dir / output_name, fresh_dir, gene_symbol_path
-            )
+            write_snapshots(output_name, pipeline_output_dir, fresh_dir)
 
             print(f"\n== {output_name} ==")
             matches = compare_snapshots(golden_dir, fresh_dir, args.symbols)

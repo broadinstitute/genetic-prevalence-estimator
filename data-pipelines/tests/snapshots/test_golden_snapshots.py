@@ -5,7 +5,8 @@ import pytest
 from golden_snapshots import (
     compare_snapshots,
     replace_golden_snapshots,
-    write_snapshots,
+    write_gene_row_snapshots,
+    write_variant_snapshots,
 )
 
 MODELS_CSV = (
@@ -22,10 +23,10 @@ def make_dir(tmp_path, name, files):
     return directory
 
 
-def test_write_snapshots_writes_one_canonical_file_per_gene(tmp_path):
+def test_write_gene_row_snapshots_writes_one_canonical_file_per_gene(tmp_path):
     csv_dir = make_dir(tmp_path, "csv", {"batch-1.csv": MODELS_CSV})
 
-    write_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
+    write_gene_row_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
 
     text = (tmp_path / "out" / "PCSK9-ENSG1.json").read_text(encoding="utf-8")
     assert json.loads(text) == {
@@ -37,7 +38,7 @@ def test_write_snapshots_writes_one_canonical_file_per_gene(tmp_path):
     assert text == json.dumps(json.loads(text), indent=2, sort_keys=True) + "\n"
 
 
-def test_write_snapshots_rejects_conflicting_rows_for_one_gene(tmp_path):
+def test_write_gene_row_snapshots_rejects_conflicting_rows_for_one_gene(tmp_path):
     csv_dir = make_dir(
         tmp_path,
         "csv",
@@ -45,7 +46,39 @@ def test_write_snapshots_rejects_conflicting_rows_for_one_gene(tmp_path):
     )
 
     with pytest.raises(ValueError):
-        write_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
+        write_gene_row_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
+
+
+def test_write_variant_snapshots_keeps_variant_order_and_parses_dict_cells(tmp_path):
+    csv_dir = make_dir(
+        tmp_path,
+        "csv",
+        {
+            "GeniE_dashboard_variants-PCSK9-ENSG1.csv": (
+                "variant_gnomad_id,allele_frequency,allele_count_per_ancestry\n"
+                "1-200-G-A,0.5,\"{'allele_count_global': 2}\"\n"
+                "1-100-C-T,0.25,\n"
+            ),
+            "GeniE_dashboard_variants-RNU12-ENSG2.csv": "\n",
+        },
+    )
+
+    write_variant_snapshots(csv_dir, tmp_path / "out")
+
+    pcsk9 = json.loads((tmp_path / "out" / "PCSK9-ENSG1.json").read_text())
+    assert pcsk9 == [
+        {
+            "variant_gnomad_id": "1-200-G-A",
+            "allele_frequency": "0.5",
+            "allele_count_per_ancestry": {"allele_count_global": 2},
+        },
+        {
+            "variant_gnomad_id": "1-100-C-T",
+            "allele_frequency": "0.25",
+            "allele_count_per_ancestry": "",
+        },
+    ]
+    assert json.loads((tmp_path / "out" / "RNU12-ENSG2.json").read_text()) == []
 
 
 def test_compare_snapshots_reports_changed_missing_and_new_files(tmp_path, capsys):
