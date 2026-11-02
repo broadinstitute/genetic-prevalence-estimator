@@ -21,6 +21,10 @@ GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_LOCAL_FILENAME = (
 
 GNOMAD_GRCH38_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/genes/gnomAD_browser_genes_grch38_annotated_6.ht"
 
+GNOMAD_V4_VARIANTS_PATH = (
+    "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
+)
+
 
 PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
     [
@@ -586,11 +590,9 @@ def write_recommended_variants_to_csv(
 def prepare_dashboard_lists(
     df_genes_this_batch,
     base_dir,
+    gnomad_variants_path,
 ):
-    GNOMAD_V4_VARIANTS_PATH = (
-        "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
-    )
-    ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
+    ht_gnomad_variants = hl.read_table(gnomad_variants_path)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
     CLINVAR_GRCH38_PATH = os.path.join(
@@ -1160,6 +1162,7 @@ def main() -> None:
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--input-genes-file", required=False)
     parser.add_argument("--test", action="store_true", required=False)
+    parser.add_argument("--gnomad-variants-path", default=GNOMAD_V4_VARIANTS_PATH)
     args = parser.parse_args()
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
@@ -1301,7 +1304,9 @@ def main() -> None:
 
             print("Preparing dashboard list models ...")
 
-            df_dashboard_models = prepare_dashboard_lists(df_genes_this_batch, base_dir)
+            df_dashboard_models = prepare_dashboard_lists(
+                df_genes_this_batch, base_dir, args.gnomad_variants_path
+            )
             model_output_file = (
                 Path(base_dir)
                 / "output"
