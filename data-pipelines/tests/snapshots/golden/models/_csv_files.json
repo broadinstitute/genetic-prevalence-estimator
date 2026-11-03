@@ -1,0 +1,58 @@
+{
+  "recessive_dashboard_models_batch-1-of-4--2-lists.csv": [
+    "gene_id",
+    "label",
+    "notes",
+    "date_created",
+    "metadata",
+    "variant_calculations",
+    "top_ten_variants",
+    "genetic_prevalence_orphanet",
+    "genetic_prevalence_genereviews",
+    "genetic_prevalence_other",
+    "genetic_incidence_other",
+    "type"
+  ],
+  "recessive_dashboard_models_batch-2-of-4--1-lists.csv": [
+    "gene_id",
+    "label",
+    "notes",
+    "date_created",
+    "metadata",
+    "variant_calculations",
+    "top_ten_variants",
+    "genetic_prevalence_orphanet",
+    "genetic_prevalence_genereviews",
+    "genetic_prevalence_other",
+    "genetic_incidence_other",
+    "type"
+  ],
+  "recessive_dashboard_models_batch-3-of-4--1-lists.csv": [
+    "gene_id",
+    "label",
+    "notes",
+    "date_created",
+    "metadata",
+    "variant_calculations",
+    "top_ten_variants",
+    "genetic_prevalence_orphanet",
+    "genetic_prevalence_genereviews",
+    "genetic_prevalence_other",
+    "genetic_incidence_other",
+    "type"
+  ],
+  "recessive_dashboard_models_batch-4-of-4--2-lists.csv": [
+    "gene_id",
+    "label",
+    "notes",
+    "date_created",
+    "metadata",
+    "variant_calculations",
+    "top_ten_variants",
+    "genetic_prevalence_orphanet",
+    "genetic_prevalence_genereviews",
+    "genetic_prevalence_other",
+    "genetic_incidence_other",
+    "type"
+  ]
+}
