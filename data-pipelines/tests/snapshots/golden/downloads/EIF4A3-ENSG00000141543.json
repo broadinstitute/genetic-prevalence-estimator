@@ -25,6 +25,7 @@
   "carrier_frequency_south_asian": "4.410490564743687e-05",
   "carrier_frequency_total": "7.446134675169506e-06",
   "clinvar_version": "2026-06-06",
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
   "gene_id": "ENSG00000141543",
   "gene_symbol": "EIF4A3",
   "genetic_prevalence_admixed_american": "0.0",

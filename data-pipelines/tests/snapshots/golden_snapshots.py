@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 SNAPSHOTS_DIR = Path(__file__).resolve().parent
@@ -28,6 +29,9 @@ GENE_SYMBOL_PATH_BY_OUTPUT = {
     "downloads": ["gene_symbol"],
 }
 VARIANT_FILE_PREFIX = "GeniE_dashboard_variants-"
+CSV_FILES_SNAPSHOT_NAME = "_csv_files.json"
+# The website's dashboard upload parses date_created with exactly this format.
+DATE_CREATED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 def read_fixture_genes() -> list[dict[str, str]]:
@@ -87,6 +91,14 @@ def write_json(path: Path, value) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def describe_date_created(value: str) -> str:
+    try:
+        datetime.strptime(value, DATE_CREATED_FORMAT)
+    except (TypeError, ValueError):
+        return value
+    return f"<matches {DATE_CREATED_FORMAT}>"
+
+
 def write_gene_row_snapshots(
     pipeline_csv_dir: Path, snapshot_dir: Path, gene_symbol_path: list[str]
 ) -> None:
@@ -95,9 +107,12 @@ def write_gene_row_snapshots(
         with open(csv_path, newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 record = {
-                    column: parse_structured_cell(value)
+                    column: (
+                        describe_date_created(value)
+                        if column == "date_created"
+                        else parse_structured_cell(value)
+                    )
                     for column, value in row.items()
-                    if column != "date_created"
                 }
                 symbol = record
                 for key in gene_symbol_path:
@@ -124,6 +139,14 @@ def write_variant_snapshots(pipeline_csv_dir: Path, snapshot_dir: Path) -> None:
         write_json(snapshot_dir / f"{gene}.json", variants)
 
 
+def write_csv_files_snapshot(pipeline_csv_dir: Path, snapshot_dir: Path) -> None:
+    headers_by_filename = {}
+    for csv_path in sorted(pipeline_csv_dir.glob("*.csv")):
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            headers_by_filename[csv_path.name] = next(csv.reader(f), [])
+    write_json(snapshot_dir / CSV_FILES_SNAPSHOT_NAME, headers_by_filename)
+
+
 def write_snapshots(output_name: str, pipeline_output_dir: Path, snapshot_dir: Path):
     pipeline_csv_dir = pipeline_output_dir / PIPELINE_OUTPUT_DIRS[output_name]
     if output_name == "variants":
@@ -131,6 +154,7 @@ def write_snapshots(output_name: str, pipeline_output_dir: Path, snapshot_dir: P
     else:
         gene_symbol_path = GENE_SYMBOL_PATH_BY_OUTPUT[output_name]
         write_gene_row_snapshots(pipeline_csv_dir, snapshot_dir, gene_symbol_path)
+    write_csv_files_snapshot(pipeline_csv_dir, snapshot_dir)
 
 
 def snapshots_in_scope(directory: Path, symbols: list[str] | None) -> set[str]:
