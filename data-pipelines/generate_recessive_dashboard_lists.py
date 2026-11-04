@@ -239,7 +239,7 @@ def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
     return ht
 
 
-def _annotate_with_clinvar(ht, clinvar_variants):
+def _annotate_with_clinvar(ht):
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
         "Likely pathogenic",
@@ -253,15 +253,12 @@ def _annotate_with_clinvar(ht, clinvar_variants):
     ]
 
     pathogenic_significance = (
-        clinvar_variants[ht.locus, ht.alleles].clinical_significance_category
-        == "pathogenic_or_likely_pathogenic"
+        ht.clinvar.clinical_significance_category == "pathogenic_or_likely_pathogenic"
     )
 
     pathogenic_classifications_set = hl.literal(PATHOGENIC_CLASSIFICATIONS)
     primary_report_is_path = hl.if_else(
-        pathogenic_classifications_set.contains(
-            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
-        ),
+        pathogenic_classifications_set.contains(ht.clinvar.clinical_significance[0]),
         True,
         False,
     )
@@ -273,7 +270,7 @@ def _annotate_with_clinvar(ht, clinvar_variants):
     return ht
 
 
-def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
+def _remove_clinvar_primary_benign_classifications(ht):
     # these should be kept in sync with the classifications in import_clinvar.py
     BENIGN_CLASSIFICATIONS = [
         "Benign",
@@ -283,9 +280,7 @@ def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
 
     benign_classifications_set = hl.literal(BENIGN_CLASSIFICATIONS)
     primary_report_is_benign = hl.if_else(
-        benign_classifications_set.contains(
-            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
-        ),
+        benign_classifications_set.contains(ht.clinvar.clinical_significance[0]),
         True,
         False,
     )
@@ -310,11 +305,13 @@ def process_dashboard_list(
 
     ht = _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants)
 
-    ht = _annotate_with_clinvar(ht, clinvar_variants)
+    ht = ht.annotate(clinvar=clinvar_variants[ht.locus, ht.alleles])
+
+    ht = _annotate_with_clinvar(ht)
 
     ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
 
-    ht = _remove_clinvar_primary_benign_classifications(ht, clinvar_variants)
+    ht = _remove_clinvar_primary_benign_classifications(ht)
 
     ht = ht.transmute(
         source=hl.array(
@@ -329,8 +326,8 @@ def process_dashboard_list(
 
     ht = ht.annotate(**ht.freq.joint)
 
-    ht = ht.annotate(
-        **clinvar_variants[ht.locus, ht.alleles].select(
+    ht = ht.transmute(
+        **ht.clinvar.select(
             "clinvar_variation_id",
             "clinical_significance",
             "clinical_significance_category",
