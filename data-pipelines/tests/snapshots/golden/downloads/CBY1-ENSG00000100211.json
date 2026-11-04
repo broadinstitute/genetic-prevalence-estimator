@@ -25,6 +25,7 @@
   "carrier_frequency_south_asian": "0.010132035911218393",
   "carrier_frequency_total": "0.0007281651464827062",
   "clinvar_version": "2026-06-06",
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
   "gene_id": "ENSG00000100211",
   "gene_symbol": "CBY1",
   "genetic_prevalence_admixed_american": "4.4460749251162735e-09",

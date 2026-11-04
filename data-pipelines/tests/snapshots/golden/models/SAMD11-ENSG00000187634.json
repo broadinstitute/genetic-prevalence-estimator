@@ -1,4 +1,5 @@
 {
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
   "gene_id": "ENSG00000187634",
   "genetic_incidence_other": "",
   "genetic_prevalence_genereviews": "",

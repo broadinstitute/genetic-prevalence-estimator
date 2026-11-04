@@ -6,12 +6,13 @@ from golden_snapshots import (
     compare_snapshots,
     replace_golden_snapshots,
     write_gene_row_snapshots,
+    write_snapshots,
     write_variant_snapshots,
 )
 
 MODELS_CSV = (
     "gene_id,date_created,metadata,type,count\n"
-    'ENSG1,2026-01-01,"{""gene_symbol"": ""PCSK9"", ""b"": 1}",AD,0.5\n'
+    'ENSG1,2026-01-01T09:30:00.123456,"{""gene_symbol"": ""PCSK9"", ""b"": 1}",AD,0.5\n'
 )
 
 
@@ -31,6 +32,7 @@ def test_write_gene_row_snapshots_writes_one_canonical_file_per_gene(tmp_path):
     text = (tmp_path / "out" / "PCSK9-ENSG1.json").read_text(encoding="utf-8")
     assert json.loads(text) == {
         "count": "0.5",
+        "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
         "gene_id": "ENSG1",
         "metadata": {"b": 1, "gene_symbol": "PCSK9"},
         "type": "AD",
@@ -47,6 +49,39 @@ def test_write_gene_row_snapshots_rejects_conflicting_rows_for_one_gene(tmp_path
 
     with pytest.raises(ValueError):
         write_gene_row_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
+
+
+def test_write_gene_row_snapshots_keeps_a_date_created_the_website_cannot_parse(
+    tmp_path,
+):
+    csv_dir = make_dir(
+        tmp_path,
+        "csv",
+        {
+            "batch-1.csv": MODELS_CSV.replace(
+                "2026-01-01T09:30:00.123456", "2026-01-01T09:30:00"
+            )
+        },
+    )
+
+    write_gene_row_snapshots(csv_dir, tmp_path / "out", ["metadata", "gene_symbol"])
+
+    record = json.loads((tmp_path / "out" / "PCSK9-ENSG1.json").read_text())
+    assert record["date_created"] == "2026-01-01T09:30:00"
+
+
+def test_write_snapshots_records_csv_file_names_and_column_order(tmp_path):
+    pipeline_output_dir = tmp_path / "output"
+    models_dir = pipeline_output_dir / "recessive_dashboard" / "models"
+    models_dir.mkdir(parents=True)
+    (models_dir / "batch-1-of-1.csv").write_text(MODELS_CSV, encoding="utf-8")
+
+    write_snapshots("models", pipeline_output_dir, tmp_path / "out")
+
+    csv_files = json.loads((tmp_path / "out" / "_csv_files.json").read_text())
+    assert csv_files == {
+        "batch-1-of-1.csv": ["gene_id", "date_created", "metadata", "type", "count"]
+    }
 
 
 def test_write_variant_snapshots_keeps_variant_order_and_parses_dict_cells(tmp_path):

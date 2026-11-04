@@ -25,6 +25,7 @@
   "carrier_frequency_south_asian": "0.001968668101069419",
   "carrier_frequency_total": "0.0013545100268630768",
   "clinvar_version": "2026-06-06",
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
   "gene_id": "ENSG00000187634",
   "gene_symbol": "SAMD11",
   "genetic_prevalence_admixed_american": "1.1832561547250917e-06",

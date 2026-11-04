@@ -25,6 +25,7 @@
   "carrier_frequency_south_asian": "0.0",
   "carrier_frequency_total": "2.531546621760272e-06",
   "clinvar_version": "2026-06-06",
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
   "gene_id": "ENSG00000124766",
   "gene_symbol": "SOX4",
   "genetic_prevalence_admixed_american": "3.7262621969430207e-10",

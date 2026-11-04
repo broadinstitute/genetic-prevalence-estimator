@@ -31,5 +31,6 @@ uv run python data-pipelines/tests/snapshots/golden_snapshots.py --update --symb
 `--gnomad-variants-path PATH` reads gnomAD from a local table instead of GCS; it must
 contain every gene in the run.
 
-Each chromosome in the run costs about a minute; the full set covers 4. Run
+Each chromosome in the run costs about a minute; the full set covers 4. Only a full
+run checks output file names and column order (`_csv_files.json`). Run
 `--update` only for an intended output change, and commit the golden diff with it.
