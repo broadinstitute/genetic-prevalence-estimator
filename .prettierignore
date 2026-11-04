@@ -1,0 +1,2 @@
+# Compared byte-for-byte against Python's json.dump output; Prettier reformatting breaks the check.
+data-pipelines/tests/snapshots/golden/
