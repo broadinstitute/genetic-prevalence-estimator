@@ -699,7 +699,7 @@ def prepare_dashboard_lists(
     chrom_clinvar_variants = chrom_clinvar_variants.persist()
 
     subset_end_time = datetime.now()
-    duration_seconds = (subset_start_time - subset_end_time).total_seconds()
+    duration_seconds = (subset_end_time - subset_start_time).total_seconds()
     minutes, seconds = divmod(int(duration_seconds), 60)
     formatted_time = f"{minutes:02d}m{seconds:02d}s"
     print(f"    - Finished in {formatted_time}")
