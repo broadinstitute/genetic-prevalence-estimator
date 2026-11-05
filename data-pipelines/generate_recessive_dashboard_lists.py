@@ -773,7 +773,6 @@ def prepare_dashboard_lists(
             clinvar_variants=chrom_clinvar_variants,
         )
 
-        # TODO: right here, call a helper to create a .csv for this variant
         write_recommended_variants_to_csv(
             base_dir, row.symbol, row.gene_id, recommended_variants
         )
@@ -972,8 +971,6 @@ def prepare_dashboard_download(base_dir, df_recessive):
         }
 
         for type in inheritance_type_abbreviations.split(","):
-            # print(f"type: {type}")
-            # print(f"full name: {inheritance_type_mapping.get(type.strip(), "")}")
             unabbreviated_inheritance_types.append(
                 inheritance_type_mapping.get(type.strip(), "")
             )
@@ -1248,9 +1245,6 @@ def main() -> None:
     if not os.path.exists(gene_models_ht_fullpath):
         prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
 
-    # TK: TODO: break into helper -- sort and batch genes
-    # ---
-
     print("Sorting and batching genes...")
     df_genes_batched = prepare_and_batch_genes(
         input_genes_csv_fullpath,
@@ -1258,7 +1252,6 @@ def main() -> None:
         batch_size=BATCH_SIZE,
     )
 
-    # --- DEBUG LOGGING ---
     print("\n--- Batch Summary ---")
     batch_summary = df_genes_batched.groupby("batch_id").agg(
         chrom=("chrom", "first"),
@@ -1325,15 +1318,6 @@ def main() -> None:
             batch_length = len(df_genes_this_batch)
 
             print(f"\nBeginning batch_id: {batch_id}, size: {batch_length}")
-
-            # ---
-            print("\n\n===DEBUG!")
-            for row in df_genes_this_batch.itertuples():
-                print(
-                    f"(batch_id): {row.batch_id} | Symbol: {row.symbol} | Type: {row.type} | Chrom: {row.chrom} | Range: {row.start}-{row.stop} | Type: {row.type} | Should Calc: {row.should_calculate_recessive}"
-                )
-            print("\n\n")
-            # ---
 
             print("Preparing dashboard list models ...")
 
