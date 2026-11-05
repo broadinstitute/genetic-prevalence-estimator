@@ -26,6 +26,28 @@ GNOMAD_V4_VARIANTS_PATH = (
 )
 
 
+SPARK_CONF = {
+    "spark.driver.memory": "16g",
+    "spark.executor.memory": "16g",
+    "spark.driver.maxResultSize": "8g",
+    "spark.memory.fraction": "0.8",
+    "spark.memory.storageFraction": "0.3",
+    "spark.local.dir": "/tmp",
+    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+    "spark.network.timeout": "800s",
+    "spark.executor.heartbeatInterval": "400s",
+    "spark.default.parallelism": "8",
+    "spark.sql.shuffle.partitions": "8",
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+    "spark.kryoserializer.buffer.max": "1g",
+}
+
+
+def init_hail(quiet):
+    hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
+
+
 PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
     [
         "transcript_ablation",
@@ -1147,26 +1169,7 @@ def main() -> None:
     print(f"\nRunning with input file: {input_genes_csv_fullpath}\n")
 
     print("Initializing Hail for global data prep...")
-    hl.init(
-        quiet=args.quiet,
-        master="local[8]",
-        spark_conf={
-            "spark.driver.memory": "16g",
-            "spark.executor.memory": "16g",
-            "spark.driver.maxResultSize": "8g",
-            "spark.memory.fraction": "0.8",
-            "spark.memory.storageFraction": "0.3",
-            "spark.local.dir": "/tmp",
-            "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
-            "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
-            "spark.network.timeout": "800s",
-            "spark.executor.heartbeatInterval": "400s",
-            "spark.default.parallelism": "8",
-            "spark.sql.shuffle.partitions": "8",
-            "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-            "spark.kryoserializer.buffer.max": "1g",
-        },
-    )
+    init_hail(quiet=args.quiet)
 
     gene_models_ht_fullpath = os.path.join(
         base_dir, "processed_data", "reindexed_gene_models.ht"
@@ -1205,39 +1208,13 @@ def main() -> None:
         file_prefix = "test_"
         num_batches = 1
 
-    gene_models_path = os.path.join(
-        base_dir, "processed_data", "reindexed_gene_models.ht"
-    )
-    if not os.path.exists(gene_models_path):
-        print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
-
     for batch_id in range(num_batches):
         try:
             print("starting cleanup")
             safe_cleanup()
 
             print("initializing hail")
-            hl.init(
-                quiet=args.quiet,
-                master="local[8]",
-                spark_conf={
-                    "spark.driver.memory": "16g",
-                    "spark.executor.memory": "16g",
-                    "spark.driver.maxResultSize": "8g",
-                    "spark.memory.fraction": "0.8",
-                    "spark.memory.storageFraction": "0.3",
-                    "spark.local.dir": "/tmp",
-                    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
-                    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
-                    "spark.network.timeout": "800s",
-                    "spark.executor.heartbeatInterval": "400s",
-                    "spark.default.parallelism": "8",
-                    "spark.sql.shuffle.partitions": "8",
-                    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-                    "spark.kryoserializer.buffer.max": "1g",
-                },
-            )
+            init_hail(quiet=args.quiet)
 
             batch_start_time = datetime.now()
 
