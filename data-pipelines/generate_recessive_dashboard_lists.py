@@ -15,7 +15,6 @@ from datetime import datetime
 import hail as hl
 import pandas as pd
 
-GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_GCS_PATH = "gs://aggregate-frequency-calculator-data/input/2026-05-29_genie-input_5k-disease-associated-genes.csv"
 GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_LOCAL_FILENAME = (
     "2026-06-12_genie-input_5k-disease-associated-dashboard-genes.csv"
 )
@@ -188,37 +187,17 @@ def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     return ht
 
 
-def get_highest_frequency_variants(ds, num_to_keep):
-    ds = ds.filter(ds.AN[0] == 0, keep=False)
-    ds = ds.order_by(hl.desc(ds.AC[0] / ds.AN[0]))
-    ds = ds.head(num_to_keep)
-
-    return ds
-
-
 def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
-    if start is not None and stop is not None:
-        ht = hl.filter_intervals(
-            gnomad_variants,
-            [
-                hl.interval(
-                    hl.locus(contig, start, "GRCh38"),
-                    hl.locus(contig, stop, "GRCh38"),
-                    includes_start=True,
-                    includes_end=True,
-                )
-            ],
-        )
-
-    else:
-        ht = ht.filter(ht.locus.contig == contig)
-
-    ht.transmute(
-        freq=hl.struct(
-            exome=ht.freq[f"exome"],
-            genome=ht.freq[f"genome"],
-            joint=ht.freq["joint"],
-        )
+    ht = hl.filter_intervals(
+        gnomad_variants,
+        [
+            hl.interval(
+                hl.locus(contig, start, "GRCh38"),
+                hl.locus(contig, stop, "GRCh38"),
+                includes_start=True,
+                includes_end=True,
+            )
+        ],
     )
 
     ht = ht.transmute(
@@ -648,7 +627,6 @@ def prepare_dashboard_lists(
 
     ORPHANET_PATH = os.path.join(base_dir, "processed_data", "orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
     df["genetic_prevalence_genereviews"] = ""
     df["genetic_prevalence_other"] = ""
     df["genetic_incidence_other"] = ""
@@ -757,10 +735,6 @@ def prepare_dashboard_lists(
         }
 
         df.at[index, "metadata"] = json.dumps(metadata)
-
-        if row.should_calculate_recessive == False:
-            print(f"    -- Skipping row, not reccessive or semidominant! ({row.type})")
-            continue
 
         recommended_variants = process_dashboard_list(
             dataframe=df,
@@ -1071,45 +1045,6 @@ def safe_cleanup():
     time.sleep(1)
 
 
-def assign_contiguous_batches(genes_df, batch_size=100):
-    # Ensure coordinates are clean integers
-    genes_df["chrom"] = genes_df["chrom"].astype(str).str.replace("chr", "")
-    genes_df["start"] = pd.to_numeric(genes_df["start"], errors="coerce")
-    genes_df["stop"] = pd.to_numeric(genes_df["stop"], errors="coerce")
-    genes_df = genes_df.dropna(subset=["chrom", "start", "stop"])
-
-    # Sort human-style (1, 2, ... 22, X, Y)
-    # We can create a temporary sorting key for chromosomes
-    def chrom_key(c):
-        if c == "X":
-            return 23
-        if c == "Y":
-            return 24
-        try:
-            return int(c)
-        except:
-            return 99
-
-    genes_df["chrom_sort"] = genes_df["chrom"].apply(chrom_key)
-    genes_df = genes_df.sort_values(by=["chrom_sort", "start"]).drop(
-        columns=["chrom_sort"]
-    )
-
-    # Assign batch IDs so each batch is strictly contained to one chromosome
-    batch_counter = 0
-    batch_ids = []
-
-    for chrom, group in genes_df.groupby("chrom", sort=False):
-        for i in range(0, len(group), batch_size):
-            # Fill the next N rows with the current batch ID
-            chunk_len = len(group.iloc[i : i + batch_size])
-            batch_ids.extend([batch_counter] * chunk_len)
-            batch_counter += 1
-
-    genes_df["batch_id"] = batch_ids
-    return genes_df
-
-
 def prepare_and_batch_genes(
     input_genes_csv_fullpath,
     gene_models_ht_path,
@@ -1159,12 +1094,6 @@ def prepare_and_batch_genes(
         .drop(columns=["chrom_sort"])
         .reset_index(drop=True)
     )
-
-    # should_calculate_recessive = df['type'].str.contains('AR|SD', na=False)
-    # df['should_calculate_recessive'] = False
-    # df.loc[should_calculate_recessive, 'should_calculate_recessive'] = True
-
-    df["should_calculate_recessive"] = True
 
     batch_counter = 0
     batch_ids = []
