@@ -292,9 +292,10 @@ def _remove_clinvar_primary_benign_classifications(ht):
     return ht
 
 
-def process_dashboard_list(
-    dataframe,
-    index,
+VARIANT_FLAG_CALCULATION_FIELDS = ("clinical_significance_category", "_freq_missing")
+
+
+def collect_gene_variants(
     transcript_id,
     start,
     stop,
@@ -342,14 +343,19 @@ def process_dashboard_list(
     table_fields = set(ht.row)
     select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
     temp_fields_for_flags = [
-        field
-        for field in ("clinical_significance_category", "_freq_missing")
-        if field in table_fields
+        field for field in VARIANT_FLAG_CALCULATION_FIELDS if field in table_fields
     ]
     ht = ht.select(*select_fields, *temp_fields_for_flags)
 
     variants = [json.loads(variant) for variant in hl.json(ht.row_value).collect()]
 
+    del ht
+    gc.collect()
+
+    return variants
+
+
+def flag_and_filter_variants(variants):
     max_af_of_clinvar_path_or_likely_path_variants = (
         _max_af_of_clinvar_pathogenic_variants(variants)
     )
@@ -365,9 +371,13 @@ def process_dashboard_list(
     variants = [v for v in variants if "filtered" not in v["flags"]]
 
     for variant in variants:
-        for temp_field in temp_fields_for_flags:
+        for temp_field in VARIANT_FLAG_CALCULATION_FIELDS:
             variant.pop(temp_field, None)
 
+    return variants
+
+
+def select_top_ten_variants(variants):
     valid_variants = [
         v
         for v in variants
@@ -382,13 +392,7 @@ def process_dashboard_list(
         valid_variants, key=lambda v: v["AC"][0] / v["AN"][0], reverse=True
     )
 
-    top_10_variants_list = sorted_variants[:10]
-    dataframe.at[index, "top_ten_variants"] = json.dumps(top_10_variants_list)
-
-    del ht
-    gc.collect()
-
-    return variants
+    return sorted_variants[:10]
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
@@ -465,11 +469,6 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
     }
 
     return calculations_object
-
-
-def calculate_stats(dataframe, index, variants, populations):
-    stats_dict = calculate_carrier_frequency_and_prevalence(variants, populations)
-    dataframe.at[index, "variant_calculations"] = json.dumps(stats_dict)
 
 
 def annotate_variants_with_orphanet_prevalences(variants, orphanet):
@@ -758,9 +757,7 @@ def prepare_dashboard_lists(
 
         df.at[index, "metadata"] = json.dumps(metadata)
 
-        recommended_variants = process_dashboard_list(
-            dataframe=df,
-            index=index,
+        collected_variants = collect_gene_variants(
             transcript_id=transcript_id_with_version,
             start=row.start,
             stop=row.stop,
@@ -769,16 +766,18 @@ def prepare_dashboard_lists(
             clinvar_variants=chrom_clinvar_variants,
         )
 
+        recommended_variants = flag_and_filter_variants(collected_variants)
+        top_ten_variants = select_top_ten_variants(recommended_variants)
+        df.at[index, "top_ten_variants"] = json.dumps(top_ten_variants)
+
         write_recommended_variants_to_csv(
             base_dir, row.symbol, row.gene_id, recommended_variants
         )
 
-        calculate_stats(
-            dataframe=df,
-            index=index,
-            populations=metadata_populations,
-            variants=recommended_variants,
+        calculations = calculate_carrier_frequency_and_prevalence(
+            recommended_variants, metadata_populations
         )
+        df.at[index, "variant_calculations"] = json.dumps(calculations)
 
         single_gene_end_time = datetime.now()
         duration_seconds = (
