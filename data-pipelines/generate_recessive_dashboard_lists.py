@@ -634,25 +634,9 @@ def prepare_dashboard_lists(
     ht_clinvar_variants = hl.read_table(CLINVAR_GRCH38_PATH)
     metadata_clinvar_version = hl.eval(ht_clinvar_variants.globals.release_date)
 
-    df = df_genes_this_batch
-
-    df["variants"] = [[] for _ in range(len(df))]
-    df["top_ten_variants"] = [[] for _ in range(len(df))]
-    df["label"] = ""
-    df["notes"] = ""
-    df["metadata"] = None
-    current_datetime = datetime.now()
-    iso_8601_datetime = current_datetime.isoformat()
-    df["date_created"] = iso_8601_datetime
-    df["variant_calculations"] = [{} for _ in range(len(df))]
-
     ORPHANET_PATH = os.path.join(base_dir, "processed_data", "orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    df["genetic_prevalence_genereviews"] = ""
-    df["genetic_prevalence_other"] = ""
-    df["genetic_incidence_other"] = ""
-
-    df["inheritance_type"] = ""
+    gene_results = []
 
     batch_i = 0
 
@@ -678,15 +662,15 @@ def prepare_dashboard_lists(
 
     # ---
 
-    batch_chrom_list = df["chrom"].values
+    batch_chrom_list = df_genes_this_batch["chrom"].values
     if len(set(batch_chrom_list)) > 1:
         print("!!=== Panic! Multiple chroms in this batch!")
         print("!!=== Exiting early")
         exit(1)
 
     batch_chrom = batch_chrom_list[0]
-    batch_pos_min = df["start"].values.min()
-    batch_pos_max = df["stop"].values.max()
+    batch_pos_min = df_genes_this_batch["start"].values.min()
+    batch_pos_max = df_genes_this_batch["stop"].values.max()
 
     subset_start_time = datetime.now()
 
@@ -705,11 +689,11 @@ def prepare_dashboard_lists(
 
     # ---
 
-    for index, row in df.iterrows():
+    for index, row in df_genes_this_batch.iterrows():
         single_gene_start_time = datetime.now()
         batch_i += 1
         print(
-            f"  -- Processing row {index + 1} [{row.symbol}, chr{row.chrom} - {row.gene_id}] ({batch_i} of {len(df)} in batch) ({row.type})"
+            f"  -- Processing row {index + 1} [{row.symbol}, chr{row.chrom} - {row.gene_id}] ({batch_i} of {len(df_genes_this_batch)} in batch) ({row.type})"
         )
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
@@ -729,16 +713,8 @@ def prepare_dashboard_lists(
 
         transcript_id_with_version = f"{row.preferred_transcript_id}.{safe_mane_select_transcript_ensembl_version}"
 
-        df.at[index, "label"] = f"{row.symbol} - Dashboard"
-        df.at[
-            index, "notes"
-        ] = f"This list was algorithmically generated for the gene {row.symbol}, with the transcript {row.preferred_transcript_id}"
-
-        current_datetime = datetime.now()
-        iso_8601_datetime = current_datetime.isoformat()
-        df.at[index, "date_created"] = iso_8601_datetime
-
-        df.at[index, "inheritance_type"] = row.type
+        notes = f"This list was algorithmically generated for the gene {row.symbol}, with the transcript {row.preferred_transcript_id}"
+        date_created = datetime.now().isoformat()
 
         metadata = {
             "gnomad_version": "4.1.1",
@@ -755,8 +731,6 @@ def prepare_dashboard_lists(
             "include_gnomad_missense_with_high_revel_score": False,
         }
 
-        df.at[index, "metadata"] = json.dumps(metadata)
-
         collected_variants = collect_gene_variants(
             transcript_id=transcript_id_with_version,
             start=row.start,
@@ -768,7 +742,6 @@ def prepare_dashboard_lists(
 
         recommended_variants = flag_and_filter_variants(collected_variants)
         top_ten_variants = select_top_ten_variants(recommended_variants)
-        df.at[index, "top_ten_variants"] = json.dumps(top_ten_variants)
 
         write_recommended_variants_to_csv(
             base_dir, row.symbol, row.gene_id, recommended_variants
@@ -777,7 +750,21 @@ def prepare_dashboard_lists(
         calculations = calculate_carrier_frequency_and_prevalence(
             recommended_variants, metadata_populations
         )
-        df.at[index, "variant_calculations"] = json.dumps(calculations)
+        gene_results.append(
+            {
+                "gene_id": row.gene_id,
+                "label": f"{row.symbol} - Dashboard",
+                "notes": notes,
+                "date_created": date_created,
+                "metadata": metadata,
+                "variant_calculations": calculations,
+                "top_ten_variants": top_ten_variants,
+                "genetic_prevalence_genereviews": "",
+                "genetic_prevalence_other": "",
+                "genetic_incidence_other": "",
+                "type": row.type,
+            }
+        )
 
         single_gene_end_time = datetime.now()
         duration_seconds = (
@@ -787,7 +774,21 @@ def prepare_dashboard_lists(
         formatted_time = f"{minutes:02d}m{seconds:02d}s"
         print(f"    - Finished in {formatted_time}")
 
-    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
+    models = pd.DataFrame(gene_results)
+    models = annotate_variants_with_orphanet_prevalences(
+        models, df_orphanet_prevalences
+    )
+
+    chrom_gnomad_variants.unpersist()
+    chrom_clinvar_variants.unpersist()
+
+    return serialize_dashboard_models(models)
+
+
+def serialize_dashboard_models(models):
+    models = models.copy()
+    for column in ("metadata", "variant_calculations", "top_ten_variants"):
+        models[column] = models[column].map(json.dumps)
 
     FINAL_COLUMNS = [
         "gene_id",
@@ -803,12 +804,7 @@ def prepare_dashboard_lists(
         "genetic_incidence_other",
         "type",
     ]
-    df = df[FINAL_COLUMNS]
-
-    chrom_gnomad_variants.unpersist()
-    chrom_clinvar_variants.unpersist()
-
-    return df
+    return models[FINAL_COLUMNS]
 
 
 def safe_json_load(val, fallback=None):
