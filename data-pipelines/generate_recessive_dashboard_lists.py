@@ -620,7 +620,7 @@ def write_recommended_variants_to_csv(
     print(f"    - Gene-variant CSV file written to ...{filename}")
 
 
-def prepare_dashboard_lists(
+def prepare_dashboard_gene_results(
     df_genes_this_batch,
     base_dir,
     gnomad_variants_path,
@@ -774,15 +774,15 @@ def prepare_dashboard_lists(
         formatted_time = f"{minutes:02d}m{seconds:02d}s"
         print(f"    - Finished in {formatted_time}")
 
-    models = pd.DataFrame(gene_results)
-    models = annotate_variants_with_orphanet_prevalences(
-        models, df_orphanet_prevalences
+    gene_results_frame = pd.DataFrame(gene_results)
+    gene_results_frame = annotate_variants_with_orphanet_prevalences(
+        gene_results_frame, df_orphanet_prevalences
     )
 
     chrom_gnomad_variants.unpersist()
     chrom_clinvar_variants.unpersist()
 
-    return serialize_dashboard_models(models)
+    return gene_results_frame
 
 
 def serialize_dashboard_models(models):
@@ -807,16 +807,7 @@ def serialize_dashboard_models(models):
     return models[FINAL_COLUMNS]
 
 
-def safe_json_load(val, fallback=None):
-    if isinstance(val, dict):
-        return val
-    try:
-        return json.loads(val)
-    except:
-        return fallback if fallback is not None else {}
-
-
-def prepare_dashboard_download(base_dir, df_recessive):
+def prepare_dashboard_download(gene_results):
     V4_ANCESTRY_GROUPS = [
         "total",
         "african_african_american",
@@ -972,16 +963,14 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
         return unabbreviated_inheritance_type_string
 
-    for _, row in df_recessive.iterrows():
-        metadata = safe_json_load(row.get("metadata"))
+    for _, row in gene_results.iterrows():
+        metadata = row["metadata"]
+        calculations = row["variant_calculations"]
+        top_ten_variants = row["top_ten_variants"]
 
-        calculations = safe_json_load(row.get("variant_calculations"), {})
-        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
-
-        # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
             "gene_id": row.get("gene_id"),
-            "gene_symbol": metadata.get("gene_symbol", row.get("gene_id_base")),
+            "gene_symbol": metadata["gene_symbol"],
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
@@ -1222,9 +1211,10 @@ def main() -> None:
 
             print("Preparing dashboard list models ...")
 
-            df_dashboard_models = prepare_dashboard_lists(
+            gene_results = prepare_dashboard_gene_results(
                 df_genes_this_batch, base_dir, args.gnomad_variants_path
             )
+            df_dashboard_models = serialize_dashboard_models(gene_results)
             model_output_file = (
                 Path(base_dir)
                 / "output"
@@ -1239,9 +1229,7 @@ def main() -> None:
             # ---
 
             print("Preparing dashboard list downloads")
-            df_dashboard_download = prepare_dashboard_download(
-                base_dir, df_dashboard_models
-            )
+            df_dashboard_download = prepare_dashboard_download(gene_results)
             download_output_file = (
                 Path(base_dir)
                 / "output"
