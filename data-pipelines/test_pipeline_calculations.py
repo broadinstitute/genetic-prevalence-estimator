@@ -2,7 +2,7 @@ import json
 import os
 import math
 
-from generate_recessive_dashboard_lists import (
+from recessive_dashboard.variant_flags_and_frequencies import (
     calculate_carrier_frequency_and_prevalence,
 )
 
