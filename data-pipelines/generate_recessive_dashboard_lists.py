@@ -99,78 +99,6 @@ def variant_id(locus, alleles):
     )
 
 
-def _max_af_of_clinvar_pathogenic_variants(variants):
-    candidate_allele_frequencies = []
-    for variant in variants:
-        if (
-            variant.get("clinical_significance_category")
-            != "pathogenic_or_likely_pathogenic"
-        ):
-            continue
-
-        allele_counts = variant.get("AC")
-        allele_numbers = variant.get("AN")
-        if not allele_counts or not allele_numbers:
-            continue
-
-        allele_count = allele_counts[0]
-        allele_number = allele_numbers[0]
-        if allele_count is None or allele_number is None:
-            continue
-
-        if allele_number == 0:
-            allele_frequency = float("nan") if allele_count == 0 else float("inf")
-        else:
-            allele_frequency = allele_count / allele_number
-
-        candidate_allele_frequencies.append(allele_frequency)
-
-    if not candidate_allele_frequencies:
-        return None
-
-    finite_allele_frequencies = [
-        af for af in candidate_allele_frequencies if not math.isnan(af)
-    ]
-    return max(finite_allele_frequencies) if finite_allele_frequencies else float("nan")
-
-
-def _flags_for_variant(variant, max_af_of_clinvar_path_or_likely_path_variants):
-    flags = []
-
-    if variant.get("_freq_missing"):
-        flags.append("not_found")
-
-    filters = variant.get("filters") or {}
-    exome_filters = set(filters.get("exome") or [])
-    genome_filters = set(filters.get("genome") or [])
-    if len(exome_filters | genome_filters) > 0:
-        flags.append("filtered")
-
-    allele_counts = variant.get("AC")
-    allele_numbers = variant.get("AN")
-    if allele_counts and allele_numbers:
-        allele_count = allele_counts[0]
-        allele_number = allele_numbers[0]
-        if allele_count is not None and allele_number is not None:
-            if allele_number == 0:
-                allele_frequency = float("nan") if allele_count == 0 else float("inf")
-            else:
-                allele_frequency = allele_count / allele_number
-
-            if (
-                allele_frequency > max_af_of_clinvar_path_or_likely_path_variants
-                and variant.get("clinvar_variation_id") is None
-            ):
-                flags.append("high_AF")
-
-    # TODO: add "low_AN" flag?
-    homozygote_counts = variant.get("homozygote_count")
-    if homozygote_counts and (homozygote_counts[0] or 0) > 0:
-        flags.append("has_homozygotes")
-
-    return flags
-
-
 # Currently this is used on the first local run to create a checkpointed file,
 #   if run in google cloud run, this would be run every time and checkpointing wouldn't
 #   be needed
@@ -292,9 +220,6 @@ def _remove_clinvar_primary_benign_classifications(ht):
     return ht
 
 
-VARIANT_FLAG_CALCULATION_FIELDS = ("clinical_significance_category", "_freq_missing")
-
-
 def collect_gene_variants(
     transcript_id,
     start,
@@ -355,6 +280,75 @@ def collect_gene_variants(
     return variants
 
 
+VARIANT_FLAG_CALCULATION_FIELDS = ("clinical_significance_category", "_freq_missing")
+
+
+def _first_allele_frequency(variant):
+    allele_counts = variant.get("AC")
+    allele_numbers = variant.get("AN")
+    if not allele_counts or not allele_numbers:
+        return None
+
+    allele_count = allele_counts[0]
+    allele_number = allele_numbers[0]
+    if allele_count is None or allele_number is None:
+        return None
+
+    if allele_number == 0:
+        return float("nan") if allele_count == 0 else float("inf")
+    return allele_count / allele_number
+
+
+def _max_af_of_clinvar_pathogenic_variants(variants):
+    candidate_allele_frequencies = []
+    for variant in variants:
+        if (
+            variant.get("clinical_significance_category")
+            != "pathogenic_or_likely_pathogenic"
+        ):
+            continue
+
+        allele_frequency = _first_allele_frequency(variant)
+        if allele_frequency is not None:
+            candidate_allele_frequencies.append(allele_frequency)
+
+    if not candidate_allele_frequencies:
+        return None
+
+    finite_allele_frequencies = [
+        af for af in candidate_allele_frequencies if not math.isnan(af)
+    ]
+    return max(finite_allele_frequencies) if finite_allele_frequencies else float("nan")
+
+
+def _flags_for_variant(variant, max_af_of_clinvar_path_or_likely_path_variants):
+    flags = []
+
+    if variant.get("_freq_missing"):
+        flags.append("not_found")
+
+    filters = variant.get("filters") or {}
+    exome_filters = set(filters.get("exome") or [])
+    genome_filters = set(filters.get("genome") or [])
+    if len(exome_filters | genome_filters) > 0:
+        flags.append("filtered")
+
+    allele_frequency = _first_allele_frequency(variant)
+    if (
+        allele_frequency is not None
+        and allele_frequency > max_af_of_clinvar_path_or_likely_path_variants
+        and variant.get("clinvar_variation_id") is None
+    ):
+        flags.append("high_AF")
+
+    # TODO: add "low_AN" flag?
+    homozygote_counts = variant.get("homozygote_count")
+    if homozygote_counts and (homozygote_counts[0] or 0) > 0:
+        flags.append("has_homozygotes")
+
+    return flags
+
+
 def flag_and_filter_variants(variants):
     max_af_of_clinvar_path_or_likely_path_variants = (
         _max_af_of_clinvar_pathogenic_variants(variants)
@@ -379,13 +373,7 @@ def flag_and_filter_variants(variants):
 
 def select_top_ten_variants(variants):
     valid_variants = [
-        v
-        for v in variants
-        if v.get("AN")
-        and len(v["AN"]) > 0
-        and v["AN"][0] > 0
-        and v.get("AC")
-        and len(v["AC"]) > 0
+        v for v in variants if v.get("AN") and v["AN"][0] > 0 and v.get("AC")
     ]
 
     sorted_variants = sorted(
@@ -444,12 +432,11 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
             total_allele_counts_and_numbers[index_ac]["AC"] += allele_count
             total_allele_counts_and_numbers[index_ac]["AN"] += allele_number
 
-    length = len(variants)
     carrier_frequency_raw_numbers_array = []
     for ac_an in total_allele_counts_and_numbers:
         carrier_frequency_raw_numbers = {
             "total_ac": ac_an["AC"],
-            "average_an": (ac_an["AN"] / length) if length > 0 else 0,
+            "average_an": (ac_an["AN"] / variant_count) if variant_count > 0 else 0,
         }
         carrier_frequency_raw_numbers_array.append(carrier_frequency_raw_numbers)
 
