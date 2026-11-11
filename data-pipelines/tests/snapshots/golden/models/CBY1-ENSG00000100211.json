@@ -1,0 +1,728 @@
+{
+  "date_created": "<matches %Y-%m-%dT%H:%M:%S.%f>",
+  "gene_id": "ENSG00000100211",
+  "genetic_incidence_other": "",
+  "genetic_prevalence_genereviews": "",
+  "genetic_prevalence_orphanet": "",
+  "genetic_prevalence_other": "",
+  "label": "CBY1 - Dashboard",
+  "metadata": {
+    "clinvar_version": "2026-06-06",
+    "gene_id": "ENSG00000100211.11",
+    "gene_symbol": "CBY1",
+    "gnomad_version": "4.1.1",
+    "include_clinvar_clinical_significance": [
+      "pathogenic_or_likely_pathogenic"
+    ],
+    "include_gnomad_missense_with_high_revel_score": false,
+    "include_gnomad_plof": true,
+    "populations": [
+      "afr",
+      "amr",
+      "asj",
+      "eas",
+      "fin",
+      "mid",
+      "nfe",
+      "remaining",
+      "sas"
+    ],
+    "reference_genome": "GRCh38",
+    "transcript_id": "ENST00000216029.8"
+  },
+  "notes": "This list was algorithmically generated for the gene CBY1, with the transcript ENST00000216029",
+  "top_ten_variants": [
+    {
+      "AC": [
+        502,
+        0,
+        0,
+        0,
+        1,
+        0,
+        3,
+        8,
+        34,
+        456
+      ],
+      "AN": [
+        1608496,
+        74958,
+        59988,
+        29530,
+        44848,
+        63980,
+        6046,
+        1175010,
+        62300,
+        90926
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [
+        "high_AF",
+        "has_homozygotes"
+      ],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.378dup",
+      "hgvsp": "p.Ter127MetfsTer11",
+      "homozygote_count": [
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8
+      ],
+      "id": "22-38673229-G-GA",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        30,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        24,
+        3,
+        1
+      ],
+      "AN": [
+        1613098,
+        74908,
+        59990,
+        29598,
+        44872,
+        63960,
+        6078,
+        1179296,
+        62440,
+        91046
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [
+        "high_AF"
+      ],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.85C>T",
+      "hgvsp": "p.Arg29Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38670890-C-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        27,
+        2,
+        0,
+        1,
+        4,
+        0,
+        0,
+        19,
+        0,
+        1
+      ],
+      "AN": [
+        1613960,
+        74942,
+        60008,
+        29608,
+        44906,
+        64042,
+        6084,
+        1179886,
+        62478,
+        91094
+      ],
+      "clinical_significance": [
+        "Pathogenic"
+      ],
+      "clinvar_variation_id": "694056",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": 0,
+      "hgvsc": "c.189_190del",
+      "hgvsp": "p.Val65Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38671073-CAG-C",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0
+      ],
+      "AN": [
+        1614014,
+        75016,
+        59994,
+        29606,
+        44878,
+        64032,
+        6060,
+        1179954,
+        62494,
+        91068
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.20del",
+      "hgvsp": "p.Thr7SerfsTer39",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38668073-AC-A",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        3,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "AN": [
+        1613904,
+        75046,
+        60026,
+        29606,
+        44882,
+        64040,
+        6062,
+        1179760,
+        62494,
+        91076
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.172C>T",
+      "hgvsp": "p.Gln58Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38670977-C-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        2,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "AN": [
+        1577888,
+        74254,
+        59976,
+        29392,
+        44696,
+        63994,
+        6000,
+        1147036,
+        61294,
+        90336
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.78+1G>T",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38668133-G-T",
+      "lof": "HC",
+      "major_consequence": "splice_donor_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "AN": [
+        1600304,
+        74730,
+        59986,
+        29524,
+        44812,
+        64024,
+        5722,
+        1167848,
+        62004,
+        90742
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.303+1G>C",
+      "hgvsp": null,
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38671189-G-C",
+      "lof": "HC",
+      "major_consequence": "splice_donor_variant",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "AN": [
+        1611474,
+        74984,
+        59986,
+        29596,
+        44858,
+        64044,
+        6058,
+        1177622,
+        62404,
+        91010
+      ],
+      "clinical_significance": [
+        "Pathogenic"
+      ],
+      "clinvar_variation_id": "694265",
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": 0,
+      "hgvsc": "c.64_65dup",
+      "hgvsp": "p.Asn23ProfsTer24",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38668111-A-ATC",
+      "lof": "HC",
+      "major_consequence": "frameshift_variant",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD",
+        "ClinVar"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      "AN": [
+        1613714,
+        75016,
+        60008,
+        29606,
+        44862,
+        63990,
+        6062,
+        1179718,
+        62488,
+        91052
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.89C>A",
+      "hgvsp": "p.Ser30Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38670894-C-A",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    },
+    {
+      "AC": [
+        2,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "AN": [
+        1614118,
+        74934,
+        60006,
+        29608,
+        44904,
+        64040,
+        6084,
+        1180050,
+        62488,
+        91092
+      ],
+      "clinical_significance": null,
+      "clinvar_variation_id": null,
+      "filters": null,
+      "flags": [],
+      "gene_id": "ENSG00000100211.11",
+      "gene_symbol": "CBY1",
+      "gold_stars": null,
+      "hgvsc": "c.223C>T",
+      "hgvsp": "p.Gln75Ter",
+      "homozygote_count": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "id": "22-38671108-C-T",
+      "lof": "HC",
+      "major_consequence": "stop_gained",
+      "sample_sets": [
+        "exome",
+        "genome"
+      ],
+      "source": [
+        "gnomAD"
+      ],
+      "transcript_id": "ENST00000216029.8"
+    }
+  ],
+  "type": "AR",
+  "variant_calculations": {
+    "carrier_frequency": [
+      0.0007281651464827062,
+      0.00013342272037453548,
+      0.00013334889615089016,
+      6.754702954231974e-05,
+      0.00031200432886104864,
+      3.12290179959146e-05,
+      0.000991899243302724,
+      0.0001104183601524743,
+      0.0011868798463483213,
+      0.010132035911218393
+    ],
+    "carrier_frequency_raw_numbers": [
+      {
+        "average_an": 1607404.7368421052,
+        "total_ac": 586
+      },
+      {
+        "average_an": 74864.73684210527,
+        "total_ac": 5
+      },
+      {
+        "average_an": 59996.0,
+        "total_ac": 4
+      },
+      {
+        "average_an": 29559.263157894737,
+        "total_ac": 1
+      },
+      {
+        "average_an": 44851.47368421053,
+        "total_ac": 7
+      },
+      {
+        "average_an": 64014.63157894737,
+        "total_ac": 1
+      },
+      {
+        "average_an": 6036.0,
+        "total_ac": 3
+      },
+      {
+        "average_an": 1173968.7368421052,
+        "total_ac": 65
+      },
+      {
+        "average_an": 62265.47368421053,
+        "total_ac": 37
+      },
+      {
+        "average_an": 90936.84210526316,
+        "total_ac": 463
+      }
+    ],
+    "carrier_frequency_simplified": [
+      0.0007284304519443661,
+      0.0001334316223734601,
+      0.0001333577883007404,
+      6.754931099702783e-05,
+      0.00031205301740388407,
+      3.1229505636925764e-05,
+      0.0009923916639100231,
+      0.00011042445693281876,
+      0.0011875850254446515,
+      0.010183891736670506
+    ],
+    "prevalence": [
+      1.3265273082996837e-07,
+      4.450999462303414e-09,
+      4.4460749251162735e-09,
+      1.140727354043296e-09,
+      2.4344271417717193e-08,
+      2.438205055816945e-10,
+      2.4621030364952606e-07,
+      3.048390172226986e-09,
+      3.525895481650934e-07,
+      2.5927912726056455e-05
+    ],
+    "prevalence_bayesian": [
+      1.3264012924581758e-07,
+      4.450785663409413e-09,
+      4.445889639949972e-09,
+      1.1407273540406843e-09,
+      2.4341944266155198e-08,
+      2.4382050558022555e-10,
+      2.462103036495518e-07,
+      3.0482630475791063e-09,
+      3.525584091871778e-07,
+      2.5923962016000477e-05
+    ],
+    "total_allele_frequency": [
+      0.00036421522597218306,
+      6.671581118673005e-05,
+      6.66788941503702e-05,
+      3.377465549851391e-05,
+      0.00015602650870194203,
+      1.5614752818462882e-05,
+      0.0004961958319550116,
+      5.521222846640938e-05,
+      0.0005937925127223257,
+      0.005091945868335253
+    ],
+    "variant_count": 19
+  }
+}

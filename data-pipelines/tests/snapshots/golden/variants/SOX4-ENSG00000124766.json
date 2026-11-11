@@ -1,0 +1,116 @@
+[
+  {
+    "allele_count": "1",
+    "allele_count_per_ancestry": {
+      "allele_count_admixed_american": 0,
+      "allele_count_african_african_american": 0,
+      "allele_count_ashkenazi_jewish": 0,
+      "allele_count_east_asian": 0,
+      "allele_count_european_finnish": 0,
+      "allele_count_global": 1,
+      "allele_count_remaining": 0,
+      "allele_count_south_asian": 1
+    },
+    "allele_frequency": "6.215944394647823e-07",
+    "allele_frequency_per_ancestry": {
+      "allele_frequency_admixed_american": 0.0,
+      "allele_frequency_african_african_american": 0.0,
+      "allele_frequency_ashkenazi_jewish": 0.0,
+      "allele_frequency_east_asian": 0.0,
+      "allele_frequency_european_finnish": 0.0,
+      "allele_frequency_global": 6.215944394647823e-07,
+      "allele_frequency_remaining": 0.0,
+      "allele_frequency_south_asian": 8.488546404336629e-07
+    },
+    "allele_number": "1608766",
+    "allele_number_per_ancestry": {
+      "allele_number_admixed_american": 59346,
+      "allele_number_african_african_american": 74874,
+      "allele_number_ashkenazi_jewish": 29482,
+      "allele_number_east_asian": 44598,
+      "allele_number_european_finnish": 63210,
+      "allele_number_global": 1608766,
+      "allele_number_remaining": 6056,
+      "allele_number_south_asian": 1178058
+    },
+    "clinvar_clinical_significance": "",
+    "clinvar_variation_id": "",
+    "flags": "high_AF",
+    "gene_id": "ENSG00000124766",
+    "gene_symbol": "SOX4",
+    "hgvsc": "c.1345_1348del",
+    "hgvsp": "p.Tyr449AlafsTer5",
+    "homozygote_count": "0",
+    "homozygote_count_per_ancestry": {
+      "homozygote_count_admixed_american": 0,
+      "homozygote_count_african_african_american": 0,
+      "homozygote_count_ashkenazi_jewish": 0,
+      "homozygote_count_east_asian": 0,
+      "homozygote_count_european_finnish": 0,
+      "homozygote_count_global": 0,
+      "homozygote_count_remaining": 0,
+      "homozygote_count_south_asian": 0
+    },
+    "loftee": "HC",
+    "source": "gnomAD",
+    "variant_gnomad_id": "6-21595878-CTACT-C",
+    "vep_consequence": "frameshift_variant"
+  },
+  {
+    "allele_count": "1",
+    "allele_count_per_ancestry": {
+      "allele_count_admixed_american": 1,
+      "allele_count_african_african_american": 0,
+      "allele_count_ashkenazi_jewish": 0,
+      "allele_count_east_asian": 0,
+      "allele_count_european_finnish": 0,
+      "allele_count_global": 1,
+      "allele_count_remaining": 0,
+      "allele_count_south_asian": 0
+    },
+    "allele_frequency": "6.441804736014841e-07",
+    "allele_frequency_per_ancestry": {
+      "allele_frequency_admixed_american": 1.9303528685043624e-05,
+      "allele_frequency_african_african_american": 0.0,
+      "allele_frequency_ashkenazi_jewish": 0.0,
+      "allele_frequency_east_asian": 0.0,
+      "allele_frequency_european_finnish": 0.0,
+      "allele_frequency_global": 6.441804736014841e-07,
+      "allele_frequency_remaining": 0.0,
+      "allele_frequency_south_asian": 0.0
+    },
+    "allele_number": "1552360",
+    "allele_number_per_ancestry": {
+      "allele_number_admixed_american": 51804,
+      "allele_number_african_african_american": 72748,
+      "allele_number_ashkenazi_jewish": 28212,
+      "allele_number_east_asian": 40642,
+      "allele_number_european_finnish": 59822,
+      "allele_number_global": 1552360,
+      "allele_number_remaining": 5950,
+      "allele_number_south_asian": 1148580
+    },
+    "clinvar_clinical_significance": "",
+    "clinvar_variation_id": "",
+    "flags": "high_AF",
+    "gene_id": "ENSG00000124766",
+    "gene_symbol": "SOX4",
+    "hgvsc": "c.1417_*6dup",
+    "hgvsp": "",
+    "homozygote_count": "0",
+    "homozygote_count_per_ancestry": {
+      "homozygote_count_admixed_american": 0,
+      "homozygote_count_african_african_american": 0,
+      "homozygote_count_ashkenazi_jewish": 0,
+      "homozygote_count_east_asian": 0,
+      "homozygote_count_european_finnish": 0,
+      "homozygote_count_global": 0,
+      "homozygote_count_remaining": 0,
+      "homozygote_count_south_asian": 0
+    },
+    "loftee": "HC",
+    "source": "gnomAD",
+    "variant_gnomad_id": "6-21595950-C-CACCTACTGAAGGGCG",
+    "vep_consequence": "stop_gained"
+  }
+]

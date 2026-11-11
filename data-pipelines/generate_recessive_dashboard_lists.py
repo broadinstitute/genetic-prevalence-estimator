@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import os
 import ast
 import gc
@@ -14,12 +15,37 @@ from datetime import datetime
 import hail as hl
 import pandas as pd
 
-GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_GCS_PATH = "gs://aggregate-frequency-calculator-data/input/2026-05-29_genie-input_5k-disease-associated-genes.csv"
 GENIE_RECESSIVE_DASHBOARD_INPUT_GENES_LOCAL_FILENAME = (
     "2026-06-12_genie-input_5k-disease-associated-dashboard-genes.csv"
 )
 
 GNOMAD_GRCH38_GENES_PATH = "gs://aggregate-frequency-calculator-data/input/genes/gnomAD_browser_genes_grch38_annotated_6.ht"
+
+GNOMAD_V4_VARIANTS_PATH = (
+    "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
+)
+
+
+SPARK_CONF = {
+    "spark.driver.memory": "16g",
+    "spark.executor.memory": "16g",
+    "spark.driver.maxResultSize": "8g",
+    "spark.memory.fraction": "0.8",
+    "spark.memory.storageFraction": "0.3",
+    "spark.local.dir": "/tmp",
+    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+    "spark.network.timeout": "800s",
+    "spark.executor.heartbeatInterval": "400s",
+    "spark.default.parallelism": "8",
+    "spark.sql.shuffle.partitions": "8",
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+    "spark.kryoserializer.buffer.max": "1g",
+}
+
+
+def init_hail(quiet):
+    hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
 
 
 PLOF_VEP_CONSEQUENCE_TERMS = hl.set(
@@ -73,28 +99,76 @@ def variant_id(locus, alleles):
     )
 
 
-def _add_flags_to_variants(ds, max_af_of_clinvar_path_or_likely_path_variants):
-    return hl.array(
-        [
-            hl.or_missing(hl.is_missing(ds.freq), "not_found"),
-            hl.or_missing(
-                hl.len(
-                    hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
-                        hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
-                    )
-                )
-                > 0,
-                "filtered",
-            ),
-            hl.or_missing(
-                (ds.AC[0] / ds.AN[0] > max_af_of_clinvar_path_or_likely_path_variants)
-                & (hl.is_missing(ds.clinvar_variation_id)),
-                "high_AF",
-            ),
-            # TODO: add "low_AN" flag?
-            hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
-        ]
-    ).filter(hl.is_defined)
+def _max_af_of_clinvar_pathogenic_variants(variants):
+    candidate_allele_frequencies = []
+    for variant in variants:
+        if (
+            variant.get("clinical_significance_category")
+            != "pathogenic_or_likely_pathogenic"
+        ):
+            continue
+
+        allele_counts = variant.get("AC")
+        allele_numbers = variant.get("AN")
+        if not allele_counts or not allele_numbers:
+            continue
+
+        allele_count = allele_counts[0]
+        allele_number = allele_numbers[0]
+        if allele_count is None or allele_number is None:
+            continue
+
+        if allele_number == 0:
+            allele_frequency = float("nan") if allele_count == 0 else float("inf")
+        else:
+            allele_frequency = allele_count / allele_number
+
+        candidate_allele_frequencies.append(allele_frequency)
+
+    if not candidate_allele_frequencies:
+        return None
+
+    finite_allele_frequencies = [
+        af for af in candidate_allele_frequencies if not math.isnan(af)
+    ]
+    return max(finite_allele_frequencies) if finite_allele_frequencies else float("nan")
+
+
+def _flags_for_variant(variant, max_af_of_clinvar_path_or_likely_path_variants):
+    flags = []
+
+    if variant.get("_freq_missing"):
+        flags.append("not_found")
+
+    filters = variant.get("filters") or {}
+    exome_filters = set(filters.get("exome") or [])
+    genome_filters = set(filters.get("genome") or [])
+    if len(exome_filters | genome_filters) > 0:
+        flags.append("filtered")
+
+    allele_counts = variant.get("AC")
+    allele_numbers = variant.get("AN")
+    if allele_counts and allele_numbers:
+        allele_count = allele_counts[0]
+        allele_number = allele_numbers[0]
+        if allele_count is not None and allele_number is not None:
+            if allele_number == 0:
+                allele_frequency = float("nan") if allele_count == 0 else float("inf")
+            else:
+                allele_frequency = allele_count / allele_number
+
+            if (
+                allele_frequency > max_af_of_clinvar_path_or_likely_path_variants
+                and variant.get("clinvar_variation_id") is None
+            ):
+                flags.append("high_AF")
+
+    # TODO: add "low_AN" flag?
+    homozygote_counts = variant.get("homozygote_count")
+    if homozygote_counts and (homozygote_counts[0] or 0) > 0:
+        flags.append("has_homozygotes")
+
+    return flags
 
 
 # Currently this is used on the first local run to create a checkpointed file,
@@ -135,37 +209,17 @@ def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     return ht
 
 
-def get_highest_frequency_variants(ds, num_to_keep):
-    ds = ds.filter(ds.AN[0] == 0, keep=False)
-    ds = ds.order_by(hl.desc(ds.AC[0] / ds.AN[0]))
-    ds = ds.head(num_to_keep)
-
-    return ds
-
-
 def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
-    if start is not None and stop is not None:
-        ht = hl.filter_intervals(
-            gnomad_variants,
-            [
-                hl.interval(
-                    hl.locus(contig, start, "GRCh38"),
-                    hl.locus(contig, stop, "GRCh38"),
-                    includes_start=True,
-                    includes_end=True,
-                )
-            ],
-        )
-
-    else:
-        ht = ht.filter(ht.locus.contig == contig)
-
-    ht.transmute(
-        freq=hl.struct(
-            exome=ht.freq[f"exome"],
-            genome=ht.freq[f"genome"],
-            joint=ht.freq["joint"],
-        )
+    ht = hl.filter_intervals(
+        gnomad_variants,
+        [
+            hl.interval(
+                hl.locus(contig, start, "GRCh38"),
+                hl.locus(contig, stop, "GRCh38"),
+                includes_start=True,
+                includes_end=True,
+            )
+        ],
     )
 
     ht = ht.transmute(
@@ -186,7 +240,7 @@ def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
     return ht
 
 
-def _annotate_with_clinvar(ht, clinvar_variants):
+def _annotate_with_clinvar(ht):
     # these should be kept in sync with the classifications in import_clinvar.py
     PATHOGENIC_CLASSIFICATIONS = [
         "Likely pathogenic",
@@ -200,15 +254,12 @@ def _annotate_with_clinvar(ht, clinvar_variants):
     ]
 
     pathogenic_significance = (
-        clinvar_variants[ht.locus, ht.alleles].clinical_significance_category
-        == "pathogenic_or_likely_pathogenic"
+        ht.clinvar.clinical_significance_category == "pathogenic_or_likely_pathogenic"
     )
 
     pathogenic_classifications_set = hl.literal(PATHOGENIC_CLASSIFICATIONS)
     primary_report_is_path = hl.if_else(
-        pathogenic_classifications_set.contains(
-            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
-        ),
+        pathogenic_classifications_set.contains(ht.clinvar.clinical_significance[0]),
         True,
         False,
     )
@@ -220,7 +271,7 @@ def _annotate_with_clinvar(ht, clinvar_variants):
     return ht
 
 
-def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
+def _remove_clinvar_primary_benign_classifications(ht):
     # these should be kept in sync with the classifications in import_clinvar.py
     BENIGN_CLASSIFICATIONS = [
         "Benign",
@@ -230,9 +281,7 @@ def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
 
     benign_classifications_set = hl.literal(BENIGN_CLASSIFICATIONS)
     primary_report_is_benign = hl.if_else(
-        benign_classifications_set.contains(
-            clinvar_variants[ht.locus, ht.alleles].clinical_significance[0]
-        ),
+        benign_classifications_set.contains(ht.clinvar.clinical_significance[0]),
         True,
         False,
     )
@@ -243,32 +292,10 @@ def _remove_clinvar_primary_benign_classifications(ht, clinvar_variants):
     return ht
 
 
-def _annotate_variants_with_flags(ht):
-    max_af_of_clinvar_path_or_likely_path_variants = ht.aggregate(
-        hl.agg.filter(
-            ht.clinical_significance_category == "pathogenic_or_likely_pathogenic",
-            hl.agg.max(ht.AC[0] / ht.AN[0]),
-        )
-    )
-
-    # if there are no clinvar path or likely path variants, the aggregation returns None
-    # explicitly check for this None and substitute 1.1 to ensure nothing can get this flag
-    max_af_of_clinvar_path_or_likely_path_variants = (
-        max_af_of_clinvar_path_or_likely_path_variants
-        if max_af_of_clinvar_path_or_likely_path_variants is not None
-        else hl.int(1.1)
-    )
-
-    ht = ht.annotate(
-        flags=_add_flags_to_variants(ht, max_af_of_clinvar_path_or_likely_path_variants)
-    )
-
-    return ht
+VARIANT_FLAG_CALCULATION_FIELDS = ("clinical_significance_category", "_freq_missing")
 
 
-def process_dashboard_list(
-    dataframe,
-    index,
+def collect_gene_variants(
     transcript_id,
     start,
     stop,
@@ -280,11 +307,13 @@ def process_dashboard_list(
 
     ht = _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants)
 
-    ht = _annotate_with_clinvar(ht, clinvar_variants)
+    ht = ht.annotate(clinvar=clinvar_variants[ht.locus, ht.alleles])
+
+    ht = _annotate_with_clinvar(ht)
 
     ht = ht.filter(ht.include_from_gnomad | ht.include_from_clinvar)
 
-    ht = _remove_clinvar_primary_benign_classifications(ht, clinvar_variants)
+    ht = _remove_clinvar_primary_benign_classifications(ht)
 
     ht = ht.transmute(
         source=hl.array(
@@ -294,24 +323,13 @@ def process_dashboard_list(
             ]
         ).filter(hl.is_defined)
     )
-    ht = ht.select("source")
 
     ht = ht.annotate(id=variant_id(ht.locus, ht.alleles))
 
-    ht = ht.annotate(**gnomad_variants[ht.locus, ht.alleles])
-
-    ht = ht.transmute(
-        transcript_consequence=ht.transcript_consequences.find(
-            lambda csq: csq.transcript_id == transcript_id
-        )
-    )
-
-    ht = ht.transmute(**ht.transcript_consequence)
-
     ht = ht.annotate(**ht.freq.joint)
 
-    ht = ht.annotate(
-        **clinvar_variants[ht.locus, ht.alleles].select(
+    ht = ht.transmute(
+        **ht.clinvar.select(
             "clinvar_variation_id",
             "clinical_significance",
             "clinical_significance_category",
@@ -319,17 +337,47 @@ def process_dashboard_list(
         )
     )
 
-    ht = _annotate_variants_with_flags(ht)
-
-    ht = ht.filter(~ht.flags.contains("filtered"))
+    ht = ht.annotate(_freq_missing=hl.is_missing(ht.freq))
 
     # TODO: lof curation for v2, later for v4
     table_fields = set(ht.row)
     select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
-    ht = ht.select(*select_fields)
+    temp_fields_for_flags = [
+        field for field in VARIANT_FLAG_CALCULATION_FIELDS if field in table_fields
+    ]
+    ht = ht.select(*select_fields, *temp_fields_for_flags)
 
     variants = [json.loads(variant) for variant in hl.json(ht.row_value).collect()]
 
+    del ht
+    gc.collect()
+
+    return variants
+
+
+def flag_and_filter_variants(variants):
+    max_af_of_clinvar_path_or_likely_path_variants = (
+        _max_af_of_clinvar_pathogenic_variants(variants)
+    )
+    # No AF exceeds 1, so high_AF cannot fire without a ClinVar P/LP threshold.
+    if max_af_of_clinvar_path_or_likely_path_variants is None:
+        max_af_of_clinvar_path_or_likely_path_variants = 1
+
+    for variant in variants:
+        variant["flags"] = _flags_for_variant(
+            variant, max_af_of_clinvar_path_or_likely_path_variants
+        )
+
+    variants = [v for v in variants if "filtered" not in v["flags"]]
+
+    for variant in variants:
+        for temp_field in VARIANT_FLAG_CALCULATION_FIELDS:
+            variant.pop(temp_field, None)
+
+    return variants
+
+
+def select_top_ten_variants(variants):
     valid_variants = [
         v
         for v in variants
@@ -344,13 +392,7 @@ def process_dashboard_list(
         valid_variants, key=lambda v: v["AC"][0] / v["AN"][0], reverse=True
     )
 
-    top_10_variants_list = sorted_variants[:10]
-    dataframe.at[index, "top_ten_variants"] = json.dumps(top_10_variants_list)
-
-    del ht
-    gc.collect()
-
-    return variants
+    return sorted_variants[:10]
 
 
 def calculate_carrier_frequency_and_prevalence(variants, populations):
@@ -427,11 +469,6 @@ def calculate_carrier_frequency_and_prevalence(variants, populations):
     }
 
     return calculations_object
-
-
-def calculate_stats(dataframe, index, variants, populations):
-    stats_dict = calculate_carrier_frequency_and_prevalence(variants, populations)
-    dataframe.at[index, "variant_calculations"] = json.dumps(stats_dict)
 
 
 def annotate_variants_with_orphanet_prevalences(variants, orphanet):
@@ -583,14 +620,12 @@ def write_recommended_variants_to_csv(
     print(f"    - Gene-variant CSV file written to ...{filename}")
 
 
-def prepare_dashboard_lists(
+def prepare_dashboard_gene_results(
     df_genes_this_batch,
     base_dir,
+    gnomad_variants_path,
 ):
-    GNOMAD_V4_VARIANTS_PATH = (
-        "gs://aggregate-frequency-calculator-data/gnomAD/gnomAD_v4.1.0_variants.ht"
-    )
-    ht_gnomad_variants = hl.read_table(GNOMAD_V4_VARIANTS_PATH)
+    ht_gnomad_variants = hl.read_table(gnomad_variants_path)
     metadata_populations = hl.eval(ht_gnomad_variants.globals.populations)
 
     CLINVAR_GRCH38_PATH = os.path.join(
@@ -599,26 +634,9 @@ def prepare_dashboard_lists(
     ht_clinvar_variants = hl.read_table(CLINVAR_GRCH38_PATH)
     metadata_clinvar_version = hl.eval(ht_clinvar_variants.globals.release_date)
 
-    df = df_genes_this_batch
-
-    df["variants"] = [[] for _ in range(len(df))]
-    df["top_ten_variants"] = [[] for _ in range(len(df))]
-    df["label"] = ""
-    df["notes"] = ""
-    df["metadata"] = None
-    current_datetime = datetime.now()
-    iso_8601_datetime = current_datetime.isoformat()
-    df["date_created"] = iso_8601_datetime
-    df["variant_calculations"] = [{} for _ in range(len(df))]
-
     ORPHANET_PATH = os.path.join(base_dir, "processed_data", "orphanet_prevalences.tsv")
     df_orphanet_prevalences = pd.read_csv(ORPHANET_PATH, sep="\t")
-    ds = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
-    df["genetic_prevalence_genereviews"] = ""
-    df["genetic_prevalence_other"] = ""
-    df["genetic_incidence_other"] = ""
-
-    df["inheritance_type"] = ""
+    gene_results = []
 
     batch_i = 0
 
@@ -644,15 +662,15 @@ def prepare_dashboard_lists(
 
     # ---
 
-    batch_chrom_list = df["chrom"].values
+    batch_chrom_list = df_genes_this_batch["chrom"].values
     if len(set(batch_chrom_list)) > 1:
         print("!!=== Panic! Multiple chroms in this batch!")
         print("!!=== Exiting early")
         exit(1)
 
     batch_chrom = batch_chrom_list[0]
-    batch_pos_min = df["start"].values.min()
-    batch_pos_max = df["stop"].values.max()
+    batch_pos_min = df_genes_this_batch["start"].values.min()
+    batch_pos_max = df_genes_this_batch["stop"].values.max()
 
     subset_start_time = datetime.now()
 
@@ -664,18 +682,18 @@ def prepare_dashboard_lists(
     chrom_clinvar_variants = chrom_clinvar_variants.persist()
 
     subset_end_time = datetime.now()
-    duration_seconds = (subset_start_time - subset_end_time).total_seconds()
+    duration_seconds = (subset_end_time - subset_start_time).total_seconds()
     minutes, seconds = divmod(int(duration_seconds), 60)
     formatted_time = f"{minutes:02d}m{seconds:02d}s"
     print(f"    - Finished in {formatted_time}")
 
     # ---
 
-    for index, row in df.iterrows():
+    for index, row in df_genes_this_batch.iterrows():
         single_gene_start_time = datetime.now()
         batch_i += 1
         print(
-            f"  -- Processing row {index + 1} [{row.symbol}, chr{row.chrom} - {row.gene_id}] ({batch_i} of {len(df)} in batch) ({row.type})"
+            f"  -- Processing row {index + 1} [{row.symbol}, chr{row.chrom} - {row.gene_id}] ({batch_i} of {len(df_genes_this_batch)} in batch) ({row.type})"
         )
 
         gene_id_with_version = f"{row.gene_id}.{row.gene_version}"
@@ -695,16 +713,8 @@ def prepare_dashboard_lists(
 
         transcript_id_with_version = f"{row.preferred_transcript_id}.{safe_mane_select_transcript_ensembl_version}"
 
-        df.at[index, "label"] = f"{row.symbol} - Dashboard"
-        df.at[
-            index, "notes"
-        ] = f"This list was algorithmically generated for the gene {row.symbol}, with the transcript {row.preferred_transcript_id}"
-
-        current_datetime = datetime.now()
-        iso_8601_datetime = current_datetime.isoformat()
-        df.at[index, "date_created"] = iso_8601_datetime
-
-        df.at[index, "inheritance_type"] = row.type
+        notes = f"This list was algorithmically generated for the gene {row.symbol}, with the transcript {row.preferred_transcript_id}"
+        date_created = datetime.now().isoformat()
 
         metadata = {
             "gnomad_version": "4.1.1",
@@ -721,15 +731,7 @@ def prepare_dashboard_lists(
             "include_gnomad_missense_with_high_revel_score": False,
         }
 
-        df.at[index, "metadata"] = json.dumps(metadata)
-
-        if row.should_calculate_recessive == False:
-            print(f"    -- Skipping row, not reccessive or semidominant! ({row.type})")
-            continue
-
-        recommended_variants = process_dashboard_list(
-            dataframe=df,
-            index=index,
+        collected_variants = collect_gene_variants(
             transcript_id=transcript_id_with_version,
             start=row.start,
             stop=row.stop,
@@ -738,16 +740,30 @@ def prepare_dashboard_lists(
             clinvar_variants=chrom_clinvar_variants,
         )
 
-        # TODO: right here, call a helper to create a .csv for this variant
+        recommended_variants = flag_and_filter_variants(collected_variants)
+        top_ten_variants = select_top_ten_variants(recommended_variants)
+
         write_recommended_variants_to_csv(
             base_dir, row.symbol, row.gene_id, recommended_variants
         )
 
-        calculate_stats(
-            dataframe=df,
-            index=index,
-            populations=metadata_populations,
-            variants=recommended_variants,
+        calculations = calculate_carrier_frequency_and_prevalence(
+            recommended_variants, metadata_populations
+        )
+        gene_results.append(
+            {
+                "gene_id": row.gene_id,
+                "label": f"{row.symbol} - Dashboard",
+                "notes": notes,
+                "date_created": date_created,
+                "metadata": metadata,
+                "variant_calculations": calculations,
+                "top_ten_variants": top_ten_variants,
+                "genetic_prevalence_genereviews": "",
+                "genetic_prevalence_other": "",
+                "genetic_incidence_other": "",
+                "type": row.type,
+            }
         )
 
         single_gene_end_time = datetime.now()
@@ -758,7 +774,21 @@ def prepare_dashboard_lists(
         formatted_time = f"{minutes:02d}m{seconds:02d}s"
         print(f"    - Finished in {formatted_time}")
 
-    df = annotate_variants_with_orphanet_prevalences(df, df_orphanet_prevalences)
+    gene_results_frame = pd.DataFrame(gene_results)
+    gene_results_frame = annotate_variants_with_orphanet_prevalences(
+        gene_results_frame, df_orphanet_prevalences
+    )
+
+    chrom_gnomad_variants.unpersist()
+    chrom_clinvar_variants.unpersist()
+
+    return gene_results_frame
+
+
+def serialize_dashboard_models(models):
+    models = models.copy()
+    for column in ("metadata", "variant_calculations", "top_ten_variants"):
+        models[column] = models[column].map(json.dumps)
 
     FINAL_COLUMNS = [
         "gene_id",
@@ -774,24 +804,10 @@ def prepare_dashboard_lists(
         "genetic_incidence_other",
         "type",
     ]
-    df = df[FINAL_COLUMNS]
-
-    chrom_gnomad_variants.unpersist()
-    chrom_clinvar_variants.unpersist()
-
-    return df
+    return models[FINAL_COLUMNS]
 
 
-def safe_json_load(val, fallback=None):
-    if isinstance(val, dict):
-        return val
-    try:
-        return json.loads(val)
-    except:
-        return fallback if fallback is not None else {}
-
-
-def prepare_dashboard_download(base_dir, df_recessive):
+def prepare_dashboard_download(gene_results):
     V4_ANCESTRY_GROUPS = [
         "total",
         "african_african_american",
@@ -937,8 +953,6 @@ def prepare_dashboard_download(base_dir, df_recessive):
         }
 
         for type in inheritance_type_abbreviations.split(","):
-            # print(f"type: {type}")
-            # print(f"full name: {inheritance_type_mapping.get(type.strip(), "")}")
             unabbreviated_inheritance_types.append(
                 inheritance_type_mapping.get(type.strip(), "")
             )
@@ -949,16 +963,14 @@ def prepare_dashboard_download(base_dir, df_recessive):
 
         return unabbreviated_inheritance_type_string
 
-    for _, row in df_recessive.iterrows():
-        metadata = safe_json_load(row.get("metadata"))
+    for _, row in gene_results.iterrows():
+        metadata = row["metadata"]
+        calculations = row["variant_calculations"]
+        top_ten_variants = row["top_ten_variants"]
 
-        calculations = safe_json_load(row.get("variant_calculations"), {})
-        top_ten_variants = safe_json_load(row.get("top_ten_variants"), [])
-
-        # prepare a temporary dictionary for all the data in this row to avoid repeated small insertions fragmenting the dataframe
         row_data = {
             "gene_id": row.get("gene_id"),
-            "gene_symbol": metadata.get("gene_symbol", row.get("gene_id_base")),
+            "gene_symbol": metadata["gene_symbol"],
             "transcript_id": metadata["transcript_id"],
             "gnomad_version": metadata["gnomad_version"],
             "reference_genome": metadata["reference_genome"],
@@ -1039,45 +1051,6 @@ def safe_cleanup():
     time.sleep(1)
 
 
-def assign_contiguous_batches(genes_df, batch_size=100):
-    # Ensure coordinates are clean integers
-    genes_df["chrom"] = genes_df["chrom"].astype(str).str.replace("chr", "")
-    genes_df["start"] = pd.to_numeric(genes_df["start"], errors="coerce")
-    genes_df["stop"] = pd.to_numeric(genes_df["stop"], errors="coerce")
-    genes_df = genes_df.dropna(subset=["chrom", "start", "stop"])
-
-    # Sort human-style (1, 2, ... 22, X, Y)
-    # We can create a temporary sorting key for chromosomes
-    def chrom_key(c):
-        if c == "X":
-            return 23
-        if c == "Y":
-            return 24
-        try:
-            return int(c)
-        except:
-            return 99
-
-    genes_df["chrom_sort"] = genes_df["chrom"].apply(chrom_key)
-    genes_df = genes_df.sort_values(by=["chrom_sort", "start"]).drop(
-        columns=["chrom_sort"]
-    )
-
-    # Assign batch IDs so each batch is strictly contained to one chromosome
-    batch_counter = 0
-    batch_ids = []
-
-    for chrom, group in genes_df.groupby("chrom", sort=False):
-        for i in range(0, len(group), batch_size):
-            # Fill the next N rows with the current batch ID
-            chunk_len = len(group.iloc[i : i + batch_size])
-            batch_ids.extend([batch_counter] * chunk_len)
-            batch_counter += 1
-
-    genes_df["batch_id"] = batch_ids
-    return genes_df
-
-
 def prepare_and_batch_genes(
     input_genes_csv_fullpath,
     gene_models_ht_path,
@@ -1128,12 +1101,6 @@ def prepare_and_batch_genes(
         .reset_index(drop=True)
     )
 
-    # should_calculate_recessive = df['type'].str.contains('AR|SD', na=False)
-    # df['should_calculate_recessive'] = False
-    # df.loc[should_calculate_recessive, 'should_calculate_recessive'] = True
-
-    df["should_calculate_recessive"] = True
-
     batch_counter = 0
     batch_ids = []
 
@@ -1160,6 +1127,7 @@ def main() -> None:
     parser.add_argument("--directory-root", required=False)
     parser.add_argument("--input-genes-file", required=False)
     parser.add_argument("--test", action="store_true", required=False)
+    parser.add_argument("--gnomad-variants-path", default=GNOMAD_V4_VARIANTS_PATH)
     args = parser.parse_args()
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
@@ -1185,35 +1153,13 @@ def main() -> None:
     print(f"\nRunning with input file: {input_genes_csv_fullpath}\n")
 
     print("Initializing Hail for global data prep...")
-    hl.init(
-        quiet=args.quiet,
-        master="local[8]",
-        spark_conf={
-            "spark.driver.memory": "16g",
-            "spark.executor.memory": "16g",
-            "spark.driver.maxResultSize": "8g",
-            "spark.memory.fraction": "0.8",
-            "spark.memory.storageFraction": "0.3",
-            "spark.local.dir": "/tmp",
-            "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
-            "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
-            "spark.network.timeout": "800s",
-            "spark.executor.heartbeatInterval": "400s",
-            "spark.default.parallelism": "8",
-            "spark.sql.shuffle.partitions": "8",
-            "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-            "spark.kryoserializer.buffer.max": "1g",
-        },
-    )
+    init_hail(quiet=args.quiet)
 
     gene_models_ht_fullpath = os.path.join(
         base_dir, "processed_data", "reindexed_gene_models.ht"
     )
     if not os.path.exists(gene_models_ht_fullpath):
         prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
-
-    # TK: TODO: break into helper -- sort and batch genes
-    # ---
 
     print("Sorting and batching genes...")
     df_genes_batched = prepare_and_batch_genes(
@@ -1222,7 +1168,6 @@ def main() -> None:
         batch_size=BATCH_SIZE,
     )
 
-    # --- DEBUG LOGGING ---
     print("\n--- Batch Summary ---")
     batch_summary = df_genes_batched.groupby("batch_id").agg(
         chrom=("chrom", "first"),
@@ -1247,39 +1192,13 @@ def main() -> None:
         file_prefix = "test_"
         num_batches = 1
 
-    gene_models_path = os.path.join(
-        base_dir, "processed_data", "reindexed_gene_models.ht"
-    )
-    if not os.path.exists(gene_models_path):
-        print(f"Path {gene_models_path} does not exist, creating ht.")
-        prepare_gene_models(GNOMAD_GRCH38_GENES_PATH, base_dir)
-
     for batch_id in range(num_batches):
         try:
             print("starting cleanup")
             safe_cleanup()
 
             print("initializing hail")
-            hl.init(
-                quiet=args.quiet,
-                master="local[8]",
-                spark_conf={
-                    "spark.driver.memory": "16g",
-                    "spark.executor.memory": "16g",
-                    "spark.driver.maxResultSize": "8g",
-                    "spark.memory.fraction": "0.8",
-                    "spark.memory.storageFraction": "0.3",
-                    "spark.local.dir": "/tmp",
-                    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
-                    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
-                    "spark.network.timeout": "800s",
-                    "spark.executor.heartbeatInterval": "400s",
-                    "spark.default.parallelism": "8",
-                    "spark.sql.shuffle.partitions": "8",
-                    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-                    "spark.kryoserializer.buffer.max": "1g",
-                },
-            )
+            init_hail(quiet=args.quiet)
 
             batch_start_time = datetime.now()
 
@@ -1290,18 +1209,12 @@ def main() -> None:
 
             print(f"\nBeginning batch_id: {batch_id}, size: {batch_length}")
 
-            # ---
-            print("\n\n===DEBUG!")
-            for row in df_genes_this_batch.itertuples():
-                print(
-                    f"(batch_id): {row.batch_id} | Symbol: {row.symbol} | Type: {row.type} | Chrom: {row.chrom} | Range: {row.start}-{row.stop} | Type: {row.type} | Should Calc: {row.should_calculate_recessive}"
-                )
-            print("\n\n")
-            # ---
-
             print("Preparing dashboard list models ...")
 
-            df_dashboard_models = prepare_dashboard_lists(df_genes_this_batch, base_dir)
+            gene_results = prepare_dashboard_gene_results(
+                df_genes_this_batch, base_dir, args.gnomad_variants_path
+            )
+            df_dashboard_models = serialize_dashboard_models(gene_results)
             model_output_file = (
                 Path(base_dir)
                 / "output"
@@ -1316,9 +1229,7 @@ def main() -> None:
             # ---
 
             print("Preparing dashboard list downloads")
-            df_dashboard_download = prepare_dashboard_download(
-                base_dir, df_dashboard_models
-            )
+            df_dashboard_download = prepare_dashboard_download(gene_results)
             download_output_file = (
                 Path(base_dir)
                 / "output"
