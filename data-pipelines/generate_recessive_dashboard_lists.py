@@ -110,44 +110,6 @@ def variant_id(locus, alleles):
     )
 
 
-# Currently this is used on the first local run to create a checkpointed file,
-#   if run in google cloud run, this would be run every time and checkpointing wouldn't
-#   be needed
-def prepare_gene_models(gnomAD_gene_models_path, base_dir):
-    ht = hl.read_table(gnomAD_gene_models_path)
-
-    ht = ht.annotate(
-        mane_select_transcript_ensemble_version=ht.mane_select_transcript.ensembl_version
-    )
-
-    ht = ht.select(
-        #    "gene_id",  we get this for free since the .ht is keyed by it
-        "gene_version",
-        "interval",
-        "chrom",
-        "strand",
-        "start",
-        "stop",
-        "xstart",
-        "xstop",
-        "symbol",
-        "name",
-        "alias_symbols",
-        "symbol_upper_case",
-        "preferred_transcript_id",
-        "mane_select_transcript_ensemble_version",
-    )
-
-    ht = ht.key_by("symbol")
-
-    ht.write(
-        os.path.join(base_dir, "processed_data", "reindexed_gene_models.ht"),
-        overwrite=True,
-    )
-
-    return ht
-
-
 def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
     ht = hl.filter_intervals(
         gnomad_variants,
@@ -179,56 +141,43 @@ def _annotate_with_gnomad(contig, start, stop, transcript_id, gnomad_variants):
     return ht
 
 
-def _annotate_with_clinvar(ht):
-    # these should be kept in sync with the classifications in import_clinvar.py
-    PATHOGENIC_CLASSIFICATIONS = [
-        "Likely pathogenic",
-        "Likely pathogenic/Likely risk allele",
-        "Likely pathogenic/Pathogenic",
-        "Pathogenic",
-        "Pathogenic/Pathogenic",
-        "Pathogenic/Likely pathogenic",
-        "Pathogenic/Likely pathogenic/Likely risk allele",
-        "Pathogenic/Likely pathogenic/Pathogenic",
-    ]
+# These should be kept in sync with the classifications in import_clinvar.py.
+CLINVAR_PATHOGENIC_CLASSIFICATIONS = [
+    "Likely pathogenic",
+    "Likely pathogenic/Likely risk allele",
+    "Likely pathogenic/Pathogenic",
+    "Pathogenic",
+    "Pathogenic/Pathogenic",
+    "Pathogenic/Likely pathogenic",
+    "Pathogenic/Likely pathogenic/Likely risk allele",
+    "Pathogenic/Likely pathogenic/Pathogenic",
+]
+CLINVAR_BENIGN_CLASSIFICATIONS = [
+    "Benign",
+    "Benign/Likely benign",
+    "Likely benign",
+]
 
+
+def _annotate_with_clinvar(ht):
     pathogenic_significance = (
         ht.clinvar.clinical_significance_category == "pathogenic_or_likely_pathogenic"
     )
-
-    pathogenic_classifications_set = hl.literal(PATHOGENIC_CLASSIFICATIONS)
-    primary_report_is_path = hl.if_else(
-        pathogenic_classifications_set.contains(ht.clinvar.clinical_significance[0]),
-        True,
-        False,
+    primary_report_is_path = hl.literal(CLINVAR_PATHOGENIC_CLASSIFICATIONS).contains(
+        ht.clinvar.clinical_significance[0]
     )
 
-    include_from_clinvar = pathogenic_significance & primary_report_is_path
-
-    ht = ht.annotate(include_from_clinvar=include_from_clinvar)
-
-    return ht
+    return ht.annotate(
+        include_from_clinvar=pathogenic_significance & primary_report_is_path
+    )
 
 
 def _remove_clinvar_primary_benign_classifications(ht):
-    # these should be kept in sync with the classifications in import_clinvar.py
-    BENIGN_CLASSIFICATIONS = [
-        "Benign",
-        "Benign/Likely benign",
-        "Likely benign",
-    ]
-
-    benign_classifications_set = hl.literal(BENIGN_CLASSIFICATIONS)
-    primary_report_is_benign = hl.if_else(
-        benign_classifications_set.contains(ht.clinvar.clinical_significance[0]),
-        True,
-        False,
+    primary_report_is_benign = hl.literal(CLINVAR_BENIGN_CLASSIFICATIONS).contains(
+        ht.clinvar.clinical_significance[0]
     )
 
-    ht = ht.annotate(disclude_because_benign=primary_report_is_benign)
-    ht = ht.filter(~ht.disclude_because_benign)
-
-    return ht
+    return ht.filter(~primary_report_is_benign)
 
 
 def collect_gene_variants(
@@ -537,6 +486,44 @@ def safe_cleanup():
         pass
 
     time.sleep(1)
+
+
+# Currently this is used on the first local run to create a checkpointed file,
+#   if run in google cloud run, this would be run every time and checkpointing wouldn't
+#   be needed
+def prepare_gene_models(gnomAD_gene_models_path, base_dir):
+    ht = hl.read_table(gnomAD_gene_models_path)
+
+    ht = ht.annotate(
+        mane_select_transcript_ensemble_version=ht.mane_select_transcript.ensembl_version
+    )
+
+    ht = ht.select(
+        #    "gene_id",  we get this for free since the .ht is keyed by it
+        "gene_version",
+        "interval",
+        "chrom",
+        "strand",
+        "start",
+        "stop",
+        "xstart",
+        "xstop",
+        "symbol",
+        "name",
+        "alias_symbols",
+        "symbol_upper_case",
+        "preferred_transcript_id",
+        "mane_select_transcript_ensemble_version",
+    )
+
+    ht = ht.key_by("symbol")
+
+    ht.write(
+        os.path.join(base_dir, "processed_data", "reindexed_gene_models.ht"),
+        overwrite=True,
+    )
+
+    return ht
 
 
 def prepare_and_batch_genes(
