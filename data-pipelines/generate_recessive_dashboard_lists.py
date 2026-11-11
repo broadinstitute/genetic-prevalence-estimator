@@ -1,6 +1,5 @@
 import argparse
 import os
-import ast
 import gc
 import time
 import signal
@@ -13,6 +12,9 @@ from datetime import datetime
 import hail as hl
 import pandas as pd
 
+from recessive_dashboard.orphanet import (
+    annotate_gene_results_with_orphanet_prevalences,
+)
 from recessive_dashboard.outputs import (
     prepare_dashboard_download,
     serialize_dashboard_models,
@@ -56,45 +58,6 @@ SPARK_CONF = {
 
 def init_hail(quiet):
     hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
-
-
-def _format_orphanet_prevalence(prevalence):
-    parts = prevalence.split("/")
-    numerator = parts[0].strip()
-    denominator = parts[1].strip()
-    formatted_denominator = "{:,}".format(
-        int(denominator.replace(" ", "").replace(",", ""))
-    )
-    return f"{numerator} / {formatted_denominator}"
-
-
-def _orphanet_prevalence_for_gene(orpha_prevalence_cell):
-    prevalences = [
-        prevalence.split(":")[1]
-        for prevalence in ast.literal_eval(orpha_prevalence_cell)
-    ]
-    prevalences = [
-        "-" if prevalence == "Unknown" else prevalence for prevalence in prevalences
-    ]
-    if all(value == prevalences[0] for value in prevalences):
-        if "/" in prevalences[0]:
-            return _format_orphanet_prevalence(prevalences[0])
-        return prevalences[0]
-    else:
-        return "multiple_prevalences"
-
-
-def annotate_gene_results_with_orphanet_prevalences(gene_results, orphanet):
-    orphanet["genetic_prevalence_orphanet"] = orphanet["OrphaPrevalence"].apply(
-        _orphanet_prevalence_for_gene
-    )
-
-    orphanet = orphanet.rename(columns={"ENSG_ID": "gene_id"}).drop(
-        columns=["OrphaCodes", "OrphaPrevalence", "GeneSymbol"]
-    )
-
-    pd.set_option("display.max_columns", None)
-    return pd.merge(gene_results, orphanet, on="gene_id", how="left")
 
 
 def prepare_dashboard_gene_results(
