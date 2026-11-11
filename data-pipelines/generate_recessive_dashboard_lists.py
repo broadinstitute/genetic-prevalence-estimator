@@ -58,31 +58,35 @@ def init_hail(quiet):
     hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
 
 
-def annotate_variants_with_orphanet_prevalences(variants, orphanet):
-    def format_prevalence(prevalence):
-        parts = prevalence.split("/")
-        numerator = parts[0].strip()
-        denominator = parts[1].strip()
-        formatted_denominator = "{:,}".format(
-            int(denominator.replace(" ", "").replace(",", ""))
-        )
-        return f"{numerator} / {formatted_denominator}"
+def _format_orphanet_prevalence(prevalence):
+    parts = prevalence.split("/")
+    numerator = parts[0].strip()
+    denominator = parts[1].strip()
+    formatted_denominator = "{:,}".format(
+        int(denominator.replace(" ", "").replace(",", ""))
+    )
+    return f"{numerator} / {formatted_denominator}"
 
-    def extract_prevalences(row):
-        row = ast.literal_eval(row)
-        prevalences = [prevalence.split(":")[1] for prevalence in row]
-        prevalences = [
-            "-" if prevalence == "Unknown" else prevalence for prevalence in prevalences
-        ]
-        if all(value == prevalences[0] for value in prevalences):
-            if "/" in prevalences[0]:
-                return format_prevalence(prevalences[0])
-            return prevalences[0]
-        else:
-            return "multiple_prevalences"
 
+def _orphanet_prevalence_for_gene(orpha_prevalence_cell):
+    prevalences = [
+        prevalence.split(":")[1]
+        for prevalence in ast.literal_eval(orpha_prevalence_cell)
+    ]
+    prevalences = [
+        "-" if prevalence == "Unknown" else prevalence for prevalence in prevalences
+    ]
+    if all(value == prevalences[0] for value in prevalences):
+        if "/" in prevalences[0]:
+            return _format_orphanet_prevalence(prevalences[0])
+        return prevalences[0]
+    else:
+        return "multiple_prevalences"
+
+
+def annotate_gene_results_with_orphanet_prevalences(gene_results, orphanet):
     orphanet["genetic_prevalence_orphanet"] = orphanet["OrphaPrevalence"].apply(
-        extract_prevalences
+        _orphanet_prevalence_for_gene
     )
 
     orphanet = orphanet.rename(columns={"ENSG_ID": "gene_id"}).drop(
@@ -90,8 +94,7 @@ def annotate_variants_with_orphanet_prevalences(variants, orphanet):
     )
 
     pd.set_option("display.max_columns", None)
-    merged_df = pd.merge(variants, orphanet, on="gene_id", how="left")
-    return merged_df
+    return pd.merge(gene_results, orphanet, on="gene_id", how="left")
 
 
 def prepare_dashboard_gene_results(
@@ -249,7 +252,7 @@ def prepare_dashboard_gene_results(
         print(f"    - Finished in {formatted_time}")
 
     gene_results_frame = pd.DataFrame(gene_results)
-    gene_results_frame = annotate_variants_with_orphanet_prevalences(
+    gene_results_frame = annotate_gene_results_with_orphanet_prevalences(
         gene_results_frame, df_orphanet_prevalences
     )
 
