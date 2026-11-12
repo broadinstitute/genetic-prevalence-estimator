@@ -7,7 +7,7 @@ import os
 
 from datetime import datetime
 
-from generate_recessive_dashboard_lists import prepare_gene_models
+from recessive_dashboard.gene_batches import prepare_gene_models
 
 
 LOCAL_BASE_DIR = os.path.join(os.path.dirname(__file__), "../data")
