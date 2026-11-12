@@ -38,28 +38,6 @@ GNOMAD_V4_VARIANTS_PATH = (
 )
 
 
-SPARK_CONF = {
-    "spark.driver.memory": "16g",
-    "spark.executor.memory": "16g",
-    "spark.driver.maxResultSize": "8g",
-    "spark.memory.fraction": "0.8",
-    "spark.memory.storageFraction": "0.3",
-    "spark.local.dir": "/tmp",
-    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
-    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
-    "spark.network.timeout": "800s",
-    "spark.executor.heartbeatInterval": "400s",
-    "spark.default.parallelism": "8",
-    "spark.sql.shuffle.partitions": "8",
-    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-    "spark.kryoserializer.buffer.max": "1g",
-}
-
-
-def init_hail(quiet):
-    hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
-
-
 def prepare_dashboard_gene_results(
     df_genes_this_batch,
     base_dir,
@@ -225,6 +203,28 @@ def prepare_dashboard_gene_results(
     return gene_results_frame
 
 
+SPARK_CONF = {
+    "spark.driver.memory": "16g",
+    "spark.executor.memory": "16g",
+    "spark.driver.maxResultSize": "8g",
+    "spark.memory.fraction": "0.8",
+    "spark.memory.storageFraction": "0.3",
+    "spark.local.dir": "/tmp",
+    "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:G1HeapRegionSize=32M",
+    "spark.driver.extraJavaOptions": "-XX:+UseG1GC",
+    "spark.network.timeout": "800s",
+    "spark.executor.heartbeatInterval": "400s",
+    "spark.default.parallelism": "8",
+    "spark.sql.shuffle.partitions": "8",
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+    "spark.kryoserializer.buffer.max": "1g",
+}
+
+
+def init_hail(quiet):
+    hl.init(quiet=quiet, master="local[8]", spark_conf=SPARK_CONF)
+
+
 def safe_cleanup():
     """
     Since this pipeline exits and re-initializes Hail, here we manually trigger GC
@@ -252,7 +252,7 @@ def safe_cleanup():
                         os.kill(int(pid), signal.SIGKILL)
                     except OSError:
                         pass
-    except Exception as e:
+    except Exception:
         pass
 
     try:
