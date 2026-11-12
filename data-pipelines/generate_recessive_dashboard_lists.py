@@ -236,25 +236,21 @@ def prepare_gene_models(gnomAD_gene_models_path, base_dir):
     return ht
 
 
-def prepare_and_batch_genes(
-    input_genes_csv_fullpath,
-    gene_models_ht_path,
-    batch_size,
-):
-    ds = hl.import_table(
-        input_genes_csv_fullpath,
-        delimiter=",",
-        quote='"',
-        key="symbol",
-        impute=True,
-    )
+def _chromosome_sort_key(chrom):
+    if chrom == "X":
+        return 23
+    if chrom == "Y":
+        return 24
+    if chrom in ("M", "MT"):
+        return 25
+    try:
+        return int(chrom)
+    except ValueError:
+        return 99
 
-    # TK: possibly match on prior/alias symbols from gencode here
-    #   currently, about 15 genes get dropped in this step
-    ht_gnomad_gene_models = hl.read_table(gene_models_ht_path)
-    ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
 
-    df = ds.to_pandas()
+def sort_and_batch_genes(df_genes, batch_size):
+    df = df_genes
     print(f"  - {len(df)} -- Start")
 
     df = df.dropna(subset=["gene_id", "chrom", "start", "stop"])
@@ -266,19 +262,7 @@ def prepare_and_batch_genes(
     df = df.dropna(subset=["chrom", "start", "stop"])
     print(f"  - {len(df)} -- Post coersion of chrom, start, stop then dropna")
 
-    def chrom_key(c):
-        if c == "X":
-            return 23
-        if c == "Y":
-            return 24
-        if c in ("M", "MT"):
-            return 25
-        try:
-            return int(c)
-        except:
-            return 99
-
-    df["chrom_sort"] = df["chrom"].apply(chrom_key)
+    df["chrom_sort"] = df["chrom"].apply(_chromosome_sort_key)
 
     df = (
         df.sort_values(by=["chrom_sort", "start"])
@@ -298,6 +282,42 @@ def prepare_and_batch_genes(
     df["batch_id"] = batch_ids
 
     return df
+
+
+def prepare_and_batch_genes(
+    input_genes_csv_fullpath,
+    gene_models_ht_path,
+    batch_size,
+):
+    ds = hl.import_table(
+        input_genes_csv_fullpath,
+        delimiter=",",
+        quote='"',
+        key="symbol",
+        impute=True,
+    )
+
+    # TK: possibly match on prior/alias symbols from gencode here
+    #   currently, about 15 genes get dropped in this step
+    ht_gnomad_gene_models = hl.read_table(gene_models_ht_path)
+    ds = ds.annotate(**ht_gnomad_gene_models[ds.symbol])
+
+    return sort_and_batch_genes(ds.to_pandas(), batch_size)
+
+
+def print_batch_summary(df_genes_batched):
+    print("\n--- Batch Summary ---")
+    batch_summary = df_genes_batched.groupby("batch_id").agg(
+        chrom=("chrom", "first"),
+        num_genes=("symbol", "count"),
+    )
+
+    for batch_id, row in batch_summary.iterrows():
+        print(
+            f"Batch {batch_id:03d} | chr{row['chrom']:<2} | Genes: {row['num_genes']}"
+        )
+    print(f"Total Batches: {len(batch_summary)}")
+    print("---------------------\n")
 
 
 # e.g.
@@ -353,18 +373,7 @@ def main() -> None:
         batch_size=BATCH_SIZE,
     )
 
-    print("\n--- Batch Summary ---")
-    batch_summary = df_genes_batched.groupby("batch_id").agg(
-        chrom=("chrom", "first"),
-        num_genes=("symbol", "count"),
-    )
-
-    for batch_id, row in batch_summary.iterrows():
-        print(
-            f"Batch {batch_id:03d} | chr{row['chrom']:<2} | Genes: {row['num_genes']}"
-        )
-    print(f"Total Batches: {len(batch_summary)}")
-    print("---------------------\n")
+    print_batch_summary(df_genes_batched)
 
     num_batches = df_genes_batched["batch_id"].max() + 1
     print(f"Successfully sorted genes into {num_batches} distinct batches.")
