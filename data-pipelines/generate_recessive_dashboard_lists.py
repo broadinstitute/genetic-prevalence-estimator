@@ -27,6 +27,84 @@ GNOMAD_V4_VARIANTS_PATH = (
 )
 
 
+# 310 is a funny number, but at 300, chromosome 11 had 2 batches:
+# - first batch of 300
+# - second batch of 1
+# use 310 to reduce total batches by 1 for convenience
+BATCH_SIZE = 310
+
+TEST_GENE_AMOUNT = 20
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--quiet", action="store_true", required=False)
+    parser.add_argument("--directory-root", required=False)
+    parser.add_argument("--input-genes-file", required=False)
+    parser.add_argument("--test", action="store_true", required=False)
+    parser.add_argument("--gnomad-variants-path", default=GNOMAD_V4_VARIANTS_PATH)
+    return parser.parse_args()
+
+
+def write_batch_csv(
+    df, base_dir, output_kind, file_prefix, batch_id, num_batches, batch_length
+):
+    output_file = (
+        Path(base_dir)
+        / "output"
+        / "recessive_dashboard"
+        / output_kind
+        / f"{file_prefix}recessive_dashboard_{output_kind}_batch-{batch_id + 1}-of-{num_batches}--{batch_length}-lists.csv"
+    )
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+
+
+def run_batch(
+    df_genes_batched, batch_id, num_batches, base_dir, gnomad_variants_path, file_prefix
+):
+    batch_start_time = datetime.now()
+
+    df_genes_this_batch = df_genes_batched[
+        df_genes_batched["batch_id"] == batch_id
+    ].copy()
+    batch_length = len(df_genes_this_batch)
+
+    print(f"\nBeginning batch_id: {batch_id}, size: {batch_length}")
+
+    print("Preparing dashboard list models ...")
+
+    gene_results = prepare_dashboard_gene_results(
+        df_genes_this_batch, base_dir, gnomad_variants_path
+    )
+    write_batch_csv(
+        serialize_dashboard_models(gene_results),
+        base_dir,
+        "models",
+        file_prefix,
+        batch_id,
+        num_batches,
+        batch_length,
+    )
+    print("\n\nWrote dashboard list models to file")
+
+    print("Preparing dashboard list downloads")
+    write_batch_csv(
+        prepare_dashboard_download(gene_results),
+        base_dir,
+        "downloads",
+        file_prefix,
+        batch_id,
+        num_batches,
+        batch_length,
+    )
+    print("Wrote dashboard downloads to file")
+
+    batch_end_time = datetime.now()
+    print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"It took: {batch_end_time - batch_start_time}\n\n")
+
+
 # e.g.
 # uv run python data-pipelines/generate_recessive_dashboard_lists.py \
 #     --input-genes-file=2026-05-29_genie-input_5k-disease-associated-genes.csv \
@@ -34,13 +112,7 @@ GNOMAD_V4_VARIANTS_PATH = (
 def main() -> None:
     start_time = datetime.now()
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--quiet", action="store_true", required=False)
-    parser.add_argument("--directory-root", required=False)
-    parser.add_argument("--input-genes-file", required=False)
-    parser.add_argument("--test", action="store_true", required=False)
-    parser.add_argument("--gnomad-variants-path", default=GNOMAD_V4_VARIANTS_PATH)
-    args = parser.parse_args()
+    args = parse_args()
 
     base_dir = os.path.join(os.path.dirname(__file__), "../data")
     if args.directory_root:
@@ -52,15 +124,7 @@ def main() -> None:
 
     input_genes_csv_fullpath = os.path.join(base_dir, "input", input_genes_filename)
 
-    # 310 is a funny number, but at 300, chromosome 11 had 2 batches:
-    # - first batch of 300
-    # - second batch of 1
-    # use 310 to reduce total batches by 1 for convenience
-    BATCH_SIZE = 310
-
     file_prefix = ""
-
-    # ---
 
     print(f"\nRunning with input file: {input_genes_csv_fullpath}\n")
 
@@ -85,7 +149,6 @@ def main() -> None:
     num_batches = df_genes_batched["batch_id"].max() + 1
     print(f"Successfully sorted genes into {num_batches} distinct batches.")
 
-    TEST_GENE_AMOUNT = 20
     if args.test:
         print("Got test arg, moving to single batch of 20 ...")
         df_genes_batched = df_genes_batched.iloc[0:TEST_GENE_AMOUNT]
@@ -101,52 +164,14 @@ def main() -> None:
             print("initializing hail")
             init_hail(quiet=args.quiet)
 
-            batch_start_time = datetime.now()
-
-            df_genes_this_batch = df_genes_batched[
-                df_genes_batched["batch_id"] == batch_id
-            ].copy()
-            batch_length = len(df_genes_this_batch)
-
-            print(f"\nBeginning batch_id: {batch_id}, size: {batch_length}")
-
-            print("Preparing dashboard list models ...")
-
-            gene_results = prepare_dashboard_gene_results(
-                df_genes_this_batch, base_dir, args.gnomad_variants_path
+            run_batch(
+                df_genes_batched,
+                batch_id,
+                num_batches,
+                base_dir,
+                args.gnomad_variants_path,
+                file_prefix,
             )
-            df_dashboard_models = serialize_dashboard_models(gene_results)
-            model_output_file = (
-                Path(base_dir)
-                / "output"
-                / "recessive_dashboard"
-                / "models"
-                / f"{file_prefix}recessive_dashboard_models_batch-{batch_id + 1}-of-{num_batches}--{batch_length}-lists.csv"
-            )
-            model_output_file.parent.mkdir(parents=True, exist_ok=True)
-            df_dashboard_models.to_csv(model_output_file, index=False)
-            print("\n\nWrote dashboard list models to file")
-
-            # ---
-
-            print("Preparing dashboard list downloads")
-            df_dashboard_download = prepare_dashboard_download(gene_results)
-            download_output_file = (
-                Path(base_dir)
-                / "output"
-                / "recessive_dashboard"
-                / "downloads"
-                / f"{file_prefix}recessive_dashboard_downloads_batch-{batch_id + 1}-of-{num_batches}--{batch_length}-lists.csv"
-            )
-            download_output_file.parent.mkdir(parents=True, exist_ok=True)
-            df_dashboard_download.to_csv(download_output_file, index=False)
-            print("Wrote dashboard downloads to file")
-
-            # ---
-
-            batch_end_time = datetime.now()
-            print(f"Finished batch at: {batch_end_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"It took: {batch_end_time - batch_start_time}\n\n")
 
             if args.test:
                 break
