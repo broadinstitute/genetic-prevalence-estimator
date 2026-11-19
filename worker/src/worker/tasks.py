@@ -21,6 +21,7 @@ from calculator.serializers import (
     is_variant_id,
     is_structural_variant_id,
 )
+from worker import watchdog
 
 IS_SHUTTING_DOWN = False
 EXIT_SEQUENCE_STARTED = False
@@ -762,6 +763,9 @@ def process_variant_list(uid):
     variant_list.status = VariantList.Status.PROCESSING
     variant_list.save()
 
+    watchdog.start_job(uid)
+    watchdog.exit_if_failed()
+
     try:
         _process_variant_list(variant_list)
 
@@ -798,6 +802,9 @@ def process_variant_list(uid):
 
         variant_list.save()
         IS_SHUTTING_DOWN = True
+
+    finally:
+        watchdog.finish_job()
 
 
 def handle_event(event):
