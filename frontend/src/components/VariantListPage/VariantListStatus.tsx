@@ -18,7 +18,7 @@ import {
 import { post } from "../../api";
 import { VariantList, VariantListAccessLevel } from "../../types";
 
-const reprocessVariantList = (uuid: string): Promise<void> => {
+export const reprocessVariantList = (uuid: string): Promise<void> => {
   return post(`/variant-lists/${uuid}/process/`, {});
 };
 
