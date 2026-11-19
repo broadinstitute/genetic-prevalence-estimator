@@ -117,3 +117,56 @@ class TestGetSystemStatusQueuedAndProcessingLists:
 
         assert processing_list["created_by"] is None
         assert processing_list["gene_symbol"] is None
+
+
+@pytest.mark.django_db
+class TestGetSystemStatusErrorDetails:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="staffmember", is_staff=True)
+        submitter = User.objects.create(username="submitter")
+
+        def create_variant_list(label, status, error=None):
+            return VariantList.objects.create(
+                label=label,
+                type=VariantList.Type.CUSTOM,
+                metadata={
+                    "version": "1",
+                    "reference_genome": "GRCh38",
+                    "gnomad_version": "4.1.0",
+                    "gene_symbol": "PCSK9",
+                },
+                status=status,
+                error=error,
+                created_by=submitter,
+            )
+
+        create_variant_list(
+            "Older error", VariantList.Status.ERROR, "Hail JVM exited with code 137"
+        )
+        create_variant_list("Newer error", VariantList.Status.ERROR)
+        create_variant_list("Ready list", VariantList.Status.READY)
+
+    def get_error_details(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        return client.get("/api/status/").json()["error_details"]
+
+    def test_returns_errored_lists_most_recently_updated_first(self):
+        assert [vlist["label"] for vlist in self.get_error_details()] == [
+            "Newer error",
+            "Older error",
+        ]
+
+    def test_returns_error_with_submitter_and_gene_details(self):
+        newer_error, older_error = self.get_error_details()
+
+        assert older_error["error"] == "Hail JVM exited with code 137"
+        assert older_error["status"] == "Error"
+        assert older_error["created_by"] == "submitter"
+        assert older_error["gene_symbol"] == "PCSK9"
+        assert older_error["gnomad_version"] == "4.1.0"
+        assert older_error["created_at"]
+        assert older_error["updated_at"]
+
+        assert newer_error["error"] == ""

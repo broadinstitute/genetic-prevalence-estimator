@@ -21,21 +21,6 @@ def get_num_variant_lists_by_status():
     return num_variant_lists_by_status
 
 
-def get_error_details():
-    errored_variant_lists = VariantList.objects.filter(status=VariantList.Status.ERROR)
-    lists_with_errors = []
-    for vlist in errored_variant_lists:
-        error = vlist.error if vlist.error is not None else ""
-        lists_with_errors.append(
-            {
-                "error": error,
-                "uuid": vlist.uuid,
-                "label": vlist.label,
-            }
-        )
-    return lists_with_errors
-
-
 def summarize_variant_list(vlist):
     return {
         "uuid": vlist.uuid,
@@ -47,6 +32,17 @@ def summarize_variant_list(vlist):
         "gene_symbol": vlist.metadata.get("gene_symbol"),
         "gnomad_version": vlist.metadata.get("gnomad_version"),
     }
+
+
+def get_error_details():
+    lists = (
+        VariantList.objects.filter(status=VariantList.Status.ERROR)
+        .select_related("created_by")
+        .order_by("-updated_at")
+    )
+    return [
+        {**summarize_variant_list(vlist), "error": vlist.error or ""} for vlist in lists
+    ]
 
 
 def get_queued_and_processing_lists():
