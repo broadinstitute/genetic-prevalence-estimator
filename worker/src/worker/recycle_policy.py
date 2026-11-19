@@ -6,7 +6,7 @@ def should_recycle(outcome, jobs_run, memory):
         return True
     if jobs_run >= settings.RECYCLE_AFTER_JOBS:
         return True
-    used = memory["container_memory_bytes"]
+    used = memory["container_memory_in_use_bytes"]
     limit = memory["container_memory_limit_bytes"]
     if used is None or limit is None:
         return False
