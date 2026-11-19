@@ -35,15 +35,19 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
+  VisuallyHidden,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 
 import { get } from "../../api";
 import { VariantListStatus } from "../../types";
 
+import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
+import { reprocessVariantList } from "../VariantListPage/VariantListStatus";
 
 interface SystemStatusError {
   error: string;
@@ -72,6 +76,7 @@ interface SystemStatus {
 
 interface SystemStatusViewProps {
   systemStatus: SystemStatus;
+  refreshSystemStatus: () => void;
 }
 
 interface SystemStatusErrorRowData {
@@ -254,16 +259,21 @@ const formatCompactDateTime = (datetime: string) => {
   return compactDateTimeFormatter.format(new Date(datetime));
 };
 
+interface QueuedOrProcessingVariantListRowData {
+  variantLists: QueuedOrProcessingVariantList[];
+  onRetry: (variantList: QueuedOrProcessingVariantList) => void;
+}
+
 const QueuedOrProcessingVariantListRow = ({
   index,
   data,
   style,
 }: {
   index: number;
-  data: QueuedOrProcessingVariantList[];
+  data: QueuedOrProcessingVariantListRowData;
   style: React.CSSProperties;
 }) => {
-  const variantList = data[index];
+  const variantList = data.variantLists[index];
 
   return (
     <Tr
@@ -275,29 +285,44 @@ const QueuedOrProcessingVariantListRow = ({
       }}
       style={style}
     >
-      <Td width="25%" sx={TRUNCATED_CELL_STYLE}>
+      <Td width="21%" sx={TRUNCATED_CELL_STYLE}>
         <Link as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
           {variantList.label}
         </Link>
       </Td>
-      <Td width="13%">
+      <Td width="12%">
         {STATUS_GLYPHS[variantList.status]} {variantList.status}
       </Td>
-      <Td width="18%" sx={TRUNCATED_CELL_STYLE}>
+      <Td width="16%" sx={TRUNCATED_CELL_STYLE}>
         {variantList.created_by ?? "Unknown"}
       </Td>
-      <Td width="10%">{variantList.gene_symbol ?? ""}</Td>
+      <Td width="9%">{variantList.gene_symbol ?? ""}</Td>
       <Td width="8%">{variantList.gnomad_version ?? ""}</Td>
-      <Td width="13%">{formatCompactDateTime(variantList.created_at)}</Td>
-      <Td width="13%">{formatCompactDateTime(variantList.updated_at)}</Td>
+      <Td width="12%">{formatCompactDateTime(variantList.created_at)}</Td>
+      <Td width="12%">{formatCompactDateTime(variantList.updated_at)}</Td>
+      <Td width="10%">
+        <ButtonWithConfirmation
+          size="sm"
+          confirmationPrompt={`Re-queue "${variantList.label}"? If it is still being processed, it will be processed twice.`}
+          confirmButtonText="Retry"
+          confirmButtonColorScheme="blue"
+          onClick={() => {
+            data.onRetry(variantList);
+          }}
+        >
+          Retry
+        </ButtonWithConfirmation>
+      </Td>
     </Tr>
   );
 };
 
 const QueuedOrProcessingVariantListTable = ({
   variantLists,
+  onRetry,
 }: {
   variantLists: QueuedOrProcessingVariantList[];
+  onRetry: (variantList: QueuedOrProcessingVariantList) => void;
 }) => {
   if (variantLists.length === 0) {
     return <Text mt={4}>No variant lists are queued or processing.</Text>;
@@ -307,26 +332,29 @@ const QueuedOrProcessingVariantListTable = ({
     <Table variant="striped" mt={4}>
       <Thead>
         <Tr sx={{ display: "flex" }}>
-          <Th scope="col" width="25%">
+          <Th scope="col" width="21%">
             List label
           </Th>
-          <Th scope="col" width="13%">
+          <Th scope="col" width="12%">
             Status
           </Th>
-          <Th scope="col" width="18%">
+          <Th scope="col" width="16%">
             Created by
           </Th>
-          <Th scope="col" width="10%">
+          <Th scope="col" width="9%">
             Gene
           </Th>
           <Th scope="col" width="8%">
             gnomAD
           </Th>
-          <Th scope="col" width="13%">
+          <Th scope="col" width="12%">
             Created
           </Th>
-          <Th scope="col" width="13%">
+          <Th scope="col" width="12%">
             Last updated
+          </Th>
+          <Th scope="col" width="10%">
+            <VisuallyHidden>Actions</VisuallyHidden>
           </Th>
         </Tr>
       </Thead>
@@ -340,7 +368,7 @@ const QueuedOrProcessingVariantListTable = ({
           itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
           width="100%"
           overscanCount={5}
-          itemData={variantLists}
+          itemData={{ variantLists, onRetry }}
           style={{ overflowX: "hidden" }}
         >
           {QueuedOrProcessingVariantListRow}
@@ -351,7 +379,31 @@ const QueuedOrProcessingVariantListTable = ({
 };
 
 const SystemStatusView = (props: SystemStatusViewProps) => {
-  const { systemStatus } = props;
+  const { systemStatus, refreshSystemStatus } = props;
+  const toast = useToast();
+
+  const retryVariantList = (variantList: QueuedOrProcessingVariantList) => {
+    reprocessVariantList(variantList.uuid).then(
+      () => {
+        toast({
+          title: `Re-queued "${variantList.label}"`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        refreshSystemStatus();
+      },
+      (error: Error) => {
+        toast({
+          title: `Unable to re-queue "${variantList.label}"`,
+          description: error.message,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+    );
+  };
 
   return (
     <>
@@ -386,6 +438,7 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           <TabPanel px={0}>
             <QueuedOrProcessingVariantListTable
               variantLists={systemStatus.queued_and_processing_lists}
+              onRetry={retryVariantList}
             />
           </TabPanel>
         </TabPanels>
@@ -400,14 +453,16 @@ const SystemStatusContainer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const loadSystemStatus = useCallback(() => {
+    return get("/status/").then(setSystemStatus, setError);
+  }, []);
+
   useEffect(() => {
     setIsLoading(true);
-    get("/status/")
-      .then(setSystemStatus, setError)
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+    loadSystemStatus().finally(() => {
+      setIsLoading(false);
+    });
+  }, [loadSystemStatus]);
 
   if (isLoading) {
     return (
@@ -427,7 +482,12 @@ const SystemStatusContainer = () => {
     );
   }
 
-  return <SystemStatusView systemStatus={systemStatus!} />;
+  return (
+    <SystemStatusView
+      systemStatus={systemStatus!}
+      refreshSystemStatus={loadSystemStatus}
+    />
+  );
 };
 
 const SystemStatusPage = () => {
