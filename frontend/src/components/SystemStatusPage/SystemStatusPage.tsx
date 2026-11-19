@@ -377,6 +377,74 @@ const QueuedOrProcessingVariantListRow = ({
   );
 };
 
+export type QueuedOrProcessingSortKey = "status" | "created_at" | "updated_at";
+
+export type SortDirection = "ascending" | "descending";
+
+interface QueuedOrProcessingSort {
+  key: QueuedOrProcessingSortKey;
+  direction: SortDirection;
+}
+
+const SORT_DIRECTION_GLYPHS: { [key in SortDirection]: string } = {
+  ascending: "▲",
+  descending: "▼",
+};
+
+const sortQueuedOrProcessingVariantLists = (
+  variantLists: QueuedOrProcessingVariantList[],
+  sort: QueuedOrProcessingSort
+) => {
+  const directionMultiplier = sort.direction === "ascending" ? 1 : -1;
+  return [...variantLists].sort((a, b) => {
+    const comparison =
+      a[sort.key].localeCompare(b[sort.key]) ||
+      a.created_at.localeCompare(b.created_at);
+    return comparison * directionMultiplier;
+  });
+};
+
+const SortableColumnHeader = ({
+  label,
+  sortKey,
+  sort,
+  onSort,
+  width,
+}: {
+  label: string;
+  sortKey: QueuedOrProcessingSortKey;
+  sort: QueuedOrProcessingSort;
+  onSort: (sortKey: QueuedOrProcessingSortKey) => void;
+  width: number;
+}) => {
+  const isSorted = sort.key === sortKey;
+  const ariaSort = isSorted ? sort.direction : "none";
+  const glyph = isSorted ? SORT_DIRECTION_GLYPHS[sort.direction] : "↕";
+
+  return (
+    <Th
+      scope="col"
+      aria-sort={ariaSort}
+      sx={queuedOrProcessingCellStyle(width)}
+    >
+      <Button
+        variant="unstyled"
+        height="auto"
+        minWidth={0}
+        fontSize="inherit"
+        fontWeight="inherit"
+        letterSpacing="inherit"
+        textTransform="inherit"
+        onClick={() => {
+          onSort(sortKey);
+        }}
+      >
+        {label} {glyph}
+      </Button>
+    </Th>
+  );
+};
+
 const QueuedOrProcessingVariantListTable = ({
   variantLists,
   onRetry,
@@ -384,6 +452,27 @@ const QueuedOrProcessingVariantListTable = ({
   variantLists: QueuedOrProcessingVariantList[];
   onRetry: (variantList: QueuedOrProcessingVariantList) => void;
 }) => {
+  const [sort, setSort] = useState<QueuedOrProcessingSort>({
+    key: "created_at",
+    direction: "ascending",
+  });
+
+  const toggleSort = (sortKey: QueuedOrProcessingSortKey) => {
+    setSort((currentSort) => {
+      if (currentSort.key !== sortKey) {
+        return { key: sortKey, direction: "ascending" };
+      }
+      const direction =
+        currentSort.direction === "ascending" ? "descending" : "ascending";
+      return { key: sortKey, direction };
+    });
+  };
+
+  const sortedVariantLists = sortQueuedOrProcessingVariantLists(
+    variantLists,
+    sort
+  );
+
   if (variantLists.length === 0) {
     return <Text mt={4}>No variant lists are queued or processing.</Text>;
   }
@@ -401,14 +490,13 @@ const QueuedOrProcessingVariantListTable = ({
             >
               List label
             </Th>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status
-              )}
-            >
-              Status
-            </Th>
+            <SortableColumnHeader
+              label="Status"
+              sortKey="status"
+              sort={sort}
+              onSort={toggleSort}
+              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status}
+            />
             <Th
               scope="col"
               sx={queuedOrProcessingCellStyle(
@@ -433,22 +521,20 @@ const QueuedOrProcessingVariantListTable = ({
             >
               gnomAD
             </Th>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt
-              )}
-            >
-              Created
-            </Th>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt
-              )}
-            >
-              Last updated
-            </Th>
+            <SortableColumnHeader
+              label="Created"
+              sortKey="created_at"
+              sort={sort}
+              onSort={toggleSort}
+              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt}
+            />
+            <SortableColumnHeader
+              label="Last updated"
+              sortKey="updated_at"
+              sort={sort}
+              onSort={toggleSort}
+              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt}
+            />
             <Th
               scope="col"
               sx={queuedOrProcessingCellStyle(
@@ -471,7 +557,7 @@ const QueuedOrProcessingVariantListTable = ({
             itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
             width={QUEUED_OR_PROCESSING_TABLE_WIDTH}
             overscanCount={5}
-            itemData={{ variantLists, onRetry }}
+            itemData={{ variantLists: sortedVariantLists, onRetry }}
             style={{ overflowX: "hidden" }}
           >
             {QueuedOrProcessingVariantListRow}
