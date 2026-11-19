@@ -2,7 +2,10 @@ import os
 import requests
 from requests.exceptions import RequestException
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError as DjangoCoreValidationError
 
@@ -17,10 +20,12 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import (
     DjangoObjectPermissions,
+    IsAdminUser,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
+from rest_framework import status as http_status
 
 from calculator.models import (
     VariantList,
@@ -217,6 +222,57 @@ class VariantListProcessView(GenericAPIView):
         if variant_list.metadata["gnomad_version"] == "4.0.0":
             variant_list.metadata["gnomad_version"] = "4.1.0"
         variant_list.save()
+
+        return Response({})
+
+
+MAX_STAFF_ERROR_MESSAGE_LENGTH = 1000
+
+
+class VariantListMarkErrorView(GenericAPIView):
+    queryset = VariantList.objects.all()
+
+    lookup_field = "uuid"
+
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        message = request.data.get("message")
+        if not isinstance(message, str) or not message.strip():
+            raise ValidationError({"message": "A message is required."})
+        message = message.strip()
+        if len(message) > MAX_STAFF_ERROR_MESSAGE_LENGTH:
+            raise ValidationError(
+                {
+                    "message": f"Message must be at most {MAX_STAFF_ERROR_MESSAGE_LENGTH} characters."
+                }
+            )
+
+        with transaction.atomic():
+            variant_list = get_object_or_404(
+                self.get_queryset().select_for_update(), uuid=kwargs["uuid"]
+            )
+            if variant_list.status not in (
+                VariantList.Status.QUEUED,
+                VariantList.Status.PROCESSING,
+            ):
+                return Response(
+                    {
+                        "detail": "Only queued or processing lists can be marked as errored."
+                    },
+                    status=http_status.HTTP_409_CONFLICT,
+                )
+
+            marked_at = timezone.now().isoformat(timespec="seconds")
+            staff_note = f"[Staff note: {message}]"
+            variant_list.status = VariantList.Status.ERROR
+            variant_list.error = f"{message}\n\nMarked as errored by {request.user.username} at {marked_at}."
+            variant_list.notes = (
+                f"{staff_note}\n\n{variant_list.notes}"
+                if variant_list.notes
+                else staff_note
+            )
+            variant_list.save()
 
         return Response({})
 

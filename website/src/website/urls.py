@@ -11,6 +11,7 @@ from website.views.variant_list_views import (
     VariantListAnnotationView,
     VariantListSharedAnnotationView,
     VariantListProcessView,
+    VariantListMarkErrorView,
     VariantListVariantsView,
     PublicVariantListsView,
     PublicVariantListView,
@@ -107,6 +108,11 @@ urlpatterns = [
         "api/variant-lists/<uuid:uuid>/process/",
         VariantListProcessView.as_view(),
         name="variant-list-process",
+    ),
+    path(
+        "api/variant-lists/<uuid:uuid>/mark-error/",
+        VariantListMarkErrorView.as_view(),
+        name="variant-list-mark-error",
     ),
     path(
         "api/variant-lists/<uuid:uuid>/variants/",
