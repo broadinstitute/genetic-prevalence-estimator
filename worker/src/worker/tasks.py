@@ -777,7 +777,6 @@ def process_variant_list(uid):
         logger.warning(
             f"Worker got ConnectionRefused. Raise error to recycle this worker {uid}."
         )
-        IS_SHUTTING_DOWN = True
         outcome = "connection_refused"
         raise RuntimeError("Connection refused, force this container to recycle")
 
@@ -791,7 +790,6 @@ def process_variant_list(uid):
         variant_list.status = VariantList.Status.ERROR
         variant_list.error = traceback.format_exc()
         variant_list.save()
-        IS_SHUTTING_DOWN = True
         outcome = "error"
 
     else:
@@ -807,10 +805,10 @@ def process_variant_list(uid):
         variant_list.status = VariantList.Status.READY
 
         variant_list.save()
-        IS_SHUTTING_DOWN = True
         outcome = "ready"
 
     finally:
+        IS_SHUTTING_DOWN = True
         watchdog.finish_job()
         JOBS_RUN_BY_CONTAINER += 1
         log_job_summary(
