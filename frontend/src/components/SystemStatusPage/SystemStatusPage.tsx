@@ -23,9 +23,15 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tab,
   Table,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
@@ -45,11 +51,23 @@ interface SystemStatusError {
   uuid: string;
 }
 
+interface QueuedOrProcessingVariantList {
+  uuid: string;
+  label: string;
+  status: VariantListStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  gene_symbol: string | null;
+  gnomad_version: string | null;
+}
+
 interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
   };
   error_details: SystemStatusError[];
+  queued_and_processing_lists: QueuedOrProcessingVariantList[];
 }
 
 interface SystemStatusViewProps {
@@ -211,6 +229,127 @@ const SystemStatusErrorTable = ({
   );
 };
 
+const QUEUED_OR_PROCESSING_ROW_HEIGHT = 50;
+const QUEUED_OR_PROCESSING_ROWS_DISPLAYED = 10;
+
+const TRUNCATED_CELL_STYLE = {
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+} as const;
+
+const STATUS_GLYPHS: { [key in VariantListStatus]: string } = {
+  Queued: "○",
+  Processing: "◐",
+  Ready: "●",
+  Error: "✕",
+};
+
+const compactDateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+  timeStyle: "short",
+});
+
+const formatCompactDateTime = (datetime: string) => {
+  return compactDateTimeFormatter.format(new Date(datetime));
+};
+
+const QueuedOrProcessingVariantListRow = ({
+  index,
+  data,
+  style,
+}: {
+  index: number;
+  data: QueuedOrProcessingVariantList[];
+  style: React.CSSProperties;
+}) => {
+  const variantList = data[index];
+
+  return (
+    <Tr
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        boxSizing: "border-box",
+        background: index % 2 === 1 ? "initial" : "#edf2f7",
+      }}
+      style={style}
+    >
+      <Td width="25%" sx={TRUNCATED_CELL_STYLE}>
+        <Link as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
+          {variantList.label}
+        </Link>
+      </Td>
+      <Td width="13%">
+        {STATUS_GLYPHS[variantList.status]} {variantList.status}
+      </Td>
+      <Td width="18%" sx={TRUNCATED_CELL_STYLE}>
+        {variantList.created_by ?? "Unknown"}
+      </Td>
+      <Td width="10%">{variantList.gene_symbol ?? ""}</Td>
+      <Td width="8%">{variantList.gnomad_version ?? ""}</Td>
+      <Td width="13%">{formatCompactDateTime(variantList.created_at)}</Td>
+      <Td width="13%">{formatCompactDateTime(variantList.updated_at)}</Td>
+    </Tr>
+  );
+};
+
+const QueuedOrProcessingVariantListTable = ({
+  variantLists,
+}: {
+  variantLists: QueuedOrProcessingVariantList[];
+}) => {
+  if (variantLists.length === 0) {
+    return <Text mt={4}>No variant lists are queued or processing.</Text>;
+  }
+
+  return (
+    <Table variant="striped" mt={4}>
+      <Thead>
+        <Tr sx={{ display: "flex" }}>
+          <Th scope="col" width="25%">
+            List label
+          </Th>
+          <Th scope="col" width="13%">
+            Status
+          </Th>
+          <Th scope="col" width="18%">
+            Created by
+          </Th>
+          <Th scope="col" width="10%">
+            Gene
+          </Th>
+          <Th scope="col" width="8%">
+            gnomAD
+          </Th>
+          <Th scope="col" width="13%">
+            Created
+          </Th>
+          <Th scope="col" width="13%">
+            Last updated
+          </Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <FixedSizeList
+          height={
+            Math.min(variantLists.length, QUEUED_OR_PROCESSING_ROWS_DISPLAYED) *
+            QUEUED_OR_PROCESSING_ROW_HEIGHT
+          }
+          itemCount={variantLists.length}
+          itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
+          width="100%"
+          overscanCount={5}
+          itemData={variantLists}
+          style={{ overflowX: "hidden" }}
+        >
+          {QueuedOrProcessingVariantListRow}
+        </FixedSizeList>
+      </Tbody>
+    </Table>
+  );
+};
+
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus } = props;
 
@@ -231,12 +370,26 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           }
         )}
       </StatGroup>
-      <Box mt={12}>
-        <h1>Summary of errors</h1>
-        <SystemStatusErrorTable
-          systemStatusErrors={systemStatus.error_details}
-        />
-      </Box>
+      <Tabs isLazy mt={12}>
+        <TabList>
+          <Tab>Errors ({systemStatus.error_details.length})</Tab>
+          <Tab>
+            {`Queued and processing (${systemStatus.queued_and_processing_lists.length})`}
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel px={0}>
+            <SystemStatusErrorTable
+              systemStatusErrors={systemStatus.error_details}
+            />
+          </TabPanel>
+          <TabPanel px={0}>
+            <QueuedOrProcessingVariantListTable
+              variantLists={systemStatus.queued_and_processing_lists}
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </>
   );
 };
