@@ -32,6 +32,7 @@ import {
   Thead,
   Tr,
   useToast,
+  VisuallyHidden,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
@@ -54,6 +55,7 @@ import VariantListStatusTable, {
   VariantListSort,
   VariantListStatusColumn,
 } from "./VariantListStatusTable";
+import MarkVariantListErrorModal from "./MarkVariantListErrorModal";
 import VariantListCounts, {
   VariantListCountsData,
   VariantListCountThresholds,
@@ -106,6 +108,29 @@ const bucketColumn: VariantListStatusColumn<SystemStatusQueuedOrProcessingVarian
   header: "Bucket",
   width: 140,
   renderCell: (variantList) => BUCKET_LABELS[variantList.bucket],
+};
+
+const markErrorColumn = (
+  onMarkError: (variantList: SystemStatusVariantList) => void
+): VariantListStatusColumn<SystemStatusVariantList> => {
+  return {
+    key: "mark_error",
+    header: <VisuallyHidden>Mark as errored</VisuallyHidden>,
+    width: 180,
+    renderCell: (variantList) => {
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            onMarkError(variantList);
+          }}
+        >
+          Mark as error
+        </Button>
+      );
+    },
+  };
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -257,6 +282,10 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
   ] = useState<SystemStatusErroredVariantList | null>(null);
 
   const [tabIndex, setTabIndex] = useState(ERRORS_TAB_INDEX);
+  const [
+    variantListToMarkError,
+    setVariantListToMarkError,
+  ] = useState<SystemStatusVariantList | null>(null);
   const [showAllErrors, setShowAllErrors] = useState(false);
   const [showAbandonedLists, setShowAbandonedLists] = useState(false);
 
@@ -387,6 +416,7 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
                 createdAtColumn,
                 updatedAtColumn,
                 retryColumn(retryVariantList),
+                markErrorColumn(setVariantListToMarkError),
               ]}
               defaultSort={QUEUED_OR_PROCESSING_DEFAULT_SORT}
               emptyMessage={queuedOrProcessingEmptyMessage}
@@ -394,6 +424,16 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      {variantListToMarkError && (
+        <MarkVariantListErrorModal
+          variantList={variantListToMarkError}
+          onClose={() => {
+            setVariantListToMarkError(null);
+          }}
+          onMarked={refreshSystemStatus}
+        />
+      )}
 
       <SystemStatusErrorModal
         systemStatusError={selectedErroredVariantList}
