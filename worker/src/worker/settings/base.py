@@ -193,6 +193,10 @@ HAIL_LOG_PATH = os.getenv("HAIL_LOG_PATH", os.devnull)
 
 JOB_DEADLINE_SECONDS = int(os.getenv("JOB_DEADLINE_SECONDS", "450"))
 
+RECYCLE_AFTER_JOBS = int(os.getenv("RECYCLE_AFTER_JOBS", "1"))
+
+RECYCLE_ABOVE_MEMORY_PERCENT = float(os.getenv("RECYCLE_ABOVE_MEMORY_PERCENT", "100"))
+
 GNOMAD_DATA_PATH = os.environ["GNOMAD_DATA_PATH"].rstrip("/")
 
 CLINVAR_DATA_PATH = os.environ["CLINVAR_DATA_PATH"].rstrip("/")

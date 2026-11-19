@@ -22,7 +22,8 @@ from calculator.serializers import (
     is_structural_variant_id,
 )
 from worker import watchdog
-from worker.job_summary import log_job_summary
+from worker.job_summary import container_memory, log_job_summary
+from worker.recycle_policy import should_recycle
 
 IS_SHUTTING_DOWN = False
 EXIT_SEQUENCE_STARTED = False
@@ -139,14 +140,12 @@ def is_hail_working():
 
 
 def exit_after_job_finished(sender, **kwargs):  # pylint: disable=unused-argument
-    global IS_SHUTTING_DOWN
     global EXIT_SEQUENCE_STARTED
 
-    if EXIT_SEQUENCE_STARTED:
+    if EXIT_SEQUENCE_STARTED or not IS_SHUTTING_DOWN:
         return
 
     EXIT_SEQUENCE_STARTED = True
-    IS_SHUTTING_DOWN = True
 
     logger.info(
         "Job finished. Recycling container to clear Java Heap for next request via a new container."
@@ -808,15 +807,18 @@ def process_variant_list(uid):
         outcome = "ready"
 
     finally:
-        IS_SHUTTING_DOWN = True
         watchdog.finish_job()
         JOBS_RUN_BY_CONTAINER += 1
+        memory = container_memory()
+        IS_SHUTTING_DOWN = should_recycle(outcome, JOBS_RUN_BY_CONTAINER, memory)
         log_job_summary(
             variant_list,
             outcome,
             time.time() - start_time,
             JOBS_RUN_BY_CONTAINER,
             watchdog.state.java_process,
+            memory,
+            IS_SHUTTING_DOWN,
         )
 
 
