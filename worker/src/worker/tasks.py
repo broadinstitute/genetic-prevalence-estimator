@@ -114,6 +114,7 @@ def log_container_identity():
 
 def initialize_hail():
     log_container_identity()
+    logger.info("Container memory at startup: %s", container_memory())
 
     spark_conf = os.getenv("SPARK_CONF", default=None)
     if spark_conf:
