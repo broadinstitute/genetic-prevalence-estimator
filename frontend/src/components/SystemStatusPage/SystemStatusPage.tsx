@@ -18,10 +18,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Spinner,
-  Stat,
-  StatGroup,
-  StatLabel,
-  StatNumber,
   Tab,
   TabList,
   TabPanel,
@@ -34,7 +30,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
 
 import { get } from "../../api";
-import { VariantListStatus } from "../../types";
 
 import DocumentTitle from "../DocumentTitle";
 import { reprocessVariantList } from "../VariantListPage/VariantListStatus";
@@ -52,15 +47,18 @@ import VariantListStatusTable, {
   VariantListSort,
   VariantListStatusColumn,
 } from "./VariantListStatusTable";
+import VariantListCounts, {
+  VariantListCountsData,
+  VariantListCountThresholds,
+} from "./VariantListCounts";
 
 interface SystemStatusErroredVariantList extends SystemStatusVariantList {
   error: string;
 }
 
 interface SystemStatus {
-  variant_lists: {
-    [key in VariantListStatus]: number;
-  };
+  counts: VariantListCountsData;
+  thresholds: VariantListCountThresholds;
   error_details: SystemStatusErroredVariantList[];
   queued_and_processing_lists: SystemStatusVariantList[];
 }
@@ -69,6 +67,9 @@ interface SystemStatusViewProps {
   systemStatus: SystemStatus;
   refreshSystemStatus: () => void;
 }
+
+const ERRORS_TAB_INDEX = 0;
+const QUEUED_OR_PROCESSING_TAB_INDEX = 1;
 
 const ERRORS_DEFAULT_SORT: VariantListSort = {
   key: "updated_at",
@@ -160,6 +161,8 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
     setSelectedErroredVariantList,
   ] = useState<SystemStatusErroredVariantList | null>(null);
 
+  const [tabIndex, setTabIndex] = useState(ERRORS_TAB_INDEX);
+
   const retryVariantList = (variantList: SystemStatusVariantList) => {
     reprocessVariantList(variantList.uuid).then(
       () => {
@@ -185,22 +188,14 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
 
   return (
     <>
-      <Heading as="h2" size="md" mb={2}>
-        Variant lists
-      </Heading>
-      <StatGroup>
-        {Object.entries(systemStatus.variant_lists).map(
-          ([status, numVariantLists]) => {
-            return (
-              <Stat key={status}>
-                <StatLabel>{status}</StatLabel>
-                <StatNumber>{numVariantLists.toLocaleString()}</StatNumber>
-              </Stat>
-            );
-          }
-        )}
-      </StatGroup>
-      <Tabs isLazy mt={12}>
+      <VariantListCounts
+        counts={systemStatus.counts}
+        thresholds={systemStatus.thresholds}
+        onViewStuckLists={() => {
+          setTabIndex(QUEUED_OR_PROCESSING_TAB_INDEX);
+        }}
+      />
+      <Tabs isLazy mt={12} index={tabIndex} onChange={setTabIndex}>
         <TabList>
           <Tab>Errors ({systemStatus.error_details.length})</Tab>
           <Tab>
