@@ -31,12 +31,10 @@ import {
   Tabs,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Tr,
   useToast,
-  VisuallyHidden,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
@@ -45,9 +43,21 @@ import { FixedSizeList } from "react-window";
 import { get } from "../../api";
 import { VariantListStatus } from "../../types";
 
-import ButtonWithConfirmation from "../ButtonWithConfirmation";
 import DocumentTitle from "../DocumentTitle";
 import { reprocessVariantList } from "../VariantListPage/VariantListStatus";
+
+import VariantListStatusTable, {
+  createdAtColumn,
+  createdByColumn,
+  geneSymbolColumn,
+  gnomadVersionColumn,
+  labelColumn,
+  retryColumn,
+  statusColumn,
+  SystemStatusVariantList,
+  updatedAtColumn,
+  VariantListSort,
+} from "./VariantListStatusTable";
 
 interface SystemStatusError {
   error: string;
@@ -55,23 +65,12 @@ interface SystemStatusError {
   uuid: string;
 }
 
-interface QueuedOrProcessingVariantList {
-  uuid: string;
-  label: string;
-  status: VariantListStatus;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-  gene_symbol: string | null;
-  gnomad_version: string | null;
-}
-
 interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
   };
   error_details: SystemStatusError[];
-  queued_and_processing_lists: QueuedOrProcessingVariantList[];
+  queued_and_processing_lists: SystemStatusVariantList[];
 }
 
 interface SystemStatusViewProps {
@@ -234,345 +233,16 @@ const SystemStatusErrorTable = ({
   );
 };
 
-const QUEUED_OR_PROCESSING_ROW_HEIGHT = 50;
-const QUEUED_OR_PROCESSING_ROWS_DISPLAYED = 10;
-
-const QUEUED_OR_PROCESSING_COLUMN_WIDTHS = {
-  label: 260,
-  status: 150,
-  createdBy: 260,
-  geneSymbol: 110,
-  gnomadVersion: 110,
-  createdAt: 210,
-  updatedAt: 210,
-  actions: 120,
-};
-
-const QUEUED_OR_PROCESSING_TABLE_WIDTH = Object.values(
-  QUEUED_OR_PROCESSING_COLUMN_WIDTHS
-).reduce((total, width) => total + width, 0);
-
-const queuedOrProcessingCellStyle = (width: number) => {
-  return {
-    flex: `0 0 ${width}px`,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  } as const;
-};
-
-const STATUS_GLYPHS: { [key in VariantListStatus]: string } = {
-  Queued: "○",
-  Processing: "◐",
-  Ready: "●",
-  Error: "✕",
-};
-
-const compactDateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "short",
-  timeStyle: "short",
-});
-
-const formatCompactDateTime = (datetime: string) => {
-  return compactDateTimeFormatter.format(new Date(datetime));
-};
-
-interface QueuedOrProcessingVariantListRowData {
-  variantLists: QueuedOrProcessingVariantList[];
-  onRetry: (variantList: QueuedOrProcessingVariantList) => void;
-}
-
-const QueuedOrProcessingVariantListRow = ({
-  index,
-  data,
-  style,
-}: {
-  index: number;
-  data: QueuedOrProcessingVariantListRowData;
-  style: React.CSSProperties;
-}) => {
-  const variantList = data.variantLists[index];
-
-  return (
-    <Tr
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        boxSizing: "border-box",
-        background: index % 2 === 1 ? "initial" : "#edf2f7",
-      }}
-      style={style}
-    >
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.label
-        )}
-        title={variantList.label}
-      >
-        <Link as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
-          {variantList.label}
-        </Link>
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status
-        )}
-      >
-        {STATUS_GLYPHS[variantList.status]} {variantList.status}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdBy
-        )}
-        title={variantList.created_by ?? undefined}
-      >
-        {variantList.created_by ?? "Unknown"}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.geneSymbol
-        )}
-      >
-        {variantList.gene_symbol ?? ""}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.gnomadVersion
-        )}
-      >
-        {variantList.gnomad_version ?? ""}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt
-        )}
-      >
-        {formatCompactDateTime(variantList.created_at)}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt
-        )}
-      >
-        {formatCompactDateTime(variantList.updated_at)}
-      </Td>
-      <Td
-        sx={queuedOrProcessingCellStyle(
-          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.actions
-        )}
-      >
-        <ButtonWithConfirmation
-          size="sm"
-          confirmationPrompt={`Re-queue "${variantList.label}"? If it is still being processed, it will be processed twice.`}
-          confirmButtonText="Retry"
-          confirmButtonColorScheme="blue"
-          onClick={() => {
-            data.onRetry(variantList);
-          }}
-        >
-          Retry
-        </ButtonWithConfirmation>
-      </Td>
-    </Tr>
-  );
-};
-
-export type QueuedOrProcessingSortKey = "status" | "created_at" | "updated_at";
-
-export type SortDirection = "ascending" | "descending";
-
-interface QueuedOrProcessingSort {
-  key: QueuedOrProcessingSortKey;
-  direction: SortDirection;
-}
-
-const SORT_DIRECTION_GLYPHS: { [key in SortDirection]: string } = {
-  ascending: "▲",
-  descending: "▼",
-};
-
-const sortQueuedOrProcessingVariantLists = (
-  variantLists: QueuedOrProcessingVariantList[],
-  sort: QueuedOrProcessingSort
-) => {
-  const directionMultiplier = sort.direction === "ascending" ? 1 : -1;
-  return [...variantLists].sort((a, b) => {
-    const comparison =
-      a[sort.key].localeCompare(b[sort.key]) ||
-      a.created_at.localeCompare(b.created_at);
-    return comparison * directionMultiplier;
-  });
-};
-
-const SortableColumnHeader = ({
-  label,
-  sortKey,
-  sort,
-  onSort,
-  width,
-}: {
-  label: string;
-  sortKey: QueuedOrProcessingSortKey;
-  sort: QueuedOrProcessingSort;
-  onSort: (sortKey: QueuedOrProcessingSortKey) => void;
-  width: number;
-}) => {
-  const isSorted = sort.key === sortKey;
-  const ariaSort = isSorted ? sort.direction : "none";
-  const glyph = isSorted ? SORT_DIRECTION_GLYPHS[sort.direction] : "↕";
-
-  return (
-    <Th
-      scope="col"
-      aria-sort={ariaSort}
-      sx={queuedOrProcessingCellStyle(width)}
-    >
-      <Button
-        variant="unstyled"
-        height="auto"
-        minWidth={0}
-        fontSize="inherit"
-        fontWeight="inherit"
-        letterSpacing="inherit"
-        textTransform="inherit"
-        onClick={() => {
-          onSort(sortKey);
-        }}
-      >
-        {label} {glyph}
-      </Button>
-    </Th>
-  );
-};
-
-const QueuedOrProcessingVariantListTable = ({
-  variantLists,
-  onRetry,
-}: {
-  variantLists: QueuedOrProcessingVariantList[];
-  onRetry: (variantList: QueuedOrProcessingVariantList) => void;
-}) => {
-  const [sort, setSort] = useState<QueuedOrProcessingSort>({
-    key: "created_at",
-    direction: "ascending",
-  });
-
-  const toggleSort = (sortKey: QueuedOrProcessingSortKey) => {
-    setSort((currentSort) => {
-      if (currentSort.key !== sortKey) {
-        return { key: sortKey, direction: "ascending" };
-      }
-      const direction =
-        currentSort.direction === "ascending" ? "descending" : "ascending";
-      return { key: sortKey, direction };
-    });
-  };
-
-  const sortedVariantLists = sortQueuedOrProcessingVariantLists(
-    variantLists,
-    sort
-  );
-
-  if (variantLists.length === 0) {
-    return <Text mt={4}>No variant lists are queued or processing.</Text>;
-  }
-
-  return (
-    <Box overflowX="auto" mt={4}>
-      <Table variant="unstyled" width={`${QUEUED_OR_PROCESSING_TABLE_WIDTH}px`}>
-        <Thead>
-          <Tr sx={{ display: "flex" }}>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.label
-              )}
-            >
-              List label
-            </Th>
-            <SortableColumnHeader
-              label="Status"
-              sortKey="status"
-              sort={sort}
-              onSort={toggleSort}
-              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status}
-            />
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdBy
-              )}
-            >
-              Created by
-            </Th>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.geneSymbol
-              )}
-            >
-              Gene
-            </Th>
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.gnomadVersion
-              )}
-            >
-              gnomAD
-            </Th>
-            <SortableColumnHeader
-              label="Created"
-              sortKey="created_at"
-              sort={sort}
-              onSort={toggleSort}
-              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt}
-            />
-            <SortableColumnHeader
-              label="Last updated"
-              sortKey="updated_at"
-              sort={sort}
-              onSort={toggleSort}
-              width={QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt}
-            />
-            <Th
-              scope="col"
-              sx={queuedOrProcessingCellStyle(
-                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.actions
-              )}
-            >
-              <VisuallyHidden>Actions</VisuallyHidden>
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <FixedSizeList
-            height={
-              Math.min(
-                variantLists.length,
-                QUEUED_OR_PROCESSING_ROWS_DISPLAYED
-              ) * QUEUED_OR_PROCESSING_ROW_HEIGHT
-            }
-            itemCount={variantLists.length}
-            itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
-            width={QUEUED_OR_PROCESSING_TABLE_WIDTH}
-            overscanCount={5}
-            itemData={{ variantLists: sortedVariantLists, onRetry }}
-            style={{ overflowX: "hidden" }}
-          >
-            {QueuedOrProcessingVariantListRow}
-          </FixedSizeList>
-        </Tbody>
-      </Table>
-    </Box>
-  );
+const QUEUED_OR_PROCESSING_DEFAULT_SORT: VariantListSort = {
+  key: "created_at",
+  direction: "ascending",
 };
 
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus, refreshSystemStatus } = props;
   const toast = useToast();
 
-  const retryVariantList = (variantList: QueuedOrProcessingVariantList) => {
+  const retryVariantList = (variantList: SystemStatusVariantList) => {
     reprocessVariantList(variantList.uuid).then(
       () => {
         toast({
@@ -626,9 +296,20 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
             />
           </TabPanel>
           <TabPanel px={0}>
-            <QueuedOrProcessingVariantListTable
+            <VariantListStatusTable
               variantLists={systemStatus.queued_and_processing_lists}
-              onRetry={retryVariantList}
+              columns={[
+                labelColumn,
+                statusColumn,
+                createdByColumn,
+                geneSymbolColumn,
+                gnomadVersionColumn,
+                createdAtColumn,
+                updatedAtColumn,
+                retryColumn(retryVariantList),
+              ]}
+              defaultSort={QUEUED_OR_PROCESSING_DEFAULT_SORT}
+              emptyMessage="No variant lists are queued or processing."
             />
           </TabPanel>
         </TabPanels>
