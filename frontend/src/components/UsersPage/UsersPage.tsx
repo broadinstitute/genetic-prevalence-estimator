@@ -20,18 +20,11 @@ import {
   MenuList,
   Portal,
   Spinner,
-  Table,
   Text,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
-import { FixedSizeList } from "react-window";
 
 import { get, patch, post } from "../../api";
 import { USERNAME_LABEL } from "../../constants/config";
@@ -39,6 +32,11 @@ import { renderErrorDescription } from "../../errors";
 import { Store, atom, useStore } from "../../state";
 
 import DocumentTitle from "../DocumentTitle";
+import formatCompactDateTime from "../formatCompactDateTime";
+import VirtualizedTable, {
+  TableSort,
+  VirtualizedTableColumn,
+} from "../VirtualizedTable";
 
 import { AddUserButton } from "./AddUser";
 
@@ -48,6 +46,8 @@ interface User {
   username: string;
   is_active: boolean;
   is_staff: boolean;
+  last_login: string | null;
+  last_variant_list_created_at: string | null;
 }
 
 type UpdateUser = (
@@ -55,103 +55,135 @@ type UpdateUser = (
   update: { is_active?: boolean; is_staff?: boolean }
 ) => Promise<User>;
 
-interface UserRowData {
-  users: User[];
-  updateUser: UpdateUser;
-}
+export type UserSortKey =
+  | "username"
+  | "date_joined"
+  | "last_login"
+  | "last_variant_list_created_at";
 
-const ROW_HEIGHT = 70;
-const USERS_DISPLAYED = 10;
+const USERS_DEFAULT_SORT: TableSort<UserSortKey> = {
+  key: "date_joined",
+  direction: "descending",
+};
 
-const UserRow = ({
-  index,
-  data,
-  style,
-}: {
-  index: number;
-  data: UserRowData;
-  style: React.CSSProperties;
-}) => {
-  const user = data.users[index];
+const getUserSortValue = (user: User, sortKey: UserSortKey) => {
+  return user[sortKey];
+};
 
-  return (
-    <Tr
-      key={user.id}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        boxSizing: "border-box",
-        background: index % 2 === 1 ? "initial" : "#edf2f7",
-      }}
-      style={style}
-    >
-      <Td width="35%">
-        {user.username}
-        {user.is_staff && (
-          <Badge colorScheme="blue" ml="1ch">
-            Staff
-          </Badge>
-        )}
-      </Td>
-      <Td width="20%">
-        <Menu>
-          <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
-            {user.is_active ? "Active" : "Inactive"}
-          </MenuButton>
-          <Portal>
-            <MenuList>
-              <MenuItem
-                onClick={() => {
-                  data.updateUser(user, { is_active: true });
-                }}
-              >
-                Active
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  data.updateUser(user, { is_active: false });
-                }}
-              >
-                Inactive
-              </MenuItem>
-            </MenuList>
-          </Portal>
-        </Menu>
-      </Td>
-      <Td width="20%">
-        <Menu>
-          <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
-            {user.is_staff ? "Staff" : "Not staff"}
-          </MenuButton>
-          <Portal>
-            <MenuList>
-              <MenuItem
-                onClick={() => {
-                  data.updateUser(user, { is_staff: true });
-                }}
-              >
+const formatOptionalDateTime = (datetime: string | null) => {
+  return datetime === null ? "Never" : formatCompactDateTime(datetime);
+};
+
+const userColumns = (
+  updateUser: UpdateUser
+): VirtualizedTableColumn<User, UserSortKey>[] => {
+  return [
+    {
+      key: "username",
+      header: USERNAME_LABEL,
+      width: 340,
+      sortKey: "username",
+      title: (user) => user.username,
+      renderCell: (user) => {
+        return (
+          <>
+            {user.username}
+            {user.is_staff && (
+              <Badge colorScheme="blue" ml="1ch">
                 Staff
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  data.updateUser(user, { is_staff: false });
-                }}
-              >
-                Not staff
-              </MenuItem>
-            </MenuList>
-          </Portal>
-        </Menu>
-      </Td>
-      <Td width="25%">
-        {new Date(user.date_joined).toLocaleString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </Td>
-    </Tr>
-  );
+              </Badge>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      key: "is_active",
+      header: "Active",
+      width: 150,
+      renderCell: (user) => {
+        return (
+          <Menu>
+            <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
+              {user.is_active ? "Active" : "Inactive"}
+            </MenuButton>
+            <Portal>
+              <MenuList>
+                <MenuItem
+                  onClick={() => {
+                    updateUser(user, { is_active: true });
+                  }}
+                >
+                  Active
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    updateUser(user, { is_active: false });
+                  }}
+                >
+                  Inactive
+                </MenuItem>
+              </MenuList>
+            </Portal>
+          </Menu>
+        );
+      },
+    },
+    {
+      key: "is_staff",
+      header: "Staff",
+      width: 160,
+      renderCell: (user) => {
+        return (
+          <Menu>
+            <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
+              {user.is_staff ? "Staff" : "Not staff"}
+            </MenuButton>
+            <Portal>
+              <MenuList>
+                <MenuItem
+                  onClick={() => {
+                    updateUser(user, { is_staff: true });
+                  }}
+                >
+                  Staff
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    updateUser(user, { is_staff: false });
+                  }}
+                >
+                  Not staff
+                </MenuItem>
+              </MenuList>
+            </Portal>
+          </Menu>
+        );
+      },
+    },
+    {
+      key: "date_joined",
+      header: "Joined",
+      width: 210,
+      sortKey: "date_joined",
+      renderCell: (user) => formatCompactDateTime(user.date_joined),
+    },
+    {
+      key: "last_login",
+      header: "Last sign-in",
+      width: 210,
+      sortKey: "last_login",
+      renderCell: (user) => formatOptionalDateTime(user.last_login),
+    },
+    {
+      key: "last_variant_list_created_at",
+      header: "Last list created",
+      width: 220,
+      sortKey: "last_variant_list_created_at",
+      renderCell: (user) =>
+        formatOptionalDateTime(user.last_variant_list_created_at),
+    },
+  ];
 };
 
 const UserList = (props: { usersStore: Store<User[]> }) => {
@@ -227,37 +259,14 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
         Total users: {users.length}
       </Text>
 
-      <Table variant="striped">
-        <Thead>
-          <Tr sx={{ display: "flex" }}>
-            <Th scope="col" width="35%">
-              {USERNAME_LABEL}
-            </Th>
-            <Th scope="col" width="20%">
-              Active
-            </Th>
-            <Th scope="col" width="20%">
-              Staff
-            </Th>
-            <Th scope="col" width="25%">
-              Date joined
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <FixedSizeList
-            height={Math.min(users.length, USERS_DISPLAYED) * ROW_HEIGHT}
-            itemCount={users.length}
-            itemSize={ROW_HEIGHT}
-            width="100%"
-            overscanCount={5}
-            itemData={{ users, updateUser }}
-            style={{ overflowX: "hidden" }}
-          >
-            {UserRow}
-          </FixedSizeList>
-        </Tbody>
-      </Table>
+      <VirtualizedTable
+        rows={users}
+        columns={userColumns(updateUser)}
+        defaultSort={USERS_DEFAULT_SORT}
+        getSortValue={getUserSortValue}
+        tieBreakSortKey="date_joined"
+        emptyMessage="No users."
+      />
     </>
   );
 };
