@@ -6,3 +6,7 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worker.settings.base")
 
 application = get_wsgi_application()
+
+from worker import watchdog  # pylint: disable=wrong-import-position
+
+watchdog.start_watching_hail_jvm()
