@@ -12,6 +12,8 @@ import {
   Button,
   Center,
   Divider,
+  FormControl,
+  FormLabel,
   Heading,
   HStack,
   Menu,
@@ -19,6 +21,7 @@ import {
   MenuItem,
   MenuList,
   Portal,
+  Select,
   Spinner,
   Text,
   useToast,
@@ -39,6 +42,10 @@ import VirtualizedTable, {
 } from "../VirtualizedTable";
 
 import { AddUserButton } from "./AddUser";
+import UserActivityCounts, {
+  USER_ACTIVITY_FILTERS,
+  UserActivityFilter,
+} from "./UserActivityCounts";
 
 interface User {
   id: number;
@@ -189,6 +196,12 @@ const userColumns = (
 const UserList = (props: { usersStore: Store<User[]> }) => {
   const users = useStore(props.usersStore);
   const toast = useToast();
+  const [activityFilter, setActivityFilter] = useState<UserActivityFilter>(
+    "all"
+  );
+  const filteredUsers = users.filter(
+    USER_ACTIVITY_FILTERS[activityFilter].matches
+  );
 
   const updateUser = (
     userToUpdate: User,
@@ -259,13 +272,49 @@ const UserList = (props: { usersStore: Store<User[]> }) => {
         Total users: {users.length}
       </Text>
 
+      <UserActivityCounts
+        users={users}
+        selectedFilter={activityFilter}
+        onSelectFilter={setActivityFilter}
+      />
+
+      <HStack mb={2}>
+        <FormControl id="users-activity-filter" width="auto">
+          <HStack>
+            <FormLabel mb={0}>Show</FormLabel>
+            <Select
+              size="sm"
+              width="auto"
+              value={activityFilter}
+              onChange={(event) => {
+                setActivityFilter(event.target.value as UserActivityFilter);
+              }}
+            >
+              {Object.entries(USER_ACTIVITY_FILTERS).map(
+                ([filter, { label }]) => {
+                  return (
+                    <option key={filter} value={filter}>
+                      {label}
+                    </option>
+                  );
+                }
+              )}
+            </Select>
+          </HStack>
+        </FormControl>
+        <Text>
+          {filteredUsers.length.toLocaleString()} of{" "}
+          {users.length.toLocaleString()} users
+        </Text>
+      </HStack>
+
       <VirtualizedTable
-        rows={users}
+        rows={filteredUsers}
         columns={userColumns(updateUser)}
         defaultSort={USERS_DEFAULT_SORT}
         getSortValue={getUserSortValue}
         tieBreakSortKey="date_joined"
-        emptyMessage="No users."
+        emptyMessage="No users match this filter."
       />
     </>
   );
