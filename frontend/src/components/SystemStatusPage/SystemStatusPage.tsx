@@ -9,6 +9,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
+  Checkbox,
   Center,
   Heading,
   Modal,
@@ -56,11 +57,18 @@ interface SystemStatusErroredVariantList extends SystemStatusVariantList {
   error: string;
 }
 
+export type VariantListBucket = "active" | "stuck" | "abandoned";
+
+interface SystemStatusQueuedOrProcessingVariantList
+  extends SystemStatusVariantList {
+  bucket: VariantListBucket;
+}
+
 interface SystemStatus {
   counts: VariantListCountsData;
   thresholds: VariantListCountThresholds;
   error_details: SystemStatusErroredVariantList[];
-  queued_and_processing_lists: SystemStatusVariantList[];
+  queued_and_processing_lists: SystemStatusQueuedOrProcessingVariantList[];
 }
 
 interface SystemStatusViewProps {
@@ -79,6 +87,30 @@ const ERRORS_DEFAULT_SORT: VariantListSort = {
 const QUEUED_OR_PROCESSING_DEFAULT_SORT: VariantListSort = {
   key: "updated_at",
   direction: "descending",
+};
+
+const BUCKET_LABELS: { [key in VariantListBucket]: string } = {
+  active: "Active",
+  stuck: "⚠ Stuck",
+  abandoned: "Abandoned",
+};
+
+const bucketColumn: VariantListStatusColumn<SystemStatusQueuedOrProcessingVariantList> = {
+  key: "bucket",
+  header: "Bucket",
+  width: 140,
+  renderCell: (variantList) => BUCKET_LABELS[variantList.bucket],
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const wasUpdatedWithinDays = (
+  variantList: SystemStatusVariantList,
+  days: number
+) => {
+  return (
+    Date.now() - new Date(variantList.updated_at).getTime() < days * DAY_MS
+  );
 };
 
 const summarizeError = (error: string) => {
@@ -162,6 +194,40 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
   ] = useState<SystemStatusErroredVariantList | null>(null);
 
   const [tabIndex, setTabIndex] = useState(ERRORS_TAB_INDEX);
+  const [showAllErrors, setShowAllErrors] = useState(false);
+  const [showAbandonedLists, setShowAbandonedLists] = useState(false);
+
+  const recentDays = systemStatus.thresholds.recent_days;
+  const allErroredVariantLists = systemStatus.error_details;
+  const recentErroredVariantLists = allErroredVariantLists.filter(
+    (variantList) => wasUpdatedWithinDays(variantList, recentDays)
+  );
+  const shownErroredVariantLists = showAllErrors
+    ? allErroredVariantLists
+    : recentErroredVariantLists;
+
+  const allQueuedOrProcessingVariantLists =
+    systemStatus.queued_and_processing_lists;
+  const unabandonedVariantLists = allQueuedOrProcessingVariantLists.filter(
+    (variantList) => variantList.bucket !== "abandoned"
+  );
+  const shownQueuedOrProcessingVariantLists = showAbandonedLists
+    ? allQueuedOrProcessingVariantLists
+    : unabandonedVariantLists;
+
+  const allErroredEmptyMessage = "No variant lists have errors.";
+  const recentErroredEmptyMessage = `No variant lists errored in the last ${recentDays} days.`;
+  const erroredEmptyMessage = showAllErrors
+    ? allErroredEmptyMessage
+    : recentErroredEmptyMessage;
+
+  const allQueuedOrProcessingEmptyMessage =
+    "No variant lists are queued or processing.";
+  const unabandonedEmptyMessage =
+    "No active or stuck variant lists. Abandoned lists are hidden.";
+  const queuedOrProcessingEmptyMessage = showAbandonedLists
+    ? allQueuedOrProcessingEmptyMessage
+    : unabandonedEmptyMessage;
 
   const retryVariantList = (variantList: SystemStatusVariantList) => {
     reprocessVariantList(variantList.uuid).then(
@@ -197,15 +263,23 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
       />
       <Tabs isLazy mt={12} index={tabIndex} onChange={setTabIndex}>
         <TabList>
-          <Tab>Errors ({systemStatus.error_details.length})</Tab>
+          <Tab>Errors ({shownErroredVariantLists.length})</Tab>
           <Tab>
-            {`Queued and processing (${systemStatus.queued_and_processing_lists.length})`}
+            {`Queued and processing (${shownQueuedOrProcessingVariantLists.length})`}
           </Tab>
         </TabList>
         <TabPanels>
           <TabPanel px={0}>
+            <Checkbox
+              isChecked={showAllErrors}
+              onChange={(event) => {
+                setShowAllErrors(event.target.checked);
+              }}
+            >
+              {`Show all ${allErroredVariantLists.length} errored lists, not just those updated in the last ${recentDays} days`}
+            </Checkbox>
             <VariantListStatusTable
-              variantLists={systemStatus.error_details}
+              variantLists={shownErroredVariantLists}
               columns={[
                 labelColumn,
                 createdByColumn,
@@ -217,15 +291,29 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
                 retryColumn(retryVariantList),
               ]}
               defaultSort={ERRORS_DEFAULT_SORT}
-              emptyMessage="No variant lists have errors."
+              emptyMessage={erroredEmptyMessage}
             />
           </TabPanel>
           <TabPanel px={0}>
+            <Checkbox
+              isChecked={showAbandonedLists}
+              onChange={(event) => {
+                setShowAbandonedLists(event.target.checked);
+              }}
+            >
+              {`Show ${
+                allQueuedOrProcessingVariantLists.length -
+                unabandonedVariantLists.length
+              } abandoned lists, not updated in ${
+                systemStatus.thresholds.abandoned_after_days
+              } days`}
+            </Checkbox>
             <VariantListStatusTable
-              variantLists={systemStatus.queued_and_processing_lists}
+              variantLists={shownQueuedOrProcessingVariantLists}
               columns={[
                 labelColumn,
                 statusColumn,
+                bucketColumn,
                 createdByColumn,
                 geneSymbolColumn,
                 gnomadVersionColumn,
@@ -234,7 +322,7 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
                 retryColumn(retryVariantList),
               ]}
               defaultSort={QUEUED_OR_PROCESSING_DEFAULT_SORT}
-              emptyMessage="No variant lists are queued or processing."
+              emptyMessage={queuedOrProcessingEmptyMessage}
             />
           </TabPanel>
         </TabPanels>
