@@ -157,12 +157,62 @@ const SystemStatusErrorModal = ({
   );
 };
 
-const SystemStatusView = (props: SystemStatusViewProps) => {
-  const { systemStatus } = props;
+const SystemStatusErrorTable = ({
+  systemStatusErrors,
+}: {
+  systemStatusErrors: SystemStatusError[];
+}) => {
   const [
     selectedSystemStatusError,
     setSelectedSystemStatusError,
   ] = useState<SystemStatusError | null>(null);
+
+  return (
+    <>
+      <Table variant="striped" mt={8}>
+        <Thead>
+          <Tr sx={{ display: "flex" }}>
+            <Th scope="col" width="30%">
+              List label
+            </Th>
+            <Th scope="col" width="70%">
+              Error
+            </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <FixedSizeList
+            height={
+              Math.min(systemStatusErrors.length, ERRORS_DISPLAYED) *
+              ERROR_ROW_HEIGHT
+            }
+            itemCount={systemStatusErrors.length}
+            itemSize={ERROR_ROW_HEIGHT}
+            width="100%"
+            overscanCount={5}
+            itemData={{
+              systemStatusErrors,
+              onViewError: setSelectedSystemStatusError,
+            }}
+            style={{ overflowX: "hidden" }}
+          >
+            {SystemStatusErrorRow}
+          </FixedSizeList>
+        </Tbody>
+      </Table>
+
+      <SystemStatusErrorModal
+        systemStatusError={selectedSystemStatusError}
+        onClose={() => {
+          setSelectedSystemStatusError(null);
+        }}
+      />
+    </>
+  );
+};
+
+const SystemStatusView = (props: SystemStatusViewProps) => {
+  const { systemStatus } = props;
 
   return (
     <>
@@ -183,45 +233,10 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
       </StatGroup>
       <Box mt={12}>
         <h1>Summary of errors</h1>
-        <Table variant="striped" mt={8}>
-          <Thead>
-            <Tr sx={{ display: "flex" }}>
-              <Th scope="col" width="30%">
-                List label
-              </Th>
-              <Th scope="col" width="70%">
-                Error
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            <FixedSizeList
-              height={
-                Math.min(systemStatus.error_details.length, ERRORS_DISPLAYED) *
-                ERROR_ROW_HEIGHT
-              }
-              itemCount={systemStatus.error_details.length}
-              itemSize={ERROR_ROW_HEIGHT}
-              width="100%"
-              overscanCount={5}
-              itemData={{
-                systemStatusErrors: systemStatus.error_details,
-                onViewError: setSelectedSystemStatusError,
-              }}
-              style={{ overflowX: "hidden" }}
-            >
-              {SystemStatusErrorRow}
-            </FixedSizeList>
-          </Tbody>
-        </Table>
+        <SystemStatusErrorTable
+          systemStatusErrors={systemStatus.error_details}
+        />
       </Box>
-
-      <SystemStatusErrorModal
-        systemStatusError={selectedSystemStatusError}
-        onClose={() => {
-          setSelectedSystemStatusError(null);
-        }}
-      />
     </>
   );
 };
