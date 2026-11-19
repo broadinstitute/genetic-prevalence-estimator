@@ -1,6 +1,11 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
+
+from calculator.models import VariantList
 
 
 User = get_user_model()
@@ -112,6 +117,8 @@ class TestGetUser:
             "is_active": user.is_active,
             "is_staff": user.is_staff,
             "date_joined": user.date_joined.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "last_login": None,
+            "last_variant_list_created_at": None,
         }
 
 
@@ -159,3 +166,53 @@ class TestEditUser:
         assert response.status_code == 403
         user.refresh_from_db()
         assert user.is_active
+
+
+@pytest.mark.django_db
+class TestUserActivityFields:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="staffmember", is_staff=True)
+        submitter = User.objects.create(
+            username="submitter", last_login=timezone.now() - timedelta(days=3)
+        )
+        for days_ago in (10, 2):
+            variant_list = VariantList.objects.create(
+                label="List",
+                type=VariantList.Type.CUSTOM,
+                metadata={"version": "1", "gnomad_version": "4.1.0"},
+                created_by=submitter,
+            )
+            VariantList.objects.filter(pk=variant_list.pk).update(
+                created_at=timezone.now() - timedelta(days=days_ago)
+            )
+
+    def get_users_by_username(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        return {user["username"]: user for user in client.get("/api/users/").json()}
+
+    def test_returns_last_login(self):
+        submitter = User.objects.get(username="submitter")
+
+        users = self.get_users_by_username()
+
+        assert users["submitter"]["last_login"] == submitter.last_login.strftime(
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
+        assert users["staffmember"]["last_login"] is None
+
+    def test_returns_most_recent_variant_list_creation(self):
+        latest_created_at = (
+            VariantList.objects.filter(created_by__username="submitter")
+            .order_by("-created_at")
+            .first()
+            .created_at
+        )
+
+        users = self.get_users_by_username()
+
+        assert users["submitter"][
+            "last_variant_list_created_at"
+        ] == latest_created_at.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        assert users["staffmember"]["last_variant_list_created_at"] is None

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Max
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -6,8 +7,14 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from website.serializers import UserSerializer, NewUserSerializer
 
 
+def users_with_last_variant_list_created_at():
+    return get_user_model().objects.annotate(
+        last_variant_list_created_at=Max("created_variant_list__created_at")
+    )
+
+
 class UsersList(ListCreateAPIView):
-    queryset = get_user_model().objects.all().order_by("-date_joined")
+    queryset = users_with_last_variant_list_created_at().order_by("-date_joined")
 
     permission_classes = (IsAuthenticated, IsAdminUser)
 
@@ -25,7 +32,7 @@ class UsersList(ListCreateAPIView):
 
 
 class UserDetail(RetrieveUpdateAPIView):
-    queryset = get_user_model().objects.all()
+    queryset = users_with_last_variant_list_created_at()
 
     lookup_field = "id"
 
