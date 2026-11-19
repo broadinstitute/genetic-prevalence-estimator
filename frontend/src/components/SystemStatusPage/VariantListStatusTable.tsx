@@ -169,6 +169,7 @@ export const retryColumn = (
       return (
         <ButtonWithConfirmation
           size="sm"
+          colorScheme="blue"
           confirmationPrompt={`Re-queue "${variantList.label}"? If it is still being processed, it will be processed twice.`}
           confirmButtonText="Retry"
           confirmButtonColorScheme="blue"
