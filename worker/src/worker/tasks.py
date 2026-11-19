@@ -22,9 +22,11 @@ from calculator.serializers import (
     is_structural_variant_id,
 )
 from worker import watchdog
+from worker.job_summary import log_job_summary
 
 IS_SHUTTING_DOWN = False
 EXIT_SEQUENCE_STARTED = False
+JOBS_RUN_BY_CONTAINER = 0
 
 logger = logging.getLogger(__name__)
 
@@ -749,6 +751,7 @@ def get_structural_variants(structural_variants, metadata, gnomad_version):
 
 def process_variant_list(uid):
     global IS_SHUTTING_DOWN
+    global JOBS_RUN_BY_CONTAINER
 
     if IS_SHUTTING_DOWN:
         logger.info("Worker is about to recycle - refuse job")
@@ -766,6 +769,7 @@ def process_variant_list(uid):
     watchdog.start_job(uid)
     watchdog.exit_if_failed()
 
+    outcome = "unhandled_exception"
     try:
         _process_variant_list(variant_list)
 
@@ -774,6 +778,7 @@ def process_variant_list(uid):
             f"Worker got ConnectionRefused. Raise error to recycle this worker {uid}."
         )
         IS_SHUTTING_DOWN = True
+        outcome = "connection_refused"
         raise RuntimeError("Connection refused, force this container to recycle")
 
     except Exception:  # pylint: disable=broad-except
@@ -787,6 +792,7 @@ def process_variant_list(uid):
         variant_list.error = traceback.format_exc()
         variant_list.save()
         IS_SHUTTING_DOWN = True
+        outcome = "error"
 
     else:
         end_time = time.time()
@@ -802,9 +808,18 @@ def process_variant_list(uid):
 
         variant_list.save()
         IS_SHUTTING_DOWN = True
+        outcome = "ready"
 
     finally:
         watchdog.finish_job()
+        JOBS_RUN_BY_CONTAINER += 1
+        log_job_summary(
+            variant_list,
+            outcome,
+            time.time() - start_time,
+            JOBS_RUN_BY_CONTAINER,
+            watchdog.state.java_process,
+        )
 
 
 def handle_event(event):
