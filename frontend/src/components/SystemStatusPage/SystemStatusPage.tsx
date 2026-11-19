@@ -23,8 +23,14 @@ import {
   TabList,
   TabPanel,
   TabPanels,
+  Table,
   Tabs,
+  Tbody,
+  Td,
   Text,
+  Th,
+  Thead,
+  Tr,
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
@@ -116,6 +122,63 @@ const wasUpdatedWithinDays = (
 const summarizeError = (error: string) => {
   const lines = error.split("\n").filter((line) => line.trim() !== "");
   return lines[lines.length - 1]?.trim() ?? "";
+};
+
+const groupErrorsByCause = (
+  erroredVariantLists: SystemStatusErroredVariantList[]
+) => {
+  const countsByCause = new Map<string, number>();
+  erroredVariantLists.forEach((variantList) => {
+    const cause = summarizeError(variantList.error) || "No error details";
+    countsByCause.set(cause, (countsByCause.get(cause) ?? 0) + 1);
+  });
+  return Array.from(countsByCause, ([cause, count]) => ({ cause, count })).sort(
+    (a, b) => b.count - a.count
+  );
+};
+
+const RecentErrorCauses = ({
+  erroredVariantLists,
+  recentDays,
+}: {
+  erroredVariantLists: SystemStatusErroredVariantList[];
+  recentDays: number;
+}) => {
+  if (erroredVariantLists.length === 0) {
+    return null;
+  }
+
+  const errorCauses = groupErrorsByCause(erroredVariantLists);
+
+  return (
+    <Box mb={6}>
+      <Heading as="h3" size="sm" mb={2}>
+        Causes in the last {recentDays} days
+      </Heading>
+      <Table size="sm" maxWidth="900px">
+        <Thead>
+          <Tr>
+            <Th scope="col">Cause</Th>
+            <Th scope="col" isNumeric>
+              Lists
+            </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {errorCauses.map(({ cause, count }) => {
+            return (
+              <Tr key={cause}>
+                <Td fontFamily="mono" sx={{ overflowWrap: "anywhere" }}>
+                  {cause}
+                </Td>
+                <Td isNumeric>{count}</Td>
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
+    </Box>
+  );
 };
 
 const errorColumn = (
@@ -270,6 +333,10 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
         </TabList>
         <TabPanels>
           <TabPanel px={0}>
+            <RecentErrorCauses
+              erroredVariantLists={recentErroredVariantLists}
+              recentDays={recentDays}
+            />
             <Checkbox
               isChecked={showAllErrors}
               onChange={(event) => {
