@@ -46,15 +46,6 @@ def test_process_memory_bytes_is_none_for_missing_process(tmp_path):
 
 @pytest.mark.django_db
 def test_log_job_summary_logs_list_details_and_memory(caplog, monkeypatch):
-    monkeypatch.setattr(
-        job_summary,
-        "container_memory",
-        lambda: {
-            "container_memory_bytes": 1000,
-            "container_memory_peak_bytes": 2000,
-            "container_memory_limit_bytes": 4000,
-        },
-    )
     monkeypatch.setattr(job_summary, "process_memory_bytes", lambda pid: 512)
     variant_list = VariantList.objects.create(
         label="List",
@@ -70,7 +61,17 @@ def test_log_job_summary_logs_list_details_and_memory(caplog, monkeypatch):
 
     with caplog.at_level(logging.INFO, logger="worker.job_summary"):
         job_summary.log_job_summary(
-            variant_list, "ready", 107.534, 2, SimpleNamespace(pid=123)
+            variant_list,
+            "ready",
+            107.534,
+            2,
+            SimpleNamespace(pid=123),
+            {
+                "container_memory_bytes": 1000,
+                "container_memory_peak_bytes": 2000,
+                "container_memory_limit_bytes": 4000,
+            },
+            False,
         )
 
     assert caplog.records[-1].json_fields == {
@@ -81,6 +82,7 @@ def test_log_job_summary_logs_list_details_and_memory(caplog, monkeypatch):
         "outcome": "ready",
         "duration_seconds": 107.53,
         "jobs_run_by_container": 2,
+        "recycling": False,
         "container_memory_bytes": 1000,
         "container_memory_peak_bytes": 2000,
         "container_memory_limit_bytes": 4000,

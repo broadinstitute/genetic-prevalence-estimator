@@ -35,9 +35,16 @@ def process_memory_bytes(pid, proc_root=PROC_ROOT):
     return None
 
 
-def log_job_summary(variant_list, outcome, duration_seconds, jobs_run, java_process):
+def log_job_summary(
+    variant_list,
+    outcome,
+    duration_seconds,
+    jobs_run,
+    java_process,
+    memory,
+    recycling,
+):  # pylint: disable=too-many-arguments,too-many-positional-arguments
     try:
-        memory = container_memory()
         fields = {
             "variant_list": str(variant_list.uuid),
             "created_by": (
@@ -48,6 +55,7 @@ def log_job_summary(variant_list, outcome, duration_seconds, jobs_run, java_proc
             "outcome": outcome,
             "duration_seconds": round(duration_seconds, 2),
             "jobs_run_by_container": jobs_run,
+            "recycling": recycling,
             **memory,
             "java_memory_bytes": (
                 process_memory_bytes(java_process.pid) if java_process else None
