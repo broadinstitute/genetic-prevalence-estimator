@@ -11,7 +11,6 @@ import {
   Button,
   Center,
   Heading,
-  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -24,21 +23,15 @@ import {
   StatLabel,
   StatNumber,
   Tab,
-  Table,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
+  Text,
   useToast,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { Link as RRLink } from "react-router-dom";
-import { FixedSizeList } from "react-window";
 
 import { get } from "../../api";
 import { VariantListStatus } from "../../types";
@@ -57,19 +50,18 @@ import VariantListStatusTable, {
   SystemStatusVariantList,
   updatedAtColumn,
   VariantListSort,
+  VariantListStatusColumn,
 } from "./VariantListStatusTable";
 
-interface SystemStatusError {
+interface SystemStatusErroredVariantList extends SystemStatusVariantList {
   error: string;
-  label: string;
-  uuid: string;
 }
 
 interface SystemStatus {
   variant_lists: {
     [key in VariantListStatus]: number;
   };
-  error_details: SystemStatusError[];
+  error_details: SystemStatusErroredVariantList[];
   queued_and_processing_lists: SystemStatusVariantList[];
 }
 
@@ -78,78 +70,59 @@ interface SystemStatusViewProps {
   refreshSystemStatus: () => void;
 }
 
-interface SystemStatusErrorRowData {
-  systemStatusErrors: SystemStatusError[];
-  onViewError: (systemStatusError: SystemStatusError) => void;
-}
-
-const ERROR_PREVIEW_LENGTH = 30;
-const ERROR_ROW_HEIGHT = 70;
-const ERRORS_DISPLAYED = 10;
-
-const getErrorPreview = (error: string) => {
-  if (error.length <= ERROR_PREVIEW_LENGTH) {
-    return error;
-  }
-
-  return `${error.slice(0, ERROR_PREVIEW_LENGTH)}...`;
+const ERRORS_DEFAULT_SORT: VariantListSort = {
+  key: "updated_at",
+  direction: "descending",
 };
 
-const SystemStatusErrorRow = ({
-  index,
-  data,
-  style,
-}: {
-  index: number;
-  data: SystemStatusErrorRowData;
-  style: React.CSSProperties;
-}) => {
-  const systemStatusError = data.systemStatusErrors[index];
+const QUEUED_OR_PROCESSING_DEFAULT_SORT: VariantListSort = {
+  key: "created_at",
+  direction: "ascending",
+};
 
-  return (
-    <Tr
-      sx={{
-        display: "flex",
-        alignItems: "stretch",
-        boxSizing: "border-box",
-        background: index % 2 === 1 ? "initial" : "#edf2f7",
-      }}
-      style={style}
-    >
-      <Td width="30%">
-        <Link as={RRLink} to={`/variant-lists/${systemStatusError.uuid}`}>
-          {systemStatusError.label}
-        </Link>
-      </Td>
-      <Td width="70%">
-        {systemStatusError.error ? (
-          <Button
-            variant="link"
-            colorScheme="blue"
-            rightIcon={<ViewIcon />}
-            textDecoration="underline"
-            whiteSpace="normal"
-            textAlign="left"
-            aria-label={`View full error for ${systemStatusError.label}`}
-            onClick={() => {
-              data.onViewError(systemStatusError);
-            }}
-          >
-            {getErrorPreview(systemStatusError.error)}
-          </Button>
-        ) : (
-          "No error details"
-        )}
-      </Td>
-    </Tr>
-  );
+const summarizeError = (error: string) => {
+  const lines = error.split("\n").filter((line) => line.trim() !== "");
+  return lines[lines.length - 1]?.trim() ?? "";
+};
+
+const errorColumn = (
+  onViewError: (variantList: SystemStatusErroredVariantList) => void
+): VariantListStatusColumn<SystemStatusErroredVariantList> => {
+  return {
+    key: "error",
+    header: "Error",
+    width: 360,
+    title: (variantList) => summarizeError(variantList.error),
+    renderCell: (variantList) => {
+      if (!variantList.error) {
+        return "No error details";
+      }
+      return (
+        <Button
+          variant="link"
+          colorScheme="blue"
+          rightIcon={<ViewIcon />}
+          textDecoration="underline"
+          maxWidth="100%"
+          aria-label={`View full error for ${variantList.label}`}
+          onClick={() => {
+            onViewError(variantList);
+          }}
+        >
+          <Text as="span" isTruncated>
+            {summarizeError(variantList.error)}
+          </Text>
+        </Button>
+      );
+    },
+  };
 };
 
 const SystemStatusErrorModal = ({
   systemStatusError,
   onClose,
 }: {
-  systemStatusError: SystemStatusError | null;
+  systemStatusError: SystemStatusErroredVariantList | null;
   onClose: () => void;
 }) => {
   return (
@@ -179,68 +152,13 @@ const SystemStatusErrorModal = ({
   );
 };
 
-const SystemStatusErrorTable = ({
-  systemStatusErrors,
-}: {
-  systemStatusErrors: SystemStatusError[];
-}) => {
-  const [
-    selectedSystemStatusError,
-    setSelectedSystemStatusError,
-  ] = useState<SystemStatusError | null>(null);
-
-  return (
-    <>
-      <Table variant="striped" mt={8}>
-        <Thead>
-          <Tr sx={{ display: "flex" }}>
-            <Th scope="col" width="30%">
-              List label
-            </Th>
-            <Th scope="col" width="70%">
-              Error
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <FixedSizeList
-            height={
-              Math.min(systemStatusErrors.length, ERRORS_DISPLAYED) *
-              ERROR_ROW_HEIGHT
-            }
-            itemCount={systemStatusErrors.length}
-            itemSize={ERROR_ROW_HEIGHT}
-            width="100%"
-            overscanCount={5}
-            itemData={{
-              systemStatusErrors,
-              onViewError: setSelectedSystemStatusError,
-            }}
-            style={{ overflowX: "hidden" }}
-          >
-            {SystemStatusErrorRow}
-          </FixedSizeList>
-        </Tbody>
-      </Table>
-
-      <SystemStatusErrorModal
-        systemStatusError={selectedSystemStatusError}
-        onClose={() => {
-          setSelectedSystemStatusError(null);
-        }}
-      />
-    </>
-  );
-};
-
-const QUEUED_OR_PROCESSING_DEFAULT_SORT: VariantListSort = {
-  key: "created_at",
-  direction: "ascending",
-};
-
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus, refreshSystemStatus } = props;
   const toast = useToast();
+  const [
+    selectedErroredVariantList,
+    setSelectedErroredVariantList,
+  ] = useState<SystemStatusErroredVariantList | null>(null);
 
   const retryVariantList = (variantList: SystemStatusVariantList) => {
     reprocessVariantList(variantList.uuid).then(
@@ -291,8 +209,20 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
         </TabList>
         <TabPanels>
           <TabPanel px={0}>
-            <SystemStatusErrorTable
-              systemStatusErrors={systemStatus.error_details}
+            <VariantListStatusTable
+              variantLists={systemStatus.error_details}
+              columns={[
+                labelColumn,
+                createdByColumn,
+                geneSymbolColumn,
+                gnomadVersionColumn,
+                createdAtColumn,
+                updatedAtColumn,
+                errorColumn(setSelectedErroredVariantList),
+                retryColumn(retryVariantList),
+              ]}
+              defaultSort={ERRORS_DEFAULT_SORT}
+              emptyMessage="No variant lists have errors."
             />
           </TabPanel>
           <TabPanel px={0}>
@@ -314,6 +244,13 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      <SystemStatusErrorModal
+        systemStatusError={selectedErroredVariantList}
+        onClose={() => {
+          setSelectedErroredVariantList(null);
+        }}
+      />
     </>
   );
 };
