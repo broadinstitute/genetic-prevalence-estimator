@@ -1,8 +1,12 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from calculator.models import VariantList
+from website.views.system_status_views import variant_list_bucket
 
 
 User = get_user_model()
@@ -170,3 +174,108 @@ class TestGetSystemStatusErrorDetails:
         assert older_error["updated_at"]
 
         assert newer_error["error"] == ""
+
+
+@pytest.mark.parametrize(
+    "age,expected_bucket",
+    [
+        (timedelta(minutes=29), "active"),
+        (timedelta(minutes=30), "stuck"),
+        (timedelta(days=6, hours=23), "stuck"),
+        (timedelta(days=7), "abandoned"),
+    ],
+)
+def test_variant_list_bucket(age, expected_bucket):
+    now = timezone.now()
+    assert variant_list_bucket(now - age, now) == expected_bucket
+
+
+@pytest.mark.django_db
+class TestGetSystemStatusCounts:
+    @pytest.fixture(autouse=True)
+    def db_setup(self):
+        User.objects.create(username="staffmember", is_staff=True)
+        now = timezone.now()
+
+        def create_variant_list(label, status, updated_ago, created_ago=None):
+            variant_list = VariantList.objects.create(
+                label=label,
+                type=VariantList.Type.CUSTOM,
+                metadata={
+                    "version": "1",
+                    "reference_genome": "GRCh38",
+                    "gnomad_version": "4.1.0",
+                },
+                status=status,
+            )
+            VariantList.objects.filter(pk=variant_list.pk).update(
+                updated_at=now - updated_ago,
+                created_at=now - (created_ago or updated_ago),
+            )
+
+        create_variant_list(
+            "Active", VariantList.Status.PROCESSING, timedelta(minutes=5)
+        )
+        create_variant_list("Stuck", VariantList.Status.QUEUED, timedelta(hours=2))
+        create_variant_list(
+            "Stuck longer", VariantList.Status.QUEUED, timedelta(days=3)
+        )
+        create_variant_list("Abandoned", VariantList.Status.QUEUED, timedelta(days=30))
+        create_variant_list(
+            "Recently ready",
+            VariantList.Status.READY,
+            timedelta(hours=1),
+            created_ago=timedelta(days=60),
+        )
+        create_variant_list("Old ready", VariantList.Status.READY, timedelta(days=60))
+        create_variant_list("Recent error", VariantList.Status.ERROR, timedelta(days=1))
+        create_variant_list("Old error", VariantList.Status.ERROR, timedelta(days=90))
+
+    def get_status(self):
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="staffmember"))
+        return client.get("/api/status/").json()
+
+    def test_returns_right_now_counts(self):
+        right_now = self.get_status()["counts"]["right_now"]
+
+        assert right_now["active"] == 1
+        assert right_now["stuck"] == 2
+        assert right_now["oldest_stuck_updated_at"] == VariantList.objects.get(
+            label="Stuck longer"
+        ).updated_at.isoformat().replace("+00:00", "Z")
+        assert right_now["last_ready_at"] == VariantList.objects.get(
+            label="Recently ready"
+        ).updated_at.isoformat().replace("+00:00", "Z")
+
+    def test_returns_recent_counts(self):
+        assert self.get_status()["counts"]["recent"] == {
+            "created": 4,
+            "ready": 1,
+            "error": 1,
+        }
+
+    def test_returns_all_time_counts(self):
+        assert self.get_status()["counts"]["all_time"] == {
+            "total": 8,
+            "ready": 2,
+            "error": 2,
+            "abandoned": 1,
+        }
+
+    def test_returns_thresholds(self):
+        assert self.get_status()["thresholds"] == {
+            "stuck_after_minutes": 30,
+            "abandoned_after_days": 7,
+            "recent_days": 7,
+        }
+
+    def test_tags_queued_and_processing_lists_with_bucket(self):
+        lists = self.get_status()["queued_and_processing_lists"]
+
+        assert {vlist["label"]: vlist["bucket"] for vlist in lists} == {
+            "Active": "active",
+            "Stuck": "stuck",
+            "Stuck longer": "stuck",
+            "Abandoned": "abandoned",
+        }
