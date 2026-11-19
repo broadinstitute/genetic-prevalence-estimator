@@ -18,13 +18,38 @@ def read_int_file(path):
 UNLIMITED_CGROUP_V1_MEMORY_BYTES = 2**62
 
 
+def read_memory_stat(path):
+    try:
+        lines = path.read_text().splitlines()
+    except OSError:
+        return {}
+    stat = {}
+    for line in lines:
+        name, _, value = line.partition(" ")
+        try:
+            stat[name] = int(value)
+        except ValueError:
+            continue
+    return stat
+
+
+def memory_in_use_bytes(used, inactive_file_bytes):
+    if inactive_file_bytes is None:
+        return used
+    return max(used - inactive_file_bytes, 0)
+
+
 def cgroup_v2_memory(cgroup_root):
     used = read_int_file(cgroup_root / "memory.current")
     if used is None:
         return None
+    stat = read_memory_stat(cgroup_root / "memory.stat")
     return {
         "container_memory_source": "cgroup_v2",
         "container_memory_bytes": used,
+        "container_memory_in_use_bytes": memory_in_use_bytes(
+            used, stat.get("inactive_file")
+        ),
         "container_memory_peak_bytes": read_int_file(cgroup_root / "memory.peak"),
         "container_memory_limit_bytes": read_int_file(cgroup_root / "memory.max"),
     }
@@ -38,9 +63,13 @@ def cgroup_v1_memory(cgroup_root):
     limit = read_int_file(memory_root / "memory.limit_in_bytes")
     if limit is not None and limit >= UNLIMITED_CGROUP_V1_MEMORY_BYTES:
         limit = None
+    stat = read_memory_stat(memory_root / "memory.stat")
     return {
         "container_memory_source": "cgroup_v1",
         "container_memory_bytes": used,
+        "container_memory_in_use_bytes": memory_in_use_bytes(
+            used, stat.get("total_inactive_file")
+        ),
         "container_memory_peak_bytes": read_int_file(
             memory_root / "memory.max_usage_in_bytes"
         ),
@@ -60,10 +89,11 @@ def meminfo_memory(proc_root):
             kilobytes[name] = int(value.split()[0])
     if len(kilobytes) != 2:
         return None
+    used = (kilobytes["MemTotal"] - kilobytes["MemAvailable"]) * 1024
     return {
         "container_memory_source": "meminfo",
-        "container_memory_bytes": (kilobytes["MemTotal"] - kilobytes["MemAvailable"])
-        * 1024,
+        "container_memory_bytes": used,
+        "container_memory_in_use_bytes": used,
         "container_memory_peak_bytes": None,
         "container_memory_limit_bytes": kilobytes["MemTotal"] * 1024,
     }
@@ -77,6 +107,7 @@ def container_memory(cgroup_root=CGROUP_ROOT, proc_root=PROC_ROOT):
         or {
             "container_memory_source": None,
             "container_memory_bytes": None,
+            "container_memory_in_use_bytes": None,
             "container_memory_peak_bytes": None,
             "container_memory_limit_bytes": None,
         }
@@ -122,11 +153,12 @@ def log_job_summary(
             ),
         }
         logger.info(
-            "Variant list job summary: %s %s in %.1f s, container memory %s of %s bytes",
+            "Variant list job summary: %s %s in %.1f s, container memory in use "
+            "%s of %s bytes",
             fields["variant_list"],
             outcome,
             duration_seconds,
-            memory["container_memory_bytes"],
+            memory.get("container_memory_in_use_bytes"),
             memory["container_memory_limit_bytes"],
             extra={"json_fields": fields},
         )

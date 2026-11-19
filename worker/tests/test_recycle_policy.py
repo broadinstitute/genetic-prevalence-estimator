@@ -3,9 +3,10 @@ import pytest
 from worker.recycle_policy import should_recycle
 
 
-def memory(used, limit):
+def memory(in_use, limit, file_cache=0):
     return {
-        "container_memory_bytes": used,
+        "container_memory_bytes": None if in_use is None else in_use + file_cache,
+        "container_memory_in_use_bytes": in_use,
         "container_memory_peak_bytes": None,
         "container_memory_limit_bytes": limit,
     }
@@ -43,3 +44,7 @@ def test_ignores_memory_when_it_cannot_be_read():
 def test_recycles_after_every_job_when_set_to_one(settings):
     settings.RECYCLE_AFTER_JOBS = 1
     assert should_recycle("ready", 1, memory(100, 1000))
+
+
+def test_ignores_reclaimable_file_cache():
+    assert not should_recycle("ready", 1, memory(500, 1000, file_cache=300))
