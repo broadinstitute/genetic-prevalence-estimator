@@ -36,6 +36,19 @@ def get_error_details():
     return lists_with_errors
 
 
+def summarize_variant_list(vlist):
+    return {
+        "uuid": vlist.uuid,
+        "label": vlist.label,
+        "status": VariantList.Status(vlist.status).label,
+        "created_by": vlist.created_by.username if vlist.created_by else None,
+        "created_at": vlist.created_at,
+        "updated_at": vlist.updated_at,
+        "gene_symbol": vlist.metadata.get("gene_symbol"),
+        "gnomad_version": vlist.metadata.get("gnomad_version"),
+    }
+
+
 def get_queued_and_processing_lists():
     lists = (
         VariantList.objects.filter(
@@ -44,19 +57,7 @@ def get_queued_and_processing_lists():
         .select_related("created_by")
         .order_by("created_at")
     )
-    return [
-        {
-            "uuid": vlist.uuid,
-            "label": vlist.label,
-            "status": VariantList.Status(vlist.status).label,
-            "created_by": vlist.created_by.username if vlist.created_by else None,
-            "created_at": vlist.created_at,
-            "updated_at": vlist.updated_at,
-            "gene_symbol": vlist.metadata.get("gene_symbol"),
-            "gnomad_version": vlist.metadata.get("gnomad_version"),
-        }
-        for vlist in lists
-    ]
+    return [summarize_variant_list(vlist) for vlist in lists]
 
 
 @api_view(["GET"])
