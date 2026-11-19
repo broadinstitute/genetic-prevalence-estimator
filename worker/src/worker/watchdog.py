@@ -8,6 +8,7 @@ import time
 from dataclasses import dataclass
 
 import pyspark
+from django.conf import settings
 from django.utils import timezone
 
 from calculator.models import VariantList
@@ -48,8 +49,19 @@ def java_exit_reason():
     return f"Hail JVM exited with code {java_process.returncode}"
 
 
+def deadline_exceeded_reason():
+    job = state.current_job
+    if job is None:
+        return None
+    if time.monotonic() - job.started_at <= settings.JOB_DEADLINE_SECONDS:
+        return None
+    return (
+        f"Variant list job exceeded the {settings.JOB_DEADLINE_SECONDS} second deadline"
+    )
+
+
 def find_failure():
-    return java_exit_reason()
+    return java_exit_reason() or deadline_exceeded_reason()
 
 
 def exit_container():

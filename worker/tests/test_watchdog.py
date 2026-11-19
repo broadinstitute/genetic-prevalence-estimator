@@ -1,4 +1,5 @@
 # pylint: disable=attribute-defined-outside-init
+import time
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -88,3 +89,32 @@ class TestWatchdog:
         watchdog.finish_job()
 
         assert watchdog.state.current_job is None
+
+    def test_marks_current_list_as_error_and_exits_when_job_exceeds_deadline(
+        self, settings
+    ):
+        settings.JOB_DEADLINE_SECONDS = 10
+        variant_list = create_variant_list(VariantList.Status.PROCESSING)
+        watchdog.state.current_job = watchdog.Job(
+            uid=variant_list.uuid, started_at=time.monotonic() - 11
+        )
+
+        watchdog.exit_if_failed()
+
+        variant_list.refresh_from_db()
+        assert variant_list.status == VariantList.Status.ERROR
+        assert variant_list.error == "Variant list job exceeded the 10 second deadline"
+        assert self.exit_container.called
+
+    def test_does_nothing_while_job_is_within_deadline(self, settings):
+        settings.JOB_DEADLINE_SECONDS = 10
+        variant_list = create_variant_list(VariantList.Status.PROCESSING)
+        watchdog.state.current_job = watchdog.Job(
+            uid=variant_list.uuid, started_at=time.monotonic() - 9
+        )
+
+        watchdog.exit_if_failed()
+
+        variant_list.refresh_from_db()
+        assert variant_list.status == VariantList.Status.PROCESSING
+        assert not self.exit_container.called
