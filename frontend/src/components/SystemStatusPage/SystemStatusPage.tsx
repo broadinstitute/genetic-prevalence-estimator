@@ -76,8 +76,8 @@ const ERRORS_DEFAULT_SORT: VariantListSort = {
 };
 
 const QUEUED_OR_PROCESSING_DEFAULT_SORT: VariantListSort = {
-  key: "created_at",
-  direction: "ascending",
+  key: "updated_at",
+  direction: "descending",
 };
 
 const summarizeError = (error: string) => {
