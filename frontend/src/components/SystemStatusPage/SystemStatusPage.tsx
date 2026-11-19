@@ -95,10 +95,7 @@ const SystemStatusErrorRow = ({
       style={style}
     >
       <Td width="30%">
-        <Link
-          as={RRLink}
-          to={`/variant-lists/${systemStatusError.uuid}`}
-        >
+        <Link as={RRLink} to={`/variant-lists/${systemStatusError.uuid}`}>
           {systemStatusError.label}
         </Link>
       </Td>
@@ -162,8 +159,10 @@ const SystemStatusErrorModal = ({
 
 const SystemStatusView = (props: SystemStatusViewProps) => {
   const { systemStatus } = props;
-  const [selectedSystemStatusError, setSelectedSystemStatusError] =
-    useState<SystemStatusError | null>(null);
+  const [
+    selectedSystemStatusError,
+    setSelectedSystemStatusError,
+  ] = useState<SystemStatusError | null>(null);
 
   return (
     <>
@@ -198,10 +197,8 @@ const SystemStatusView = (props: SystemStatusViewProps) => {
           <Tbody>
             <FixedSizeList
               height={
-                Math.min(
-                  systemStatus.error_details.length,
-                  ERRORS_DISPLAYED
-                ) * ERROR_ROW_HEIGHT
+                Math.min(systemStatus.error_details.length, ERRORS_DISPLAYED) *
+                ERROR_ROW_HEIGHT
               }
               itemCount={systemStatus.error_details.length}
               itemSize={ERROR_ROW_HEIGHT}
