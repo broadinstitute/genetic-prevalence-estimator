@@ -1,3 +1,4 @@
+import { InfoOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -112,7 +113,12 @@ const UserActivityCounts = ({
   const countButtonProps = { users, selectedFilter, onSelectFilter };
 
   return (
-    <Table size="sm" maxWidth="700px" mb={4}>
+    <Table
+      size="sm"
+      maxWidth="700px"
+      mb={4}
+      sx={{ fontVariantNumeric: "tabular-nums" }}
+    >
       <Thead>
         <Tr>
           <Th scope="col">
@@ -133,18 +139,28 @@ const UserActivityCounts = ({
         <Tr>
           <Th scope="row">Signed in</Th>
           <Td isNumeric>
-            <CountButton filter="signed_in_last_7_days" {...countButtonProps} />
-            <Tooltip label={SIGNED_IN_LAST_7_DAYS_UNDERCOUNT_EXPLANATION}>
-              <Box
-                as="span"
-                ml={2}
-                tabIndex={0}
-                cursor="help"
-                aria-label={SIGNED_IN_LAST_7_DAYS_UNDERCOUNT_EXPLANATION}
-              >
-                ⓘ
-              </Box>
-            </Tooltip>
+            <Box as="span" position="relative" display="inline-block">
+              <CountButton
+                filter="signed_in_last_7_days"
+                {...countButtonProps}
+              />
+              <Tooltip label={SIGNED_IN_LAST_7_DAYS_UNDERCOUNT_EXPLANATION}>
+                <Box
+                  as="span"
+                  position="absolute"
+                  left="100%"
+                  top="50%"
+                  transform="translateY(-50%)"
+                  ml={1}
+                  display="inline-flex"
+                  tabIndex={0}
+                  cursor="help"
+                  aria-label={SIGNED_IN_LAST_7_DAYS_UNDERCOUNT_EXPLANATION}
+                >
+                  <InfoOutlineIcon aria-hidden />
+                </Box>
+              </Tooltip>
+            </Box>
           </Td>
           <Td isNumeric>
             <CountButton
