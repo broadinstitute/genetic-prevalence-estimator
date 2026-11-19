@@ -237,11 +237,29 @@ const SystemStatusErrorTable = ({
 const QUEUED_OR_PROCESSING_ROW_HEIGHT = 50;
 const QUEUED_OR_PROCESSING_ROWS_DISPLAYED = 10;
 
-const TRUNCATED_CELL_STYLE = {
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-} as const;
+const QUEUED_OR_PROCESSING_COLUMN_WIDTHS = {
+  label: 260,
+  status: 150,
+  createdBy: 260,
+  geneSymbol: 110,
+  gnomadVersion: 110,
+  createdAt: 210,
+  updatedAt: 210,
+  actions: 120,
+};
+
+const QUEUED_OR_PROCESSING_TABLE_WIDTH = Object.values(
+  QUEUED_OR_PROCESSING_COLUMN_WIDTHS
+).reduce((total, width) => total + width, 0);
+
+const queuedOrProcessingCellStyle = (width: number) => {
+  return {
+    flex: `0 0 ${width}px`,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  } as const;
+};
 
 const STATUS_GLYPHS: { [key in VariantListStatus]: string } = {
   Queued: "○",
@@ -285,22 +303,64 @@ const QueuedOrProcessingVariantListRow = ({
       }}
       style={style}
     >
-      <Td width="21%" sx={TRUNCATED_CELL_STYLE}>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.label
+        )}
+        title={variantList.label}
+      >
         <Link as={RRLink} to={`/variant-lists/${variantList.uuid}`}>
           {variantList.label}
         </Link>
       </Td>
-      <Td width="12%">
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status
+        )}
+      >
         {STATUS_GLYPHS[variantList.status]} {variantList.status}
       </Td>
-      <Td width="16%" sx={TRUNCATED_CELL_STYLE}>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdBy
+        )}
+        title={variantList.created_by ?? undefined}
+      >
         {variantList.created_by ?? "Unknown"}
       </Td>
-      <Td width="9%">{variantList.gene_symbol ?? ""}</Td>
-      <Td width="8%">{variantList.gnomad_version ?? ""}</Td>
-      <Td width="12%">{formatCompactDateTime(variantList.created_at)}</Td>
-      <Td width="12%">{formatCompactDateTime(variantList.updated_at)}</Td>
-      <Td width="10%">
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.geneSymbol
+        )}
+      >
+        {variantList.gene_symbol ?? ""}
+      </Td>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.gnomadVersion
+        )}
+      >
+        {variantList.gnomad_version ?? ""}
+      </Td>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt
+        )}
+      >
+        {formatCompactDateTime(variantList.created_at)}
+      </Td>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt
+        )}
+      >
+        {formatCompactDateTime(variantList.updated_at)}
+      </Td>
+      <Td
+        sx={queuedOrProcessingCellStyle(
+          QUEUED_OR_PROCESSING_COLUMN_WIDTHS.actions
+        )}
+      >
         <ButtonWithConfirmation
           size="sm"
           confirmationPrompt={`Re-queue "${variantList.label}"? If it is still being processed, it will be processed twice.`}
@@ -329,52 +389,96 @@ const QueuedOrProcessingVariantListTable = ({
   }
 
   return (
-    <Table variant="striped" mt={4}>
-      <Thead>
-        <Tr sx={{ display: "flex" }}>
-          <Th scope="col" width="21%">
-            List label
-          </Th>
-          <Th scope="col" width="12%">
-            Status
-          </Th>
-          <Th scope="col" width="16%">
-            Created by
-          </Th>
-          <Th scope="col" width="9%">
-            Gene
-          </Th>
-          <Th scope="col" width="8%">
-            gnomAD
-          </Th>
-          <Th scope="col" width="12%">
-            Created
-          </Th>
-          <Th scope="col" width="12%">
-            Last updated
-          </Th>
-          <Th scope="col" width="10%">
-            <VisuallyHidden>Actions</VisuallyHidden>
-          </Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        <FixedSizeList
-          height={
-            Math.min(variantLists.length, QUEUED_OR_PROCESSING_ROWS_DISPLAYED) *
-            QUEUED_OR_PROCESSING_ROW_HEIGHT
-          }
-          itemCount={variantLists.length}
-          itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
-          width="100%"
-          overscanCount={5}
-          itemData={{ variantLists, onRetry }}
-          style={{ overflowX: "hidden" }}
-        >
-          {QueuedOrProcessingVariantListRow}
-        </FixedSizeList>
-      </Tbody>
-    </Table>
+    <Box overflowX="auto" mt={4}>
+      <Table variant="unstyled" width={`${QUEUED_OR_PROCESSING_TABLE_WIDTH}px`}>
+        <Thead>
+          <Tr sx={{ display: "flex" }}>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.label
+              )}
+            >
+              List label
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.status
+              )}
+            >
+              Status
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdBy
+              )}
+            >
+              Created by
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.geneSymbol
+              )}
+            >
+              Gene
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.gnomadVersion
+              )}
+            >
+              gnomAD
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.createdAt
+              )}
+            >
+              Created
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.updatedAt
+              )}
+            >
+              Last updated
+            </Th>
+            <Th
+              scope="col"
+              sx={queuedOrProcessingCellStyle(
+                QUEUED_OR_PROCESSING_COLUMN_WIDTHS.actions
+              )}
+            >
+              <VisuallyHidden>Actions</VisuallyHidden>
+            </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <FixedSizeList
+            height={
+              Math.min(
+                variantLists.length,
+                QUEUED_OR_PROCESSING_ROWS_DISPLAYED
+              ) * QUEUED_OR_PROCESSING_ROW_HEIGHT
+            }
+            itemCount={variantLists.length}
+            itemSize={QUEUED_OR_PROCESSING_ROW_HEIGHT}
+            width={QUEUED_OR_PROCESSING_TABLE_WIDTH}
+            overscanCount={5}
+            itemData={{ variantLists, onRetry }}
+            style={{ overflowX: "hidden" }}
+          >
+            {QueuedOrProcessingVariantListRow}
+          </FixedSizeList>
+        </Tbody>
+      </Table>
+    </Box>
   );
 };
 
