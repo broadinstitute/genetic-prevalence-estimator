@@ -844,7 +844,7 @@ const DashboardMethods = () => {
         frequency of ClinVar pathogenic/likely pathogenic variants and gnomAD
         high confidence predicted loss-of-function variants only. All frequency
         annotations were collected across all the global and sub-continental
-        ancestries in gnomAD v4.1.0 with more than 2,000 reference alleles (
+        ancestries in gnomAD v4.1.1 with more than 2,000 reference alleles (
         <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/30311383/">
           PMID: 30311383
         </ExternalLink>
@@ -858,9 +858,8 @@ const DashboardMethods = () => {
       <Text mb={2}>
         Estimated heterozygous frequency is an aggregate of the
         heterozygous/carrier frequency of all variants included in the
-        designated variant list. There are four options for calculating carrier
-        frequency in GenIE: The aggregate carrier frequency is calculated by
-        2*cAF (see aggregate allele frequency for LP/P variants).
+        designated variant list. The aggregate carrier frequency is calculated
+        by 2*cAF (see aggregate allele frequency for LP/P variants).
       </Text>
       <Text mb={2}>
         GenIE offers multiple methods for calculating carrier frequency,
