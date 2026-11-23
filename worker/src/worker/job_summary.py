@@ -1,11 +1,15 @@
 import logging
+import os
 from pathlib import Path
+
+import pyspark
 
 
 logger = logging.getLogger(__name__)
 
 CGROUP_ROOT = Path("/sys/fs/cgroup")
 PROC_ROOT = Path("/proc")
+TMP_ROOT = Path("/tmp")
 
 
 def read_int_file(path):
@@ -126,6 +130,38 @@ def process_memory_bytes(pid, proc_root=PROC_ROOT):
     return None
 
 
+def directory_size_bytes(root=TMP_ROOT):
+    total = 0
+    for directory, _, filenames in os.walk(root):
+        for filename in filenames:
+            try:
+                total += os.lstat(os.path.join(directory, filename)).st_size
+            except OSError:
+                continue
+    return total
+
+
+def java_heap(jvm):
+    try:
+        runtime = jvm.java.lang.Runtime.getRuntime()
+        committed = runtime.totalMemory()
+        return {
+            "java_heap_used_bytes": committed - runtime.freeMemory(),
+            "java_heap_committed_bytes": committed,
+            "java_heap_max_bytes": runtime.maxMemory(),
+        }
+    except Exception:  # pylint: disable=broad-except
+        return {
+            "java_heap_used_bytes": None,
+            "java_heap_committed_bytes": None,
+            "java_heap_max_bytes": None,
+        }
+
+
+def current_jvm():
+    return pyspark.SparkContext._jvm  # pylint: disable=protected-access
+
+
 def log_job_summary(
     variant_list,
     outcome,
@@ -151,6 +187,8 @@ def log_job_summary(
             "java_memory_bytes": (
                 process_memory_bytes(java_process.pid) if java_process else None
             ),
+            **java_heap(current_jvm()),
+            "tmp_bytes": directory_size_bytes(),
         }
         logger.info(
             "Variant list job summary: %s %s in %.1f s, container memory in use "
