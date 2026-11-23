@@ -610,7 +610,11 @@ const VariantListPage = (props: VariantListPageProps) => {
         refreshVariantList={refreshVariantList}
       />
 
-      {variantList.notes && <Text mb={4}>{variantList.notes}</Text>}
+      {variantList.notes && (
+        <Text mb={4} whiteSpace="pre-wrap">
+          {variantList.notes}
+        </Text>
+      )}
 
       <VariantListMetadata variantList={variantList} />
 
