@@ -537,47 +537,50 @@ def _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version, intervals
     return ds
 
 
-def _annotate_variants_with_flags(ds):
-    # Pre-compute aggregation values in a single pass
-    agg_stats = ds.aggregate(
-        hl.struct(
-            max_an=hl.agg.max(ds.AN[0]),
-            max_path_af=hl.agg.filter(
-                ds.clinical_significance_category == "pathogenic_or_likely_pathogenic",
-                hl.agg.max(ds.AC[0] / ds.AN[0]),
-            ),
-        )
+def _annotate_variants_with_flags(variants):
+    max_an = hl.max(variants.map(lambda variant: variant.AN[0]))
+    # hl.max returns NaN if any AF is NaN (AN=0), which would turn off high_AF for the whole list.
+    max_path_af = hl.nanmax(
+        variants.filter(
+            lambda variant: variant.clinical_significance_category
+            == "pathogenic_or_likely_pathogenic"
+        ).map(lambda variant: variant.AC[0] / variant.AN[0])
     )
 
-    # Handle edge case where no pathogenic variants exist
-    max_af = hl.float(
-        agg_stats.max_path_af if agg_stats.max_path_af is not None else 1.1
-    )
-    max_an = agg_stats.max_an if agg_stats.max_an is not None else 0
-
-    # Calculate all flags in a single annotation step
-    return ds.annotate(
-        flags=hl.array(
-            [
-                hl.or_missing(hl.is_missing(ds.freq), "not_found"),
-                hl.or_missing(
-                    hl.len(
-                        hl.or_else(ds.filters.exome, hl.empty_set(hl.tstr)).union(
-                            hl.or_else(ds.filters.genome, hl.empty_set(hl.tstr))
-                        )
-                    )
-                    > 0,
-                    "filtered",
-                ),
-                hl.or_missing(
-                    (ds.AC[0] / ds.AN[0] > max_af)
-                    & hl.is_missing(ds.clinvar_variation_id),
-                    "high_AF",
-                ),
-                hl.or_missing(ds.AN[0] < (max_an / 2), "low_AN"),
-                hl.or_missing(ds.homozygote_count[0] > 0, "has_homozygotes"),
-            ]
-        ).filter(hl.is_defined)
+    return hl.rbind(
+        hl.or_else(max_path_af, 1.1),
+        hl.or_else(max_an, 0),
+        lambda max_af, max_an: variants.map(
+            lambda variant: variant.annotate(
+                flags=hl.array(
+                    [
+                        hl.or_missing(hl.is_missing(variant.freq), "not_found"),
+                        hl.or_missing(
+                            hl.len(
+                                hl.or_else(
+                                    variant.filters.exome, hl.empty_set(hl.tstr)
+                                ).union(
+                                    hl.or_else(
+                                        variant.filters.genome, hl.empty_set(hl.tstr)
+                                    )
+                                )
+                            )
+                            > 0,
+                            "filtered",
+                        ),
+                        hl.or_missing(
+                            (variant.AC[0] / variant.AN[0] > max_af)
+                            & hl.is_missing(variant.clinvar_variation_id),
+                            "high_AF",
+                        ),
+                        hl.or_missing(variant.AN[0] < (max_an / 2), "low_AN"),
+                        hl.or_missing(
+                            variant.homozygote_count[0] > 0, "has_homozygotes"
+                        ),
+                    ]
+                ).filter(hl.is_defined)
+            )
+        ),
     )
 
 
@@ -688,21 +691,21 @@ def _process_variant_list(variant_list):
         time.strftime("%Y-%m-%d %H:%M:%S"),
     )
 
-    ds = _annotate_variants_with_flags(ds)
-    ds = ds.filter(~ds.flags.contains("filtered"))
+    variants = _annotate_variants_with_flags(ds.collect(_localize=False))
+    variants = variants.filter(lambda variant: ~variant.flags.contains("filtered"))
 
     logger.info(
         "  Trimming HT to final shape at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
     )
-    table_fields = set(ds.row)
-    select_fields = [field for field in VARIANT_FIELDS if field in table_fields]
-    ds = ds.select(*select_fields)
+    variant_fields = set(variants.dtype.element_type.fields)
+    select_fields = [field for field in VARIANT_FIELDS if field in variant_fields]
+    variants = variants.map(lambda variant: variant.select(*select_fields))
 
     logger.info(
         "  Turning HT to json and loading into DB at: %s",
         time.strftime("%Y-%m-%d %H:%M:%S"),
     )
-    variants = [json.loads(variant) for variant in hl.json(ds.row_value).collect()]
+    variants = json.loads(hl.eval(hl.json(variants)))
     variant_list.variants = variants
     variant_list.save()
     logger.info(
