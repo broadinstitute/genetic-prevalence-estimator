@@ -1,6 +1,9 @@
 overrides:
   # 6.1.0 has known bug with transparent warning overlay, pin to 6.0.9 for now
   react-error-overlay: 6.0.9
+  # 1.1.0+ adds plugin-syntax-import-attributes, which needs @babel/core
+  # >= 7.22; react-scripts 4's Jest runs @babel/core 7.12.3
+  babel-preset-current-node-syntax: 1.0.1
 
 allowBuilds:
   core-js: true

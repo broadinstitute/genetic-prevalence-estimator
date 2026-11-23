@@ -6,6 +6,7 @@ settings:
 
 overrides:
   react-error-overlay: 6.0.9
+  babel-preset-current-node-syntax: 1.0.1
 
 importers:
   .:
@@ -495,15 +496,6 @@ packages:
       {
         integrity: sha512-fm4idjKla0YahUNgFNLCB0qySdsoPiZP3iQE3rky0mBUtMZ23yDJ9SJdg6dXTSDnulOVqiF3Hgr9nbXvXTQZYA==,
       }
-    peerDependencies:
-      "@babel/core": ^7.0.0-0
-
-  "@babel/plugin-syntax-class-static-block@7.14.5":
-    resolution:
-      {
-        integrity: sha512-b+YyPmr6ldyNnM6sqYeMWE+bgJcJpO6yS4QD7ymxgH34GBPNDM/THBh8iunyvKIZztiwLH4CJZ0RxTk9emgpjw==,
-      }
-    engines: { node: ">=6.9.0" }
     peerDependencies:
       "@babel/core": ^7.0.0-0
 
@@ -3598,13 +3590,13 @@ packages:
         integrity: sha512-eqj0hVcJUR57/Ug2zE1Yswsw4LhuqqHhD+8v120T1cl3kjg76QwtyBrdIk4WVwK+lAhBJVYCd/v+4nc4y+8JsA==,
       }
 
-  babel-preset-current-node-syntax@1.2.0:
+  babel-preset-current-node-syntax@1.0.1:
     resolution:
       {
-        integrity: sha512-E/VlAEzRrsLEb2+dv8yp3bo4scof3l9nR4lrld+Iy5NyVqgVYUJnDAmunkhPMisRI32Qc4iRiz425d8vM++2fg==,
+        integrity: sha512-M7LQ0bxarkxQoN+vz5aJPsLBn77n8QgTFmo8WK0/44auK2xlCXrYcUxHFxgU7qW5Yzw/CjmLRK2uJzaCd7LvqQ==,
       }
     peerDependencies:
-      "@babel/core": ^7.0.0 || ^8.0.0-0
+      "@babel/core": ^7.0.0
 
   babel-preset-jest@26.6.2:
     resolution:
@@ -12761,11 +12753,6 @@ snapshots:
       "@babel/core": 7.12.3
       "@babel/helper-plugin-utils": 7.29.7
 
-  "@babel/plugin-syntax-class-static-block@7.14.5(@babel/core@7.12.3)":
-    dependencies:
-      "@babel/core": 7.12.3
-      "@babel/helper-plugin-utils": 7.29.7
-
   "@babel/plugin-syntax-decorators@7.29.7(@babel/core@7.29.7)":
     dependencies:
       "@babel/core": 7.29.7
@@ -12859,11 +12846,6 @@ snapshots:
   "@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.29.7)":
     dependencies:
       "@babel/core": 7.29.7
-      "@babel/helper-plugin-utils": 7.29.7
-
-  "@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.12.3)":
-    dependencies:
-      "@babel/core": 7.12.3
       "@babel/helper-plugin-utils": 7.29.7
 
   "@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.29.7)":
@@ -15793,14 +15775,12 @@ snapshots:
 
   babel-plugin-transform-react-remove-prop-types@0.4.24: {}
 
-  babel-preset-current-node-syntax@1.2.0(@babel/core@7.12.3):
+  babel-preset-current-node-syntax@1.0.1(@babel/core@7.12.3):
     dependencies:
       "@babel/core": 7.12.3
       "@babel/plugin-syntax-async-generators": 7.8.4(@babel/core@7.12.3)
       "@babel/plugin-syntax-bigint": 7.8.3(@babel/core@7.12.3)
       "@babel/plugin-syntax-class-properties": 7.12.13(@babel/core@7.12.3)
-      "@babel/plugin-syntax-class-static-block": 7.14.5(@babel/core@7.12.3)
-      "@babel/plugin-syntax-import-attributes": 7.29.7(@babel/core@7.12.3)
       "@babel/plugin-syntax-import-meta": 7.10.4(@babel/core@7.12.3)
       "@babel/plugin-syntax-json-strings": 7.8.3(@babel/core@7.12.3)
       "@babel/plugin-syntax-logical-assignment-operators": 7.10.4(@babel/core@7.12.3)
@@ -15809,14 +15789,13 @@ snapshots:
       "@babel/plugin-syntax-object-rest-spread": 7.8.3(@babel/core@7.12.3)
       "@babel/plugin-syntax-optional-catch-binding": 7.8.3(@babel/core@7.12.3)
       "@babel/plugin-syntax-optional-chaining": 7.8.3(@babel/core@7.12.3)
-      "@babel/plugin-syntax-private-property-in-object": 7.14.5(@babel/core@7.12.3)
       "@babel/plugin-syntax-top-level-await": 7.14.5(@babel/core@7.12.3)
 
   babel-preset-jest@26.6.2(@babel/core@7.12.3):
     dependencies:
       "@babel/core": 7.12.3
       babel-plugin-jest-hoist: 26.6.2
-      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.12.3)
+      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.12.3)
 
   babel-preset-react-app@10.1.0:
     dependencies:
