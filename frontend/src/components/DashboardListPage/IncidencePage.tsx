@@ -148,7 +148,7 @@ const DominantIncidenceMethods = () => {
           de novo
         </Text>{" "}
         variations per gene is indicated by the mutation rate, mu, calculated in
-        gnomAD v4.1.1<sup>1</sup>The proportion of these expected de novo
+        gnomAD v4.1.1<sup>1</sup>. The proportion of these expected de novo
         variants that are disease causing is estimated using the scaling factor
         oe<sub>prior</sub>-oe<sub>mis</sub>. This is equivalent to the depletion
         of the observed / expected (oe) from the non-disease gene average, where
@@ -157,8 +157,8 @@ const DominantIncidenceMethods = () => {
         would be negative. As this is not biologically meaningful, a mutation
         rate of zero is assigned since we assume that means there are no
         disease-causing variants in the gene. The same holds for oe_lof_prior{" "}
-        {"<"} oe_lof.Given there are two copies of each chromosome, the ultimate
-        value is multiplied by 2.
+        {"<"} oe_lof. Given there are two copies of each chromosome, the
+        ultimate value is multiplied by 2.
       </Text>
 
       <Text mb={2}>
@@ -247,7 +247,7 @@ const IncidencePage = (props: IncidencePageProps) => {
                 Seplyarskiy et al.
               </ExternalLink>
               ). These genes are associated with cell proliferation, which may
-              impact the accuracy of these results
+              impact the accuracy of these results.
             </span>
           </Alert>
         </Box>
