@@ -674,14 +674,6 @@ def _process_variant_list(variant_list):
         ).filter(hl.is_defined)
     )
 
-    logger.info(
-        "  Handing off to annotate with flags helper at: %s",
-        time.strftime("%Y-%m-%d %H:%M:%S"),
-    )
-
-    ds = _annotate_variants_with_flags(ds)
-    ds = ds.filter(~ds.flags.contains("filtered"))
-
     if metadata.get("gene_id") and gnomad_version == "2.1.1":
         logger.info(
             "  Annotating with LoF Curation results at: %s",
@@ -690,6 +682,14 @@ def _process_variant_list(variant_list):
         ds = _annotate_variants_with_LoF_curation(
             ds, metadata, gnomad_version, intervals
         )
+
+    logger.info(
+        "  Handing off to annotate with flags helper at: %s",
+        time.strftime("%Y-%m-%d %H:%M:%S"),
+    )
+
+    ds = _annotate_variants_with_flags(ds)
+    ds = ds.filter(~ds.flags.contains("filtered"))
 
     logger.info(
         "  Trimming HT to final shape at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
