@@ -214,14 +214,14 @@ class VariantListProcessView(GenericAPIView):
 
         variant_list = self.get_object()
 
-        publisher.send_to_worker(
-            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
-        )
-
         variant_list.status = VariantList.Status.QUEUED
         if variant_list.metadata["gnomad_version"] == "4.0.0":
             variant_list.metadata["gnomad_version"] = "4.1.0"
         variant_list.save()
+
+        publisher.send_to_worker(
+            {"type": "process_variant_list", "args": {"uuid": str(variant_list.uuid)}}
+        )
 
         return Response({})
 

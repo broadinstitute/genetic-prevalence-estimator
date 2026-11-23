@@ -934,6 +934,21 @@ class TestProcessVariantList:
         variant_list.refresh_from_db()
         assert variant_list.status == VariantList.Status.QUEUED
 
+    def test_process_variant_list_is_queued_before_worker_is_sent_request(
+        self, send_to_worker
+    ):
+        variant_list = VariantList.objects.get(id=1)
+        status_when_sent = []
+        send_to_worker.side_effect = lambda _message: status_when_sent.append(
+            VariantList.objects.get(id=1).status
+        )
+
+        client = APIClient()
+        client.force_authenticate(User.objects.get(username="owner"))
+        client.post(f"/api/variant-lists/{variant_list.uuid}/process/")
+
+        assert status_when_sent == [VariantList.Status.QUEUED]
+
 
 @pytest.mark.django_db
 class TestVariantListVariantsView:
