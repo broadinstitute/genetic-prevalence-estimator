@@ -157,7 +157,7 @@ class DominantDashboardListsLoadView(CreateAPIView):
                         serializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
 
-            return Response({"message": "CSV file processed succesfully"})
+            return Response({"message": "CSV file processed successfully"})
 
         # pylint: disable=broad-exception-caught
         except Exception as e:
