@@ -17,6 +17,7 @@ from calculator.models import VariantList
 logger = logging.getLogger(__name__)
 
 CHECK_INTERVAL_SECONDS = 5
+DEADLINE_EXCEEDED_ERROR_PREFIX = "Variant list job exceeded the"
 
 
 @dataclass(frozen=True)
@@ -55,9 +56,7 @@ def deadline_exceeded_reason():
         return None
     if time.monotonic() - job.started_at <= settings.JOB_DEADLINE_SECONDS:
         return None
-    return (
-        f"Variant list job exceeded the {settings.JOB_DEADLINE_SECONDS} second deadline"
-    )
+    return f"{DEADLINE_EXCEEDED_ERROR_PREFIX} {settings.JOB_DEADLINE_SECONDS} second deadline"
 
 
 def find_failure():
