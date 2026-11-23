@@ -436,6 +436,18 @@ def get_recommended_variants(metadata, transcript):
     return ds
 
 
+def _variant_interval(variant_id_str, reference_genome):
+    contig, position, _ref, _alt = variant_id_str.split("-")
+    locus = hl.Locus(contig, int(position), reference_genome)
+    return hl.Interval(locus, locus, includes_start=True, includes_end=True)
+
+
+def _read_table_within_intervals(path, intervals):
+    # Without this, a join reads every partition between the list's first and last variant,
+    # which is most of the genome for a custom list spread across chromosomes.
+    return hl.filter_intervals(hl.read_table(path), intervals)
+
+
 def _custom_variant_ids(variant_list, gnomad_version):
     chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
     return [f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants]
@@ -455,9 +467,12 @@ def _import_existing_variants(variant_list, gnomad_version, reference_genome):
     return ds
 
 
-def _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata):
-    gnomad = hl.read_table(
-        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht"
+def _annotate_variants_with_gnomAD(
+    ds, variant_list, gnomad_version, metadata, intervals
+):
+    gnomad = _read_table_within_intervals(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_variants.ht",
+        intervals,
     )
 
     ds = ds.annotate(**gnomad[ds.locus, ds.alleles])
@@ -485,9 +500,10 @@ def _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata):
     return ds
 
 
-def _annotate_variants_with_ClinVar(ds, variant_list, reference_genome):
-    clinvar = hl.read_table(
-        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht"
+def _annotate_variants_with_ClinVar(ds, variant_list, reference_genome, intervals):
+    clinvar = _read_table_within_intervals(
+        f"{settings.CLINVAR_DATA_PATH}/ClinVar_{reference_genome}_variants.ht",
+        intervals,
     )
 
     variant_list.metadata["clinvar_version"] = hl.eval(clinvar.globals.release_date)
@@ -504,11 +520,12 @@ def _annotate_variants_with_ClinVar(ds, variant_list, reference_genome):
     return ds
 
 
-def _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version):
+def _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version, intervals):
     gene_id, gene_version = metadata["gene_id"].split(".")
 
-    lof_curation_results = hl.read_table(
-        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht"
+    lof_curation_results = _read_table_within_intervals(
+        f"{settings.GNOMAD_DATA_PATH}/gnomAD_v{gnomad_version}_lof_curation_results.ht",
+        intervals,
     )
 
     ds = ds.annotate(
@@ -617,9 +634,14 @@ def _process_variant_list(variant_list):
     reference_genome = metadata["reference_genome"]
 
     ds = None
+    intervals = []
 
     if variant_list.variants:
         ds = _import_existing_variants(variant_list, gnomad_version, reference_genome)
+        intervals.extend(
+            _variant_interval(variant_id_str, reference_genome)
+            for variant_id_str in _custom_variant_ids(variant_list, gnomad_version)
+        )
 
     # Add recommended variants
     if metadata.get("include_gnomad_plof") or metadata.get(
@@ -630,6 +652,7 @@ def _process_variant_list(variant_list):
             time.strftime("%Y-%m-%d %H:%M:%S"),
         )
         recommended_variants = get_recommended_variants(metadata, transcript)
+        intervals.append(_transcript_interval(transcript, reference_genome))
         if ds:
             ds = ds.join(recommended_variants, how="outer")
         else:
@@ -638,10 +661,12 @@ def _process_variant_list(variant_list):
     ds = ds.annotate(id=variant_id(ds.locus, ds.alleles))
 
     logger.info("  Annotating with gnomAD at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
-    ds = _annotate_variants_with_gnomAD(ds, variant_list, gnomad_version, metadata)
+    ds = _annotate_variants_with_gnomAD(
+        ds, variant_list, gnomad_version, metadata, intervals
+    )
 
     logger.info("  Annotating with ClinVar at: %s", time.strftime("%Y-%m-%d %H:%M:%S"))
-    ds = _annotate_variants_with_ClinVar(ds, variant_list, reference_genome)
+    ds = _annotate_variants_with_ClinVar(ds, variant_list, reference_genome, intervals)
 
     ds = ds.transmute(
         source=hl.array(
@@ -662,7 +687,9 @@ def _process_variant_list(variant_list):
             "  Annotating with LoF Curation results at: %s",
             time.strftime("%Y-%m-%d %H:%M:%S"),
         )
-        ds = _annotate_variants_with_LoF_curation(ds, metadata, gnomad_version)
+        ds = _annotate_variants_with_LoF_curation(
+            ds, metadata, gnomad_version, intervals
+        )
 
     logger.info(
         "  Trimming HT to final shape at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
