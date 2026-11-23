@@ -41,7 +41,7 @@ import {
 
 import DominantListCharts from "./DominantListCharts";
 
-const deletedominantDashboardList = (uuid: string): Promise<void> => {
+const deleteDominantDashboardList = (uuid: string): Promise<void> => {
   return del(`/dashboard-lists/${uuid}/`);
 };
 
@@ -190,12 +190,12 @@ type dominantDashboardList = any;
 
 type IncidencePageProps = {
   dominantDashboardListStore: Store<dominantDashboardList>;
-  refreshdominantDashboardList: () => void;
+  refreshDominantDashboardList: () => void;
 };
 
 const IncidencePage = (props: IncidencePageProps) => {
   const { user } = useStore(authStore);
-  const { dominantDashboardListStore, refreshdominantDashboardList } = props;
+  const { dominantDashboardListStore, refreshDominantDashboardList } = props;
   const dominantDashboardList = useStore(dominantDashboardListStore);
   const toast = useToast();
 
@@ -219,7 +219,7 @@ const IncidencePage = (props: IncidencePageProps) => {
 
       <VariantListStatus
         variantList={dominantDashboardList}
-        refreshVariantList={refreshdominantDashboardList}
+        refreshVariantList={refreshDominantDashboardList}
       />
 
       {dominantDashboardList.notes && (
@@ -296,7 +296,7 @@ const IncidencePage = (props: IncidencePageProps) => {
             confirmationPrompt="This cannot be undone."
             confirmButtonText="Delete"
             onClick={() => {
-              deletedominantDashboardList(dominantDashboardList.uuid).then(
+              deleteDominantDashboardList(dominantDashboardList.uuid).then(
                 () => {
                   history.push("/dashboard-incidence/");
                 },
@@ -357,7 +357,7 @@ const IncidencePageContainer = (props: { uuid: string }) => {
     let refreshInterval: number | undefined = undefined;
     let refreshCanceled = false;
 
-    const refreshdominantDashboardList = () => {
+    const refreshDominantDashboardList = () => {
       get(`/dashboard-incidence/${uuid}/`).then(
         (dominantDashboardList) => {
           if (refreshCanceled) {
@@ -392,7 +392,7 @@ const IncidencePageContainer = (props: { uuid: string }) => {
           dominantDashboardList.status === "Processing"
         ) {
           refreshInterval = window.setInterval(
-            refreshdominantDashboardList,
+            refreshDominantDashboardList,
             15000
           );
         }
@@ -476,7 +476,7 @@ const IncidencePageContainer = (props: { uuid: string }) => {
         </Box>
         <IncidencePage
           dominantDashboardListStore={dominantDashboardListStore}
-          refreshdominantDashboardList={() => setRefreshKey((k) => k + 1)}
+          refreshDominantDashboardList={() => setRefreshKey((k) => k + 1)}
         />
       </>
     );
