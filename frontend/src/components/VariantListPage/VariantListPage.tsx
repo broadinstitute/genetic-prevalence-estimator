@@ -217,7 +217,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
 
           const notIncludedVariants = new Set(annotation.not_included_variants);
 
-          // An update to the appliation moved to the model of calculating storing
+          // An update to the application moved to the model of calculating storing
           //   the calculated values in the database, to allow for viewing
           //   of these values in other views (i.e. the dashboard), since previously
           //   calculation always happened on the users machine.
@@ -239,11 +239,11 @@ const useVariantListAnnotation = (variantList: VariantList) => {
             : annotation.variant_calculations;
 
           if (calculationsHaveNeverBeenSavedToDatabase(annotation)) {
-            // Hacky -- on first creation of a variant list, useMemo recieves an update
+            // Hacky -- on first creation of a variant list, useMemo receives an update
             //   to the variantList dependency too late, and has to wait one more cycle
             //   to actually use the data to process the list, on the first cycle there
             //   will be no selected variants, so don't bother saving at that time to
-            //   avoid an unneccessary network request
+            //   avoid an unnecessary network request
             if (selectedVariants.size !== 0) {
               saveVariantCalculations(variantCalculations);
             }
@@ -305,7 +305,7 @@ const useVariantListAnnotation = (variantList: VariantList) => {
   const saveSelectedVariants = useMemo(
     () =>
       debounce(() => {
-        // This useMemo function recieves an update to the dependency of variantList
+        // This useMemo function receives an update to the dependency of variantList
         //   after any useEffect does, here we manually avoid running calculations on
         //   an unprocessed variant lists as calculations need frequency data
         if (variantList.status !== "Ready") {
