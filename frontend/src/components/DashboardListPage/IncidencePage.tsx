@@ -3,7 +3,6 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Link as BaseLink,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -40,6 +39,7 @@ import {
 } from "./AllDashboardListsSummaryPage";
 
 import DominantListCharts from "./DominantListCharts";
+import ExternalLink from "../ExternalLink";
 
 const deleteDominantDashboardList = (uuid: string): Promise<void> => {
   return del(`/dashboard-lists/${uuid}/`);
@@ -243,12 +243,9 @@ const IncidencePage = (props: IncidencePageProps) => {
             <AlertIcon />
             <span>
               This is a known clonal expansion spermatogonia (CES) gene (
-              <BaseLink
-                href="https://pubmed.ncbi.nlm.nih.gov/41062699/"
-                isExternal
-              >
+              <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/41062699/">
                 Seplyarskiy et al.
-              </BaseLink>
+              </ExternalLink>
               ). These genes are associated with cell proliferation, which may
               impact the accuracy of these results
             </span>
@@ -264,19 +261,13 @@ const IncidencePage = (props: IncidencePageProps) => {
             <span>
               This is a known clonal hematopoiesis of indeterminate potential
               (CHIP) gene (
-              <BaseLink
-                href="https://pubmed.ncbi.nlm.nih.gov/25426837/"
-                isExternal
-              >
+              <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/25426837/">
                 Jaiswal et al.
-              </BaseLink>
+              </ExternalLink>
               ,
-              <BaseLink
-                href="https://pubmed.ncbi.nlm.nih.gov/34663986/"
-                isExternal
-              >
+              <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/34663986/">
                 Niroula et al.
-              </BaseLink>
+              </ExternalLink>
               ). These genes are associated with clonal hematopoiesis, which may
               lead to these results overestimating the incidence of{" "}
               <Text as="span" fontStyle="italic">

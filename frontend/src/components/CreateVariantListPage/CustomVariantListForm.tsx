@@ -32,6 +32,7 @@ import { isStructuralVariantId } from "../identifiers";
 import VariantsInput, { InputVariant } from "../VariantsInput";
 import GeneInput from "./GeneInput";
 import TranscriptInput from "./TranscriptInput";
+import ExternalLink from "../ExternalLink";
 
 const submitVariantList = (
   request: VariantListRequest
@@ -181,12 +182,9 @@ const CustomVariantListForm = () => {
             </RadioGroup>
 
             <FormHelperText>
-              <Link
-                href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad"
-                isExternal
-              >
+              <ExternalLink href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad">
                 What's the difference between gnomAD v2 and v4?
-              </Link>
+              </ExternalLink>
             </FormHelperText>
           </FormControl>
 
@@ -225,12 +223,9 @@ const CustomVariantListForm = () => {
                     annotate gene names. Gene names are usually HGNC but there
                     are some exceptions. To find out more information about how
                     gencode selects gene names go to{" "}
-                    <Link
-                      href="https://www.gencodegenes.org/pages/faq.html"
-                      isExternal
-                    >
+                    <ExternalLink href="https://www.gencodegenes.org/pages/faq.html">
                       https://www.gencodegenes.org/pages/faq.html
-                    </Link>
+                    </ExternalLink>
                   </span>
                 }
                 referenceGenome={
@@ -256,7 +251,7 @@ const CustomVariantListForm = () => {
                     transcripts from the drop down. Additional support,
                     including visualizing various transcripts and pext scores,
                     can be found on the{" "}
-                    <Link
+                    <ExternalLink
                       href={`https://gnomad.broadinstitute.org/gene/${
                         geneId.split(".")[0]
                       }?dataset=${
@@ -264,10 +259,9 @@ const CustomVariantListForm = () => {
                           ? "gnomad_r2_1"
                           : "gnomad_r4"
                       }`}
-                      isExternal
                     >
                       gnomAD gene page
-                    </Link>
+                    </ExternalLink>
                     .
                   </span>
                 }

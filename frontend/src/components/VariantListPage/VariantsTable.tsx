@@ -3,7 +3,6 @@ import {
   Badge,
   Checkbox,
   Flex,
-  Link,
   Table,
   TableProps,
   Thead,
@@ -32,6 +31,7 @@ import { combineVariants } from "./VariantListVariants";
 import { getGnomadVariantUrl } from "../gnomadVariantUrl";
 import { FixedSizeList } from "react-window";
 import Highlighter from "react-highlight-words";
+import ExternalLink from "../ExternalLink";
 
 const variantAC = (variant: Variant, popIndex: number = 0) =>
   (variant.AC || [])[popIndex] || 0;
@@ -184,9 +184,9 @@ const BASE_COLUMNS: ColumnDef[] = [
       );
       return (
         <Cell maxWidth={190}>
-          <Link href={gnomadUrl} isExternal target="_blank">
+          <ExternalLink href={gnomadUrl} target="_blank">
             {highlightedVariantId}
-          </Link>
+          </ExternalLink>
         </Cell>
       );
     },
@@ -247,13 +247,12 @@ const BASE_COLUMNS: ColumnDef[] = [
               variant.gold_stars !== 1 ? "s" : ""
             }`}
           >
-            <Link
+            <ExternalLink
               href={`https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant.clinvar_variation_id}/`}
-              isExternal
               target="_blank"
             >
               {variant.clinical_significance?.join(", ")}
-            </Link>
+            </ExternalLink>
           </Tooltip>
         )
       );

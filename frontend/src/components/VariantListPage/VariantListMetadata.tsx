@@ -1,8 +1,7 @@
-import { Link } from "@chakra-ui/react";
-
 import { VariantList, VariantListType } from "../../types";
 
 import { DescriptionList, DescriptionListItem } from "../DescriptionList";
+import ExternalLink from "../ExternalLink";
 
 export const formatVariantListType = (variantList: VariantList) => {
   return variantList.type === VariantListType.RECOMMENDED
@@ -45,13 +44,12 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
       {variantList.supporting_documents &&
         variantList.supporting_documents.length > 0 && (
           <DescriptionListItem label="Supporting document">
-            <Link
+            <ExternalLink
               href={variantList.supporting_documents[0].url}
-              isExternal
               target="_blank"
             >
               {variantList.supporting_documents[0].title}
-            </Link>
+            </ExternalLink>
           </DescriptionListItem>
         )}
       <DescriptionListItem label="Type">
@@ -65,30 +63,28 @@ const VariantListMetadata = (props: { variantList: VariantList }) => {
       </DescriptionListItem>
       {variantList.metadata.gene_id && (
         <DescriptionListItem label="Gene">
-          <Link
+          <ExternalLink
             href={`https://gnomad.broadinstitute.org/gene/${
               variantList.metadata.gene_id.split(".")[0]
             }?dataset=${gnomadDataset}`}
-            isExternal
             target="_blank"
           >
             {variantList.metadata.gene_symbol
               ? `${variantList.metadata.gene_symbol} (${variantList.metadata.gene_id})`
               : variantList.metadata.gene_id}
-          </Link>
+          </ExternalLink>
         </DescriptionListItem>
       )}
       {variantList.metadata.transcript_id && (
         <DescriptionListItem label="Transcript">
-          <Link
+          <ExternalLink
             href={`https://gnomad.broadinstitute.org/transcript/${
               variantList.metadata.transcript_id.split(".")[0]
             }?dataset=${gnomadDataset}`}
-            isExternal
             target="_blank"
           >
             {variantList.metadata.transcript_id}
-          </Link>
+          </ExternalLink>
         </DescriptionListItem>
       )}
       {variantList.metadata.include_clinvar_clinical_significance && (
