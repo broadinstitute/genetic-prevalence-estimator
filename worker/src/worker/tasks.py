@@ -28,6 +28,7 @@ from worker.recycle_policy import should_recycle
 IS_SHUTTING_DOWN = False
 EXIT_SEQUENCE_STARTED = False
 JOBS_RUN_BY_CONTAINER = 0
+GNOMAD_API_TIMEOUT_SECONDS = 30
 
 logger = logging.getLogger(__name__)
 
@@ -284,6 +285,7 @@ def fetch_transcript(transcript_id, gnomad_version):
                 "https://gnomad.broadinstitute.org/api",
                 json={"query": query, "variables": variables},
                 headers={"content-type": "application/json"},
+                timeout=GNOMAD_API_TIMEOUT_SECONDS,
             )
 
             response = json.loads(response.text)
