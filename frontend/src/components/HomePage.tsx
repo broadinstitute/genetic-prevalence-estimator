@@ -51,7 +51,7 @@ const HomePage = () => {
           <Text>
             GenIE offers a public dashboard for quick lookups. Search any
             disease-associated gene to see preliminary genetic prevalence
-            estimates (autosomal recessive), publically shared curated genetic
+            estimates (autosomal recessive), publicly shared curated genetic
             prevalence estimates, and genetic incidence de novo variation rates
             (GIDNV). Results are downloadable as CSV.
           </Text>

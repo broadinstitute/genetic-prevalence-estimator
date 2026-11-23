@@ -60,7 +60,7 @@ const VariantListReviewStatus = ({
       })
       .catch((error) => {
         toast({
-          title: "Unable to edit variant list representivity",
+          title: "Unable to edit variant list representative status",
           description: renderErrorDescription(error),
           status: "error",
           duration: 10_000,

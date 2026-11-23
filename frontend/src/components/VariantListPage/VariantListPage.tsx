@@ -741,7 +741,7 @@ const VariantListPage = (props: VariantListPageProps) => {
                             <Box mb={2}>
                               When this user signs in, they will have
                               permissions to this list, and this warning will
-                              dissapear.
+                              disappear.
                             </Box>
                             <Box>
                               If this user has already signed in, and does not

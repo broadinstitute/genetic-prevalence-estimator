@@ -69,7 +69,7 @@ const bannerContent = (
     >
       user survey
     </BaseLink>{" "}
-    to provide feedback on GeniE.
+    to provide feedback on GenIE.
   </>
 );
 
