@@ -197,7 +197,7 @@ const faqs: FaqQuestion[] = [
               (HW):
               <Text ml={8} mt={8}>
                 <strong>
-                  P<sup>2</sup> + 2pq + q<sup>2</sup> = 1
+                  p<sup>2</sup> + 2pq + q<sup>2</sup> = 1
                 </strong>
               </Text>
               <UnorderedList listStyleType="none" ml={12} mt={4} mb={8}>
@@ -344,7 +344,7 @@ const faqs: FaqQuestion[] = [
       },
       {
         title:
-          "What are the flags in the variant table on the genetic prevalence page",
+          "What are the flags in the variant table on the genetic prevalence page?",
         content: (
           <Text>
             GenIE provides flags to bring attention to certain aspects of
@@ -438,7 +438,8 @@ const faqs: FaqQuestion[] = [
       },
 
       {
-        title: "What version of gnomAD is used in GenIE for genetic prevalence",
+        title:
+          "What version of gnomAD is used in GenIE for genetic prevalence?",
         content: (
           <>
             <Text>
@@ -786,7 +787,7 @@ const faqs: FaqQuestion[] = [
         ),
       },
       {
-        title: "What is the genetic incidence of de novo variation (GIDNV)",
+        title: "What is the genetic incidence of de novo variation (GIDNV)?",
         content: (
           <>
             <Text>
@@ -830,7 +831,7 @@ const faqs: FaqQuestion[] = [
         ),
       },
       {
-        title: "What method is used to calculate GIDNV",
+        title: "What method is used to calculate GIDNV?",
         content: (
           <>
             <Text mb={2}>
