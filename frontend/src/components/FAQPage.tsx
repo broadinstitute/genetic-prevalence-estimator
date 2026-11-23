@@ -1162,8 +1162,8 @@ const faqs: FaqQuestion[] = [
               Genes included on the dashboard have a moderate, strong or
               definitive association with a disease based on the Gene Curation
               Coalition (GenCC) database, and have an autosomal dominant,
-              autosomal recessive or semi dominant inheritance pattern. All
-              other genes, with available gnomAD data, are listed in the “all
+              autosomal recessive or semidominant inheritance pattern. All other
+              genes, with available gnomAD data, are listed in the “all
               autosomal genes” download on the dashboard page. Gene symbols
               reflect gene information found in{" "}
               <ExternalLink href="https://gnomad.broadinstitute.org/">

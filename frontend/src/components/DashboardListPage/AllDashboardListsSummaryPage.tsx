@@ -420,7 +420,7 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
       key: "inheritance_type",
       heading: "Mode of Inheritance",
       headingTooltip:
-        "AD = autosomal dominant, AR = autosomal recessive, SD = semi-dominant (see methods for more information on MOIs)",
+        "AD = autosomal dominant, AR = autosomal recessive, SD = semidominant (see methods for more information on MOIs)",
       width: 120,
       sortKey: (dashboardList: DashboardList) => {
         return dashboardList.inheritance_type;
@@ -802,7 +802,7 @@ const DashboardMethods = () => {
         <ExternalLink href="https://thegencc.org/">
           Gene Curation Coalition (GenCC) database
         </ExternalLink>
-        , and have an autosomal dominant, autosomal recessive or semi dominant
+        , and have an autosomal dominant, autosomal recessive or semidominant
         inheritance pattern. Flags next to the gene symbol indicate genes that
         are associated with multiple inheritance patterns (I), multiple diseases
         (D), or are known clonal expansion spermatogonia (C) or clonal
