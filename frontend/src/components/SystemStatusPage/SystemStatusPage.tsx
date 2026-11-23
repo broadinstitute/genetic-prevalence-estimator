@@ -434,7 +434,7 @@ const SystemStatusContainer = () => {
     return (
       <Alert status="error">
         <AlertIcon />
-        <AlertTitle>Unable to load variant lists</AlertTitle>
+        <AlertTitle>Unable to load system status</AlertTitle>
         <AlertDescription>{error.message}</AlertDescription>
       </Alert>
     );
