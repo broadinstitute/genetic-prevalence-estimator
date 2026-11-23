@@ -349,7 +349,7 @@ const UsersContainer = () => {
     return (
       <Alert status="error">
         <AlertIcon />
-        <AlertTitle>Unable to load variant lists</AlertTitle>
+        <AlertTitle>Unable to load users</AlertTitle>
         <AlertDescription>{error.message}</AlertDescription>
       </Alert>
     );
