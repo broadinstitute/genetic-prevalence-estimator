@@ -88,7 +88,7 @@ const DominantIncidenceMethods = () => {
           is the number of variants, for each variant class, identified in
           gnomAD for each gene. This is then divided by the expected (e) number
           of variants, which is calculated via a statistical model. For example,
-          and oe_mis of 0.3 would mean that 30% of the expected number of
+          an oe_mis of 0.3 would mean that 30% of the expected number of
           missense variants were observed in this gene.
         </ListItem>
         <ListItem>

@@ -348,7 +348,7 @@ const faqs: FaqQuestion[] = [
         content: (
           <Text>
             GenIE provides flags to bring attention to certain aspects of
-            variants in variant list, or genes on the dashboard. The possible
+            variants in a variant list, or genes on the dashboard. The possible
             flags are:
             <Text mt={4}>
               <strong>Variant</strong>
@@ -428,7 +428,7 @@ const faqs: FaqQuestion[] = [
               the variable contributions of de novo pathogenic variants across
               X-linked conditions, and 2) we see a depletion of female carriers
               for X-linked conditions in gnomAD, likely due to females with
-              milder symptoms of X-linked condition being less likely to
+              milder symptoms of X-linked conditions being less likely to
               participate in research studies included in gnomAD. More work is
               needed to improve the quality of genetic prevalence estimates for
               all inherited conditions.
@@ -584,7 +584,7 @@ const faqs: FaqQuestion[] = [
                 <strong>Reduced penetrance and variable expressivity:</strong>{" "}
                 Similarly, the full phenotypic spectrum is still being
                 discovered for many diseases. This final estimate does not
-                currently take into consideration whether everyone with a casual
+                currently take into consideration whether everyone with a causal
                 genotype would present with the phenotype/disease of interest.
               </ListItem>
             </UnorderedList>
@@ -624,7 +624,7 @@ const faqs: FaqQuestion[] = [
                   variants detectable by exome or genome sequencing?
                 </Text>{" "}
                 Variants in gnomAD have been identified via exome or genome
-                sequencing. Variants not detectable by one for these two
+                sequencing. Variants not detectable by one of these two
                 technologies will not be included in these estimates.
                 Additionally, if a significant portion of patients with a
                 clinical diagnosis are still missing a molecular diagnosis, that
@@ -641,7 +641,7 @@ const faqs: FaqQuestion[] = [
                 variants known for a disease, which limits the number of allele
                 frequencies included in the calculations. This can lead to lower
                 than expected frequency information. One of the benefits of this
-                tool is we will enable users to redo the calculations over time
+                tool is that it enables users to redo the calculations over time
                 including more variants as they are collected.
               </ListItem>
             </UnorderedList>
@@ -729,8 +729,8 @@ const faqs: FaqQuestion[] = [
               </ListItem>
               <ListItem mt={4}>
                 <em>Editor:</em> These users will be allowed to make changes to
-                the variant list and add private notes, but not will not be able
-                to add any users or make a list public
+                the variant list and add private notes, but will not be able to
+                add any users or make a list public
               </ListItem>
               <ListItem mt={4}>
                 <em>Owner:</em> These users will have all the capabilities of an
@@ -870,7 +870,7 @@ const faqs: FaqQuestion[] = [
                 (mis)). Observed (o) is the number of variants, for each variant
                 class, identified in gnomAD for each gene. This is then divided
                 by the expected (e) number of variants, which is calculated via
-                a statistical model. For example, and oe_mis of 0.3 would mean
+                a statistical model. For example, an oe_mis of 0.3 would mean
                 that 30% of the expected number of missense variants were
                 observed in this gene.
               </ListItem>
@@ -940,7 +940,7 @@ const faqs: FaqQuestion[] = [
               help prioritize variants that are more likely to have a
               deleterious functional impact.{" "}
               <ExternalLink href="https://gnomad.broadinstitute.org/help/constraint">
-                Learn more about constraints, including how it is calculated
+                Learn more about constraint, including how it is calculated
               </ExternalLink>
               .
             </Text>
@@ -1176,7 +1176,7 @@ const faqs: FaqQuestion[] = [
             </Text>
             <Text mb={2}>
               If your gene of interest is not on the dashboard or the all
-              autosomal genes file it is possible that is not the HGNC gene
+              autosomal genes file it is possible that it is not the HGNC gene
               name. While GenIE does not support searching by aliases, the
               gnomAD browser does. If you search your gene name in gnomAD and it
               goes to a gene page with a different name, that is the HGNC gene
@@ -1228,7 +1228,7 @@ const faqs: FaqQuestion[] = [
               All new variant lists default to being a private list, only
               visible to the creator and any GenIE users that are given access
               by an owner. Users can choose to make their lists sharable, which
-              allows all users view only access to the variant list, provided
+              allows all users view-only access to the variant list, provided
               they know the URL.
             </Text>
             <Text mb={2}>

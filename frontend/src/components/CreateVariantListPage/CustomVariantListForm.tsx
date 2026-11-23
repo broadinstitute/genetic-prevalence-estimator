@@ -144,7 +144,7 @@ const CustomVariantListForm = () => {
               <em>
                 Please use caution including a list of variants from multiple
                 genes, as this will assume digenic inheritance is possible. For
-                more information on how to us GenIE for multiple genes please
+                more information on how to use GenIE for multiple genes please
                 see our <Link href="/faq">FAQ</Link>.
               </em>
             </Text>

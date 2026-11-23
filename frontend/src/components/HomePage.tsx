@@ -52,7 +52,7 @@ const HomePage = () => {
             GenIE offers a public dashboard for quick lookups. Search any
             disease-associated gene to see preliminary genetic prevalence
             estimates (autosomal recessive), publicly shared curated genetic
-            prevalence estimates, and genetic incidence de novo variation rates
+            prevalence estimates, and genetic incidence of de novo variation
             (GIDNV). Results are downloadable as CSV.
           </Text>
         </Box>
@@ -102,9 +102,9 @@ const HomePage = () => {
         <GeneticSinkAnalogyPng />
 
         <Text fontStyle="italic">
-          To illustrate these differences between the traditional prevalence and
-          incidence and genetic prevalence and genetic incidence. To learn more
-          about these methods please see our{" "}
+          This figure illustrates the differences between traditional prevalence
+          and incidence, and genetic prevalence and genetic incidence. To learn
+          more about these methods please see our{" "}
           <Link href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence/">
             most recent blog post
           </Link>
