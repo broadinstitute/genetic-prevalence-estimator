@@ -103,9 +103,46 @@ def test_process_memory_bytes_is_none_for_missing_process(tmp_path):
     assert job_summary.process_memory_bytes(123, tmp_path) is None
 
 
+def fake_jvm(total, free, maximum):
+    runtime = SimpleNamespace(
+        totalMemory=lambda: total, freeMemory=lambda: free, maxMemory=lambda: maximum
+    )
+    return SimpleNamespace(
+        java=SimpleNamespace(
+            lang=SimpleNamespace(Runtime=SimpleNamespace(getRuntime=lambda: runtime))
+        )
+    )
+
+
+def test_java_heap_reads_runtime_memory():
+    assert job_summary.java_heap(fake_jvm(300, 100, 900)) == {
+        "java_heap_used_bytes": 200,
+        "java_heap_committed_bytes": 300,
+        "java_heap_max_bytes": 900,
+    }
+
+
+def test_java_heap_is_none_when_java_is_unavailable():
+    assert job_summary.java_heap(None) == {
+        "java_heap_used_bytes": None,
+        "java_heap_committed_bytes": None,
+        "java_heap_max_bytes": None,
+    }
+
+
+def test_directory_size_bytes_sums_file_sizes(tmp_path):
+    (tmp_path / "a").write_bytes(b"x" * 10)
+    (tmp_path / "nested").mkdir()
+    (tmp_path / "nested" / "b").write_bytes(b"x" * 5)
+
+    assert job_summary.directory_size_bytes(tmp_path) == 15
+
+
 @pytest.mark.django_db
 def test_log_job_summary_logs_list_details_and_memory(caplog, monkeypatch):
     monkeypatch.setattr(job_summary, "process_memory_bytes", lambda pid: 512)
+    monkeypatch.setattr(job_summary, "current_jvm", lambda: fake_jvm(300, 100, 900))
+    monkeypatch.setattr(job_summary, "directory_size_bytes", lambda: 64)
     variant_list = VariantList.objects.create(
         label="List",
         type=VariantList.Type.CUSTOM,
@@ -146,4 +183,8 @@ def test_log_job_summary_logs_list_details_and_memory(caplog, monkeypatch):
         "container_memory_peak_bytes": 2000,
         "container_memory_limit_bytes": 4000,
         "java_memory_bytes": 512,
+        "java_heap_used_bytes": 200,
+        "java_heap_committed_bytes": 300,
+        "java_heap_max_bytes": 900,
+        "tmp_bytes": 64,
     }
