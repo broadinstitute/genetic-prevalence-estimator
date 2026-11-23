@@ -20,6 +20,7 @@ import { Link as RRLink } from "react-router-dom";
 import Link from "./Link";
 
 import DocumentTitle from "./DocumentTitle";
+import ExternalLink from "./ExternalLink";
 
 const slugTitle = (title: string) => {
   return title
@@ -69,9 +70,9 @@ const faqs: FaqQuestion[] = [
           <>
             <Text mb={2}>
               The{" "}
-              <ChakraLink href="https://gnomad.broadinstitute.org/" isExternal>
+              <ExternalLink href="https://gnomad.broadinstitute.org/">
                 Genome Aggregation Database (gnomAD)
-              </ChakraLink>{" "}
+              </ExternalLink>{" "}
               is a database of aggregated exome and genome sequencing data
               contributed by a coalition of investigators. This database does
               not include individuals recruited for severe pediatric disease
@@ -81,21 +82,15 @@ const faqs: FaqQuestion[] = [
             </Text>
 
             <Text>
-              <ChakraLink
-                href="https://www.ncbi.nlm.nih.gov/clinvar/"
-                isExternal
-              >
+              <ExternalLink href="https://www.ncbi.nlm.nih.gov/clinvar/">
                 ClinVar
-              </ChakraLink>{" "}
+              </ExternalLink>{" "}
               is a database of genomic variation and its relationship to human
               health. The variants and clinical significance listed in the
               database come largely from{" "}
-              <ChakraLink
-                href="https://www.ncbi.nlm.nih.gov/clinvar/docs/submitter_list/"
-                isExternal
-              >
+              <ExternalLink href="https://www.ncbi.nlm.nih.gov/clinvar/docs/submitter_list/">
                 clinical genetic testing laboratories
-              </ChakraLink>
+              </ExternalLink>
               . Variant curation (the process used for determining clinical
               significance of a variant) guidelines have changed over time, so
               we do recommend reviewing the source data to determine if you feel
@@ -113,9 +108,9 @@ const faqs: FaqQuestion[] = [
               GenIE does not lift over coordinates in the gnomAD style IDs
               between different reference genomes. This can be accomplished
               using the{" "}
-              <ChakraLink href="https://genebe.net/tools/liftover" isExternal>
+              <ExternalLink href="https://genebe.net/tools/liftover">
                 GeneBe liftover tool
-              </ChakraLink>
+              </ExternalLink>
               .
             </Text>
           </>
@@ -155,12 +150,9 @@ const faqs: FaqQuestion[] = [
               section "Genetic Prevalence". To read more about how these
               estimates relate to prevalence, incidence and lifetime risk please
               read{" "}
-              <ChakraLink
-                href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence"
-                isExternal
-              >
+              <ExternalLink href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence">
                 our recent blog post.
-              </ChakraLink>
+              </ExternalLink>
             </Text>
           </>
         ),
@@ -173,12 +165,9 @@ const faqs: FaqQuestion[] = [
           <Text>
             No. Genetic prevalence correlates but does not equate to disease
             prevalence (
-            <ChakraLink
-              href="https://pubmed.ncbi.nlm.nih.gov/34078906/"
-              isExternal
-            >
+            <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/34078906/">
               PMID: 34078906
-            </ChakraLink>
+            </ExternalLink>
             ). Genetic prevalence refers to the proportion of a population that
             has a causal genotype for a specific genetic disorder, irrespective
             of whether these individuals will or will not manifest the disease.
@@ -202,12 +191,9 @@ const faqs: FaqQuestion[] = [
               contrast the various methods and find the one that works best for
               their gene/disease of interest. All of these methods are based
               primarily on the{" "}
-              <ChakraLink
-                href="https://en.wikipedia.org/wiki/Hardy-Weinberg_principle"
-                isExternal
-              >
+              <ExternalLink href="https://en.wikipedia.org/wiki/Hardy-Weinberg_principle">
                 Hardy-Weinberg principle
-              </ChakraLink>{" "}
+              </ExternalLink>{" "}
               (HW):
               <Text ml={8} mt={8}>
                 <strong>
@@ -287,12 +273,9 @@ const faqs: FaqQuestion[] = [
               across the variants, which can make a slight difference in the
               estimates for more common recessive diseases. The formula (below)
               used for this method is based on Schrodi et al. 2015 (
-              <ChakraLink
-                href="https://pubmed.ncbi.nlm.nih.gov/25893794/"
-                isExternal
-              >
+              <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/25893794/">
                 PMID: 25893794
-              </ChakraLink>
+              </ExternalLink>
               )
               <Text ml={8} mt={4}>
                 (1 - &prod;<sub>i=1</sub>
@@ -532,22 +515,16 @@ const faqs: FaqQuestion[] = [
               Clinical Genome Resource (ClinGen) Sequence Variant Interpretation
               Working Group has recommended only using allele frequencies when
               there are more than 2,000 reference alleles (
-              <ChakraLink
-                href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-                isExternal
-              >
+              <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/30311383/">
                 PMID: 30311383
-              </ChakraLink>
+              </ExternalLink>
               ). Due to this recommendation we only return results for genetic
               ancestry groups with more than 2,000 reference alleles. For more
               information on the genetic ancestry included in gnomAD and how
               those are determined, please see the{" "}
-              <ChakraLink
-                href="https://gnomad.broadinstitute.org/help/ancestry"
-                isExternal
-              >
+              <ExternalLink href="https://gnomad.broadinstitute.org/help/ancestry">
                 gnomAD FAQ
-              </ChakraLink>{" "}
+              </ExternalLink>{" "}
               on genetic ancestry.
             </Text>
           </>
@@ -636,12 +613,9 @@ const faqs: FaqQuestion[] = [
                 represented in gnomAD, the disease-causing variant(s) could
                 appear to be absent or rare in the population data. Learn more
                 about the genetic ancestry groups in gnomAD{" "}
-                <ChakraLink
-                  href="https://gnomad.broadinstitute.org/stats#diversity"
-                  isExternal
-                >
+                <ExternalLink href="https://gnomad.broadinstitute.org/stats#diversity">
                   here
-                </ChakraLink>
+                </ExternalLink>
                 .
               </ListItem>
               <ListItem>
@@ -713,12 +687,9 @@ const faqs: FaqQuestion[] = [
                 Sequence Variant Interpretation Working Group has recommended
                 only using allele frequencies when there are more than 2,000
                 reference alleles (
-                <ChakraLink
-                  href="https://pubmed.ncbi.nlm.nih.gov/30311383/"
-                  isExternal
-                >
+                <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/30311383/">
                   PMID: 30311383
-                </ChakraLink>
+                </ExternalLink>
                 ).
               </ListItem>
             </UnorderedList>
@@ -825,12 +796,9 @@ const faqs: FaqQuestion[] = [
               proportion of missense and loss-of-function (LoF) variants that
               are expected to be disease-causing. It is important to note that
               this estimate does not account for inherited variation.{" "}
-              <ChakraLink
-                href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence"
-                isExternal
-              >
+              <ExternalLink href="https://gnomad.broadinstitute.org/news/2026-06-genie-incidence">
                 Learn more about the methods for calculating GIDNV
-              </ChakraLink>
+              </ExternalLink>
               .
             </Text>
           </>
@@ -971,12 +939,9 @@ const faqs: FaqQuestion[] = [
               gene is constrained (e.g., intolerant to pathogenic variation) can
               help prioritize variants that are more likely to have a
               deleterious functional impact.{" "}
-              <ChakraLink
-                href="https://gnomad.broadinstitute.org/help/constraint"
-                isExternal
-              >
+              <ExternalLink href="https://gnomad.broadinstitute.org/help/constraint">
                 Learn more about constraints, including how it is calculated
-              </ChakraLink>
+              </ExternalLink>
               .
             </Text>
           </>
@@ -1200,13 +1165,13 @@ const faqs: FaqQuestion[] = [
               other genes, with available gnomAD data, are listed in the “all
               autosomal genes” download on the dashboard page. Gene symbols
               reflect gene information found in{" "}
-              <ChakraLink href="https://gnomad.broadinstitute.org/" isExternal>
+              <ExternalLink href="https://gnomad.broadinstitute.org/">
                 gnomAD
-              </ChakraLink>
+              </ExternalLink>
               , which are derived from the{" "}
-              <ChakraLink href="https://www.genenames.org/" isExternal>
+              <ExternalLink href="https://www.genenames.org/">
                 HUGO Gene Nomenclature Committee
-              </ChakraLink>{" "}
+              </ExternalLink>{" "}
               (HGNC).
             </Text>
             <Text mb={2}>
@@ -1287,7 +1252,7 @@ const FAQView = () => {
         Below are commonly asked questions.
         {/* To learn more about GenIE, including
         technical details and browser navigation, please see our{" "}
-        <ChakraLink href="TODO:" isExternal>blog post</ChakraLink>. */}
+        <ExternalLink href="TODO:">blog post</ExternalLink>. */}
       </Text>
 
       <Accordion allowMultiple>

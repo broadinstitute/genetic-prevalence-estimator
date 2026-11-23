@@ -4,12 +4,12 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Heading,
-  Link,
   Text,
 } from "@chakra-ui/react";
 import { Link as RRLink } from "react-router-dom";
 
 import DocumentTitle from "./DocumentTitle";
+import ExternalLink from "./ExternalLink";
 
 const AboutView = () => {
   return (
@@ -19,24 +19,21 @@ const AboutView = () => {
         databases and population data to estimate genetic prevalence and genetic
         incidence for genetic diseases. This tool uses data from the open source
         databases{" "}
-        <Link href="https://www.ncbi.nlm.nih.gov/clinvar/" isExternal>
+        <ExternalLink href="https://www.ncbi.nlm.nih.gov/clinvar/">
           ClinVar
-        </Link>{" "}
+        </ExternalLink>{" "}
         and{" "}
-        <Link href="https://gnomad.broadinstitute.org/" isExternal>
+        <ExternalLink href="https://gnomad.broadinstitute.org/">
           gnomAD
-        </Link>
+        </ExternalLink>
         .
       </Text>
 
       <Text>
         The source code necessary to reproduce the analyses is available on{" "}
-        <Link
-          href="https://github.com/broadinstitute/genetic-prevalence-estimator"
-          isExternal
-        >
+        <ExternalLink href="https://github.com/broadinstitute/genetic-prevalence-estimator">
           GitHub
-        </Link>
+        </ExternalLink>
         .
       </Text>
 
@@ -45,16 +42,11 @@ const AboutView = () => {
       </Heading>
       <Text>
         Financial support for this tool is provided by the{" "}
-        <Link href="https://the-tgg.org/" isExternal>
-          Broad Institute
-        </Link>{" "}
+        <ExternalLink href="https://the-tgg.org/">Broad Institute</ExternalLink>{" "}
         and the{" "}
-        <Link
-          href="https://chanzuckerberg.com/science/programs-resources/rare-as-one/"
-          isExternal
-        >
+        <ExternalLink href="https://chanzuckerberg.com/science/programs-resources/rare-as-one/">
           Chan Zuckerberg Initiative
-        </Link>
+        </ExternalLink>
         .
       </Text>
 
@@ -67,12 +59,9 @@ const AboutView = () => {
         embargoes on the publication of results derived from this tool. The data
         pulled from gnomAD and this tool are available free of restrictions
         under the{" "}
-        <Link
-          href="https://creativecommons.org/publicdomain/zero/1.0/"
-          isExternal
-        >
+        <ExternalLink href="https://creativecommons.org/publicdomain/zero/1.0/">
           Creative Commons Zero Public Domain Dedication
-        </Link>
+        </ExternalLink>
         . This means that you can use it for any purpose without legally having
         to give attribution. However, we request that you actively acknowledge
         and give attribution to the gnomAD project
@@ -88,12 +77,9 @@ const AboutView = () => {
 
       <Text mb={2}>
         For manuscripts we request that you cite our{" "}
-        <Link
-          href="https://www.medrxiv.org/content/10.64898/2026.03.30.26349539v1"
-          isExternal
-        >
+        <ExternalLink href="https://www.medrxiv.org/content/10.64898/2026.03.30.26349539v1">
           preprint
-        </Link>
+        </ExternalLink>
         :
         <Text mt={2} mb={2} as="div">
           Baxter SM, Singer-Berk M, Glaze C, et al. The power of partnership:
@@ -113,16 +99,13 @@ const AboutView = () => {
       </Heading>
       <Text>
         Please report any issues using the{" "}
-        <Link
-          href="https://github.com/broadinstitute/genetic-prevalence-estimator/issues"
-          isExternal
-        >
+        <ExternalLink href="https://github.com/broadinstitute/genetic-prevalence-estimator/issues">
           issue tracker
-        </Link>
+        </ExternalLink>
         . You can also reach us at{" "}
-        <Link href="mailto:prev-genie@broadinstitute.org" isExternal>
+        <ExternalLink href="mailto:prev-genie@broadinstitute.org">
           prev-genie@broadinstitute.org
-        </Link>
+        </ExternalLink>
         .
       </Text>
     </>

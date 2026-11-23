@@ -5,7 +5,6 @@ import {
   FormLabel,
   HStack,
   Input,
-  Link,
   Radio,
   RadioGroup,
   Textarea,
@@ -22,6 +21,7 @@ import { post } from "../../api";
 import { renderErrorDescription } from "../../errors";
 
 import { GnomadVersion } from "../../types";
+import ExternalLink from "../ExternalLink";
 
 type DashboardListRequest = any;
 type DashboardList = any;
@@ -111,12 +111,9 @@ const DashboardListForm = () => {
           </RadioGroup>
 
           <FormHelperText>
-            <Link
-              href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad"
-              isExternal
-            >
+            <ExternalLink href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad">
               What's the difference between gnomAD v2 and v4?
-            </Link>
+            </ExternalLink>
           </FormHelperText>
         </FormControl>
 

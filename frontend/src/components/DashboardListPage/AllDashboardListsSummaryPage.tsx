@@ -51,6 +51,7 @@ import { screenOnly } from "../media";
 import { renderFrequencyFraction } from "../VariantListPage/VariantListCalculations/calculationsDisplayFormats";
 
 import DashboardGeneResources from "./DashboardGeneResources";
+import ExternalLink from "../ExternalLink";
 
 type DashboardList = {
   gene_id: string;
@@ -646,19 +647,18 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
             {dashboardList.representative_variant_list &&
               dashboardList.representative_variant_list.supporting_documents
                 .length > 0 && (
-                <Link
+                <ExternalLink
                   href={
                     dashboardList.representative_variant_list
                       .supporting_documents[0].url
                   }
-                  isExternal
                   target="_blank"
                 >
                   {
                     dashboardList.representative_variant_list
                       .supporting_documents[0].title
                   }
-                </Link>
+                </ExternalLink>
               )}
           </Cell>
         );
@@ -676,15 +676,14 @@ const getBaseColumns = (userIsStaff: boolean): ColumnDef[] => {
 
         return (
           <Cell maxWidth={200}>
-            <Link
+            <ExternalLink
               href={`https://www.orpha.net/en/disease/gene/${dashboardList.gene_symbol.toUpperCase()}?name=${dashboardList.gene_symbol.toLocaleLowerCase()}&mode=gene`}
-              isExternal
               target="_blank"
             >
               {orphanetPrevalence in orphanetPrevalencesRemappings
                 ? orphanetPrevalencesRemappings[orphanetPrevalence]
                 : orphanetPrevalence}
-            </Link>
+            </ExternalLink>
           </Cell>
         );
       },
@@ -795,14 +794,14 @@ const DashboardMethods = () => {
       <Text mb={2}>
         Gene symbols reflect gene information found in gnomAD, which are derived
         from the{" "}
-        <Link href="https://www.genenames.org/" isExternal>
+        <ExternalLink href="https://www.genenames.org/">
           HUGO Gene Nomenclature Committee (HGNC)
-        </Link>
+        </ExternalLink>
         . Genes included on the dashboard have a moderate, strong or definitive
         association with a disease based on the{" "}
-        <Link href="https://thegencc.org/" isExternal>
+        <ExternalLink href="https://thegencc.org/">
           Gene Curation Coalition (GenCC) database
-        </Link>
+        </ExternalLink>
         , and have an autosomal dominant, autosomal recessive or semi dominant
         inheritance pattern. Flags next to the gene symbol indicate genes that
         are associated with multiple inheritance patterns (I), multiple diseases
@@ -846,9 +845,9 @@ const DashboardMethods = () => {
         high confidence predicted loss-of-function variants only. All frequency
         annotations were collected across all the global and sub-continental
         ancestries in gnomAD v4.1.0 with more than 2,000 reference alleles (
-        <Link href="https://pubmed.ncbi.nlm.nih.gov/30311383/" isExternal>
+        <ExternalLink href="https://pubmed.ncbi.nlm.nih.gov/30311383/">
           PMID: 30311383
-        </Link>
+        </ExternalLink>
         ). However, estimates have not been manually reviewed and may contain
         non-disease causing variants.
       </Text>

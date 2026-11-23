@@ -12,7 +12,6 @@ import {
   Flex,
   Heading,
   HStack,
-  Link as BaseLink,
   Menu,
   MenuButton,
   MenuItem,
@@ -59,16 +58,14 @@ import {
   useStore,
 } from "./state";
 import theme from "./theme";
+import ExternalLink from "./components/ExternalLink";
 
 const bannerContent = (
   <>
     We want to hear from you! Please take our{" "}
-    <BaseLink
-      href="https://docs.google.com/forms/d/e/1FAIpQLSf6dEDR028WmnCkro8bPXeVjrFhNuV8H0A2-MtkTNOKUZGZKA/viewform?usp=header"
-      isExternal
-    >
+    <ExternalLink href="https://docs.google.com/forms/d/e/1FAIpQLSf6dEDR028WmnCkro8bPXeVjrFhNuV8H0A2-MtkTNOKUZGZKA/viewform?usp=header">
       user survey
-    </BaseLink>{" "}
+    </ExternalLink>{" "}
     to provide feedback on GenIE.
   </>
 );

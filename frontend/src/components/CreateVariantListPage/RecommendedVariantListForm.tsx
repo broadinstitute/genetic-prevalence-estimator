@@ -5,7 +5,6 @@ import {
   FormLabel,
   HStack,
   Input,
-  Link,
   Radio,
   RadioGroup,
   Text,
@@ -29,6 +28,7 @@ import {
 import HelpTextHover from "../HelpTextHover";
 import GeneInput from "./GeneInput";
 import TranscriptInput from "./TranscriptInput";
+import ExternalLink from "../ExternalLink";
 
 const submitVariantList = (
   request: VariantListRequest
@@ -153,12 +153,9 @@ const RecommendedVariantListForm = () => {
           </RadioGroup>
 
           <FormHelperText>
-            <Link
-              href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad"
-              isExternal
-            >
+            <ExternalLink href="https://gnomad.broadinstitute.org/help/whats-the-difference-between-the-different-versions-of-gnomad">
               What's the difference between gnomAD v2 and v4?
-            </Link>
+            </ExternalLink>
           </FormHelperText>
         </FormControl>
 
@@ -172,12 +169,9 @@ const RecommendedVariantListForm = () => {
               gene names. Gene names are usually HGNC but there are some
               exceptions. To find out more information about how gencode selects
               gene names go to{" "}
-              <Link
-                href="https://www.gencodegenes.org/pages/faq.html"
-                isExternal
-              >
+              <ExternalLink href="https://www.gencodegenes.org/pages/faq.html">
                 https://www.gencodegenes.org/pages/faq.html
-              </Link>
+              </ExternalLink>
             </span>
           }
           isRequired
@@ -200,16 +194,15 @@ const RecommendedVariantListForm = () => {
               transcript of the gene. You can also select other transcripts from
               the drop down. Additional support, including visualizing various
               transcripts and pext scores, can be found on the{" "}
-              <Link
+              <ExternalLink
                 href={`https://gnomad.broadinstitute.org/gene/${
                   geneId ? geneId.split(".")[0] : "ENSG00000169174"
                 }?dataset=${
                   gnomadVersion.startsWith("2") ? "gnomad_r2_1" : "gnomad_r4"
                 }`}
-                isExternal
               >
                 gnomAD gene page
-              </Link>
+              </ExternalLink>
               .
             </span>
           }
