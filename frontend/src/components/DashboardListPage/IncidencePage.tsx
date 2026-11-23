@@ -236,7 +236,7 @@ const IncidencePage = (props: IncidencePageProps) => {
         </DescriptionListItem>
       </DescriptionList>
 
-      {CHIP_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
+      {CES_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
         -1 && (
         <Box mb={4}>
           <Alert status="error">
@@ -253,7 +253,7 @@ const IncidencePage = (props: IncidencePageProps) => {
         </Box>
       )}
 
-      {CES_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
+      {CHIP_GENE_SYMBOLS.indexOf(dominantDashboardList.metadata.gene_symbol) !==
         -1 && (
         <Box mb={4}>
           <Alert status="error">
