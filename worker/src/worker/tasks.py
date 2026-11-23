@@ -793,6 +793,14 @@ def process_variant_list(uid):
     )
 
     variant_list = VariantList.objects.get(uuid=uid)
+
+    # Pub/Sub redelivers after the watchdog kills an overrun; a rerun would overrun and block the queue.
+    if variant_list.status == VariantList.Status.ERROR and (
+        variant_list.error or ""
+    ).startswith(watchdog.DEADLINE_EXCEEDED_ERROR_PREFIX):
+        logger.info("Skipping variant list %s: it overran the deadline before", uid)
+        return
+
     variant_list.status = VariantList.Status.PROCESSING
     variant_list.save()
 
