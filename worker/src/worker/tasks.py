@@ -304,6 +304,19 @@ def fetch_transcript(transcript_id, gnomad_version):
     raise Exception("Failed to fetch transcript.")
 
 
+def _transcript_interval(transcript, reference_genome):
+    contig = transcript["chrom"]
+    if reference_genome == "GRCh38":
+        contig = f"chr{contig}"
+
+    return hl.Interval(
+        hl.Locus(contig, transcript["start"], reference_genome),
+        hl.Locus(contig, transcript["stop"], reference_genome),
+        includes_start=True,
+        includes_end=True,
+    )
+
+
 def get_recommended_variants(metadata, transcript):
     gnomad_version = metadata["gnomad_version"]
     reference_genome = metadata["reference_genome"]
@@ -317,21 +330,7 @@ def get_recommended_variants(metadata, transcript):
 
     assert ds.locus.dtype.reference_genome.name == reference_genome
 
-    contig = transcript["chrom"]
-    if reference_genome == "GRCh38":
-        contig = f"chr{contig}"
-
-    ds = hl.filter_intervals(
-        ds,
-        [
-            hl.interval(
-                hl.locus(contig, transcript["start"], reference_genome),
-                hl.locus(contig, transcript["stop"], reference_genome),
-                includes_start=True,
-                includes_end=True,
-            )
-        ],
-    )
+    ds = hl.filter_intervals(ds, [_transcript_interval(transcript, reference_genome)])
 
     if gnomad_version == "4.1.0":
         ds.transmute(
@@ -437,14 +436,16 @@ def get_recommended_variants(metadata, transcript):
     return ds
 
 
+def _custom_variant_ids(variant_list, gnomad_version):
+    chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
+    return [f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants]
+
+
 def _import_existing_variants(variant_list, gnomad_version, reference_genome):
     logger.info(
         "  Importing existing variants at: %s", time.strftime("%Y-%m-%d %H:%M:%S")
     )
-    chrom_prefix = "" if gnomad_version == "2.1.1" else "chr"
-    variant_ids = [
-        f"{chrom_prefix}{variant['id']}" for variant in variant_list.variants
-    ]
+    variant_ids = _custom_variant_ids(variant_list, gnomad_version)
     ds = hl.Table.parallelize(
         [{"id": variant_id} for variant_id in variant_ids], hl.tstruct(id=hl.tstr)
     )
