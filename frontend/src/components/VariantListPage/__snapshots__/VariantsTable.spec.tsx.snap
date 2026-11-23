@@ -311,7 +311,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-567-A-C?dataset=gnomad_r2_1"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               <span>
@@ -523,7 +523,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-456-A-C?dataset=gnomad_r2_1"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               <span>
@@ -735,7 +735,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-345-A-C?dataset=gnomad_r2_1"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               <span>
@@ -965,7 +965,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-234-A-C?dataset=gnomad_r2_1"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               <span>
@@ -1221,7 +1221,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-123-A-C?dataset=gnomad_r2_1"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               <span>
