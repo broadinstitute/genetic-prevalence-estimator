@@ -4,7 +4,7 @@ exports[`VariantNote is a pencil icon button icon if the user has edit permissio
 <DocumentFragment>
   <button
     aria-label="Edit note"
-    class="chakra-button css-1jyk1h1"
+    class="chakra-button css-198bfjk"
     type="button"
   >
     <svg
@@ -35,7 +35,7 @@ exports[`VariantNote is a plus icon button icon if the user has edit permissions
 <DocumentFragment>
   <button
     aria-label="Add note"
-    class="chakra-button css-1jyk1h1"
+    class="chakra-button css-198bfjk"
     type="button"
   >
     <svg
@@ -57,7 +57,7 @@ exports[`VariantNote is an eyes icon if the user does not have edit permissions 
 <DocumentFragment>
   <button
     aria-label="View note"
-    class="chakra-button css-1jyk1h1"
+    class="chakra-button css-198bfjk"
     type="button"
   >
     <svg

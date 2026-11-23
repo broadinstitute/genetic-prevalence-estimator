@@ -26,7 +26,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           style="position: relative;"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
             style="height: 100%;"
           >
             <input
@@ -44,7 +44,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
                 style="display: flex; align-items: center; justify-content: center; height: 100%; transform: none;"
               >
                 <svg
-                  class="css-f5ntj6"
+                  class="css-o8vbdw"
                   style="stroke: currentColor; stroke-width: 4; opacity: 1; transform: none;"
                   viewBox="0 0 24 24"
                 >
@@ -273,7 +273,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               aria-disabled="false"
@@ -311,7 +311,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-567-A-C?dataset=gnomad_r2_1"
-              rel="noopener noreferrer"
+              rel="noopener"
               target="_blank"
             >
               <span>
@@ -451,7 +451,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               class="chakra-checkbox__input"
@@ -485,7 +485,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               aria-disabled="false"
@@ -523,7 +523,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-456-A-C?dataset=gnomad_r2_1"
-              rel="noopener noreferrer"
+              rel="noopener"
               target="_blank"
             >
               <span>
@@ -663,7 +663,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               class="chakra-checkbox__input"
@@ -697,7 +697,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               aria-disabled="false"
@@ -735,7 +735,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-345-A-C?dataset=gnomad_r2_1"
-              rel="noopener noreferrer"
+              rel="noopener"
               target="_blank"
             >
               <span>
@@ -875,7 +875,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               class="chakra-checkbox__input"
@@ -909,7 +909,8 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
+            data-checked=""
           >
             <input
               aria-disabled="false"
@@ -928,7 +929,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
                 style="display: flex; align-items: center; justify-content: center; height: 100%; transform: none;"
               >
                 <svg
-                  class="css-f5ntj6"
+                  class="css-o8vbdw"
                   style="fill: none; stroke-width: 2; stroke: currentColor; stroke-dasharray: 16; opacity: 1; stroke-dashoffset: 0;"
                   viewBox="0 0 12 10"
                 >
@@ -964,7 +965,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-234-A-C?dataset=gnomad_r2_1"
-              rel="noopener noreferrer"
+              rel="noopener"
               target="_blank"
             >
               <span>
@@ -1104,7 +1105,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               class="chakra-checkbox__input"
@@ -1138,7 +1139,8 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
+            data-checked=""
           >
             <input
               aria-disabled="false"
@@ -1157,7 +1159,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
                 style="display: flex; align-items: center; justify-content: center; height: 100%; transform: none;"
               >
                 <svg
-                  class="css-f5ntj6"
+                  class="css-o8vbdw"
                   style="fill: none; stroke-width: 2; stroke: currentColor; stroke-dasharray: 16; opacity: 1; stroke-dashoffset: 0;"
                   viewBox="0 0 12 10"
                 >
@@ -1185,7 +1187,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
         >
           <button
             aria-label="View note"
-            class="chakra-button css-1jyk1h1"
+            class="chakra-button css-198bfjk"
             type="button"
           >
             <svg
@@ -1219,7 +1221,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
             <a
               class="chakra-link css-0"
               href="https://gnomad.broadinstitute.org/variant/12-123-A-C?dataset=gnomad_r2_1"
-              rel="noopener noreferrer"
+              rel="noopener"
               target="_blank"
             >
               <span>
@@ -1359,7 +1361,7 @@ exports[`Variant Table has no unexpected changes 1`] = `
           role="gridcell"
         >
           <label
-            class="chakra-checkbox css-1uiwwan"
+            class="chakra-checkbox css-1elxtiq"
           >
             <input
               class="chakra-checkbox__input"
