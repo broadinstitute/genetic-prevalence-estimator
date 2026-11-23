@@ -199,7 +199,7 @@ const faqs: FaqQuestion[] = [
             <Text>
               GenIE offers multiple methods for calculating carrier frequency
               and genetic prevalence, allowing users to easily compare and
-              constrast the various methods and find the one that works best for
+              contrast the various methods and find the one that works best for
               their gene/disease of interest. All of these methods are based
               primarily on the{" "}
               <ChakraLink
@@ -504,12 +504,12 @@ const faqs: FaqQuestion[] = [
               callable sites in the gnomAD exomes and genomes. This allows us to
               combine exome and genome allele numbers at all sites with gnomAD
               variation, improving the accuracy of the allele frequency
-              estimtes. In gnomAD v2.1.1 this method was not used, meaning that
+              estimates. In gnomAD v2.1.1 this method was not used, meaning that
               allele frequencies could look higher than they truly were. An
               example of this is if a variant was identified in one genome
               sample in v2, the allele frequency was reported as ~1/32,000
               (0.00003) despite there being sufficient coverage in the exomes to
-              show the variant was absent from the other ~220,000 alelles, and
+              show the variant was absent from the other ~220,000 alleles, and
               thus has a frequency closer to 1/250,000 (0.000004)
             </Text>
 
@@ -599,7 +599,7 @@ const faqs: FaqQuestion[] = [
                 represents the estimated proportion of a population that has a
                 causal genotype for a genetic disorder, however it does not
                 account for the possibility that specific allele combinations
-                may lead to early misscarriage or neonatal loss. Some
+                may lead to early miscarriage or neonatal loss. Some
                 combinations could lead to loss of life early on, before the
                 individual could be identified as having the clinical diagnosis.
               </ListItem>
@@ -960,7 +960,7 @@ const faqs: FaqQuestion[] = [
         ),
       },
       {
-        title: "What is gnomAD contraint data?",
+        title: "What is gnomAD constraint data?",
         content: (
           <>
             <Text mb={2}>
@@ -1286,7 +1286,7 @@ const FAQView = () => {
       <Text mb={8}>
         Below are commonly asked questions.
         {/* To learn more about GenIE, including
-        technical details and browser navigateion, please see our{" "}
+        technical details and browser navigation, please see our{" "}
         <ChakraLink href="TODO:" isExternal>blog post</ChakraLink>. */}
       </Text>
 

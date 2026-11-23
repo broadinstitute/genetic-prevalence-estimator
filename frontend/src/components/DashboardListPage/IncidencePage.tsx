@@ -268,7 +268,7 @@ const IncidencePage = (props: IncidencePageProps) => {
                 href="https://pubmed.ncbi.nlm.nih.gov/25426837/"
                 isExternal
               >
-                Jaiswa et al.
+                Jaiswal et al.
               </BaseLink>
               ,
               <BaseLink

@@ -182,7 +182,7 @@ const EditVariantListForm = (props: EditVariantListFormProps) => {
             }}
           />
           <FormErrorMessage>
-            A supporting documnent must have a non-empty title and a valid URL
+            A supporting document must have a non-empty title and a valid URL
           </FormErrorMessage>
         </FormControl>
 
