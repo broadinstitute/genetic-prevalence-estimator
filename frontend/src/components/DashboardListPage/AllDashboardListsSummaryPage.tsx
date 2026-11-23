@@ -1360,7 +1360,7 @@ const DashboardLists = (props: {
                     <Input
                       type="file"
                       onChange={handleFileChange}
-                      placeholder="Add a file populate lists"
+                      placeholder="Add a file to populate lists"
                       size="md"
                       mb={2}
                       sx={{
@@ -1406,7 +1406,7 @@ const DashboardLists = (props: {
                     <Input
                       type="file"
                       onChange={handleFileChange}
-                      placeholder="Add a file populate lists"
+                      placeholder="Add a file to populate lists"
                       size="md"
                       mb={2}
                       sx={{
