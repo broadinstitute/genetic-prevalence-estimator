@@ -59,6 +59,7 @@ describe("Variant Table", () => {
     const testSearchText = testVariantList.uuid;
     const result = render(
       <VariantsTable
+        userCanEdit={false}
         includePopulationFrequencies={[]}
         searchText={testSearchText}
         variantList={testVariantList}
@@ -69,10 +70,7 @@ describe("Variant Table", () => {
         variantNotes={{ "12-123-A-C": "note for test variant 12-123-A-C" }}
         onChangeSelectedVariants={() => {}}
         onChangeNotIncludedVariants={() => {}}
-        onChangeTaggedGroups={(
-          taggedGroups: TaggedGroups,
-          variantId: VariantId
-        ) => {}}
+        onChangeTaggedGroups={() => {}}
         onEditVariantNote={() => {}}
       />
     );
