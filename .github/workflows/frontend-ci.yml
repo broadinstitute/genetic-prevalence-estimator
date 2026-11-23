@@ -38,3 +38,7 @@ jobs:
         run: pnpm run build
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
+      - name: Run Jest tests
+        run: pnpm test
+        env:
+          CI: true
